@@ -1,0 +1,11 @@
+version: '2.0'
+services:
+    hiveservice:
+        image: hiveserver:dev
+        container_name: hiveservercontainer
+        ports:
+            - 10000:10000
+        volumes:
+            - ./hivevol:/tmp
+
+

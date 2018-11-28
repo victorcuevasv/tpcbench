@@ -1,0 +1,10 @@
+
+#Command used to generate the java project.
+
+mvn archetype:generate -DgroupId=org.bsc.dcc.vcv -DartifactId=client -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+#Command to execute the java program.
+
+mvn exec:java -Dexec.mainClass="org.bsc.dcc.vcv.HiveJdbcClient" -Dexec.args=""  
+
+

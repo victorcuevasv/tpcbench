@@ -1,0 +1,6 @@
+# Connect to hive (with the hive server running in a container).
+
+beeline -u jdbc:hive2://localhost:10000
+
+#If the address (localhost) and port (10000) are omitted, beeline will attempt to connect in embedded mode
+#and fail since the server is already connected.
