@@ -70,7 +70,7 @@ public class CreateDatabase {
 			//stmt.execute("drop table if exists " + tableName);
 			stmt.execute(extSqlCreate);
 			// Add the location statement.
-			stmt.execute("LOAD DATA INPATH '/tmp/1GB/" + tableName + ".dat" + "' INTO TABLE " + 
+			stmt.execute("LOAD DATA INPATH '/tmp/1GB/" + tableName + ".dat" + "' OVERWRITE INTO TABLE " + 
 					tableName + " \n");
 			countRowsQuery(stmt, tableName);
 			
