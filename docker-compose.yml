@@ -6,12 +6,13 @@ services:
         ports:
             - 10000:10000
         volumes:
-            - ./server/hivevol:/tmp
+            - ./hivevol:/tmp
     hiveclient:
         image: buildhiveclient:dev
         container_name: hiveclientcontainer
         volumes:
             - ./client/project:/project
+            - ./datavol:/data
         entrypoint:
             - bash
         tty: true

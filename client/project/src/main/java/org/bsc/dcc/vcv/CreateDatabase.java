@@ -50,7 +50,7 @@ public class CreateDatabase {
 			/*
 			stmt.execute("drop table if exists " + tableName);
 			String sqlCreate = readFileContents(tableSQLfile);
-			stmt.execute("create table " + tableName + " (key int, value string)");
+			stmt.execute(sqlCreate);
 			*/
 		} catch (SQLException e) {
 			e.printStackTrace();
