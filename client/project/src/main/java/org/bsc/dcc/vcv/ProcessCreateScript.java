@@ -27,7 +27,7 @@ public class ProcessCreateScript {
 	
 	public void generateCreateTableFile(String workDir, String tableName, String sqlStr) {
 		try {
-			FileWriter fileWriter = new FileWriter(workDir + "/tables" + "/" + tableName + ".sql");
+			FileWriter fileWriter = new FileWriter(workDir + "/tables/" + tableName + ".sql");
 		    PrintWriter printWriter = new PrintWriter(fileWriter);
 		    printWriter.println(sqlStr);
 		    printWriter.close();

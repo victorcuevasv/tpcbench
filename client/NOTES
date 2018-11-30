@@ -5,6 +5,6 @@ mvn archetype:generate -DgroupId=org.bsc.dcc.vcv -DartifactId=client -Darchetype
 
 #Command to execute the java program.
 
-mvn exec:java -Dexec.mainClass="org.bsc.dcc.vcv.CreateDatabase" -Dexec.args="project/data/tables" -f project/pom.xml
+mvn exec:java -Dexec.mainClass="org.bsc.dcc.vcv.CreateDatabase" -Dexec.args="../data/tables" -f project/pom.xml
 
 
