@@ -42,7 +42,7 @@ public class CreateDatabase {
 		// Process each .dat file found in the directory.
 		for (final File fileEntry : directory.listFiles()) {
 			if (!fileEntry.isDirectory()) {
-				prog.createTable(args[0], fileEntry);
+				prog.createTable(args[0], fileEntry, args[1]);
 			}
 		}
 	}
@@ -53,13 +53,14 @@ public class CreateDatabase {
 	// The SQL create table statement found in the file has to be manipulated for
 	// creating
 	// these tables.
-	private void createTable(String workDir, File tableSQLfile) {
+	private void createTable(String workDir, File tableSQLfile, String suffix) {
 		try {
 			String tableName = tableSQLfile.getName().substring(0, tableSQLfile.getName().indexOf('.'));
 			System.out.println("Processing: " + tableName);
 			String sqlCreate = readFileContents(tableSQLfile.getAbsolutePath());
-			String extSqlCreate = externalTableCreate(sqlCreate, tableName);
-			saveExternalTableCreate(workDir, tableName, extSqlCreate);
+			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, suffix);
+			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName);
+			saveCreateTableFile(workDir, "textfile", tableName, extSqlCreate);
 			// Skip the dbgen_version table since its time attribute is not
 			// compatible with Hive.
 			if (tableName.equals("dbgen_version")) {
@@ -67,22 +68,26 @@ public class CreateDatabase {
 				return;
 			}
 			Statement stmt = con.createStatement();
-			stmt.execute("drop table if exists " + tableName);
+			stmt.execute("drop table if exists " + tableName + suffix);
 			stmt.execute(extSqlCreate);
-			// Add the location statement.
-			//stmt.execute("LOAD DATA INPATH '/tmp/1GB/" + tableName + ".dat" + "' INTO TABLE " + 
-			//		tableName + " \n");
+			countRowsQuery(stmt, tableName + suffix);
+			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "");
+			String intSqlCreate = internalCreateTable(incIntSqlCreate, tableName);
+			saveCreateTableFile(workDir, "parquet", tableName, intSqlCreate);
+			stmt.execute("drop table if exists " + tableName);
+			stmt.execute(intSqlCreate);
+			stmt.execute("INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix);
 			countRowsQuery(stmt, tableName);
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
-	// Convert the original SQL create table statement into one that creates an
-	// external
-	// table in Hive.
-	private String externalTableCreate(String sqlCreate, String tableName) {
+	// Generate an incomplete SQL create statement to be completed for the texfile
+	// external and
+	// parquet internal tables.
+	private String incompleteCreateTable(String sqlCreate, String tableName, boolean external, String suffix) {
 		boolean hasPrimaryKey = sqlCreate.contains("primary key");
 		// Remove the 'not null' statements.
 		sqlCreate = sqlCreate.replace("not null", "        ");
@@ -91,7 +96,11 @@ public class CreateDatabase {
 		// Split the first line to insert the external keyword.
 		String[] firstLine = lines[0].split("\\s+");
 		// The new line should have external inserted.
-		String firstLineNew = firstLine[0] + " external " + firstLine[1] + " " + firstLine[2] + " \n";
+		String firstLineNew = "";
+		if (external)
+			firstLineNew = firstLine[0] + " external " + firstLine[1] + " " + firstLine[2] + suffix + " \n";
+		else
+			firstLineNew = firstLine[0] + " " + firstLine[1] + " " + firstLine[2] + suffix + " \n";
 		// Add all of the lines in the original SQL to the first line, except those
 		// which contain the primary key statement (if any) and the closing parenthesis.
 		// For the last column statement, remove the final comma.
@@ -107,19 +116,34 @@ public class CreateDatabase {
 		builder.append(new String(commaLineArray) + "\n");
 		// Close the parenthesis.
 		builder.append(") \n");
+		return builder.toString();
+	}
+
+	// Based on the supplied incomplete SQL create statement, generate a full create
+	// table statement for an external textfile table in Hive.
+	private String externalCreateTable(String incompleteSqlCreate, String tableName) {
+		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
 		builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' \n");
 		builder.append("STORED AS TEXTFILE \n");
 		builder.append("LOCATION '/tmp/1GB/" + tableName + "' \n");
-		//builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
 		return builder.toString();
 	}
 
-	public void saveExternalTableCreate(String workDir, String tableName, String extSqlCreate) {
+	// Based on the supplied incomplete SQL create statement, generate a full create
+	// table statement for an internal parquet table in Hive.
+	private String internalCreateTable(String incompleteSqlCreate, String tableName) {
+		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
+		// Add the stored as statement.
+		builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
+		return builder.toString();
+	}
+
+	public void saveCreateTableFile(String workDir, String suffix, String tableName, String sqlCreate) {
 		try {
-			FileWriter fileWriter = new FileWriter(workDir + "textfile/" + tableName + ".sql");
+			FileWriter fileWriter = new FileWriter(workDir + suffix + "/" + tableName + ".sql");
 			PrintWriter printWriter = new PrintWriter(fileWriter);
-			printWriter.println(extSqlCreate);
+			printWriter.println(sqlCreate);
 			printWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
