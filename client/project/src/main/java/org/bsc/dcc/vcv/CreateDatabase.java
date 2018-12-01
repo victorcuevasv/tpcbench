@@ -67,11 +67,11 @@ public class CreateDatabase {
 				return;
 			}
 			Statement stmt = con.createStatement();
-			//stmt.execute("drop table if exists " + tableName);
+			stmt.execute("drop table if exists " + tableName);
 			stmt.execute(extSqlCreate);
 			// Add the location statement.
-			stmt.execute("LOAD DATA INPATH '/tmp/1GB/" + tableName + ".dat" + "' OVERWRITE INTO TABLE " + 
-					tableName + " \n");
+			//stmt.execute("LOAD DATA INPATH '/tmp/1GB/" + tableName + ".dat" + "' INTO TABLE " + 
+			//		tableName + " \n");
 			countRowsQuery(stmt, tableName);
 			
 		} catch (SQLException e) {
@@ -109,29 +109,19 @@ public class CreateDatabase {
 		builder.append(") \n");
 		// Add the stored as statement.
 		builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' \n");
+		builder.append("STORED AS TEXTFILE \n");
+		builder.append("LOCATION '/tmp/1GB/" + tableName + "' \n");
+		//builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
 		return builder.toString();
 	}
 
 	public void saveExternalTableCreate(String workDir, String tableName, String extSqlCreate) {
 		try {
-			FileWriter fileWriter = new FileWriter(workDir + "text/" + tableName + ".sql");
+			FileWriter fileWriter = new FileWriter(workDir + "textfile/" + tableName + ".sql");
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			printWriter.println(extSqlCreate);
 			printWriter.close();
 		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void loadTable(String tableName) {
-		try {
-			// NOTE: filepath has to be local to the hive server
-			String filepath = "/tmp/a.txt";
-			String sql = "load data local inpath '" + filepath + "' into table " + tableName;
-			System.out.println("Running: " + sql);
-			Statement stmt = con.createStatement();
-			stmt.execute(sql);
-		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
