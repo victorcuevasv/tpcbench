@@ -5,13 +5,17 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.sql.DriverManager;
 import java.io.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ExecuteQueries {
 
 	private static String driverName = "org.apache.hive.jdbc.HiveDriver";
 	private Connection con;
+	private static final Logger logger = LogManager.getLogger(ExecuteQueries.class);
 
 	// Open the connection (the server address depends on whether the program is
 	// running locally or
@@ -47,13 +51,10 @@ public class ExecuteQueries {
 		ExecuteQueries prog = new ExecuteQueries();
 		File directory = new File(args[0] + "/" + args[1]);
 		// Process each .sql file found in the directory.
-		boolean first = true;
-		for (final File fileEntry : directory.listFiles()) {
+		File[] files = directory.listFiles();
+		Arrays.sort(files);
+		for (final File fileEntry : files) {
 			if (!fileEntry.isDirectory()) {
-				if( first ) {
-					first = false;
-					continue;
-				}
 				prog.executeQuery(args[0], fileEntry, args[2]);
 				break;
 			}
@@ -64,6 +65,7 @@ public class ExecuteQueries {
 	private void executeQuery(String workDir, File sqlFile, String resultsDir) {
 		try {
 			System.out.println("Processing: " + sqlFile.getName());
+			logger.info("Processing: " + sqlFile.getName());
 			String fileName = sqlFile.getName().substring(0, sqlFile.getName().indexOf('.'));
 			String sqlQuery = readFileContents(sqlFile.getAbsolutePath());
 			//Remove the last semicolon.
