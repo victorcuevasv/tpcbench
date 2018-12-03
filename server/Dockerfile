@@ -25,9 +25,15 @@ RUN hadoop fs -mkdir -p    /user/hive/warehouse  && \
     
 #Initialize Metastore (must run as subshells)
     
-RUN (hiveserver2) & (schematool -dbType derby -initSchema)
+#RUN (hiveserver2) & (schematool -dbType derby -initSchema)
+
+COPY start.sh /start.sh
+
+RUN chmod +x /start.sh
 
 CMD ["bash"]
 
-ENTRYPOINT [ "sh", "-c", "hiveserver2" ]
+#ENTRYPOINT [ "sh", "-c", "hiveserver2" ]
+
+ENTRYPOINT [ "bash", "-c", "/start.sh" ]
 

@@ -8,6 +8,7 @@ services:
         volumes:
             - ./hivevol:/tmp
             - ./warehousevol:/user/hive/warehouse
+            - ./metastorevol/metastore_db:/metastore_db
     hiveclient:
         image: buildhiveclient:dev
         container_name: hiveclientcontainer
