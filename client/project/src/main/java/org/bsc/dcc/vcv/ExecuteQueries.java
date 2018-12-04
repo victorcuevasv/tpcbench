@@ -56,6 +56,8 @@ public class ExecuteQueries {
 		prog.recorder.header();
 		for (final File fileEntry : files) {
 			if (!fileEntry.isDirectory()) {
+				if( ! fileEntry.getName().equals("query1.sql") )
+					continue;
 				prog.executeQuery(args[0], fileEntry, args[2]);
 			}
 		}
@@ -84,6 +86,7 @@ public class ExecuteQueries {
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
+			this.logger.error(e);
 		}
 		finally {
 			queryRecord.setEndTime(System.currentTimeMillis());
@@ -105,10 +108,14 @@ public class ExecuteQueries {
 				printWriter.println(rowBuilder.toString());
 			}
 			printWriter.close();
-		} catch (SQLException e) {
+		}
+		catch (SQLException e) {
 			e.printStackTrace();
-		} catch (IOException ioe) {
+			this.logger.error(e);
+		}
+		catch (IOException ioe) {
 			ioe.printStackTrace();
+			this.logger.error(ioe);
 		}
 	}
 
@@ -123,8 +130,10 @@ public class ExecuteQueries {
 				builder.append(line + "\n");
 			}
 			retVal = builder.toString();
-		} catch (IOException ioe) {
+		}
+		catch (IOException ioe) {
 			ioe.printStackTrace();
+			this.logger.error(ioe);
 		}
 		return retVal;
 	}

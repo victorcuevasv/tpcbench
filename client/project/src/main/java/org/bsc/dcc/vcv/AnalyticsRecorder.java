@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 public class AnalyticsRecorder {
 	
-	private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger("AnalyticsLog");
+	private static final Logger logger = LogManager.getLogger("AnalyticsLog");
 	
 	public AnalyticsRecorder() {
 		

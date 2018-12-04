@@ -6,11 +6,14 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.DriverManager;
 import java.io.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class CreateDatabase {
 
 	private static String driverName = "org.apache.hive.jdbc.HiveDriver";
 	private Connection con;
+	private static final Logger logger = LogManager.getLogger(CreateDatabase.class);
 
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
@@ -79,6 +82,7 @@ public class CreateDatabase {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+			this.logger.error(e);
 		}
 	}
 
@@ -143,8 +147,10 @@ public class CreateDatabase {
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			printWriter.println(sqlCreate);
 			printWriter.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+			this.logger.error(ioe);
 		}
 	}
 
@@ -156,8 +162,10 @@ public class CreateDatabase {
 			while (res.next()) {
 				System.out.println(res.getString(1));
 			}
-		} catch (SQLException e) {
+		}
+		catch (SQLException e) {
 			e.printStackTrace();
+			this.logger.error(e);
 		}
 	}
 
@@ -172,8 +180,10 @@ public class CreateDatabase {
 				builder.append(line + "\n");
 			}
 			retVal = builder.toString();
-		} catch (IOException ioe) {
+		}
+		catch (IOException ioe) {
 			ioe.printStackTrace();
+			this.logger.error(ioe);
 		}
 		return retVal;
 	}
