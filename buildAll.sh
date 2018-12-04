@@ -1,5 +1,13 @@
 #!/bin/bash
 
+red=$'\e[1;31m'
+grn=$'\e[1;32m'
+yel=$'\e[1;33m'
+blu=$'\e[1;34m'
+mag=$'\e[1;35m'
+cyn=$'\e[1;36m'
+end=$'\e[0m'
+
 #Create the hivevol directory if it does not exist.
 
 if [ ! -d hivevol ]; then
@@ -31,12 +39,21 @@ if [ ! -d datavol ]; then
    cp benchmark/tpcds.sql datavol
 fi
 
-#Build base Ubuntu with java image.
+#Build the Ubuntu with Java base image.
+printf "\n\n%s\n\n" "${mag}Creating Ubuntu with Java base image.${end}"
 bash ubuntujava/build.sh
 
-#Build the server.
+#Build the server image.
+printf "\n\n%s\n\n" "${mag}Building the server image.${end}"
 bash server/build.sh
 
-#Build the client project.
+#Build the client project builder image.
+printf "\n\n%s\n\n" "${mag}Building the client project builder image.${end}"
 bash client/build.sh
+
+#Compile the client project.
+printf "\n\n%s\n\n" "${blu}Compiling the client project.${end}"
+bash client/compile.sh
+
+
 
