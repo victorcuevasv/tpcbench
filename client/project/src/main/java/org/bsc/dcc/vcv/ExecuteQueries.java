@@ -23,16 +23,21 @@ public class ExecuteQueries {
 	public ExecuteQueries() {
 		try {
 			Class.forName(driverName);
-			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default", "hive", "");
+			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
+			// "hive", "");
 			con = DriverManager.getConnection("jdbc:hive2://hiveservercontainer:10000/default", "hive", "");
 			this.recorder = new AnalyticsRecorder();
-		} catch (ClassNotFoundException e) {
+		}
+		catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			this.logger.error(e);
 			System.exit(1);
-		} catch (SQLException e) {
+		}
+		catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			this.logger.error(e);
 			System.exit(1);
 		}
 	}
