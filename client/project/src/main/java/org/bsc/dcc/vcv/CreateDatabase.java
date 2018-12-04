@@ -13,8 +13,7 @@ public class CreateDatabase {
 	private Connection con;
 
 	// Open the connection (the server address depends on whether the program is
-	// running locally or
-	// under docker-compose).
+	// running locally or under docker-compose).
 	public CreateDatabase() {
 		try {
 			Class.forName(driverName);
@@ -51,8 +50,7 @@ public class CreateDatabase {
 	// Then a parquet table is created and data is inserted into it from the
 	// external table.
 	// The SQL create table statement found in the file has to be manipulated for
-	// creating
-	// these tables.
+	// creating these tables.
 	private void createTable(String workDir, File tableSQLfile, String suffix) {
 		try {
 			String tableName = tableSQLfile.getName().substring(0, tableSQLfile.getName().indexOf('.'));

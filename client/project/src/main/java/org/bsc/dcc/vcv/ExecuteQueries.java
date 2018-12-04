@@ -13,19 +13,19 @@ import org.apache.logging.log4j.Logger;
 
 public class ExecuteQueries {
 
-	private static String driverName = "org.apache.hive.jdbc.HiveDriver";
+	private static final String driverName = "org.apache.hive.jdbc.HiveDriver";
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger(ExecuteQueries.class);
+	private AnalyticsRecorder recorder;
 
 	// Open the connection (the server address depends on whether the program is
-	// running locally or
-	// under docker-compose).
+	// running locally or under docker-compose).
 	public ExecuteQueries() {
 		try {
 			Class.forName(driverName);
-			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
-			// "hive", "");
+			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default", "hive", "");
 			con = DriverManager.getConnection("jdbc:hive2://hiveservercontainer:10000/default", "hive", "");
+			this.recorder = new AnalyticsRecorder();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -41,11 +41,11 @@ public class ExecuteQueries {
 	 * @param args
 	 * @throws SQLException
 	 * 
-	 *             args[0] main work directory args[1] subdirectory of work
-	 *             directory that contains the queries args[2] subdirectory of work
-	 *             directory to store the results
+	 * args[0] main work directory
+	 * args[1] subdirectory of work directory that contains the queries
+	 * args[2] subdirectory of work directory to store the results
 	 * 
-	 *             all of them without slash
+	 * all of them without slash
 	 */
 	public static void main(String[] args) throws SQLException {
 		ExecuteQueries prog = new ExecuteQueries();
@@ -53,30 +53,41 @@ public class ExecuteQueries {
 		// Process each .sql file found in the directory.
 		File[] files = directory.listFiles();
 		Arrays.sort(files);
+		prog.recorder.header();
 		for (final File fileEntry : files) {
 			if (!fileEntry.isDirectory()) {
 				prog.executeQuery(args[0], fileEntry, args[2]);
-				break;
 			}
 		}
 	}
 
 	// Execute a query from the provided file.
 	private void executeQuery(String workDir, File sqlFile, String resultsDir) {
+		QueryRecord queryRecord = null;
 		try {
-			logger.info("Processing: " + sqlFile.getName());
+			this.logger.info("Processing: " + sqlFile.getName());
 			String fileName = sqlFile.getName().substring(0, sqlFile.getName().indexOf('.'));
+			String nQueryStr = fileName.replaceAll("[^\\d.]", "");
+			int nQuery = Integer.parseInt(nQueryStr);
+			queryRecord = new QueryRecord(nQuery);
 			String sqlQuery = readFileContents(sqlFile.getAbsolutePath());
 			// Remove the last semicolon.
 			sqlQuery = sqlQuery.trim();
 			sqlQuery = sqlQuery.substring(0, sqlQuery.length() - 1);
 			// Execute the query.
+			queryRecord.setStartTime(System.currentTimeMillis());
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(sqlQuery);
 			// Save the results.
 			this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs);
-		} catch (SQLException e) {
+			queryRecord.setSuccessful(true);
+		}
+		catch (SQLException e) {
 			e.printStackTrace();
+		}
+		finally {
+			queryRecord.setEndTime(System.currentTimeMillis());
+			this.recorder.record(queryRecord);
 		}
 	}
 
