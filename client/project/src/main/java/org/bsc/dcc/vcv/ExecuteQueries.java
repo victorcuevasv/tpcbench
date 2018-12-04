@@ -41,11 +41,11 @@ public class ExecuteQueries {
 	 * @param args
 	 * @throws SQLException
 	 * 
-	 * args[0] main work directory
-	 * args[1] subdirectory of work directory that contains the queries
-	 * args[2] subdirectory of work directory to store the results
+	 *             args[0] main work directory args[1] subdirectory of work
+	 *             directory that contains the queries args[2] subdirectory of work
+	 *             directory to store the results
 	 * 
-	 * all of them without slash
+	 *             all of them without slash
 	 */
 	public static void main(String[] args) throws SQLException {
 		ExecuteQueries prog = new ExecuteQueries();
@@ -64,31 +64,39 @@ public class ExecuteQueries {
 	// Execute a query from the provided file.
 	private void executeQuery(String workDir, File sqlFile, String resultsDir) {
 		try {
-			System.out.println("Processing: " + sqlFile.getName());
 			logger.info("Processing: " + sqlFile.getName());
 			String fileName = sqlFile.getName().substring(0, sqlFile.getName().indexOf('.'));
 			String sqlQuery = readFileContents(sqlFile.getAbsolutePath());
-			//Remove the last semicolon.
+			// Remove the last semicolon.
 			sqlQuery = sqlQuery.trim();
 			sqlQuery = sqlQuery.substring(0, sqlQuery.length() - 1);
-			FileWriter fileWriter = new FileWriter(workDir + "/" + resultsDir + "/" + fileName + ".txt");
-			PrintWriter printWriter = new PrintWriter(fileWriter);
+			// Execute the query.
 			Statement stmt = con.createStatement();
-			ResultSet res = stmt.executeQuery(sqlQuery);
-			ResultSetMetaData metadata = res.getMetaData();
-		    int nCols = metadata.getColumnCount();
-			while (res.next()) {
+			ResultSet rs = stmt.executeQuery(sqlQuery);
+			// Save the results.
+			this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void saveResults(String resFileName, ResultSet rs) {
+		try {
+			FileWriter fileWriter = new FileWriter(resFileName);
+			PrintWriter printWriter = new PrintWriter(fileWriter);
+			ResultSetMetaData metadata = rs.getMetaData();
+			int nCols = metadata.getColumnCount();
+			while (rs.next()) {
 				StringBuilder rowBuilder = new StringBuilder();
-		        for (int i = 1; i <= nCols; i++) {
-		            rowBuilder.append(res.getString(i) + ", ");          
-		        }
+				for (int i = 1; i <= nCols; i++) {
+					rowBuilder.append(rs.getString(i) + ", ");
+				}
 				printWriter.println(rowBuilder.toString());
 			}
 			printWriter.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
-		catch (IOException ioe) {
+		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
 	}
@@ -111,5 +119,3 @@ public class ExecuteQueries {
 	}
 
 }
-
-
