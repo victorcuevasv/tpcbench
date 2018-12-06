@@ -48,7 +48,7 @@ public class CreateDatabase {
 		// Process each .dat file found in the directory.
 		for (final File fileEntry : directory.listFiles()) {
 			if (!fileEntry.isDirectory()) {
-				prog.createTable(args[0], fileEntry, args[1]);
+				prog.createTable(args[0], fileEntry, args[1], args[2]);
 			}
 		}
 	}
@@ -58,13 +58,13 @@ public class CreateDatabase {
 	// external table.
 	// The SQL create table statement found in the file has to be manipulated for
 	// creating these tables.
-	private void createTable(String workDir, File tableSQLfile, String suffix) {
+	private void createTable(String workDir, File tableSQLfile, String suffix, String genDataDir) {
 		try {
 			String tableName = tableSQLfile.getName().substring(0, tableSQLfile.getName().indexOf('.'));
 			System.out.println("Processing: " + tableName);
 			String sqlCreate = readFileContents(tableSQLfile.getAbsolutePath());
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, suffix);
-			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName);
+			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName, genDataDir);
 			saveCreateTableFile(workDir, "textfile", tableName, extSqlCreate);
 			// Skip the dbgen_version table since its time attribute is not
 			// compatible with Hive.
@@ -127,12 +127,12 @@ public class CreateDatabase {
 
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an external textfile table in Hive.
-	private String externalCreateTable(String incompleteSqlCreate, String tableName) {
+	private String externalCreateTable(String incompleteSqlCreate, String tableName, String genDataDir) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
 		builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' \n");
 		builder.append("STORED AS TEXTFILE \n");
-		builder.append("LOCATION '/tmp/1GB/" + tableName + "' \n");
+		builder.append("LOCATION '" + genDataDir + "/" + tableName + "' \n");
 		return builder.toString();
 	}
 

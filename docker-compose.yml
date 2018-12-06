@@ -6,9 +6,9 @@ services:
         ports:
             - 10000:10000
         volumes:
-            - ./hivevol:/tmp
+            - ./hivevol:/temporal
             - ./warehousevol:/user/hive/warehouse
-            - ./metastorevol/metastore_db:/metastore_db
+            - ./metastorevol:/metastore
     hiveclient:
         image: buildhiveclient:dev
         container_name: hiveclientcontainer
