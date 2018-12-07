@@ -2,9 +2,13 @@ FROM ubuntujava:dev
 
 USER root
 
-#Install ssh
+#Install ssh and python.
 
-RUN apt-get update && apt-get install -y ssh
+RUN apt-get update && apt-get install -y \
+    ssh \
+    python2.7 \
+    python-pip \
+    python-dev
 
 #Generate a key and add it to the authorized set.
 
