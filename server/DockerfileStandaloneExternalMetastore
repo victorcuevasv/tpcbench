@@ -24,18 +24,23 @@ ENV PATH="${PATH}:/opt/apache-hive-2.3.4-bin/bin"
 
 #Copy the Hive configuration file which will override selected defaults.
 
-COPY hive-site.xml /opt/apache-hive-2.3.4-bin/conf/
+COPY hive-siteExternalMetastore.xml /opt/apache-hive-2.3.4-bin/conf/hive-site.xml
+
+#Download the postgres driver.
+
+RUN wget --no-check-certificate -q -P /opt/apache-hive-2.3.4-bin/lib \
+    https://jdbc.postgresql.org/download/postgresql-42.2.5.jar
 
 #Initialize Hadoop directories for Hive.
 
 RUN hadoop fs -mkdir -p    /user/hive/warehouse  && \
     hadoop fs -chmod g+w   /user/hive/warehouse
 
-COPY startStandalone.sh /startStandalone.sh
+COPY startStandaloneExternalMetastore.sh /startStandaloneExternalMetastore.sh
 
-RUN chmod +x /startStandalone.sh
+RUN chmod +x /startStandaloneExternalMetastore.sh
 
 CMD ["bash"]
 
-ENTRYPOINT [ "bash", "-c", "/startStandalone.sh" ]
+ENTRYPOINT [ "bash", "-c", "/startStandaloneExternalMetastore.sh" ]
 

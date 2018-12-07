@@ -1,0 +1,32 @@
+version: '2.0'
+services:
+    hiveservice:
+        image: hiveserver:dev
+        container_name: hiveservercontainer
+        ports:
+            - 10000:10000
+        volumes:
+            - ./hivevol:/temporal
+            - ./warehousevol:/user/hive/warehouse
+            - ./metastorevol:/metastore
+    postgresservice:
+        image: postgres:10.6
+        container_name: postgrescontainer
+        volumes:
+            - ./postgresdbvol:/var/lib/postgresql/data
+        environment:
+            POSTGRES_DB: metastore
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: postgres
+    hiveclient:
+        image: buildhiveclient:dev
+        container_name: hiveclientcontainer
+        volumes:
+            - ./client/project:/project
+            - ./datavol:/data
+        entrypoint:
+            - bash
+        tty: true
+        stdin_open: true
+
+
