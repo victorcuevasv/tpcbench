@@ -47,7 +47,7 @@ bash ubuntujava/build.sh
 
 #Build the server image.
 printf "\n\n%s\n\n" "${mag}Building the server image.${end}"
-bash server/build.sh
+bash server/buildPseudoExternalMetastore.sh
 
 #Build the client project builder image.
 printf "\n\n%s\n\n" "${mag}Building the client project builder image.${end}"
