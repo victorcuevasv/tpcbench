@@ -28,6 +28,12 @@ if [ ! -d warehousevol ]; then
    mkdir warehousevol
 fi
 
+#Create the postgresdbvol directory if it does not exist.
+
+if [ ! -d postgresdbvol ]; then
+   mkdir postgresdbvol
+fi
+
 #Create the datavol directory and its subdirectories if it does not exist.
 
 if [ ! -d datavol ]; then
