@@ -1,5 +1,26 @@
 #!/bin/bash
 
+#Start the ssh server.
+/etc/init.d/ssh start
+
+#Format the hdfs namenode.
+hdfs namenode -format
+
+#Start the Hadoop daemons.
+start-dfs.sh
+start-yarn.sh
+mr-jobhistory-daemon.sh start historyserver
+
+#Create the Hive warehouse directory.
+#Create a hive user and a supergroup group with hive as a member.
+#Add the temporal directory holding the data to hdfs. 
+hadoop fs -mkdir -p    /user/hive/warehouse  && \
+hadoop fs -chmod g+w   /user/hive/warehouse && \
+useradd hive && \
+groupadd supergroup && \
+usermod -a -G supergroup hive && \
+hadoop fs -put /temporal /temporal
+
 # $1 host $2 port $3 tries
 wait_for_server() {
 	if [ $# -lt 3 ]; then
@@ -25,6 +46,6 @@ if [ ! -f /metastore/metastorecreated ]; then
 fi
 
 hive --service metastore &
-wait_for_server localhost 9083 5
+wait_for_server localhost 9083 8
 hiveserver2 
 
