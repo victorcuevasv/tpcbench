@@ -13,7 +13,7 @@ services:
         image: postgres:10.6
         container_name: postgrescontainer
         volumes:
-            - ./postgresdbvol:/var/lib/postgresql/data
+            - postgresdbvol:/var/lib/postgresql/data
         environment:
             POSTGRES_DB: metastore
             POSTGRES_USER: root
@@ -28,5 +28,7 @@ services:
             - bash
         tty: true
         stdin_open: true
+volumes:
+    postgresdbvol:
 
 

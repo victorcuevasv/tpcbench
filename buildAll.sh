@@ -30,16 +30,16 @@ fi
 
 #Create the postgresdbvol directory if it does not exist.
 
-if [ ! -d postgresdbvol ]; then
-   mkdir postgresdbvol
-fi
+#if [ ! -d postgresdbvol ]; then
+#   mkdir postgresdbvol
+#fi
 
 #Create the datavol directory and its subdirectories if it does not exist.
 
 if [ ! -d datavol ]; then
    mkdir datavol
    mkdir datavol/tables
-   mkdir datavol/tablestext
+   mkdir datavol/tablestextfile
    mkdir datavol/tablesparquet
    mkdir datavol/results
    mkdir datavol/logs
@@ -60,8 +60,8 @@ printf "\n\n%s\n\n" "${mag}Building the client project builder image.${end}"
 bash client/build.sh
 
 #Compile the client project.
-printf "\n\n%s\n\n" "${blu}Compiling the client project.${end}"
-bash client/compile.sh
+#printf "\n\n%s\n\n" "${blu}Compiling the client project.${end}"
+#bash client/compile.sh
 
 
 
