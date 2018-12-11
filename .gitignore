@@ -9,3 +9,5 @@
 /warehousevolBackup/
 /warehousevolPseudo/
 /metastorevolPseudo/
+/mysqldbvol/
+/dump_metastore.sql
