@@ -5,9 +5,11 @@ services:
         container_name: mysqlcontainer
         command: --default-authentication-plugin=mysql_native_password
         volumes:
-            - ./mysqldbvol:/var/lib/mysql
+            - mysqldbvol:/var/lib/mysql
         environment:
             MYSQL_DATABASE: metastore
             MYSQL_PASSWORD: mysql
             MYSQL_ROOT_PASSWORD: mysql   
+volumes:
+   mysqldbvol:
 
