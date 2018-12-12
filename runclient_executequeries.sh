@@ -7,5 +7,5 @@
 
 #docker exec -ti  hiveclientcontainer  /bin/bash -c "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ProcessCreateScript\" -Dexec.args=\"/data tpcds.sql\" -f /project/pom.xml"
 
-docker exec -ti  hiveclientcontainer  /bin/bash -c "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueries\" -Dexec.args=\"/data QueriesPostgres results\" -f /project/pom.xml"
+docker exec -ti  hiveclientcontainer  /bin/bash -c "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueries\" -Dexec.args=\"/data QueriesPostgres results presto\" -f /project/pom.xml"
 
