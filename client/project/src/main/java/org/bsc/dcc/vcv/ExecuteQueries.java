@@ -6,8 +6,11 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.List;
 import java.sql.DriverManager;
 import java.io.*;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -66,13 +69,20 @@ public class ExecuteQueries {
 		ExecuteQueries prog = new ExecuteQueries(args[3]);
 		File directory = new File(args[0] + "/" + args[1]);
 		// Process each .sql file found in the directory.
-		File[] files = directory.listFiles();
-		Arrays.sort(files);
+		// The preprocessing steps are necessary to obtain the right order, i.e.,
+		// query1.sql, query2.sql, query3.sql, ..., query99.sql.
+		File[] files = Stream.of(directory.listFiles()).
+				map(File::getName).
+				map(ExecuteQueries::extractNumber).
+				sorted().
+				map(n -> "query" + n + ".sql").
+				map(s -> new File(args[0] + "/" + args[1] + "/" + s)).
+				toArray(File[]::new);
 		prog.recorder.header();
 		for (final File fileEntry : files) {
 			if (!fileEntry.isDirectory()) {
-				if( ! fileEntry.getName().equals("query1.sql") )
-					continue;
+				//if( ! fileEntry.getName().equals("query1.sql") )
+				//	continue;
 				prog.executeQuery(args[0], fileEntry, args[2]);
 			}
 		}
@@ -164,6 +174,12 @@ public class ExecuteQueries {
 			e.printStackTrace();
 			this.logger.error(e);
 		}
+	}
+	
+	// Converts a string representing a filename like query12.sql to the integer 12.
+	public static int extractNumber(String fileName) {
+		String nStr = fileName.substring(0, fileName.indexOf('.')).replaceAll("[^\\d.]", "");
+		return Integer.parseInt(nStr);
 	}
 
 }
