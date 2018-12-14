@@ -11,6 +11,7 @@ import java.sql.DriverManager;
 import java.io.*;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
+import java.util.StringTokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
@@ -84,17 +85,17 @@ public class ExecuteQueries {
 		prog.recorder.header();
 		for (final File fileEntry : files) {
 			if (!fileEntry.isDirectory()) {
-				if( ! fileEntry.getName().equals("query14.sql") )
+				if( ! fileEntry.getName().equals("query39.sql") )
 					continue;
-				prog.executeQuery(args[0], fileEntry, args[2], args[3]);
+				prog.executeQueryFile(args[0], fileEntry, args[2], args[3], false);
 			}
 		}
 		prog.closeConnection();
 	}
 
-	// Execute a query from the provided file.
-	private void executeQuery(String workDir, File sqlFile, String resultsDir,
-			String plansDir) {
+	// Execute the query (or queries) from the provided file.
+	private void executeQueryFile(String workDir, File sqlFile, String resultsDir,
+			String plansDir, boolean singleCall) {
 		QueryRecord queryRecord = null;
 		try {
 			this.logger.info("Processing: " + sqlFile.getName());
@@ -102,22 +103,13 @@ public class ExecuteQueries {
 			String nQueryStr = fileName.replaceAll("[^\\d.]", "");
 			int nQuery = Integer.parseInt(nQueryStr);
 			queryRecord = new QueryRecord(nQuery);
-			String sqlQuery = readFileContents(sqlFile.getAbsolutePath());
-			// Remove the last semicolon.
-			sqlQuery = sqlQuery.trim();
-			sqlQuery = sqlQuery.substring(0, sqlQuery.length() - 1);
-			// Obtain the plan for the query.
-			Statement stmt = con.createStatement();
-			ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlQuery);
-			this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs);
-			planrs.close();
-			// Execute the query.
-			queryRecord.setStartTime(System.currentTimeMillis());
-			ResultSet rs = stmt.executeQuery(sqlQuery);
-			// Save the results.
-			this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs);
-			stmt.close();
-			rs.close();
+			String sqlStr = readFileContents(sqlFile.getAbsolutePath());
+			//Execute the query or queries.
+			if( singleCall )
+				this.executeQuerySingleCall(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
+			else
+				this.executeQueryMultipleCalls(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
+			//Record the results file size.
 			File resultsFile = new File(workDir + "/" + resultsDir + "/" + fileName + ".txt");
 			queryRecord.setResultsSize(resultsFile.length());
 			queryRecord.setSuccessful(true);
@@ -131,10 +123,61 @@ public class ExecuteQueries {
 			this.recorder.record(queryRecord);
 		}
 	}
+	
+	// Execute a query from the provided file.
+	private void executeQuerySingleCall(String workDir, String resultsDir, String plansDir, 
+			String fileName, String sqlStr, QueryRecord queryRecord)
+			throws SQLException {
+		// Remove the last semicolon.
+		sqlStr = sqlStr.trim();
+		sqlStr = sqlStr.substring(0, sqlStr.length() - 1);
+		// Obtain the plan for the query.
+		Statement stmt = con.createStatement();
+		ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
+		this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs, false);
+		planrs.close();
+		// Execute the query.
+		queryRecord.setStartTime(System.currentTimeMillis());
+		ResultSet rs = stmt.executeQuery(sqlStr);
+		// Save the results.
+		this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, false);
+		stmt.close();
+		rs.close();
+	}
+	
+	// Execute a query from the provided file.
+	private void executeQueryMultipleCalls(String workDir, String resultsDir, String plansDir,
+			String fileName, String sqlStrFull, QueryRecord queryRecord) throws SQLException {
+		// Split the various queries and execute each.
+		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
+		boolean firstQuery = true;
+		int iteration = 1;
+		while (tokenizer.hasMoreTokens()) {
+			String sqlStr = tokenizer.nextToken().trim();
+			if( sqlStr.length() == 0 )
+				continue;
+			// Obtain the plan for the query.
+			Statement stmt = con.createStatement();
+			ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
+			this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs, ! firstQuery);
+			planrs.close();
+			// Execute the query.
+			if( firstQuery )
+				queryRecord.setStartTime(System.currentTimeMillis());
+			System.out.println("Executing iteration " + iteration + " of query " + fileName + ".");
+			ResultSet rs = stmt.executeQuery(sqlStr);
+			// Save the results.
+			this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, ! firstQuery);
+			stmt.close();
+			rs.close();
+			firstQuery = false;
+			iteration++;
+		}
+	}
 
-	private void saveResults(String resFileName, ResultSet rs) {
+	private void saveResults(String resFileName, ResultSet rs, boolean append) {
 		try {
-			FileWriter fileWriter = new FileWriter(resFileName);
+			FileWriter fileWriter = new FileWriter(resFileName, append);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			ResultSetMetaData metadata = rs.getMetaData();
 			int nCols = metadata.getColumnCount();
