@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.facebook.presto.jdbc.PrestoConnection;
 
 public class ExecuteQueries {
 
@@ -35,6 +36,7 @@ public class ExecuteQueries {
 			else if( system.equals("presto") ) {
 				Class.forName(prestoDriverName);
 				con = DriverManager.getConnection("jdbc:presto://hiveservercontainer:8080/hive/default", "hive", "");
+				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
@@ -61,12 +63,13 @@ public class ExecuteQueries {
 	 * args[0] main work directory
 	 * args[1] subdirectory of work directory that contains the queries
 	 * args[2] subdirectory of work directory to store the results
-	 * args[3] system to evaluate the queries (hive/presto)
+	 * args[3] subdirectory of work directory to store the execution plans
+	 * args[4] system to evaluate the queries (hive/presto)
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) throws SQLException {
-		ExecuteQueries prog = new ExecuteQueries(args[3]);
+		ExecuteQueries prog = new ExecuteQueries(args[4]);
 		File directory = new File(args[0] + "/" + args[1]);
 		// Process each .sql file found in the directory.
 		// The preprocessing steps are necessary to obtain the right order, i.e.,
@@ -81,16 +84,17 @@ public class ExecuteQueries {
 		prog.recorder.header();
 		for (final File fileEntry : files) {
 			if (!fileEntry.isDirectory()) {
-				//if( ! fileEntry.getName().equals("query1.sql") )
-				//	continue;
-				prog.executeQuery(args[0], fileEntry, args[2]);
+				if( ! fileEntry.getName().equals("query14.sql") )
+					continue;
+				prog.executeQuery(args[0], fileEntry, args[2], args[3]);
 			}
 		}
 		prog.closeConnection();
 	}
 
 	// Execute a query from the provided file.
-	private void executeQuery(String workDir, File sqlFile, String resultsDir) {
+	private void executeQuery(String workDir, File sqlFile, String resultsDir,
+			String plansDir) {
 		QueryRecord queryRecord = null;
 		try {
 			this.logger.info("Processing: " + sqlFile.getName());
@@ -102,14 +106,20 @@ public class ExecuteQueries {
 			// Remove the last semicolon.
 			sqlQuery = sqlQuery.trim();
 			sqlQuery = sqlQuery.substring(0, sqlQuery.length() - 1);
+			// Obtain the plan for the query.
+			Statement stmt = con.createStatement();
+			ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlQuery);
+			this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs);
+			planrs.close();
 			// Execute the query.
 			queryRecord.setStartTime(System.currentTimeMillis());
-			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(sqlQuery);
 			// Save the results.
 			this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs);
 			stmt.close();
 			rs.close();
+			File resultsFile = new File(workDir + "/" + resultsDir + "/" + fileName + ".txt");
+			queryRecord.setResultsSize(resultsFile.length());
 			queryRecord.setSuccessful(true);
 		}
 		catch (SQLException e) {

@@ -6,6 +6,7 @@ public class QueryRecord {
 	private long startTime;
 	private long endTime;
 	private boolean successful;
+	private long resultsSize;
 	
 	public QueryRecord() {
 		
@@ -45,6 +46,14 @@ public class QueryRecord {
 	
 	public boolean isSuccessful() {
 		return this.successful;
+	}
+	
+	public void setResultsSize(long resultsSize) {
+		this.resultsSize = resultsSize;
+	}
+	
+	public long getResultsSize() {
+		return this.resultsSize;
 	}
 
 }

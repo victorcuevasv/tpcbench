@@ -20,15 +20,15 @@ public class AnalyticsRecorder {
 	
 	public void header() {
 		String[] titles = {"QUERY", "SUCCESSFUL", "STARTDATE_EPOCH", "STOPDATE_EPOCH",
-				                 "DURATION_MS", "STARTDATE", "STOPDATE", "DURATION"};
+				                 "DURATION_MS", "STARTDATE", "STOPDATE", "DURATION", "RESULTS_SIZE"};
 		StringBuilder builder = new StringBuilder();
 		for(String title : titles)
-			builder.append(String.format("%-26s|", title));
+			builder.append(String.format("%-25s|", title));
 		logger.info(builder.toString());
 	}
 	
 	public void record(QueryRecord queryRecord) {
-		int spaces = 26;
+		int spaces = 25;
 		String colFormat = "%-" + spaces + "s|";
 		StringBuilder builder = new StringBuilder();
 		builder.append(String.format(colFormat, queryRecord.getQuery()));
@@ -45,6 +45,7 @@ public class AnalyticsRecorder {
 		builder.append(String.format(colFormat, endDateFormatted));
 		String durationFormatted = String.format("%.3f", ((double) durationMs / 1000.0d));
 		builder.append(String.format(colFormat, durationFormatted));
+		builder.append(String.format(colFormat, queryRecord.getResultsSize()));
 		logger.info(builder.toString());
 	}
 	
