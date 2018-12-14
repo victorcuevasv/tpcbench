@@ -6,3 +6,5 @@ scp -r hivevol/1GB bscdc07:/home/vcuevas/databricksworkspace/tpcdsbench/hivevol/
 
 scp -r datavol/QueriesPostgres bscdc07:/home/vcuevas/databricksworkspace/tpcdsbench/datavol/
 
+scp -r datavol/QueriesPresto bscdc07:/home/vcuevas/databricksworkspace/tpcdsbench/datavol/
+

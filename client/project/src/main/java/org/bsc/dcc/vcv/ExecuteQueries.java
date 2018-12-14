@@ -85,8 +85,8 @@ public class ExecuteQueries {
 		prog.recorder.header();
 		for (final File fileEntry : files) {
 			if (!fileEntry.isDirectory()) {
-				if( ! fileEntry.getName().equals("query39.sql") )
-					continue;
+				//if( ! fileEntry.getName().equals("query39.sql") )
+				//	continue;
 				prog.executeQueryFile(args[0], fileEntry, args[2], args[3], false);
 			}
 		}
