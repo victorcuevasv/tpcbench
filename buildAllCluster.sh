@@ -59,6 +59,8 @@ chmod -R 777 client/project
 sudo chmod -R 777 client/project
 chmod -R 777 datavol
 sudo chmod -R 777 datavol
+chmod -R 777 warehousevol
+sudo chmod -R 777 warehousevol
 
 #Compile the client project.
 printf "\n\n%s\n\n" "${blu}Compiling the client project.${end}"
