@@ -54,6 +54,12 @@ bash server/buildPseudoExternalMetastore.sh
 printf "\n\n%s\n\n" "${mag}Building the client project builder image.${end}"
 bash client/build.sh
 
+#Set permissions for data volume and client project.
+chmod -R 777 client/project
+sudo chmod -R 777 client/project
+chmod -R 777 datavol
+sudo chmod -R 777 datavol
+
 #Compile the client project.
 printf "\n\n%s\n\n" "${blu}Compiling the client project.${end}"
 bash client/compile.sh
