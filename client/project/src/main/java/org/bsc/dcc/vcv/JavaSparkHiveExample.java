@@ -37,12 +37,34 @@ public class JavaSparkHiveExample {
 
 	public static void main(String[] args) {
 		SparkSession spark = SparkSession.builder().appName("Java Spark Hive Example")
-				.config("spark.sql.warehouse.dir", "/user/hive/warehouse")
+				//.config("spark.sql.warehouse.dir", "/user/hive/warehouse")
+				//.config("hive.metastore.warehouse.dir", "/user/hive/warehouse")
+				//.config("hive.metastore.warehouse.uris", "thrift://localhost:9083")
 				.config("spark.master", "spark://sparkhiveservercontainer:7077")
-				.enableHiveSupport().getOrCreate();
-
+				//.config("spark.sql.hive.metastore.version", "2.3.0")
+				//.config("spark.sql.hive.metastore.jars", "maven")
+				.enableHiveSupport()
+				//.config("javax.jdo.option.ConnectionURL",
+				//          "jdbc:postgresql://postgrescontainer/metastore")
+				.getOrCreate();
+		
+		System.out.println("\n\n\n---------------------------------------");
+		System.out.print("spark.sql.hive.metastore.version: ");
+		System.out.println(spark.conf().get("spark.sql.hive.metastore.version"));
+		System.out.print("spark.sql.hive.metastore.jars: ");
+		System.out.println(spark.conf().get("spark.sql.hive.metastore.jars"));
+		System.out.println("---------------------------------------\\n\\n\\n");
+		
 		// Aggregation queries are also supported.
-		spark.sql("SELECT COUNT(*) FROM inventory").show();
+		//spark.sql("SELECT COUNT(*) FROM inventory").show();
+		
+		spark.sql("SHOW TABLES").show(false);
+		System.out.println("\n\n\n---------------------------------------");
+		spark.sql("DESCRIBE inventory").show(false);
+		System.out.println("\n\n\n---------------------------------------");
+		spark.sql("DESCRIBE FORMATTED inventory").show(false);
+		System.out.println("\n\n\n---------------------------------------");
+		spark.sql("SELECT COUNT(*) FROM inventory").show(false);
 		
 		/*
 		// The results of SQL queries are themselves DataFrames and support all normal

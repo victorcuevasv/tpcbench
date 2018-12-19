@@ -7,5 +7,5 @@
 
 #docker exec -ti  hiveclientcontainer  /bin/bash -c "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ProcessCreateScript\" -Dexec.args=\"/data tpcds.sql\" -f /project/pom.xml"
 
-docker exec -ti  hiveclientcontainer  /bin/bash -c "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateDatabase\" -Dexec.args=\"/data/tables _ext /temporal/1GB\" -f /project/pom.xml" 
+docker exec -ti  sparkhiveclientcontainer  /bin/bash -c "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateDatabase\" -Dexec.args=\"/data/tables _ext /temporal/1GB\" -f /project/pom.xml" 
 

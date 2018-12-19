@@ -22,7 +22,7 @@ public class CreateDatabase {
 			Class.forName(driverName);
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
-			con = DriverManager.getConnection("jdbc:hive2://hiveservercontainer:10000/default", "hive", "");
+			con = DriverManager.getConnection("jdbc:hive2://sparkhiveservercontainer:10000/default", "hive", "");
 		}
 		catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -122,7 +122,8 @@ public class CreateDatabase {
 		builder.append(new String(commaLineArray) + "\n");
 		// Close the parenthesis.
 		builder.append(") \n");
-		return builder.toString();
+		// Version 2.1 of Hive does not recognize integer, so use int instead.
+		return builder.toString().replace("integer", "int    ");
 	}
 
 	// Based on the supplied incomplete SQL create statement, generate a full create
