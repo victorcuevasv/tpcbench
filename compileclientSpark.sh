@@ -10,5 +10,5 @@ end=$'\e[0m'
 
 #Build the client project.
 printf "\n\n%s\n\n" "${blu}Compiling the client project.${end}"
-bash client/compile.sh
+bash client/compileSpark.sh
 

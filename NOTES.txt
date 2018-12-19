@@ -8,3 +8,12 @@ scp -r datavol/QueriesPostgres bscdc07:/home/vcuevas/databricksworkspace/tpcdsbe
 
 scp -r datavol/QueriesPresto bscdc07:/home/vcuevas/databricksworkspace/tpcdsbench/datavol/
 
+
+
+Execute client jar when logged in the container.
+
+#Must add the zookeeper dependency  or it will not be downloaded.   
+
+spark-submit --packages org.apache.zookeeper:zookeeper:3.4.6 --class org.bsc.dcc.vcv.JavaSparkHiveExample --master spark://localhost:7077   --deploy-mode client /temporal/client-1.0-SNAPSHOT-jar-with-dependencies.jar      
+
+cp /temporal/zookeeper-3.4.6.jar   /root/.ivy2/jars/org.apache.zookeeper_zookeeper-3.4.6.jar
