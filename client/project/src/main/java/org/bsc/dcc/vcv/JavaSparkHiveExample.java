@@ -41,12 +41,17 @@ public class JavaSparkHiveExample {
 				//.config("hive.metastore.warehouse.dir", "/user/hive/warehouse")
 				//.config("hive.metastore.warehouse.uris", "thrift://localhost:9083")
 				.config("spark.master", "spark://sparkhiveservercontainer:7077")
+				.config("spark.jars.packages", "org.apache.zookeeper:zookeeper:3.4.6")
 				//.config("spark.sql.hive.metastore.version", "2.3.0")
 				//.config("spark.sql.hive.metastore.jars", "maven")
 				.enableHiveSupport()
 				//.config("javax.jdo.option.ConnectionURL",
 				//          "jdbc:postgresql://postgrescontainer/metastore")
 				.getOrCreate();
+		
+		System.out.println("\n\n\n\n\n\n\n***************************************");
+		System.out.println("org.apache.zookeeper:zookeeper:3.4.6");
+		System.out.println("\n\n\n\n\n\n\n***************************************");
 		
 		System.out.println("\n\n\n---------------------------------------");
 		System.out.print("spark.sql.hive.metastore.version: ");

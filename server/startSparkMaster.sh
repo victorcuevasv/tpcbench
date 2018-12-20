@@ -20,6 +20,11 @@ useradd hive && \
 groupadd supergroup && \
 usermod -a -G supergroup hive && \
 hadoop fs -put /temporal /temporal
+#Required specifically for Spark-Hive.
+mkdir -p /tmp/hive/java
+chmod -R 777 /tmp
+hadoop fs -mkdir -p /tmp/hive
+hadoop fs -chmod -R 777 /tmp/hive
 
 # $1 host $2 port $3 tries
 wait_for_server() {
@@ -35,7 +40,7 @@ wait_for_server() {
   	fi
   	i=$((i+1))
   	printf "$1:$2 is unreachable, retrying.\n"
-  	sleep 2
+  	sleep 3
 	done
 	printf "$1:$2 is reachable.\n"
 }
@@ -46,10 +51,12 @@ if [ ! -f /metastore/metastorecreated ]; then
 fi
 
 hive --service metastore  &
-wait_for_server localhost 9083 8
+wait_for_server localhost 9083 10
 hive --service hiveserver2 &
-wait_for_server localhost 10000 8
-$SPARK_HOME/bin/spark-class org.apache.spark.deploy.master.Master -h sparkhiveservercontainer
+wait_for_server localhost 10000 10
+$SPARK_HOME/bin/spark-class org.apache.spark.deploy.master.Master -h sparkhiveservercontainer 
+
+   
 
 
  

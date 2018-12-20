@@ -17,3 +17,15 @@ Execute client jar when logged in the container.
 spark-submit --packages org.apache.zookeeper:zookeeper:3.4.6 --class org.bsc.dcc.vcv.JavaSparkHiveExample --master spark://localhost:7077   --deploy-mode client /temporal/client-1.0-SNAPSHOT-jar-with-dependencies.jar      
 
 cp /temporal/zookeeper-3.4.6.jar   /root/.ivy2/jars/org.apache.zookeeper_zookeeper-3.4.6.jar
+
+#Run the Pi example and download the zookeeper dependency at the same time.
+
+spark-submit --packages org.apache.zookeeper:zookeeper:3.4.6 --class org.apache.spark.examples.SparkPi --deploy-mode client $SPARK_HOME/examples/jars/spark-examples_2.11-2.4.0.jar   
+
+#Run the Spark-Hive example and download the zookeeper dependency at the same time (will because the input file does not exist).
+
+spark-submit --packages org.apache.zookeeper:zookeeper:3.4.6 --class org.apache.spark.examples.sql.hive.JavaSparkHiveExample --deploy-mode client $SPARK_HOME/examples/jars/spark-examples_2.11-2.4.0.jar
+
+
+
+

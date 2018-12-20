@@ -35,12 +35,12 @@ wait_for_server() {
   	fi
   	i=$((i+1))
   	printf "$1:$2 is unreachable, retrying.\n"
-  	sleep 2
+  	sleep 3
 	done
 	printf "$1:$2 is reachable.\n"
 }
 
-wait_for_server sparkhiveservercontainer 7077 16
+wait_for_server sparkhiveservercontainer 7077 20
 $SPARK_HOME/bin/spark-class org.apache.spark.deploy.worker.Worker spark://sparkhiveservercontainer:7077
 
 

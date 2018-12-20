@@ -83,6 +83,14 @@ COPY startSparkMaster.sh /startSparkMaster.sh
 
 RUN chmod +x /startSparkMaster.sh
 
+#Run the Spark-Hive example only to download the jars, it doesn't matter if it fails.
+     
+RUN spark-submit \
+     --packages org.apache.zookeeper:zookeeper:3.4.6 \
+     --class org.apache.spark.examples.sql.hive.JavaSparkHiveExample \
+     --deploy-mode client \
+     $SPARK_HOME/examples/jars/spark-examples_2.11-2.4.0.jar ; exit 0
+
 CMD ["bash"]
 
 ENTRYPOINT [ "bash", "-c", "/startSparkMaster.sh" ]
