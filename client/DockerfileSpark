@@ -10,15 +10,15 @@ ENV PATH="${PATH}:/opt/apache-maven-3.6.0/bin"
 
 #Download the Maven dependencies.
 
-ADD project/pom.xml /opt
+ADD project/pomSpark.xml /opt
 
-RUN mvn  dependency:resolve -f /opt/pom.xml && \
-    rm -f /opt/pom.xml
+RUN mvn  dependency:go-offline -f /opt/pomSpark.xml && \
+    rm -f /opt/pomSpark.xml
     
 #Download and decompress Spark (use the version with Hadoop to avoid missing jars issues).
 
 RUN wget --no-check-certificate -q -P /opt \
-    https://archive.apache.org/dist/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
+    http://apache.rediris.es/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
     tar xzf /opt/spark-2.4.0-bin-hadoop2.7.tgz -C /opt && \
     rm -f /opt/spark-2.4.0-bin-hadoop2.7.tgz
     
