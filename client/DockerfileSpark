@@ -14,19 +14,6 @@ ADD project/pomSpark.xml /opt
 
 RUN mvn  dependency:go-offline -f /opt/pomSpark.xml && \
     rm -f /opt/pomSpark.xml
-    
-#Download and decompress Spark (use the version with Hadoop to avoid missing jars issues).
-
-RUN wget --no-check-certificate -q -P /opt \
-    http://apache.rediris.es/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
-    tar xzf /opt/spark-2.4.0-bin-hadoop2.7.tgz -C /opt && \
-    rm -f /opt/spark-2.4.0-bin-hadoop2.7.tgz
-    
-#Add the Spark installation directory variable and update the path.
-
-ENV SPARK_HOME /opt/spark-2.4.0-bin-hadoop2.7
-ENV PATH="${PATH}:/opt/spark-2.4.0-bin-hadoop2.7/bin"
 
 CMD ["bash"]
-
 
