@@ -60,6 +60,7 @@ public class JarQueriesReaderAsZipFile {
 					return FileVisitResult.CONTINUE;
 				}
 			});
+			zipfs.close();
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
