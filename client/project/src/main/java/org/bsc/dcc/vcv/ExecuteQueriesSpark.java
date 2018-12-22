@@ -12,10 +12,10 @@ public class ExecuteQueriesSpark {
 	//private static final Logger logger = LogManager.getLogger(ExecuteQueriesSpark.class);
 	private SparkSession spark;
 	private AnalyticsRecorder recorder;
-	private JarQueriesReader queriesReader;
+	private JarQueriesReaderAsResource queriesReader;
 
 	public ExecuteQueriesSpark() {
-		this.queriesReader = new JarQueriesReader();
+		this.queriesReader = new JarQueriesReaderAsResource();
 		this.spark = SparkSession.builder().appName("Java Spark Hive Example")
 				.enableHiveSupport()
 				.getOrCreate();

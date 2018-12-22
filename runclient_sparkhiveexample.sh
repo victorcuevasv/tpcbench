@@ -15,11 +15,11 @@
 
 #Test ResourceWalker.
 
-docker exec -ti  sparkhiveclientcontainer  /bin/bash -c "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.JarQueriesReader\" -Dexec.args=\"\" -f /project/pomSpark.xml"
+#docker exec -ti  sparkhiveclientcontainer  /bin/bash -c "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.JarQueriesReader\" -Dexec.args=\"\" -f /project/pomSpark.xml"
 
 #Test query execution with Spark.
 
 #docker exec -ti  sparkhiveservercontainer  /bin/bash -c "/opt/spark-2.4.0-bin-hadoop2.7/bin/spark-submit --packages org.apache.logging.log4j:log4j-api:2.11.1,org.apache.logging.log4j:log4j-core:2.11.1 --class org.bsc.dcc.vcv.ExecuteQueriesSpark --master spark://sparkhiveservercontainer:7077 --deploy-mode client /temporal/client-1.0-SNAPSHOT.jar /temporal results plans"     
 
-
+mvn exec:java -Dexec.mainClass="org.bsc.dcc.vcv.JarQueriesReaderAsZipFile" -Dexec.args="client/project/target/client-1.0-SNAPSHOT.jar" -f client/project/pomSpark.xml
  

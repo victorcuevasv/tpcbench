@@ -10,21 +10,20 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-public class JarQueriesReader {
+public class JarQueriesReaderAsZipFile {
 	
 	private Map<String, String> ht;
 	private List<String> filesNamesSorted;
 	
 	public static void main(String[] args) {
-		JarQueriesReader app = new JarQueriesReader();
+		JarQueriesReaderAsZipFile app = new JarQueriesReaderAsZipFile(args[0]);
 	}
 	
-	public JarQueriesReader() {
-		List<File> files = this.listFiles();
-		Map<String, String> ht = this.readFiles(files);
+	public JarQueriesReaderAsZipFile(String inFile) {
+		this.ht = new HashMap<String, String>();
+		List<String> files = this.listFiles(inFile);
 		List<String> filesNamesSorted = files.stream().
-				map(File::getName).
-				map(JarQueriesReader::extractNumber).
+				map(JarQueriesReaderAsZipFile::extractNumber).
 				sorted().
 				map(n -> "query" + n + ".sql").
 				collect(Collectors.toList());
@@ -33,21 +32,30 @@ public class JarQueriesReader {
 		for(String s : filesNamesSorted) {
 			System.out.println(s);
 		}
-		this.ht = ht;
 		this.filesNamesSorted = filesNamesSorted;
 	}
 
 	// Obtain the names with paths of all the .sql files in the jar structure.
-	public List<File> listFiles() {
-		List<File> files = new ArrayList<File>();
-		try {
-			URI uri = JarQueriesReader.class.getResource("/").toURI();
-			Path path = Paths.get(uri);
+	public List<String> listFiles(String inFile) {
+		List<String> files = new ArrayList<String>();
+		try {  
+			File jarFile = new File(inFile);  
+			Map<String, String> zipProperties = new HashMap<>();
+			//Reading from an existing zip file, so set to false.
+			zipProperties.put("create", "false");
+			zipProperties.put("encoding", "UTF-8");
+			URI zipFile = URI.create("jar:file:" + jarFile.toPath().toUri().getPath() + "!/");
+			FileSystem zipfs = FileSystems.newFileSystem(zipFile, zipProperties);
+			Path path = zipfs.getPath("/");
 			Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					if (file.toString().endsWith(".sql"))
-						files.add(file.toFile());
+					if (file.toString().endsWith(".sql")) {
+						String simpFileName = file.getFileName().toString();
+						files.add(simpFileName);
+						String contents = readFile(file);
+						ht.put(simpFileName, contents);
+					}
 					return FileVisitResult.CONTINUE;
 				}
 			});
@@ -55,30 +63,23 @@ public class JarQueriesReader {
 		catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
-		catch (URISyntaxException use) {
-			use.printStackTrace();
-		}
 		return files;
 	}
 	
-	public Map<String, String> readFiles(List<File> files) {
-		Map<String, String> ht = new HashMap<String, String>();
+	public String readFile(Path file) {
+		StringBuilder builder = new StringBuilder();
 		try {
-			for(File file : files) {
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(new FileInputStream(file)));
-				StringBuilder builder = new StringBuilder();
-				String line = "";
-				while( (line = reader.readLine()) != null ) {
-					builder.append(line + "\n");
-				}
-				ht.put(file.getName(), builder.toString());
+			BufferedReader reader = new BufferedReader(
+					new InputStreamReader(Files.newInputStream(file)));
+			String line = "";
+			while ((line = reader.readLine()) != null) {
+				builder.append(line + "\n");
 			}
 		}
-		catch(IOException e) {
+		catch (IOException e) {
 			e.printStackTrace();
 		}
-		return ht;
+		return builder.toString();
 	}
 	
 	public List<String> getFilesOrdered() {
