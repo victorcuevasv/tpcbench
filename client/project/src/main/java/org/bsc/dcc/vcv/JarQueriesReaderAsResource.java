@@ -20,6 +20,7 @@ public class JarQueriesReaderAsResource {
 	}
 	
 	public JarQueriesReaderAsResource() {
+		System.out.println("Extracting files from jar as resources.");
 		List<File> files = this.listFiles();
 		Map<String, String> ht = this.readFiles(files);
 		List<String> filesNamesSorted = files.stream().
@@ -42,38 +43,12 @@ public class JarQueriesReaderAsResource {
 		List<File> files = new ArrayList<File>();
 		try {
 			//Get the path from the jar.
-			//URI uri = JarQueriesReader.class.getResource("/").toURI();
-			//Path path = Paths.get(uri);
-			
-			//Get the path directly from the file.
-			File jarFile = new File("/home/bscuser/workspacedatabricks/benchinf/client/project/target/client-1.0-SNAPSHOT.jar");     
-			Path jarPath = jarFile.toPath();
-			URI uri = URI.create("jar:file:/" + jarPath.toUri().getPath());
-			//Path path = Paths.get(uri);
-			
-			Map<String, String> zipProperties = new HashMap<>();
-			/* We want to read an existing ZIP File, so we set this to False */
-			zipProperties.put("create", "false");
-			zipProperties.put("encoding", "UTF-8");
-			URI zipFile = URI.create("jar:file:" + jarPath.toUri().getPath() + "!/");
-
-			FileSystem zipfs = FileSystems.newFileSystem(zipFile, zipProperties);
-			Path path = zipfs.getPath("/");
-			
-			System.out.println("\n\n\n\n" + path.toAbsolutePath() + "\n\n\n\n");
-			
-			
-			//Path path = new File("/temporal/client-1.0-SNAPSHOT.jar").toPath();
+			URI uri = JarQueriesReaderAsResource.class.getResource("/").toURI();
+			Path path = Paths.get(uri);
 			Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 					if (file.toString().endsWith(".sql")) {
-						System.out.println(file.toString());
-						
-						String contents = readFile(file);
-						System.out.println(contents);
-						System.exit(0);
-						
 						files.add(file.toFile());
 					}
 					return FileVisitResult.CONTINUE;
@@ -83,11 +58,9 @@ public class JarQueriesReaderAsResource {
 		catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
-		/*
 		catch (URISyntaxException use) {
 			use.printStackTrace();
 		}
-		*/
 		return files;
 	}
 	
@@ -109,22 +82,6 @@ public class JarQueriesReaderAsResource {
 			e.printStackTrace();
 		}
 		return ht;
-	}
-	
-	public String readFile(Path file) {
-		StringBuilder builder = new StringBuilder();
-		try {
-			BufferedReader reader = new BufferedReader(
-					new InputStreamReader(Files.newInputStream(file)));
-			String line = "";
-			while ((line = reader.readLine()) != null) {
-				builder.append(line + "\n");
-			}
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		return builder.toString();
 	}
 	
 	public List<String> getFilesOrdered() {

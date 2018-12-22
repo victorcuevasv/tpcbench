@@ -20,6 +20,7 @@ public class JarQueriesReaderAsZipFile {
 	}
 	
 	public JarQueriesReaderAsZipFile(String inFile) {
+		System.out.println("Extracting files from jar as zip file.");
 		this.ht = new HashMap<String, String>();
 		List<String> files = this.listFiles(inFile);
 		List<String> filesNamesSorted = files.stream().
