@@ -26,6 +26,16 @@
 			<version>2.4.0</version>
 			<!-- <scope>provided</scope> -->
 		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.11.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.11.1</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -33,35 +43,19 @@
 	</properties>
 	<build>
 		<plugins>
-		    <!--  
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-				</configuration>
-			</plugin>
-			-->
+			<!-- <plugin> <artifactId>maven-assembly-plugin</artifactId> <executions> 
+				<execution> <phase>package</phase> <goals> <goal>single</goal> </goals> </execution> 
+				</executions> <configuration> <descriptorRefs> <descriptorRef>jar-with-dependencies</descriptorRef> 
+				</descriptorRefs> </configuration> </plugin> -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<excludes>
-						<exclude>org/bsc/dcc/vcv/AnalyticsRecorder.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabase.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueries.java</exclude>
 						<exclude>org/bsc/dcc/vcv/HiveJdbcClient.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ProcessCreateScript.java</exclude>
-						<exclude>org/bsc/dcc/vcv/QueryRecord.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
