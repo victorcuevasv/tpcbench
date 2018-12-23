@@ -12,10 +12,10 @@ public class ExecuteQueriesSpark {
 	//private static final Logger logger = LogManager.getLogger(ExecuteQueriesSpark.class);
 	private SparkSession spark;
 	private AnalyticsRecorder recorder;
-	private JarQueriesReaderAsResource queriesReader;
+	private JarQueriesReaderAsZipFile queriesReader;
 
-	public ExecuteQueriesSpark() {
-		this.queriesReader = new JarQueriesReaderAsResource();
+	public ExecuteQueriesSpark(String jarFile) {
+		this.queriesReader = new JarQueriesReaderAsZipFile(jarFile);
 		this.spark = SparkSession.builder().appName("Java Spark Hive Example")
 				.enableHiveSupport()
 				.getOrCreate();
@@ -32,7 +32,7 @@ public class ExecuteQueriesSpark {
 	 * all directories without slash
 	 */
 	public static void main(String[] args) {
-		ExecuteQueriesSpark prog = new ExecuteQueriesSpark();
+		ExecuteQueriesSpark prog = new ExecuteQueriesSpark(args[3]);
 		prog.executeQueries(args[0], args[1], args[2]);
 	}
 	
@@ -40,7 +40,7 @@ public class ExecuteQueriesSpark {
 		this.recorder.header();
 		for (final String fileName : this.queriesReader.getFilesOrdered()) {
 			String sqlStr = this.queriesReader.getFile(fileName);
-			String nQueryStr = fileName.replaceAll("[^\\d.]", "");
+			String nQueryStr = fileName.replaceAll("[^\\d]", "");
 			int nQuery = Integer.parseInt(nQueryStr);
 			QueryRecord queryRecord = new QueryRecord(nQuery);
 			if( ! fileName.equals("query1.sql") )
