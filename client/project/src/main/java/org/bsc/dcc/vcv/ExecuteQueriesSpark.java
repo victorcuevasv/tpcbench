@@ -58,7 +58,7 @@ public class ExecuteQueriesSpark {
 			String nQueryStr = fileName.replaceAll("[^\\d]", "");
 			int nQuery = Integer.parseInt(nQueryStr);
 			QueryRecord queryRecord = new QueryRecord(nQuery);
-			if( ! fileName.equals("query28.sql") )
+			if( ! fileName.equals("query78.sql") )
 				continue;
 			System.out.println("\n\n\n\n\n---------------------------------------------------------");
 			System.out.println(sqlStr);
