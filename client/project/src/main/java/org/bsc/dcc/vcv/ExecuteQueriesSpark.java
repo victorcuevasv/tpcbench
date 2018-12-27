@@ -31,6 +31,7 @@ public class ExecuteQueriesSpark {
 	public ExecuteQueriesSpark(String jarFile) {
 		this.queriesReader = new JarQueriesReaderAsZipFile(jarFile);
 		this.spark = SparkSession.builder().appName("Java Spark Hive Example")
+				.config("spark.sql.crossJoin.enabled", "true")
 				.enableHiveSupport()
 				.getOrCreate();
 		this.recorder = new AnalyticsRecorder();
@@ -57,8 +58,8 @@ public class ExecuteQueriesSpark {
 			String nQueryStr = fileName.replaceAll("[^\\d]", "");
 			int nQuery = Integer.parseInt(nQueryStr);
 			QueryRecord queryRecord = new QueryRecord(nQuery);
-			//if( ! fileName.equals("query1.sql") )
-			//	continue;
+			if( ! fileName.equals("query28.sql") )
+				continue;
 			System.out.println("\n\n\n\n\n---------------------------------------------------------");
 			System.out.println(sqlStr);
 			System.out.println("\n\n\n\n\n---------------------------------------------------------");
