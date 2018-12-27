@@ -55,8 +55,8 @@ public class ExecuteQueriesSpark {
 			String nQueryStr = fileName.replaceAll("[^\\d]", "");
 			int nQuery = Integer.parseInt(nQueryStr);
 			QueryRecord queryRecord = new QueryRecord(nQuery);
-			if( ! fileName.equals("query1.sql") )
-				continue;
+			//if( ! fileName.equals("query1.sql") )
+			//	continue;
 			System.out.println("\n\n\n\n\n---------------------------------------------------------");
 			System.out.println(sqlStr);
 			System.out.println("\n\n\n\n\n---------------------------------------------------------");
@@ -64,12 +64,13 @@ public class ExecuteQueriesSpark {
 				this.executeQuerySingleCall(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
 				String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
 				long resultsSize = calculateSize(workDir + "/" + resultsDir + "/" + noExtFileName, 
-						".txt", this.logger);
+						".csv", this.logger);
 				queryRecord.setResultsSize(resultsSize);
 				queryRecord.setSuccessful(true);
 			}
 			catch(Exception e) {
 				e.printStackTrace();
+				this.logger.error("Error processing: " + fileName);
 				this.logger.error(e);
 			}
 			finally {
@@ -94,7 +95,8 @@ public class ExecuteQueriesSpark {
 		Dataset<Row> dataset = this.spark.sql(sqlStr);
 		// Save the results.
 		String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
-		dataset.write().mode(SaveMode.Overwrite).text(workDir + "/" + resultsDir + "/" + noExtFileName);
+		//dataset.write().mode(SaveMode.Overwrite).text(workDir + "/" + resultsDir + "/" + noExtFileName);
+		dataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
 		//this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, false);
 	}
 	
