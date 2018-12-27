@@ -8,7 +8,9 @@ import java.nio.file.attribute.*;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.logging.log4j.LogManager;
@@ -61,7 +63,7 @@ public class ExecuteQueriesSpark {
 			System.out.println(sqlStr);
 			System.out.println("\n\n\n\n\n---------------------------------------------------------");
 			try {
-				this.executeQuerySingleCall(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
+				this.executeQueryMultipleCalls(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
 				String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
 				long resultsSize = calculateSize(workDir + "/" + resultsDir + "/" + noExtFileName, 
 						".csv", this.logger);
@@ -98,6 +100,37 @@ public class ExecuteQueriesSpark {
 		//dataset.write().mode(SaveMode.Overwrite).text(workDir + "/" + resultsDir + "/" + noExtFileName);
 		dataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
 		//this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, false);
+	}
+	
+	private void executeQueryMultipleCalls(String workDir, String resultsDir, String plansDir,
+			String fileName, String sqlStrFull, QueryRecord queryRecord) {
+		// Split the various queries and execute each.
+		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
+		boolean firstQuery = true;
+		int iteration = 1;
+		while (tokenizer.hasMoreTokens()) {
+			String sqlStr = tokenizer.nextToken().trim();
+			if( sqlStr.length() == 0 )
+				continue;
+			// Obtain the plan for the query.
+			//ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
+			//this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs, false);
+			// Execute the query.
+			if( firstQuery )
+				queryRecord.setStartTime(System.currentTimeMillis());
+			System.out.println("Executing iteration " + iteration + " of query " + fileName + ".");
+			Dataset<Row> dataset = this.spark.sql(sqlStr);
+			// Save the results.
+			String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
+			//dataset.write().mode(SaveMode.Overwrite).text(workDir + "/" + resultsDir + "/" + noExtFileName);
+			if( firstQuery )
+				dataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
+			else
+				dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
+			//this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, false);
+			firstQuery = false;
+			iteration++;
+		}
 	}
 	
 	/*
