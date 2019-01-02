@@ -38,6 +38,7 @@
 				<configuration>
 					<excludes>
 						<exclude>org/bsc/dcc/vcv/JavaSparkHiveExample.java</exclude>
+						<exclude>org/bsc/dcc/vcv/ExecuteQueriesSpark.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
