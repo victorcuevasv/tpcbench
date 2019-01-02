@@ -61,6 +61,10 @@ chmod -R 777 datavol
 sudo chmod -R 777 datavol
 chmod -R 777 warehousevol
 sudo chmod -R 777 warehousevol
+chmod -R 777 metastorevol
+sudo chmod -R 777 metastorevol
+chmod -R 777 hivevol
+sudo chmod -R 777 hivevol
 
 #Compile the client project.
 printf "\n\n%s\n\n" "${blu}Compiling the client project.${end}"
