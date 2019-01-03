@@ -91,16 +91,14 @@ public class ExecuteQueriesSpark {
 		sqlStr = sqlStr.trim();
 		sqlStr = sqlStr.substring(0, sqlStr.length() - 1);
 		// Obtain the plan for the query.
-		//ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
-		//this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs, false);
+		Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
+		String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
+		planDataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + plansDir + "/" + noExtFileName);
 		// Execute the query.
 		queryRecord.setStartTime(System.currentTimeMillis());
 		Dataset<Row> dataset = this.spark.sql(sqlStr);
 		// Save the results.
-		String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
-		//dataset.write().mode(SaveMode.Overwrite).text(workDir + "/" + resultsDir + "/" + noExtFileName);
 		dataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
-		//this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, false);
 	}
 	
 	private void executeQueryMultipleCalls(String workDir, String resultsDir, String plansDir,
@@ -114,21 +112,19 @@ public class ExecuteQueriesSpark {
 			if( sqlStr.length() == 0 )
 				continue;
 			// Obtain the plan for the query.
-			//ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
-			//this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs, false);
+			Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
+			String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
+			planDataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + plansDir + "/" + noExtFileName);
 			// Execute the query.
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
 			System.out.println("Executing iteration " + iteration + " of query " + fileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
-			String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
-			//dataset.write().mode(SaveMode.Overwrite).text(workDir + "/" + resultsDir + "/" + noExtFileName);
 			if( firstQuery )
 				dataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
 			else
 				dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
-			//this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, false);
 			firstQuery = false;
 			iteration++;
 		}
