@@ -1,0 +1,40 @@
+version: '2.0'
+services:
+    namenodeservice:
+        image: hiveserver:dev
+        container_name: namenodecontainer
+        ports:
+            - 10000:10000
+        volumes:
+            - ./hivevol:/temporal
+            - ./warehousevol:/user/hive/warehouse
+            - ./metastorevol:/metastore
+    slave1service:
+        image: hadoopslave:dev
+        container_name: slave1container
+    slave2service:
+        image: hadoopslave:dev
+        container_name: slave2container
+    postgresservice:
+        image: postgres:10.6
+        container_name: postgrescontainer
+        volumes:
+            - postgresdbmultinodevol:/var/lib/postgresql/data
+        environment:
+            POSTGRES_DB: metastore
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: postgres
+#    hiveclient:
+#        image: buildhiveclient:dev
+#        container_name: hiveclientcontainer
+#        volumes:
+#            - ./client/project:/project
+#            - ./datavol:/data
+#        entrypoint:
+#            - bash
+#        tty: true
+#        stdin_open: true
+volumes:
+    postgresdbmultinodevol:
+
+
