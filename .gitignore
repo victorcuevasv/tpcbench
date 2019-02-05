@@ -13,3 +13,4 @@
 /dump_metastore.sql
 /analyticsHive.log
 /analyticsPresto.log
+/output.txt
