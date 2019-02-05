@@ -22,7 +22,7 @@ public class CreateDatabase {
 			Class.forName(driverName);
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
-			con = DriverManager.getConnection("jdbc:hive2://sparkhiveservercontainer:10000/default", "hive", "");
+			con = DriverManager.getConnection("jdbc:hive2://hiveservercontainer:10000/default", "hive", "");
 		}
 		catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
