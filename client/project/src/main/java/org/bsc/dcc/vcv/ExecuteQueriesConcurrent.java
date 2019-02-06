@@ -27,8 +27,9 @@ public class ExecuteQueriesConcurrent {
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger(ExecuteQueriesConcurrent.class);
-	private AnalyticsRecorder recorder;
+	private AnalyticsRecorderConcurrent recorder;
 	private ExecutorService executor;
+	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
 	private static final int POOL_SIZE = 100;
 
 	// Open the connection (the server address depends on whether the program is
@@ -48,7 +49,6 @@ public class ExecuteQueriesConcurrent {
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
-			this.recorder = new AnalyticsRecorder();
 		}
 		catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -62,7 +62,9 @@ public class ExecuteQueriesConcurrent {
 			this.logger.error(e);
 			System.exit(1);
 		}
+		this.recorder = new AnalyticsRecorderConcurrent();
 		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
+		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 	}
 
 	/**
@@ -100,16 +102,14 @@ public class ExecuteQueriesConcurrent {
 	
 	public void executeStreams(int nQueries, int nStreams, HashMap<Integer, String> queriesHT,
 			String workDir, String resultsDir, String plansDir, boolean singleCall) {
-		BlockingQueue<QueryRecord> resultsQueue = new LinkedBlockingQueue<QueryRecord>();
-		AnalyticsRecorder analyticsRecorder = new AnalyticsRecorder();
 		int totalQueries = nQueries * nStreams;
 		QueryResultsCollector resultsCollector = new QueryResultsCollector(totalQueries, 
-				resultsQueue, analyticsRecorder, this);
+				this.resultsQueue, this.recorder, this);
 		ExecutorService resultsCollectorExecutor = Executors.newSingleThreadExecutor();
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
 		for(int i = 1; i <= nStreams; i++) {
-			QueryStream stream = new QueryStream(i, resultsQueue, this.con, queriesHT, nQueries,
+			QueryStream stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT, nQueries,
 					workDir, resultsDir, plansDir, singleCall);
 			this.executor.submit(stream);
 		}

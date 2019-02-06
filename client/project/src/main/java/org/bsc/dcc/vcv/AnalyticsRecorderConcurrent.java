@@ -3,23 +3,11 @@ package org.bsc.dcc.vcv;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-public class AnalyticsRecorder {
+public class AnalyticsRecorderConcurrent extends AnalyticsRecorder {
 	
-	protected static final Logger logger = LogManager.getLogger("AnalyticsLog");
-	
-	public AnalyticsRecorder() {
-		
-	}
-	
-	public void message(String msg) {
-		logger.info(msg);
-	}
 	
 	public void header() {
-		String[] titles = {"QUERY", "SUCCESSFUL", "STARTDATE_EPOCH", "STOPDATE_EPOCH",
+		String[] titles = {"STREAM", "QUERY", "SUCCESSFUL", "STARTDATE_EPOCH", "STOPDATE_EPOCH",
 				                 "DURATION_MS", "STARTDATE", "STOPDATE", "DURATION", "RESULTS_SIZE"};
 		StringBuilder builder = new StringBuilder();
 		for(String title : titles)
@@ -27,10 +15,11 @@ public class AnalyticsRecorder {
 		logger.info(builder.toString());
 	}
 	
-	public void record(QueryRecord queryRecord) {
+	public void record(QueryRecordConcurrent queryRecord) {
 		int spaces = 25;
 		String colFormat = "%-" + spaces + "s|";
 		StringBuilder builder = new StringBuilder();
+		builder.append(String.format(colFormat, queryRecord.getStream()));
 		builder.append(String.format(colFormat, queryRecord.getQuery()));
 		builder.append(String.format(colFormat, queryRecord.isSuccessful()));
 		builder.append(String.format(colFormat, queryRecord.getStartTime()));
@@ -48,5 +37,7 @@ public class AnalyticsRecorder {
 		builder.append(String.format(colFormat, queryRecord.getResultsSize()));
 		logger.info(builder.toString());
 	}
-	
+
 }
+
+

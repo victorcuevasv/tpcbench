@@ -16,7 +16,7 @@ import java.util.HashMap;
 
 public class QueryStream implements Callable<Void> {
 
-	private BlockingQueue<QueryRecord> resultsQueue;
+	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
 	private Connection con;
 	private int nStream;
 	private HashMap<Integer, String> queriesHT;
@@ -26,7 +26,7 @@ public class QueryStream implements Callable<Void> {
 	private String plansDir;
 	private boolean singleCall;
 
-	public QueryStream(int nStream, BlockingQueue<QueryRecord> resultsQueue,
+	public QueryStream(int nStream, BlockingQueue<QueryRecordConcurrent> resultsQueue,
 			Connection con, HashMap<Integer, String> queriesHT, int nQueries,
 			String workDir, String resultsDir, String plansDir, boolean singleCall) {
 		this.nStream = nStream;
@@ -53,10 +53,10 @@ public class QueryStream implements Callable<Void> {
 	// Execute the query (or queries) from the provided file.
 	private void executeQuery(int nStream, String workDir, int nQuery, String sqlStr, String resultsDir,
 			String plansDir, boolean singleCall) {
-		QueryRecord queryRecord = null;
+		QueryRecordConcurrent queryRecord = null;
 		String fileName = "query" + nQuery;
 		try {
-			queryRecord = new QueryRecord(nQuery);
+			queryRecord = new QueryRecordConcurrent(nStream, nQuery);
 			// Execute the query or queries.
 			if (singleCall)
 				this.executeQuerySingleCall(nStream, workDir, resultsDir, plansDir,
@@ -80,7 +80,7 @@ public class QueryStream implements Callable<Void> {
 
 	// Execute a query from the provided file.
 	private void executeQuerySingleCall(int nStream, String workDir, String resultsDir, String plansDir,
-			String fileName, String sqlStr, QueryRecord queryRecord) throws SQLException {
+			String fileName, String sqlStr, QueryRecordConcurrent queryRecord) throws SQLException {
 		// Remove the last semicolon.
 		sqlStr = sqlStr.trim();
 		sqlStr = sqlStr.substring(0, sqlStr.length() - 1);
@@ -117,7 +117,7 @@ public class QueryStream implements Callable<Void> {
 			// Execute the query.
 			if (firstQuery)
 				queryRecord.setStartTime(System.currentTimeMillis());
-			System.out.println("Executing iteration " + iteration + " of query " + fileName + ".");
+			System.out.println("Stream " + nStream + " executing iteration " + iteration + " of query " + fileName + ".");
 			ResultSet rs = stmt.executeQuery(sqlStr);
 			// Save the results.
 			this.saveResults(workDir + "/" + resultsDir + "/" + nStream + "_" + fileName + ".txt", rs, !firstQuery);
