@@ -7,10 +7,10 @@ public class QueryResultsCollector implements Runnable {
 	private int totalQueries;
 	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
 	private AnalyticsRecorderConcurrent analyticsRecorder;
-	private ExecuteQueriesConcurrent parent;
+	private ConcurrentExecutor parent;
 	
 	public QueryResultsCollector(int totalQueries, BlockingQueue<QueryRecordConcurrent> resultsQueue,
-			AnalyticsRecorderConcurrent analyticsRecorder, ExecuteQueriesConcurrent parent) {
+			AnalyticsRecorderConcurrent analyticsRecorder, ConcurrentExecutor parent) {
 		this.totalQueries = totalQueries;
 		this.resultsQueue = resultsQueue;
 		this.analyticsRecorder = analyticsRecorder;
@@ -28,7 +28,8 @@ public class QueryResultsCollector implements Runnable {
 				e.printStackTrace();
 			}
 		}
-		parent.closeConnection();
+		if( parent != null)
+			parent.closeConnection();
 	}
 	
 }
