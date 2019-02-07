@@ -7,6 +7,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.sql.DriverManager;
 import java.io.*;
 import java.util.HashMap;
@@ -31,6 +32,8 @@ public class ExecuteQueriesConcurrent {
 	private ExecutorService executor;
 	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
 	private static final int POOL_SIZE = 100;
+	private long seed;
+	private Random random;
 
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
@@ -77,6 +80,7 @@ public class ExecuteQueriesConcurrent {
 	 * args[3] subdirectory of work directory to store the execution plans
 	 * args[4] system to evaluate the queries (hive/presto)
 	 * args[5] number of streams
+	 * args[6] random seed
 	 * 
 	 * all directories without slash
 	 */
@@ -95,12 +99,15 @@ public class ExecuteQueriesConcurrent {
 				toArray(File[]::new);
 		HashMap<Integer, String> queriesHT = prog.createQueriesHT(files);
 		int nStreams = Integer.parseInt(args[5]);
+		long seed = Long.parseLong(args[6]);
+		prog.seed = seed;
+		prog.random = new Random(seed);
 		int nQueries = files.length;
-		prog.executeStreams(nQueries, nStreams, queriesHT,
+		prog.executeStreams(nQueries, nStreams, prog.random, queriesHT,
 				args[0], args[2], args[3], false);
 	}
 	
-	public void executeStreams(int nQueries, int nStreams, HashMap<Integer, String> queriesHT,
+	public void executeStreams(int nQueries, int nStreams, Random random, HashMap<Integer, String> queriesHT,
 			String workDir, String resultsDir, String plansDir, boolean singleCall) {
 		int totalQueries = nQueries * nStreams;
 		QueryResultsCollector resultsCollector = new QueryResultsCollector(totalQueries, 
@@ -110,7 +117,7 @@ public class ExecuteQueriesConcurrent {
 		resultsCollectorExecutor.shutdown();
 		for(int i = 1; i <= nStreams; i++) {
 			QueryStream stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT, nQueries,
-					workDir, resultsDir, plansDir, singleCall);
+					workDir, resultsDir, plansDir, singleCall, random);
 			this.executor.submit(stream);
 		}
 		this.executor.shutdown();

@@ -13,6 +13,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.HashMap;
+import java.util.Random;
 
 public class QueryStream implements Callable<Void> {
 
@@ -25,10 +26,11 @@ public class QueryStream implements Callable<Void> {
 	private String resultsDir;
 	private String plansDir;
 	private boolean singleCall;
+	private Random random;
 
 	public QueryStream(int nStream, BlockingQueue<QueryRecordConcurrent> resultsQueue,
 			Connection con, HashMap<Integer, String> queriesHT, int nQueries,
-			String workDir, String resultsDir, String plansDir, boolean singleCall) {
+			String workDir, String resultsDir, String plansDir, boolean singleCall, Random random) {
 		this.nStream = nStream;
 		this.resultsQueue = resultsQueue;
 		this.con = con;
@@ -38,13 +40,16 @@ public class QueryStream implements Callable<Void> {
 		this.resultsDir = resultsDir;
 		this.plansDir = plansDir;
 		this.singleCall = singleCall;
+		this.random = random;
 	}
 
 	@Override
 	public Void call() {
-		for(int i = 1; i <= nQueries; i++) {
-			String sqlStr = this.queriesHT.get(i);
-			this.executeQuery(this.nStream, this.workDir, i, sqlStr,
+		Integer[] queries = this.queriesHT.keySet().toArray(new Integer[] {});
+		this.shuffle(queries);
+		for(int i = 0; i < nQueries; i++) {
+			String sqlStr = this.queriesHT.get(queries[i]);
+			this.executeQuery(this.nStream, this.workDir, queries[i], sqlStr,
 					this.resultsDir, this.plansDir, this.singleCall);
 		}
 		return null;
@@ -148,6 +153,15 @@ public class QueryStream implements Callable<Void> {
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
+		}
+	}
+	
+	private void shuffle(Integer[] array) {
+		for(int i = 0; i < array.length; i++) {
+			int randPos = this.random.nextInt(array.length);
+			int temp = array[i];
+			array[i] = array[randPos];
+			array[randPos] = temp;
 		}
 	}
 
