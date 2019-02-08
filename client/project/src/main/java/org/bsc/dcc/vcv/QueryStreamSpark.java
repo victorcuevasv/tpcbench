@@ -28,6 +28,7 @@ import org.apache.spark.sql.SaveMode;
 
 public class QueryStreamSpark implements Callable<Void> {
 
+	private static final Logger logger = LogManager.getLogger(QueryStreamSpark.class);
 	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
 	private SparkSession spark;
 	private int nStream;
@@ -88,6 +89,7 @@ public class QueryStreamSpark implements Callable<Void> {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			this.logger.error(e);
 		}
 		finally {
 			queryRecord.setEndTime(System.currentTimeMillis());
@@ -181,6 +183,7 @@ public class QueryStreamSpark implements Callable<Void> {
 	    } 
 	    catch (IOException e) {
 	        e.printStackTrace();
+	        this.logger.error(e);
 	    }
 	    return size.get();
 	}

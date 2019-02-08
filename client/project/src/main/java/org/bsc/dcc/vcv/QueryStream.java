@@ -14,9 +14,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.HashMap;
 import java.util.Random;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class QueryStream implements Callable<Void> {
 
+	private static final Logger logger = LogManager.getLogger(QueryStream.class);
 	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
 	private Connection con;
 	private int nStream;
@@ -76,6 +79,7 @@ public class QueryStream implements Callable<Void> {
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
+			this.logger.error(e);
 		}
 		finally {
 			queryRecord.setEndTime(System.currentTimeMillis());
@@ -150,6 +154,7 @@ public class QueryStream implements Callable<Void> {
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
+			this.logger.error(e);
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
