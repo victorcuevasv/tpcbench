@@ -185,7 +185,6 @@ public class QueryStreamSpark implements Callable<Void> {
 	    } 
 	    catch (IOException e) {
 	        e.printStackTrace();
-	        this.logger.error(e);
 	    }
 	    return size.get();
 	}
