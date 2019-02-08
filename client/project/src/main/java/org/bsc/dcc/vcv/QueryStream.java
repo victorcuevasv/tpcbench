@@ -80,6 +80,7 @@ public class QueryStream implements Callable<Void> {
 		catch (SQLException e) {
 			e.printStackTrace();
 			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		finally {
 			queryRecord.setEndTime(System.currentTimeMillis());
