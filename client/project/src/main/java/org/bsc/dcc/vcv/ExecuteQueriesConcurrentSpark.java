@@ -18,6 +18,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.apache.spark.sql.SparkSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -80,8 +81,8 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
 		for(int i = 1; i <= nStreams; i++) {
-			QueryStream stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT, nQueries,
-					workDir, resultsDir, plansDir, singleCall, random);
+			QueryStreamSpark stream = new QueryStreamSpark(i, this.resultsQueue, this.spark,
+					queriesHT, nQueries, workDir, resultsDir, plansDir, singleCall, random);
 			this.executor.submit(stream);
 		}
 		this.executor.shutdown();

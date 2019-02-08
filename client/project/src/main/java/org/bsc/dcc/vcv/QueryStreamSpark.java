@@ -29,7 +29,7 @@ import org.apache.spark.sql.SaveMode;
 public class QueryStreamSpark implements Callable<Void> {
 
 	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
-	private Connection con;
+	private SparkSession spark;
 	private int nStream;
 	private HashMap<Integer, String> queriesHT;
 	private int nQueries;
@@ -40,11 +40,11 @@ public class QueryStreamSpark implements Callable<Void> {
 	private Random random;
 
 	public QueryStreamSpark(int nStream, BlockingQueue<QueryRecordConcurrent> resultsQueue,
-			Connection con, HashMap<Integer, String> queriesHT, int nQueries,
+			SparkSession spark, HashMap<Integer, String> queriesHT, int nQueries,
 			String workDir, String resultsDir, String plansDir, boolean singleCall, Random random) {
 		this.nStream = nStream;
 		this.resultsQueue = resultsQueue;
-		this.con = con;
+		this.spark = spark;
 		this.queriesHT = queriesHT;
 		this.nQueries = nQueries;
 		this.workDir = workDir;
@@ -70,18 +70,17 @@ public class QueryStreamSpark implements Callable<Void> {
 	private void executeQuery(int nStream, String workDir, int nQuery, String sqlStr, String resultsDir,
 			String plansDir, boolean singleCall) {
 		QueryRecordConcurrent queryRecord = null;
-		String fileName = "query" + nQuery;
+		String noExtFileName = "query" + nQuery;
 		try {
 			queryRecord = new QueryRecordConcurrent(nStream, nQuery);
 			// Execute the query or queries.
 			if (singleCall)
 				this.executeQuerySingleCall(nStream, workDir, resultsDir, plansDir,
-						fileName, sqlStr, queryRecord);
+						noExtFileName, sqlStr, queryRecord);
 			else
 				this.executeQueryMultipleCalls(nStream, workDir, resultsDir, plansDir,
-						fileName, sqlStr, queryRecord);
+						noExtFileName, sqlStr, queryRecord);
 			// Record the results file size.
-			String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
 			long resultsSize = calculateSize(
 					workDir + "/" + resultsDir + "/" + nStream + "_" + noExtFileName, ".csv");
 			queryRecord.setResultsSize(resultsSize);
@@ -98,13 +97,12 @@ public class QueryStreamSpark implements Callable<Void> {
 	
 	// Execute a query from the provided file.
 	private void executeQuerySingleCall(int nStream, String workDir, String resultsDir, String plansDir, 
-				String fileName, String sqlStr, QueryRecordConcurrent queryRecord) {
+				String noExtFileName, String sqlStr, QueryRecordConcurrent queryRecord) {
 		// Remove the last semicolon.
 		sqlStr = sqlStr.trim();
 		sqlStr = sqlStr.substring(0, sqlStr.length() - 1);
 		// Obtain the plan for the query.
 		Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
-		String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
 		planDataset.write().mode(SaveMode.Overwrite).csv(
 				workDir + "/" + plansDir + "/" + nStream + "_" + noExtFileName);
 		// Execute the query.
@@ -116,7 +114,7 @@ public class QueryStreamSpark implements Callable<Void> {
 	}
 	
 	private void executeQueryMultipleCalls(int nStream, String workDir, String resultsDir, String plansDir,
-			String fileName, String sqlStrFull, QueryRecordConcurrent queryRecord) {
+			String noExtFileName, String sqlStrFull, QueryRecordConcurrent queryRecord) {
 		// Split the various queries and execute each.
 		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
 		boolean firstQuery = true;
@@ -127,13 +125,12 @@ public class QueryStreamSpark implements Callable<Void> {
 				continue;
 			// Obtain the plan for the query.
 			Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
-			String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
 			planDataset.write().mode(SaveMode.Overwrite).csv(
 					workDir + "/" + plansDir + "/" + nStream + "_" + noExtFileName);
 			// Execute the query.
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
-			System.out.println("Executing iteration " + iteration + " of query " + fileName + ".");
+			System.out.println("Executing iteration " + iteration + " of query " + noExtFileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
 			if( firstQuery )

@@ -58,9 +58,4 @@ bash server/buildSparkWorker.sh
 printf "\n\n%s\n\n" "${mag}Building the client project builder image.${end}"
 bash client/buildSpark.sh
 
-#Compile the client project.
-printf "\n\n%s\n\n" "${blu}Compiling the client project.${end}"
-bash client/compileSpark.sh
-
-
 
