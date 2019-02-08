@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -92,6 +93,7 @@ public class QueryStreamSpark implements Callable<Void> {
 		catch (Exception e) {
 			e.printStackTrace();
 			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		finally {
 			queryRecord.setEndTime(System.currentTimeMillis());
@@ -199,4 +201,5 @@ public class QueryStreamSpark implements Callable<Void> {
 	}
 
 }
+
 
