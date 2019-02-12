@@ -28,4 +28,13 @@ spark-submit --packages org.apache.zookeeper:zookeeper:3.4.6 --class org.apache.
 
 
 
+Fix problem with failed queries due to memory errors (changes the spark.driver.memory configuration variable).
+Add 
+--driver-memory 2g
+to the spark-submit call
+
+
+
+
+
 
