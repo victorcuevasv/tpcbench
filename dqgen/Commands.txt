@@ -1,0 +1,33 @@
+
+#Add the following lines to netezza.tpl
+
+define _BEGIN = "";
+define _END = "";
+
+
+# Use the following command to generate the data (run in tools directory).
+# The terminate parameter indicates to not add a | delimiter at the end of each record.
+
+./dsdgen -scale 1 -dir ../../1GB -terminate n
+
+# To generate the queries execute the createQueries.sh script in the tools directory. The script is listed next.
+
+for f in ../query_templates/query*.tpl ; do 
+   ./dsqgen -template $(basename "$f") -OUTPUT_DIR ../../QueriesNetezza -directory ../query_templates -dialect netezza -scale 1
+   mv ../../QueriesNetezza/query_0.sql ../../QueriesNetezza/$(basename "$f" .tpl).sql  ; #.tpl is removed with this invocation of basename
+done
+
+# The script generateQueries.sh in the tools directory does essentially the same as the one above.
+
+
+# To generate a single file with all of the queries execute the following command inside the tools directory.
+
+ ./dsqgen -DIRECTORY ../query_templates -INPUT ../query_templates/templates.lst -SCALE 1 -DIALECT netezza -OUTPUT_DIR ../../QueriesNetezzaSingle
+
+
+
+# To generate multiple streams (e.g. 3)
+
+ ./dsqgen -DIRECTORY ../query_templates -INPUT ../query_templates/templates.lst -streams 3 -SCALE 1 -DIALECT netezza -OUTPUT_DIR ../../QueriesNetezzaStreams
+
+
