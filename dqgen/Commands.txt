@@ -1,8 +1,14 @@
 
-#Add the following lines to netezza.tpl
+#Add the following lines to netezza.tpl to avoid query generation error.
 
 define _BEGIN = "";
 define _END = "";
+
+#The following lines remove the same error, and add information about
+#which query was generated.
+
+define _BEGIN = "-- start query " + [_QUERY] + " in stream " + [_STREAM] + " using template " + [_TEMPLATE];
+define _END = "-- end query " + [_QUERY] + " in stream " + [_STREAM] + " using template " + [_TEMPLATE];
 
 
 # Use the following command to generate the data (run in tools directory).
