@@ -62,7 +62,7 @@
      date_dim,
      store
  where date_sk = d_date_sk
-       and d_date between cast('[SALES_DATE]' as date) 
+       and date(d_date) between cast('[SALES_DATE]' as date) 
                   and (cast('[SALES_DATE]' as date) + interval '14' day)
        and store_sk = s_store_sk
  group by s_store_id)
@@ -93,7 +93,7 @@
      date_dim,
      catalog_page
  where date_sk = d_date_sk
-       and d_date between cast('[SALES_DATE]' as date)
+       and date(d_date) between cast('[SALES_DATE]' as date)
                   and (cast('[SALES_DATE]' as date) + interval '14' day)
        and page_sk = cp_catalog_page_sk
  group by cp_catalog_page_id)
@@ -126,7 +126,7 @@
      date_dim,
      web_site
  where date_sk = d_date_sk
-       and d_date between cast('[SALES_DATE]' as date)
+       and date(d_date) between cast('[SALES_DATE]' as date)
                   and (cast('[SALES_DATE]' as date) + interval '14' day)
        and wsr_web_site_sk = web_site_sk
  group by web_site_id)
