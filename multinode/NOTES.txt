@@ -1,0 +1,4 @@
+
+#The file permissions of id_rsa (ssh private key) should be 700.
+
+
