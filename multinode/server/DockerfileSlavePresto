@@ -75,7 +75,7 @@ RUN useradd hadoop && \
 
 #Copy the initialization script for Hadoop, Hive, Presto and make it executable.
 
-COPY startPresto.sh /startSlavePresto.sh
+COPY startSlavePresto.sh /startSlavePresto.sh
 
 RUN chmod +x /startSlavePresto.sh
 

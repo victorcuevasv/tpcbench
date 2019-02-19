@@ -11,15 +11,15 @@ mr-jobhistory-daemon.sh start historyserver
 #Create the Hive warehouse directory.
 #Create a hive user and a supergroup group with hive as a member.
 #Add the temporal directory holding the data to hdfs. 
-#hadoop fs -mkdir -p    /user/hive/warehouse  && \
-#hadoop fs -chmod g+w   /user/hive/warehouse && \
-#useradd hive && \
-#groupadd supergroup && \
-#usermod -a -G supergroup hive && \
-#hadoop fs -put /temporal /temporal
-
 hadoop fs -mkdir -p    /user/hive/warehouse  && \
-hadoop fs -chown hive:hive   /user/hive/warehouse
+hadoop fs -chmod g+w   /user/hive/warehouse && \
+useradd hive && \
+groupadd supergroup && \
+usermod -a -G supergroup hive && \
+hadoop fs -put /temporal /temporal
+
+#hadoop fs -mkdir -p    /user/hive/warehouse  && \
+#hadoop fs -chown hive:hive   /user/hive/warehouse
 
 # $1 host $2 port $3 tries
 wait_for_server() {
