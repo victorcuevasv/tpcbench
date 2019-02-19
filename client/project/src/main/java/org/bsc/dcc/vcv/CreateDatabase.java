@@ -37,6 +37,12 @@ public class CreateDatabase {
 			this.logger.error(e);
 			System.exit(1);
 		}
+		catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			this.logger.error(e);
+			System.exit(1);
+		}
 	}
 
 	/**
