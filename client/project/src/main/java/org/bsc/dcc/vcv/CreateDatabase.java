@@ -49,7 +49,7 @@ public class CreateDatabase {
 	 * @param args
 	 * @throws SQLException
 	 * 
-	 * args[0] main work directory
+	 * args[0] subdirectory within main work directory with the create table files
 	 * args[1] suffix used for intermediate table text files
 	 * args[2] directory for generated data raw files
 	 * args[3] hostname of the server
@@ -57,7 +57,7 @@ public class CreateDatabase {
 	public static void main(String[] args) throws SQLException {
 		CreateDatabase prog = new CreateDatabase(args[3]);
 		File directory = new File(args[0]);
-		// Process each .dat file found in the directory.
+		// Process each .sql create table file found in the directory.
 		for (final File fileEntry : directory.listFiles()) {
 			if (!fileEntry.isDirectory()) {
 				prog.createTable(args[0], fileEntry, args[1], args[2]);
