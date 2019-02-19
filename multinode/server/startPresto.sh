@@ -40,15 +40,15 @@ wait_for_server() {
 	printf "$1:$2 is reachable.\n"
 }
 
-#if [ ! -f /metastore/metastorecreated ]; then
-#   schematool -dbType postgres -initSchema --verbose
-#   echo "metastorecreated" > /metastore/metastorecreated
-#fi
+if [ ! -f /metastore/metastorecreated ]; then
+   schematool -dbType postgres -initSchema --verbose
+   echo "metastorecreated" > /metastore/metastorecreated
+fi
 
-#hive --service metastore &
-#wait_for_server localhost 9083 8
-#hive --service hiveserver2 &
-#wait_for_server localhost 10000 8
+hive --service metastore &
+wait_for_server localhost 9083 8
+hive --service hiveserver2 &
+wait_for_server localhost 10000 8
 #/opt/presto-server-0.214/bin/launcher run
 
 sleep infinity

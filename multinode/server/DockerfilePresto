@@ -48,23 +48,23 @@ RUN hdfs namenode -format
 
 #Download and decompress Hive.
 
-#RUN wget -q -P /opt http://apache.rediris.es/hive/hive-2.3.4/apache-hive-2.3.4-bin.tar.gz && \
-#    tar xzf /opt/apache-hive-2.3.4-bin.tar.gz -C /opt && \
-#    rm -f /opt/apache-hive-2.3.4-bin.tar.gz
+RUN wget -q -P /opt http://apache.rediris.es/hive/hive-2.3.4/apache-hive-2.3.4-bin.tar.gz && \
+    tar xzf /opt/apache-hive-2.3.4-bin.tar.gz -C /opt && \
+    rm -f /opt/apache-hive-2.3.4-bin.tar.gz
     
 #Add the Hive installation directory variable and update the path.
 
-#ENV HIVE_HOME /opt/apache-hive-2.3.4-bin
-#ENV PATH="${PATH}:/opt/apache-hive-2.3.4-bin/bin"
+ENV HIVE_HOME /opt/apache-hive-2.3.4-bin
+ENV PATH="${PATH}:/opt/apache-hive-2.3.4-bin/bin"
 
 #Copy the Hive configuration file which will override selected defaults.
 
-#COPY hive-siteExternalMetastore.xml /opt/apache-hive-2.3.4-bin/conf/hive-site.xml
+COPY hive-siteExternalMetastore.xml /opt/apache-hive-2.3.4-bin/conf/hive-site.xml
 
 #Download the postgres driver.
 
-#RUN wget --no-check-certificate -q -P /opt/apache-hive-2.3.4-bin/lib \
-#    https://jdbc.postgresql.org/download/postgresql-42.2.5.jar
+RUN wget --no-check-certificate -q -P /opt/apache-hive-2.3.4-bin/lib \
+    https://jdbc.postgresql.org/download/postgresql-42.2.5.jar
 
 #Download and decompress Presto.
 
