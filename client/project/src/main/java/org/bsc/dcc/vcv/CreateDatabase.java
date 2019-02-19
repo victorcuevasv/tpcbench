@@ -17,12 +17,13 @@ public class CreateDatabase {
 
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public CreateDatabase() {
+	public CreateDatabase(String hostname) {
 		try {
 			Class.forName(driverName);
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
-			con = DriverManager.getConnection("jdbc:hive2://hiveservercontainer:10000/default", "hive", "");
+			con = DriverManager.getConnection("jdbc:hive2://" + hostname + 
+					":10000/default", "hive", "");
 		}
 		catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -41,9 +42,14 @@ public class CreateDatabase {
 	/**
 	 * @param args
 	 * @throws SQLException
+	 * 
+	 * args[0] main work directory
+	 * args[1] suffix used for intermediate table text files
+	 * args[2] directory for generated data raw files
+	 * args[3] hostname of the server
 	 */
 	public static void main(String[] args) throws SQLException {
-		CreateDatabase prog = new CreateDatabase();
+		CreateDatabase prog = new CreateDatabase(args[3]);
 		File directory = new File(args[0]);
 		// Process each .dat file found in the directory.
 		for (final File fileEntry : directory.listFiles()) {

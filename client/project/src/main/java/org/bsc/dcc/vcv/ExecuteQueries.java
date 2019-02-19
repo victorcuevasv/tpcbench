@@ -26,17 +26,19 @@ public class ExecuteQueries {
 
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public ExecuteQueries(String system) {
+	public ExecuteQueries(String system, String hostname) {
 		try {
 			system = system.toLowerCase();
 			String driverName = "";
 			if( system.equals("hive") ) {
 				Class.forName(hiveDriverName);
-				con = DriverManager.getConnection("jdbc:hive2://hiveservercontainer:10000/default", "hive", "");
+				con = DriverManager.getConnection("jdbc:hive2://" +
+						hostname + ":10000/default", "hive", "");
 			}
 			else if( system.equals("presto") ) {
 				Class.forName(prestoDriverName);
-				con = DriverManager.getConnection("jdbc:presto://hiveservercontainer:8080/hive/default", "hive", "");
+				con = DriverManager.getConnection("jdbc:presto://" + 
+						hostname + ":8080/hive/default", "hive", "");
 				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
@@ -66,11 +68,12 @@ public class ExecuteQueries {
 	 * args[2] subdirectory of work directory to store the results
 	 * args[3] subdirectory of work directory to store the execution plans
 	 * args[4] system to evaluate the queries (hive/presto)
+	 * args[5] hostname of the server
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) throws SQLException {
-		ExecuteQueries prog = new ExecuteQueries(args[4]);
+		ExecuteQueries prog = new ExecuteQueries(args[4], args[5]);
 		File directory = new File(args[0] + "/" + args[1]);
 		// Process each .sql file found in the directory.
 		// The preprocessing steps are necessary to obtain the right order, i.e.,
