@@ -10,10 +10,10 @@ services:
             - ./warehousevol:/user/hive/warehouse
             - ./metastorevol:/metastore
     slave1service:
-        image: hadoopslave:dev
+        image: hadoopslave1:dev
         container_name: slave1container
     slave2service:
-        image: hadoopslave:dev
+        image: hadoopslave2:dev
         container_name: slave2container
     postgresservice:
         image: postgres:10.6
