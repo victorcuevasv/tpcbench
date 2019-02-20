@@ -52,7 +52,7 @@ bash server/buildPresto.sh
 
 #Build the slave server image.
 printf "\n\n%s\n\n" "${mag}Building the slave server image.${end}"
-bash server/buildSlavePresto.sh
+bash server/buildSlavesPresto.sh
 
 #Set permissions for data volume and client project.
 chmod -R 777 client/project
