@@ -64,14 +64,14 @@ RUN useradd hadoop && \
 
 #Download and decompress Presto.
 
-#RUN wget -q -P /opt \
-#    https://repo1.maven.org/maven2/com/facebook/presto/presto-server/0.214/presto-server-0.214.tar.gz && \
-#    tar xzf /opt/presto-server-0.214.tar.gz -C /opt && \
-#    rm -f /opt/presto-server-0.214.tar.gz
+RUN wget -q -P /opt \
+    https://repo1.maven.org/maven2/com/facebook/presto/presto-server/0.214/presto-server-0.214.tar.gz && \
+    tar xzf /opt/presto-server-0.214.tar.gz -C /opt && \
+    rm -f /opt/presto-server-0.214.tar.gz
     
 #Copy the Presto configuration files.
 
-#COPY presto_etc/etc/ /opt/presto-server-0.214/etc/
+COPY presto_etc_worker/etc/ /opt/presto-server-0.214/etc/
 
 #Copy the initialization script for Hadoop, Hive, Presto and make it executable.
 

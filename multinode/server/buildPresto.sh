@@ -2,5 +2,25 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+#Generate the Presto coordinator node configuration files.
+
+#First generate a new node.properties file inside the etc directory from the base file.
+cat $DIR/presto_etc_coordinator/node.properties.base > $DIR/presto_etc_coordinator/etc/node.properties
+
+#Add to the previously generated file the node.id line.
+echo "node.id="$(cat $DIR/presto_etc_coordinator/node.id)"" >> $DIR/presto_etc_coordinator/etc/node.properties
+
+#Then generate the config.properties file inside the etc directory from the base file.
+cat $DIR/presto_etc_coordinator/config.properties.base > $DIR/presto_etc_coordinator/etc/config.properties
+
+#Add to the previously generated file the discovery.uri line.
+echo "discovery.uri="$(cat $DIR/presto_etc_coordinator/discovery.uri)"" >> $DIR/presto_etc_coordinator/etc/config.properties   
+
+#Finally generate a new catalog/hive.properties file.
+cat $DIR/presto_etc_coordinator/hive.properties.base > $DIR/presto_etc_coordinator/etc/catalog/hive.properties
+
+#Add to the previously generated file the hive.metastore.uri line.
+echo "hive.metastore.uri="$(cat $DIR/presto_etc_coordinator/hive.metastore.uri)"" >> $DIR/presto_etc_coordinator/etc/catalog/hive.properties   
+
 docker build -t hiveserver:dev $DIR -f $DIR/DockerfilePresto 
 
