@@ -42,10 +42,6 @@ if [ ! -d datavol ]; then
    cp ../benchmark/tpcds.sql datavol
 fi
 
-#Build the Ubuntu with Java base image.
-printf "\n\n%s\n\n" "${mag}Creating Ubuntu with Java base image.${end}"
-bash ubuntujava/build.sh
-
 #Build the namenode server image.
 printf "\n\n%s\n\n" "${mag}Building the namenode server image.${end}"
 bash server/buildPresto.sh
