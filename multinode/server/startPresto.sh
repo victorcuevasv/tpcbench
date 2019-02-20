@@ -35,7 +35,7 @@ wait_for_server() {
   	fi
   	i=$((i+1))
   	printf "$1:$2 is unreachable, retrying.\n"
-  	sleep 2
+  	sleep 5
 	done
 	printf "$1:$2 is reachable.\n"
 }
@@ -46,9 +46,9 @@ if [ ! -f /metastore/metastorecreated ]; then
 fi
 
 hive --service metastore &
-wait_for_server localhost 9083 8
+wait_for_server localhost 9083 24
 hive --service hiveserver2 &
-wait_for_server localhost 10000 8
+wait_for_server localhost 10000 24
 /opt/presto-server-0.214/bin/launcher run
 
 #sleep infinity
