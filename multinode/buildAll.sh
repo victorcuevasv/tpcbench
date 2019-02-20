@@ -43,8 +43,8 @@ if [ ! -d datavol ]; then
 fi
 
 #Build the Ubuntu with Java base image.
-#printf "\n\n%s\n\n" "${mag}Creating Ubuntu with Java base image.${end}"
-#bash ubuntujava/build.sh
+printf "\n\n%s\n\n" "${mag}Creating Ubuntu with Java base image.${end}"
+bash ubuntujava/build.sh
 
 #Build the namenode server image.
 printf "\n\n%s\n\n" "${mag}Building the namenode server image.${end}"
@@ -54,13 +54,19 @@ bash server/buildPresto.sh
 printf "\n\n%s\n\n" "${mag}Building the slave server image.${end}"
 bash server/buildSlavePresto.sh
 
-#Build the client project builder image.
-#printf "\n\n%s\n\n" "${mag}Building the client project builder image.${end}"
-#bash client/buildPresto.sh
+#Set permissions for data volume and client project.
+chmod -R 777 client/project
+sudo chmod -R 777 client/project
+chmod -R 777 datavol
+sudo chmod -R 777 datavol
+chmod -R 777 warehousevol
+sudo chmod -R 777 warehousevol
+chmod -R 777 metastorevol
+sudo chmod -R 777 metastorevol
+chmod -R 777 hivevol
+sudo chmod -R 777 hivevol
 
-#Compile the client project.
-#printf "\n\n%s\n\n" "${blu}Compiling the client project.${end}"
-#bash client/compile.sh
+
 
 
 
