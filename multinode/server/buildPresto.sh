@@ -16,6 +16,8 @@ cat $DIR/presto_etc_coordinator/config.properties.base > $DIR/presto_etc_coordin
 #Add to the previously generated file the discovery.uri line.
 echo "discovery.uri="$(cat $DIR/presto_etc_coordinator/discovery.uri)"" >> $DIR/presto_etc_coordinator/etc/config.properties   
 
+mkdir $DIR/presto_etc_coordinator/etc/catalog
+
 #Finally generate a new catalog/hive.properties file.
 cat $DIR/presto_etc_coordinator/hive.properties.base > $DIR/presto_etc_coordinator/etc/catalog/hive.properties
 
