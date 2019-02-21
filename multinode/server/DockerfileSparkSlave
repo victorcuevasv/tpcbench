@@ -2,6 +2,8 @@ FROM ubuntujava:dev
 
 USER root
 
+ARG APACHE_MIRROR=apache.rediris.es
+
 #Install netcat to use nc to check connections, ssh and python.
 
 RUN apt-get update && apt-get install -y \
@@ -24,8 +26,7 @@ COPY ssh_config /root/.ssh/config
 
 #Download and decompress Hadoop
 
-#RUN wget -q -P /opt http://apache.rediris.es/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
-RUN wget -q -P /opt http://apache.uvigo.es/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
+RUN wget -q -P /opt http://$APACHE_MIRROR/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
     tar xzf /opt/hadoop-2.7.7.tar.gz -C /opt && \
     rm -f /opt/hadoop-2.7.7.tar.gz
 
@@ -46,8 +47,7 @@ RUN useradd hadoop && \
 #Download and decompress Spark.
 #Use the version prebuilt for Hadoop, spark-sql does not work in the version without Hadoop.
 
-#RUN wget -q -P /opt http://apache.rediris.es/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
-RUN wget -q -P /opt http://apache.uvigo.es/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
+RUN wget -q -P /opt http://$APACHE_MIRROR/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
     tar xzf /opt/spark-2.4.0-bin-hadoop2.7.tgz -C /opt && \
     rm -f /opt/spark-2.4.0-bin-hadoop2.7.tgz
     
