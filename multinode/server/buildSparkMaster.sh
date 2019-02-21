@@ -2,5 +2,5 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-docker build -t sparkmaster:dev $DIR -f $DIR/DockerfileSparkMaster 
+docker build -t sparkmaster:dev $DIR -f $DIR/DockerfileSparkMaster  --build-arg APACHE_MIRROR=apache.uvigo.es  
 
