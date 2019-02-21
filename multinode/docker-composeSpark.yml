@@ -30,7 +30,7 @@ services:
             POSTGRES_PASSWORD: postgres
     hiveclient:
         image: buildhiveclient:dev
-        container_name: hiveclientcontainer
+        container_name: sparkhiveclientcontainer
         volumes:
             - ./client/project:/project
             - ./datavol:/data
