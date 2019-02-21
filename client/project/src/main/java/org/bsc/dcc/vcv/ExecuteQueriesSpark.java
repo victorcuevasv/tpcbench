@@ -76,6 +76,7 @@ public class ExecuteQueriesSpark {
 				e.printStackTrace();
 				this.logger.error("Error processing: " + fileName);
 				this.logger.error(e);
+				this.logger.error(AppUtil.stringifyStackTrace(e));
 			}
 			finally {
 				queryRecord.setEndTime(System.currentTimeMillis());

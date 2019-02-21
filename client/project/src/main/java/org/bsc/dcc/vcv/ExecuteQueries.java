@@ -49,13 +49,19 @@ public class ExecuteQueries {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			this.logger.error(e);
-			System.exit(1);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			this.logger.error(e);
-			System.exit(1);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
 
