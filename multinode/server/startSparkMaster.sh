@@ -51,7 +51,7 @@ hive --service hiveserver2 &
 wait_for_server localhost 10000 24
 bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-all.sh
 
-#sleep infinity
+sleep infinity
 
  
 
