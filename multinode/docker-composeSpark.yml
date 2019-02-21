@@ -5,6 +5,10 @@ services:
         container_name: namenodecontainer
         ports:
             - 10000:10000
+            - 4040:4040
+            - 6066:6066
+            - 7077:7077
+            - 8080:8080
         volumes:
             - ./hivevol:/temporal
             - ./warehousevol:/user/hive/warehouse
