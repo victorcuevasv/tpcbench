@@ -24,7 +24,8 @@ COPY ssh_config /root/.ssh/config
 
 #Download and decompress Hadoop
 
-RUN wget -q -P /opt http://apache.rediris.es/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
+#RUN wget -q -P /opt http://apache.rediris.es/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
+RUN wget -q -P /opt http://apache.uvigo.es/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
     tar xzf /opt/hadoop-2.7.7.tar.gz -C /opt && \
     rm -f /opt/hadoop-2.7.7.tar.gz
 
@@ -48,7 +49,8 @@ RUN hdfs namenode -format
 
 #Download and decompress Hive.
 
-RUN wget -q -P /opt http://apache.rediris.es/hive/hive-2.3.4/apache-hive-2.3.4-bin.tar.gz && \
+#RUN wget -q -P /opt http://apache.rediris.es/hive/hive-2.3.4/apache-hive-2.3.4-bin.tar.gz && \
+RUN wget -q -P /opt http://apache.uvigo.es/hive/hive-2.3.4/apache-hive-2.3.4-bin.tar.gz && \
     tar xzf /opt/apache-hive-2.3.4-bin.tar.gz -C /opt && \
     rm -f /opt/apache-hive-2.3.4-bin.tar.gz
     
@@ -69,7 +71,8 @@ RUN wget --no-check-certificate -q -P /opt/apache-hive-2.3.4-bin/lib \
 #Download and decompress Spark.
 #Use the version prebuilt for Hadoop, spark-sql does not work in the version without Hadoop.
 
-RUN wget -q -P /opt http://apache.rediris.es/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
+#RUN wget -q -P /opt http://apache.rediris.es/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
+RUN wget -q -P /opt http://apache.uvigo.es/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
     tar xzf /opt/spark-2.4.0-bin-hadoop2.7.tgz -C /opt && \
     rm -f /opt/spark-2.4.0-bin-hadoop2.7.tgz
     
@@ -81,6 +84,7 @@ ENV PATH="${PATH}:/opt/spark-2.4.0-bin-hadoop2.7/bin"
 #Copy the Spark configuration file which will override selected defaults.
 
 COPY spark_conf/spark-defaults.conf /opt/spark-2.4.0-bin-hadoop2.7/conf/spark-defaults.conf
+COPY spark_conf/slaves /opt/spark-2.4.0-bin-hadoop2.7/conf/slaves
 COPY hive-defaultSpark.xml /opt/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
 
 #Add the Hadoop jars to the Spark classpath.

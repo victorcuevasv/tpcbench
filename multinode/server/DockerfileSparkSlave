@@ -24,7 +24,8 @@ COPY ssh_config /root/.ssh/config
 
 #Download and decompress Hadoop
 
-RUN wget -q -P /opt http://apache.rediris.es/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
+#RUN wget -q -P /opt http://apache.rediris.es/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
+RUN wget -q -P /opt http://apache.uvigo.es/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
     tar xzf /opt/hadoop-2.7.7.tar.gz -C /opt && \
     rm -f /opt/hadoop-2.7.7.tar.gz
 
@@ -43,15 +44,17 @@ RUN useradd hadoop && \
     chown -R hadoop:hadoop /opt/hadoop-2.7.7
 
 #Download and decompress Spark.
+#Use the version prebuilt for Hadoop, spark-sql does not work in the version without Hadoop.
 
-RUN wget -q -P /opt https://archive.apache.org/dist/spark/spark-2.4.0/spark-2.4.0-bin-without-hadoop.tgz && \
-    tar xzf /opt/spark-2.4.0-bin-without-hadoop.tgz -C /opt && \
-    rm -f /opt/spark-2.4.0-bin-without-hadoop.tgz
+#RUN wget -q -P /opt http://apache.rediris.es/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
+RUN wget -q -P /opt http://apache.uvigo.es/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
+    tar xzf /opt/spark-2.4.0-bin-hadoop2.7.tgz -C /opt && \
+    rm -f /opt/spark-2.4.0-bin-hadoop2.7.tgz
     
 #Add the Spark installation directory variable and update the path.
 
-ENV SPARK_HOME /opt/spark-2.4.0-bin-without-hadoop
-ENV PATH="${PATH}:/opt/spark-2.4.0-bin-without-hadoop/bin"
+ENV SPARK_HOME /opt/spark-2.4.0-bin-hadoop2.7
+ENV PATH="${PATH}:/opt/spark-2.4.0-bin-hadoop2.7/bin"
 
 #Add the Hadoop jars to the Spark classpath.
 
