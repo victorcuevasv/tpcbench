@@ -17,6 +17,11 @@ useradd hive && \
 groupadd supergroup && \
 usermod -a -G supergroup hive && \
 hadoop fs -put /temporal /temporal
+#Required specifically for Spark-Hive.
+mkdir -p /tmp/hive/java
+chmod -R 777 /tmp
+hadoop fs -mkdir -p /tmp/hive
+hadoop fs -chmod -R 777 /tmp/hive
 
 #hadoop fs -mkdir -p    /user/hive/warehouse  && \
 #hadoop fs -chown hive:hive   /user/hive/warehouse
