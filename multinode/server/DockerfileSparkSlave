@@ -62,11 +62,11 @@ ENV SPARK_DIST_CLASSPATH="$HADOOP_HOME/etc/hadoop/*:$HADOOP_HOME/share/hadoop/co
 
 #Copy the initialization script for Hadoop, Hive, Presto and make it executable.
 
-COPY startSlaveSpark.sh /startSlaveSpark.sh
+COPY startSparkSlave.sh /startSparkSlave.sh
 
-RUN chmod +x /startSlaveSpark.sh
+RUN chmod +x /startSparkSlave.sh
 
 CMD ["bash"]
 
-ENTRYPOINT [ "bash", "-c", "/startSlaveSpark.sh" ]
+ENTRYPOINT [ "bash", "-c", "/startSparkSlave.sh" ]
 
