@@ -1,0 +1,107 @@
+FROM ubuntujava:dev
+
+USER root
+
+#Install netcat to use nc to check connections, ssh and python.
+
+RUN apt-get update && apt-get install -y \
+    netcat \
+    ssh \
+    python2.7 \
+    python-pip \
+    python-dev
+
+#Add the generated key to the authorized set.
+
+COPY ssh /root/.ssh
+
+RUN cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+    
+#The configuration file will enable passwordless login to nodes
+#and without confirmation prompt.
+    
+COPY ssh_config /root/.ssh/config
+
+#Download and decompress Hadoop
+
+RUN wget -q -P /opt http://apache.rediris.es/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
+    tar xzf /opt/hadoop-2.7.7.tar.gz -C /opt && \
+    rm -f /opt/hadoop-2.7.7.tar.gz
+
+#Add the Hadoop installation directory variable and update the path.
+
+ENV HADOOP_HOME /opt/hadoop-2.7.7
+ENV PATH="${PATH}:/opt/hadoop-2.7.7/bin:/opt/hadoop-2.7.7/sbin"
+
+#Copy the Hadoop configuration files.
+
+COPY etc_hadoop/* /opt/hadoop-2.7.7/etc/hadoop/
+
+#Change the owner of the Hadoop files.
+
+RUN useradd hadoop && \
+    chown -R hadoop:hadoop /opt/hadoop-2.7.7
+
+#Format the hdfs namenode.
+
+RUN hdfs namenode -format
+
+#Download and decompress Hive.
+
+RUN wget -q -P /opt http://apache.rediris.es/hive/hive-2.3.4/apache-hive-2.3.4-bin.tar.gz && \
+    tar xzf /opt/apache-hive-2.3.4-bin.tar.gz -C /opt && \
+    rm -f /opt/apache-hive-2.3.4-bin.tar.gz
+    
+#Add the Hive installation directory variable and update the path.
+
+ENV HIVE_HOME /opt/apache-hive-2.3.4-bin
+ENV PATH="${PATH}:/opt/apache-hive-2.3.4-bin/bin"
+
+#Copy the Hive configuration file which will override selected defaults.
+
+COPY hive-siteExternalMetastore.xml /opt/apache-hive-2.3.4-bin/conf/hive-site.xml
+
+#Download the postgres driver.
+
+RUN wget --no-check-certificate -q -P /opt/apache-hive-2.3.4-bin/lib \
+    https://jdbc.postgresql.org/download/postgresql-42.2.5.jar
+
+#Download and decompress Spark.
+#Use the version prebuilt for Hadoop, spark-sql does not work in the version without Hadoop.
+
+RUN wget -q -P /opt http://apache.rediris.es/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
+    tar xzf /opt/spark-2.4.0-bin-hadoop2.7.tgz -C /opt && \
+    rm -f /opt/spark-2.4.0-bin-hadoop2.7.tgz
+    
+#Add the Spark installation directory variable and update the path.
+
+ENV SPARK_HOME /opt/spark-2.4.0-bin-hadoop2.7
+ENV PATH="${PATH}:/opt/spark-2.4.0-bin-hadoop2.7/bin"
+
+#Copy the Spark configuration file which will override selected defaults.
+
+COPY spark_conf/spark-defaults.conf /opt/spark-2.4.0-bin-hadoop2.7/conf/spark-defaults.conf
+COPY hive-defaultSpark.xml /opt/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
+
+#Add the Hadoop jars to the Spark classpath.
+
+ENV SPARK_DIST_CLASSPATH="$HADOOP_HOME/etc/hadoop/*:$HADOOP_HOME/share/hadoop/common/lib/*:$HADOOP_HOME/share/hadoop/common/*:$HADOOP_HOME/share/hadoop/hdfs/*:$HADOOP_HOME/share/hadoop/hdfs/lib/*:$HADOOP_HOME/share/hadoop/hdfs/*:$HADOOP_HOME/share/hadoop/yarn/lib/*:$HADOOP_HOME/share/hadoop/yarn/*:$HADOOP_HOME/share/hadoop/mapreduce/lib/*:$HADOOP_HOME/share/hadoop/mapreduce/*:$HADOOP_HOME/share/hadoop/tools/lib/*"   
+
+#Copy the initialization script for Hadoop, Hive, Spark and make it executable.
+
+COPY startSparkMaster.sh /startSparkMaster.sh
+
+RUN chmod +x /startSparkMaster.sh
+
+#Run the Spark-Hive example only to download the jars, it doesn't matter if it fails.
+     
+RUN spark-submit \
+     --packages org.apache.zookeeper:zookeeper:3.4.6 \
+     --class org.apache.spark.examples.sql.hive.JavaSparkHiveExample \
+     --deploy-mode client \
+     $SPARK_HOME/examples/jars/spark-examples_2.11-2.4.0.jar ; exit 0
+
+CMD ["bash"]
+
+ENTRYPOINT [ "bash", "-c", "/startSparkMaster.sh" ]
+
