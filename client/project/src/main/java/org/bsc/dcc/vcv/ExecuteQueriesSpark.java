@@ -113,11 +113,11 @@ public class ExecuteQueriesSpark {
 			String sqlStr = tokenizer.nextToken().trim();
 			if( sqlStr.length() == 0 )
 				continue;
+			String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
+			this.spark.sparkContext().setJobDescription("Executing iteration " + iteration + 
+					" of query " + fileName + ".");
 			// Obtain the plan for the query.
 			Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
-			String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
-			this.spark.sparkContext().setJobDescription("Saving plan for iteration " + iteration + 
-					" of query " + fileName + ".");
 			if( firstQuery )
 				planDataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + plansDir + "/" + noExtFileName);
 			else
@@ -126,12 +126,8 @@ public class ExecuteQueriesSpark {
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
 			System.out.println("Executing iteration " + iteration + " of query " + fileName + ".");
-			this.spark.sparkContext().setJobDescription("Executing iteration " + iteration + 
-					" of query " + fileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
-			this.spark.sparkContext().setJobDescription("Saving results for iteration " + iteration + 
-					" of query " + fileName + ".");
 			if( firstQuery )
 				dataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
 			else
