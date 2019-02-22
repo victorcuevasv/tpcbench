@@ -57,7 +57,7 @@ public class ExecuteQueries {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
-		catch (SQLException e) {
+		catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			this.logger.error(e);
