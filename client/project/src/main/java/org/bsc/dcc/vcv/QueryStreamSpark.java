@@ -83,7 +83,7 @@ public class QueryStreamSpark implements Callable<Void> {
 						noExtFileName, sqlStr, queryRecord);
 			else
 				this.executeQueryMultipleCalls(nStream, workDir, resultsDir, plansDir,
-						noExtFileName, sqlStr, queryRecord, int item);
+						noExtFileName, sqlStr, queryRecord, item);
 			// Record the results file size.
 			long resultsSize = calculateSize(
 					workDir + "/" + resultsDir + "/" + nStream + "_" + noExtFileName, ".csv");
