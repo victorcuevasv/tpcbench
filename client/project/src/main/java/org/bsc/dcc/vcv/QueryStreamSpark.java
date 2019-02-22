@@ -129,6 +129,8 @@ public class QueryStreamSpark implements Callable<Void> {
 			String sqlStr = tokenizer.nextToken().trim();
 			if( sqlStr.length() == 0 )
 				continue;
+			this.spark.sparkContext().setJobDescription("Stream " + nStream + 
+					" executing iteration " + iteration + " of query " + noExtFileName + ".");
 			// Obtain the plan for the query.
 			Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
 			planDataset.write().mode(SaveMode.Overwrite).csv(
