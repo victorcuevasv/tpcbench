@@ -65,14 +65,14 @@ public class QueryStreamSpark implements Callable<Void> {
 		for(int i = 0; i < nQueries; i++) {
 			String sqlStr = this.queriesHT.get(queries[i]);
 			this.executeQuery(this.nStream, this.workDir, queries[i], sqlStr,
-					this.resultsDir, this.plansDir, this.singleCall);
+					this.resultsDir, this.plansDir, this.singleCall, i);
 		}
 		return null;
 	}
 
 	// Execute the query (or queries) from the provided file.
 	private void executeQuery(int nStream, String workDir, int nQuery, String sqlStr, String resultsDir,
-			String plansDir, boolean singleCall) {
+			String plansDir, boolean singleCall, int item) {
 		QueryRecordConcurrent queryRecord = null;
 		String noExtFileName = "query" + nQuery;
 		try {
@@ -83,7 +83,7 @@ public class QueryStreamSpark implements Callable<Void> {
 						noExtFileName, sqlStr, queryRecord);
 			else
 				this.executeQueryMultipleCalls(nStream, workDir, resultsDir, plansDir,
-						noExtFileName, sqlStr, queryRecord);
+						noExtFileName, sqlStr, queryRecord, int item);
 			// Record the results file size.
 			long resultsSize = calculateSize(
 					workDir + "/" + resultsDir + "/" + nStream + "_" + noExtFileName, ".csv");
@@ -120,7 +120,7 @@ public class QueryStreamSpark implements Callable<Void> {
 	}
 	
 	private void executeQueryMultipleCalls(int nStream, String workDir, String resultsDir, String plansDir,
-			String noExtFileName, String sqlStrFull, QueryRecordConcurrent queryRecord) {
+			String noExtFileName, String sqlStrFull, QueryRecordConcurrent queryRecord, int item) {
 		// Split the various queries and execute each.
 		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
 		boolean firstQuery = true;
@@ -129,7 +129,7 @@ public class QueryStreamSpark implements Callable<Void> {
 			String sqlStr = tokenizer.nextToken().trim();
 			if( sqlStr.length() == 0 )
 				continue;
-			this.spark.sparkContext().setJobDescription("Stream " + nStream + 
+			this.spark.sparkContext().setJobDescription("Stream " + nStream + " item " + item + 
 					" executing iteration " + iteration + " of query " + noExtFileName + ".");
 			// Obtain the plan for the query.
 			Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
@@ -138,7 +138,8 @@ public class QueryStreamSpark implements Callable<Void> {
 			// Execute the query.
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
-			System.out.println("Executing iteration " + iteration + " of query " + noExtFileName + ".");
+			System.out.println("Stream " + nStream + " item " + item + 
+					" executing iteration " + iteration + " of query " + noExtFileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
 			if( firstQuery )
