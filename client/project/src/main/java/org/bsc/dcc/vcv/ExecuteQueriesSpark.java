@@ -121,6 +121,8 @@ public class ExecuteQueriesSpark {
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
 			System.out.println("Executing iteration " + iteration + " of query " + fileName + ".");
+			this.spark.sparkContext().setJobDescription("Executing iteration " + iteration + 
+					" of query " + fileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
 			if( firstQuery )
