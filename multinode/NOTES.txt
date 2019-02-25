@@ -2,6 +2,7 @@
 #The file permissions of id_rsa (ssh private key) should be 700.
 
 The entire client/project/target folder in the standalone version of the parent folder should be copied into
-the client/project folder of this multinode version.
+the client/project folder of this multinode version for Presto execution. Only the generated jar file in the
+parent client/project/target folder needs to be copied into the hivevol directory for Spark execution. 
 
 
