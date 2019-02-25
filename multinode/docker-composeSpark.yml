@@ -2,7 +2,7 @@ version: '2.0'
 services:
     namenodeservice:
         image: sparkmaster:dev
-        container_name: namenodecontainer
+        container_name: sparknamenodecontainer
         ports:
             - 10000:10000
             - 4040:4040
@@ -15,10 +15,10 @@ services:
             - ./metastorevol:/metastore
     slave1service:
         image: sparkslave:dev
-        container_name: slave1container
+        container_name: sparkslave1container
     slave2service:
         image: sparkslave:dev
-        container_name: slave2container
+        container_name: sparkslave2container
     postgresservice:
         image: postgres:10.6
         container_name: postgrescontainer
