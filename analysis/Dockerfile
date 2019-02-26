@@ -5,7 +5,7 @@ RUN apt-get update \
     libz-dev \
     libxml2-dev
 
-RUN install2.r haven xml2 rio
+RUN install2.r haven xml2 rio ggplot2
 
 COPY conf/install_packages.R /install_packages.R
 
