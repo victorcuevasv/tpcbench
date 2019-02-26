@@ -1,7 +1,6 @@
 library("rio")
 
-analytics <- import("./Documents/RESULTS/presto_power/analytics.psv")
+analytics <- import("./Documents/RESULTS/presto_power/analytics.log", format="psv")
 
 export(analytics, "./Documents/RESULTS/presto_power/analytics.xlsx")
 
-#list.files("./Documents")
