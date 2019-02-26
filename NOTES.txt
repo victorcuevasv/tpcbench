@@ -34,6 +34,11 @@ Add
 to the spark-submit call
 
 
+#Copy the results for Spark from the container.
+docker cp namenodecontainer:/data/logs/analytics.log .
+
+
+
 
 
 

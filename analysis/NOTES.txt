@@ -1,0 +1,4 @@
+#Run R studio
+
+docker run -e PASSWORD=1234 --rm -p 8787:8787 -v $(pwd)/Documents:/home/rstudio/Documents rocker/rstudio
+
