@@ -61,11 +61,8 @@ public class ExecuteQueriesSpark {
 			String nQueryStr = fileName.replaceAll("[^\\d]", "");
 			int nQuery = Integer.parseInt(nQueryStr);
 			QueryRecord queryRecord = new QueryRecord(nQuery);
-			if( ! fileName.equals("query1.sql") )
-				continue;
-			System.out.println("\n\n\n\n\n---------------------------------------------------------");
-			System.out.println(sqlStr);
-			System.out.println("\n\n\n\n\n---------------------------------------------------------");
+			//if( ! fileName.equals("query1.sql") )
+			//	continue;
 			try {
 				this.executeQueryMultipleCalls(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
 				String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
@@ -152,7 +149,6 @@ public class ExecuteQueriesSpark {
 	 * Calculate the size of the files ending with a given extension and stored in a given folder.
 	 * 
 	 * Since the operation is non-atomic, the returned value may be inaccurate.
-	 * However, this method is quick and does its best.
 	 */
 	public static long calculateSize(String pathStr, String extension, Logger logger) {
 
