@@ -10,10 +10,11 @@ services:
             - 7077:7077
             - 8080:8080
         volumes:
-            - ./hivevol:/temporal
+            #- ./hivevol:/temporal
             - ./warehousevol:/user/hive/warehouse
             - ./metastorevol:/metastore
             - ./datavol:/data
+            - ./client/project/target:/project
     slave1service:
         image: sparkslave:dev
         container_name: slave1container
