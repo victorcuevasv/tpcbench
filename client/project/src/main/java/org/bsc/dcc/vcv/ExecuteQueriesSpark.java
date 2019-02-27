@@ -19,6 +19,7 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
+import org.apache.spark.sql.Encoders;
 
 
 public class ExecuteQueriesSpark {
@@ -133,7 +134,11 @@ public class ExecuteQueriesSpark {
 				this.logger.error(workDir + "/" + resultsDir + "/" + noExtFileName);
 				this.logger.error("------------DEBUG----------------\n\n\n");
 				this.logger.error("\n\n\n------------DEBUG OVERWRITE----------------");
-				this.logger.error(dataset.toJSON());
+				List<String> list = dataset.as(Encoders.STRING()).collectAsList();
+				StringBuilder builder = new StringBuilder();
+				for(String s: list)
+					builder.append(s + "\n");
+				this.logger.error(builder.toString());
 				this.logger.error("------------DEBUG----------------\n\n\n");
 				dataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
 			}
@@ -142,7 +147,11 @@ public class ExecuteQueriesSpark {
 				this.logger.error(workDir + "/" + resultsDir + "/" + noExtFileName);
 				this.logger.error("------------DEBUG----------------\n\n\n");
 				this.logger.error("\n\n\n------------DEBUG OVERWRITE----------------");
-				this.logger.error(dataset.toJSON());
+				List<String> list = dataset.as(Encoders.STRING()).collectAsList();
+				StringBuilder builder = new StringBuilder();
+				for(String s: list)
+					builder.append(s + "\n");
+				this.logger.error(builder.toString());
 				this.logger.error("------------DEBUG----------------\n\n\n");
 				dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
 			}
