@@ -59,8 +59,8 @@ public class ExecuteQueriesSpark {
 			String nQueryStr = fileName.replaceAll("[^\\d]", "");
 			int nQuery = Integer.parseInt(nQueryStr);
 			QueryRecord queryRecord = new QueryRecord(nQuery);
-			//if( ! fileName.equals("query64.sql") )
-			//	continue;
+			if( ! fileName.equals("query1.sql") )
+				continue;
 			System.out.println("\n\n\n\n\n---------------------------------------------------------");
 			System.out.println(sqlStr);
 			System.out.println("\n\n\n\n\n---------------------------------------------------------");
@@ -128,10 +128,24 @@ public class ExecuteQueriesSpark {
 			System.out.println("Executing iteration " + iteration + " of query " + fileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
-			if( firstQuery )
+			if( firstQuery ) {
+				this.logger.error("\n\n\n------------DEBUG OVERWRITE----------------");
+				this.logger.error(workDir + "/" + resultsDir + "/" + noExtFileName);
+				this.logger.error("------------DEBUG----------------\n\n\n");
+				this.logger.error("\n\n\n------------DEBUG OVERWRITE----------------");
+				this.logger.error(dataset.toJSON());
+				this.logger.error("------------DEBUG----------------\n\n\n");
 				dataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
-			else
+			}
+			else {
+				this.logger.error("\n\n\n------------DEBUG APPEND----------------");
+				this.logger.error(workDir + "/" + resultsDir + "/" + noExtFileName);
+				this.logger.error("------------DEBUG----------------\n\n\n");
+				this.logger.error("\n\n\n------------DEBUG OVERWRITE----------------");
+				this.logger.error(dataset.toJSON());
+				this.logger.error("------------DEBUG----------------\n\n\n");
 				dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
+			}
 			firstQuery = false;
 			iteration++;
 		}
