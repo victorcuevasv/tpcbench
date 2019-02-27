@@ -126,7 +126,8 @@ public class QueryStreamSpark implements Callable<Void> {
 	}
 	
 	private void executeQueryMultipleCalls(int nStream, String workDir, String resultsDir, String plansDir,
-			String noExtFileName, String sqlStrFull, QueryRecordConcurrent queryRecord, int item) {
+			String noExtFileName, String sqlStrFull, QueryRecordConcurrent queryRecord, int item) 
+		throws Exception {
 		// Split the various queries and execute each.
 		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
 		boolean firstQuery = true;
