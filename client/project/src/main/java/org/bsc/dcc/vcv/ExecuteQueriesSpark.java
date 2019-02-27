@@ -1,5 +1,6 @@
 package org.bsc.dcc.vcv;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -68,9 +69,10 @@ public class ExecuteQueriesSpark {
 			try {
 				this.executeQueryMultipleCalls(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
 				String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
-				long resultsSize = calculateSize(workDir + "/" + resultsDir + "/" + noExtFileName, 
-						".csv", this.logger);
-				queryRecord.setResultsSize(resultsSize);
+				//long resultsSize = calculateSize(workDir + "/" + resultsDir + "/" + noExtFileName, ".csv", this.logger);
+				//queryRecord.setResultsSize(resultsSize);
+				File resultsFile = new File(workDir + "/" + resultsDir + "/" + noExtFileName + ".txt");
+				queryRecord.setResultsSize(resultsFile.length());
 				queryRecord.setSuccessful(true);
 			}
 			catch(Exception e) {
@@ -119,10 +121,14 @@ public class ExecuteQueriesSpark {
 					" of query " + fileName + ".");
 			// Obtain the plan for the query.
 			Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
-			if( firstQuery )
-				planDataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + plansDir + "/" + noExtFileName);
-			else
-				planDataset.write().mode(SaveMode.Append).csv(workDir + "/" + plansDir + "/" + noExtFileName);
+			if( firstQuery ) {
+				//planDataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + plansDir + "/" + noExtFileName);
+				this.saveResults(workDir + "/" + plansDir + "/" + noExtFileName + ".txt", planDataset, false);
+			}
+			else {
+				//planDataset.write().mode(SaveMode.Append).csv(workDir + "/" + plansDir + "/" + noExtFileName);
+				this.saveResults(workDir + "/" + plansDir + "/" + noExtFileName + ".txt", planDataset, true);
+			}
 			// Execute the query.
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
@@ -130,31 +136,11 @@ public class ExecuteQueriesSpark {
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
 			if( firstQuery ) {
-				this.logger.error("\n\n\n------------DEBUG OVERWRITE----------------");
-				this.logger.error(workDir + "/" + resultsDir + "/" + noExtFileName);
-				this.logger.error("------------DEBUG----------------\n\n\n");
-				this.logger.error("\n\n\n------------DEBUG OVERWRITE----------------");
-				List<String> list = dataset.as(Encoders.STRING()).collectAsList();
-				StringBuilder builder = new StringBuilder();
-				for(String s: list)
-					builder.append(s + "\n");
-				this.logger.error(builder.toString());
-				this.logger.error("------------DEBUG----------------\n\n\n");
-				dataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
+				//dataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
 				this.saveResults(workDir + "/" + resultsDir + "/" + noExtFileName + ".txt", dataset, false);
 			}
 			else {
-				this.logger.error("\n\n\n------------DEBUG APPEND----------------");
-				this.logger.error(workDir + "/" + resultsDir + "/" + noExtFileName);
-				this.logger.error("------------DEBUG----------------\n\n\n");
-				this.logger.error("\n\n\n------------DEBUG OVERWRITE----------------");
-				List<String> list = dataset.as(Encoders.STRING()).collectAsList();
-				StringBuilder builder = new StringBuilder();
-				for(String s: list)
-					builder.append(s + "\n");
-				this.logger.error(builder.toString());
-				this.logger.error("------------DEBUG----------------\n\n\n");
-				dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
+				//dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
 				this.saveResults(workDir + "/" + resultsDir + "/" + noExtFileName + ".txt", dataset, true);
 			}
 			firstQuery = false;
