@@ -189,7 +189,8 @@ public class ExecuteQueriesSpark {
 		try {
 			FileWriter fileWriter = new FileWriter(resFileName, append);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
-			List<String> list = dataset.as(Encoders.STRING()).collectAsList();
+			//List<String> list = dataset.as(Encoders.STRING()).collectAsList();
+			List<String> list = dataset.map(row -> row.mkString(), Encoders.STRING()).collectAsList();
 			for(String s: list)
 				printWriter.println(s);
 			printWriter.close();
