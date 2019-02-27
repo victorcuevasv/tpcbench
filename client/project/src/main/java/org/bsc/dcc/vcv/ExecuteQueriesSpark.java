@@ -141,6 +141,7 @@ public class ExecuteQueriesSpark {
 				this.logger.error(builder.toString());
 				this.logger.error("------------DEBUG----------------\n\n\n");
 				dataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
+				this.saveResults(workDir + "/" + resultsDir + "/" + noExtFileName + ".txt", dataset, false);
 			}
 			else {
 				this.logger.error("\n\n\n------------DEBUG APPEND----------------");
@@ -154,6 +155,7 @@ public class ExecuteQueriesSpark {
 				this.logger.error(builder.toString());
 				this.logger.error("------------DEBUG----------------\n\n\n");
 				dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
+				this.saveResults(workDir + "/" + resultsDir + "/" + noExtFileName + ".txt", dataset, true);
 			}
 			firstQuery = false;
 			iteration++;
@@ -199,6 +201,23 @@ public class ExecuteQueriesSpark {
 	        e.printStackTrace();
 	    }
 	    return size.get();
+	}
+	
+	private void saveResults(String resFileName, Dataset<Row> dataset, boolean append) {
+		try {
+			FileWriter fileWriter = new FileWriter(resFileName, append);
+			PrintWriter printWriter = new PrintWriter(fileWriter);
+			List<String> list = dataset.as(Encoders.STRING()).collectAsList();
+			for(String s: list)
+				printWriter.println(s);
+			printWriter.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error saving results: " + resFileName);
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
 	}
 
 }
