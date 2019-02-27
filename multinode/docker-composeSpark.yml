@@ -10,7 +10,6 @@ services:
             - 7077:7077
             - 8080:8080
         volumes:
-            #- ./hivevol:/temporal
             - ./warehousevol:/user/hive/warehouse
             - ./metastorevol:/metastore
             - ./datavol:/data
@@ -30,15 +29,6 @@ services:
             POSTGRES_DB: metastore
             POSTGRES_USER: root
             POSTGRES_PASSWORD: postgres
-#    hiveclient:
-#        image: buildhiveclient:dev
-#        container_name: sparkhiveclientcontainer
-#        volumes:
-#            - ./client/project:/project
-#        entrypoint:
-#            - bash
-#        tty: true
-#        stdin_open: true
 volumes:
     postgresdbmultinodevol:
 
