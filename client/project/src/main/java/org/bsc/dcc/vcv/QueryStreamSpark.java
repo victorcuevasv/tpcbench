@@ -21,11 +21,13 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
+import org.apache.spark.sql.Encoders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -85,9 +87,12 @@ public class QueryStreamSpark implements Callable<Void> {
 				this.executeQueryMultipleCalls(nStream, workDir, resultsDir, plansDir,
 						noExtFileName, sqlStr, queryRecord, item);
 			// Record the results file size.
-			long resultsSize = calculateSize(
-					workDir + "/" + resultsDir + "/" + nStream + "_" + noExtFileName, ".csv");
-			queryRecord.setResultsSize(resultsSize);
+			//long resultsSize = calculateSize(workDir + "/" + resultsDir + "/" + nStream + "_" + 
+			//noExtFileName, ".csv");
+			//queryRecord.setResultsSize(resultsSize);
+			File resultsFile = new File(workDir + "/" + resultsDir + "/" + nStream + "_" + 
+					noExtFileName + ".txt");
+			queryRecord.setResultsSize(resultsFile.length());
 			queryRecord.setSuccessful(true);
 		}
 		catch (Exception e) {
@@ -133,8 +138,18 @@ public class QueryStreamSpark implements Callable<Void> {
 					" executing iteration " + iteration + " of query " + noExtFileName + ".");
 			// Obtain the plan for the query.
 			Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
-			planDataset.write().mode(SaveMode.Overwrite).csv(
-					workDir + "/" + plansDir + "/" + nStream + "_" + noExtFileName);
+			if( firstQuery ) {
+				//planDataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + plansDir + "/" + 
+				//nStream + "_" + noExtFileName);
+				this.saveResults(workDir + "/" + plansDir + "/" + nStream + "_" + 
+						noExtFileName + ".txt", planDataset, false);
+			}
+			else {
+				//planDataset.write().mode(SaveMode.Append).csv(workDir + "/" + plansDir + "/" + 
+				//noExtFileName);
+				this.saveResults(workDir + "/" + plansDir + "/" + nStream + "_" + 
+						noExtFileName + ".txt", planDataset, true);
+			}
 			// Execute the query.
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
@@ -142,14 +157,39 @@ public class QueryStreamSpark implements Callable<Void> {
 					" executing iteration " + iteration + " of query " + noExtFileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
-			if( firstQuery )
-				dataset.write().mode(SaveMode.Overwrite).csv(
-						workDir + "/" + resultsDir + "/" + nStream + "_" + noExtFileName);
-			else
-				dataset.write().mode(SaveMode.Append).csv(
-						workDir + "/" + resultsDir + "/" + nStream + "_" + noExtFileName);
+			if( firstQuery ) {
+				//dataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + resultsDir + "/" + 
+				//nStream + "_" + noExtFileName);      
+				this.saveResults(workDir + "/" + resultsDir + "/" + nStream + "_" + 
+						noExtFileName + ".txt", dataset, false);
+			}
+			else {
+				//dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + 
+				//nStream + "_" + noExtFileName);
+				this.saveResults(workDir + "/" + resultsDir + "/" + nStream + "_" + 
+						noExtFileName + ".txt", dataset, true);
+			}
 			firstQuery = false;
 			iteration++;
+		}
+	}
+	
+	private void saveResults(String resFileName, Dataset<Row> dataset, boolean append) {
+		try {
+			FileWriter fileWriter = new FileWriter(resFileName, append);
+			PrintWriter printWriter = new PrintWriter(fileWriter);
+			//List<String> list = dataset.as(Encoders.STRING()).collectAsList();
+			List<String> list = dataset.map(row -> row.mkString(" | "), 
+					Encoders.STRING()).collectAsList();
+			for(String s: list)
+				printWriter.println(s);
+			printWriter.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error saving results: " + resFileName);
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
 	
