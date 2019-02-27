@@ -97,6 +97,7 @@ public class QueryStreamSpark implements Callable<Void> {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			this.logger.error("Error in the execution: " + noExtFileName);
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -174,23 +175,14 @@ public class QueryStreamSpark implements Callable<Void> {
 		}
 	}
 	
-	private void saveResults(String resFileName, Dataset<Row> dataset, boolean append) {
-		try {
-			FileWriter fileWriter = new FileWriter(resFileName, append);
-			PrintWriter printWriter = new PrintWriter(fileWriter);
-			//List<String> list = dataset.as(Encoders.STRING()).collectAsList();
-			List<String> list = dataset.map(row -> row.mkString(" | "), 
-					Encoders.STRING()).collectAsList();
-			for(String s: list)
-				printWriter.println(s);
-			printWriter.close();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			this.logger.error("Error saving results: " + resFileName);
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-		}
+	private void saveResults(String resFileName, Dataset<Row> dataset, boolean append) throws Exception {
+		FileWriter fileWriter = new FileWriter(resFileName, append);
+		PrintWriter printWriter = new PrintWriter(fileWriter);
+		// List<String> list = dataset.as(Encoders.STRING()).collectAsList();
+		List<String> list = dataset.map(row -> row.mkString(" | "), Encoders.STRING()).collectAsList();
+		for (String s : list)
+			printWriter.println(s);
+		printWriter.close();
 	}
 	
 	/*
