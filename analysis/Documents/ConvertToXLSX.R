@@ -10,7 +10,13 @@ for(system in systemDirs) {
   inFile <- paste(workDir, "/", system, "/", files[1], sep="")
   outFileName <- paste(tools::file_path_sans_ext(files[1]), ".xlsx", sep="")
   outFile <- paste(workDir, "/", system, "/", outFileName, sep="")
-  analytics <- import(inFile, format="psv")
+  analytics <- import(inFile, format="psv", colClasses="character")
+  analytics$QUERY <- as.numeric(analytics$QUERY)
+  analytics$STARTDATE_EPOCH <- as.numeric(analytics$STARTDATE_EPOCH)
+  analytics$STOPDATE_EPOCH <- as.numeric(analytics$STOPDATE_EPOCH)
+  analytics$DURATION_MS <- as.numeric(analytics$DURATION_MS)
+  analytics$DURATION <- as.numeric(analytics$DURATION)
+  analytics$RESULTS_SIZE <- as.numeric(analytics$RESULTS_SIZE)
   export(analytics, outFile)
 }
 
