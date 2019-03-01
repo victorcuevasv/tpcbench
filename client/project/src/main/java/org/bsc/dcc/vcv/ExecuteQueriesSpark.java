@@ -46,23 +46,28 @@ public class ExecuteQueriesSpark {
 	 * args[1] subdirectory of work directory to store the results
 	 * args[2] subdirectory of work directory to store the execution plans
 	 * args[3] jar file
+	 * args[4] OPTIONAL: query number
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) {
 		ExecuteQueriesSpark prog = new ExecuteQueriesSpark(args[3]);
-		prog.executeQueries(args[0], args[1], args[2]);
+		String queryFile = args.length >= 5 ? args[4] : null;
+		prog.executeQueries(args[0], args[1], args[2], queryFile);
 	}
 	
-	public void executeQueries(String workDir, String resultsDir, String plansDir) {
+	public void executeQueries(String workDir, String resultsDir, String plansDir,
+			String queryFile) {
 		this.recorder.header();
 		for (final String fileName : this.queriesReader.getFilesOrdered()) {
 			String sqlStr = this.queriesReader.getFile(fileName);
 			String nQueryStr = fileName.replaceAll("[^\\d]", "");
 			int nQuery = Integer.parseInt(nQueryStr);
 			QueryRecord queryRecord = new QueryRecord(nQuery);
-			//if( ! fileName.equals("query1.sql") )
-			//	continue;
+			if( queryFile != null ) {
+				if( ! fileName.equals(queryFile) )
+					continue;
+			}
 			try {
 				this.executeQueryMultipleCalls(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
 				String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
