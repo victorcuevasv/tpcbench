@@ -5,4 +5,9 @@ The entire client/project/target folder in the standalone version of the parent 
 the client/project folder of this multinode version for Presto execution. Only the generated jar file in the
 parent client/project/target folder needs to be copied into the hivevol directory for Spark execution. 
 
+#Do ssh tunneling to visualize Spark GUI and history server on the browser.
+
+ssh -l vcuevas -N -L 4040:localhost:4040 bscdc07
+
+ssh -l vcuevas -N -L 18080:localhost:18080 bscdc07
 
