@@ -46,7 +46,7 @@ public class ExecuteQueriesSpark {
 	 * args[1] subdirectory of work directory to store the results
 	 * args[2] subdirectory of work directory to store the execution plans
 	 * args[3] jar file
-	 * args[4] OPTIONAL: query number
+	 * args[4] OPTIONAL: query file
 	 * 
 	 * all directories without slash
 	 */

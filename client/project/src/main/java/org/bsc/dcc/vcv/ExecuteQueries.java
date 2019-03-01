@@ -75,6 +75,7 @@ public class ExecuteQueries {
 	 * args[3] subdirectory of work directory to store the execution plans
 	 * args[4] system to evaluate the queries (hive/presto)
 	 * args[5] hostname of the server
+	 * args[6] OPTIONAL: query file
 	 * 
 	 * all directories without slash
 	 */
@@ -92,10 +93,13 @@ public class ExecuteQueries {
 				map(s -> new File(args[0] + "/" + args[1] + "/" + s)).
 				toArray(File[]::new);
 		prog.recorder.header();
+		String queryFile = args.length >= 7 ? args[6] : null;
 		for (final File fileEntry : files) {
 			if (!fileEntry.isDirectory()) {
-				//if( ! fileEntry.getName().equals("query39.sql") )
-				//	continue;
+				if( queryFile != null ) {
+					if( ! fileEntry.getName().equals(queryFile) )
+						continue;
+				}
 				prog.executeQueryFile(args[0], fileEntry, args[2], args[3], false);
 			}
 		}
