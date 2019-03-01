@@ -55,6 +55,7 @@ wait_for_server localhost 9083 24
 hive --service hiveserver2 &
 wait_for_server localhost 10000 24
 bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-all.sh
+bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-history-server.sh 
 
 sleep infinity
 
