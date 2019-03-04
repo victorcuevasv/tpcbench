@@ -23,6 +23,7 @@
 		<value>mapreduce_shuffle</value>
 	</property>
 
+	<!-- Required to avoid error when running Spark on YARN. -->
 	<property>
 		<name>yarn.nodemanager.pmem-check-enabled</name>
 		<value>false</value>
