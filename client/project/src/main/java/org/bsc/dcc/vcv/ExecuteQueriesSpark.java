@@ -51,7 +51,16 @@ public class ExecuteQueriesSpark {
 	 * all directories without slash
 	 */
 	public static void main(String[] args) {
-		ExecuteQueriesSpark prog = new ExecuteQueriesSpark(args[3]);
+		ExecuteQueriesSpark prog = null;
+		try {
+			prog = new ExecuteQueriesSpark(args[3]);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueriesSpark constructor.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
 		String queryFile = args.length >= 5 ? args[4] : null;
 		prog.executeQueries(args[0], args[1], args[2], queryFile);
 	}
