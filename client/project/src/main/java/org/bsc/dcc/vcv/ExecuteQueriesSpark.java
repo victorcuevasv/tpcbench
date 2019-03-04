@@ -31,12 +31,20 @@ public class ExecuteQueriesSpark {
 	private JarQueriesReaderAsZipFile queriesReader;
 
 	public ExecuteQueriesSpark(String jarFile) {
-		this.queriesReader = new JarQueriesReaderAsZipFile(jarFile);
-		this.spark = SparkSession.builder().appName("Java Spark Hive Example")
+		try {
+			this.queriesReader = new JarQueriesReaderAsZipFile(jarFile);
+			this.spark = SparkSession.builder().appName("Java Spark Hive Example")
 				.config("spark.sql.crossJoin.enabled", "true")
 				.enableHiveSupport()
 				.getOrCreate();
-		this.recorder = new AnalyticsRecorder();
+			this.recorder = new AnalyticsRecorder();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueriesSpark constructor.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
 	}
 
 	/**
@@ -51,16 +59,7 @@ public class ExecuteQueriesSpark {
 	 * all directories without slash
 	 */
 	public static void main(String[] args) {
-		ExecuteQueriesSpark prog = null;
-		try {
-			prog = new ExecuteQueriesSpark(args[3]);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			this.logger.error("Error in ExecuteQueriesSpark constructor.");
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-		}
+		ExecuteQueriesSpark prog = new ExecuteQueriesSpark(args[3]);
 		String queryFile = args.length >= 5 ? args[4] : null;
 		prog.executeQueries(args[0], args[1], args[2], queryFile);
 	}
