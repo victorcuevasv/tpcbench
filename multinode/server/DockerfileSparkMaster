@@ -84,7 +84,7 @@ ENV PATH="${PATH}:/opt/spark-2.4.0-bin-hadoop2.7/bin"
 
 COPY spark_conf/spark-defaults.conf /opt/spark-2.4.0-bin-hadoop2.7/conf/spark-defaults.conf
 COPY spark_conf/slaves /opt/spark-2.4.0-bin-hadoop2.7/conf/slaves
-COPY hive-defaultSpark.xml /opt/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
+COPY hive-siteExternalMetastoreSpark.xml /opt/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
 
 #Add the Hadoop jars to the Spark classpath.
 
