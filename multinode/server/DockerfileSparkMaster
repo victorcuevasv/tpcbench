@@ -109,7 +109,7 @@ RUN spark-submit \
      
 #Add the environment variable to enable execution with YARN
 ENV HADOOP_CONF_DIR /opt/hadoop-2.7.7/etc/hadoop
-ENV HIVE_CONF_DIR /opt/apache-hive-2.3.4-bin/conf/
+ENV HIVE_CONF_DIR /opt/spark-2.4.0-bin-hadoop2.7/conf/
 
 CMD ["bash"]
 
