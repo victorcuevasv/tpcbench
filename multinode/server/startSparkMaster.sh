@@ -56,7 +56,7 @@ hive --service hiveserver2 &
 wait_for_server localhost 10000 24
 bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-all.sh
 bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-history-server.sh
-bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh --hiveconf hive.server2.thrift.port=10015 
+bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh --master spark://namenodecontainer:7077 --hiveconf hive.server2.thrift.port=10015     
 
 sleep infinity
 
