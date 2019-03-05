@@ -15,7 +15,8 @@ services:
             - ./warehousevol:/user/hive/warehouse
             - ./metastorevol:/metastore
             - ./datavol:/data
-            - ./client/project/targetspark:/project/targetspark
+            #- ./client/project/targetspark:/project/targetspark
+            - ./client/project:/project
     slave1service:
         image: sparkslave:dev
         container_name: slave1container
