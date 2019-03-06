@@ -52,6 +52,11 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 						hostname + ":8080/hive/default", "hive", "");
 				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
+			else if( system.equals("spark") ) {
+				Class.forName(hiveDriverName);
+				con = DriverManager.getConnection("jdbc:hive2://" +
+						hostname + ":10015/default", "", "");
+			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
 		}
@@ -59,12 +64,21 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
 		catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+			System.exit(1);
+		}
+		catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
 		this.recorder = new AnalyticsRecorderConcurrent();
