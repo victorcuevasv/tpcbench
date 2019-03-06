@@ -11,3 +11,6 @@ ssh -l vcuevas -N -L 4040:localhost:4040 bscdc07
 
 ssh -l vcuevas -N -L 18080:localhost:18080 bscdc07
 
+
+Required field 'client_protocol' is unset
+
