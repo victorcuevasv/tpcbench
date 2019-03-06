@@ -21,7 +21,9 @@ hadoop fs -put /temporal /temporal
 mkdir -p /tmp/hive/java
 chmod -R 777 /tmp
 hadoop fs -mkdir -p /tmp/hive
-hadoop fs -chmod -R 777 /tmp/hive
+#hadoop fs -chmod -R 777 /tmp/hive
+#Permissions required for the tmp directory for the thrift server.
+hadoop fs -chmod -R 777 /tmp
 
 #hadoop fs -mkdir -p    /user/hive/warehouse  && \
 #hadoop fs -chown hive:hive   /user/hive/warehouse
@@ -56,7 +58,7 @@ hive --service hiveserver2 &
 wait_for_server localhost 10000 24
 bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-all.sh
 bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-history-server.sh
-bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh --master spark://namenodecontainer:7077 --total-executor-cores 4 --hiveconf hive.server2.thrift.port=10015  --conf "spark.sql.hive.metastore.jars=maven"   --conf "spark.sql.hive.metastore.version=2.3.0"               
+bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh --master spark://namenodecontainer:7077   --conf spark.eventLog.enabled=true  --driver-memory 8g --executor-memory 4g --num-executors 4   --hiveconf hive.server2.thrift.port=10015  --conf "spark.sql.hive.metastore.jars=maven"   --conf "spark.sql.hive.metastore.version=2.3.0"  --conf  "spark.sql.crossJoin.enabled=true"                 
 
 sleep infinity    
 
