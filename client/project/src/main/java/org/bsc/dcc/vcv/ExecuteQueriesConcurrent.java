@@ -113,7 +113,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	public static void main(String[] args) throws SQLException {
 		if( args.length != 9 ) {
 			System.out.println("Insufficient arguments.");
-			this.logger.error("Insufficient arguments.");
+			logger.error("Insufficient arguments.");
 			System.exit(1);
 		}
 		boolean multiple = Boolean.parseBoolean(args[8]);
