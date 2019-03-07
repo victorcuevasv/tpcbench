@@ -34,10 +34,20 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private static final int POOL_SIZE = 100;
 	private long seed;
 	private Random random;
+	private boolean multiple = false;
 
+	public ExecuteQueriesConcurrent(String system, String hostname, boolean multiple) {
+		this.multiple = multiple;
+		if( ! this.multiple )
+			this.con = this.createConnection(system, hostname);
+		this.recorder = new AnalyticsRecorderConcurrent();
+		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
+		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
+	}
+	
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public ExecuteQueriesConcurrent(String system, String hostname) {
+	public Connection createConnection(String system, String hostname) {
 		try {
 			system = system.toLowerCase();
 			String driverName = "";
@@ -81,9 +91,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		this.recorder = new AnalyticsRecorderConcurrent();
-		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
-		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
+		return con;
 	}
 
 	/**
@@ -98,11 +106,18 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	 * args[5] hostname of the server
 	 * args[6] number of streams
 	 * args[7] random seed
+	 * args[8] use multiple connections (true|false)
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) throws SQLException {
-		ExecuteQueriesConcurrent prog = new ExecuteQueriesConcurrent(args[4], args[5]);
+		if( args.length != 9 ) {
+			System.out.println("Insufficient arguments.");
+			this.logger.error("Insufficient arguments.");
+			System.exit(1);
+		}
+		boolean multiple = Boolean.parseBoolean(args[8]);
+		ExecuteQueriesConcurrent prog = new ExecuteQueriesConcurrent(args[4], args[5], multiple);
 		File directory = new File(args[0] + "/" + args[1]);
 		// Process each .sql file found in the directory.
 		// The preprocessing steps are necessary to obtain the right order, i.e.,
