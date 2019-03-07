@@ -34,9 +34,13 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private static final int POOL_SIZE = 100;
 	private long seed;
 	private Random random;
+	private String system;
+	private String hostname;
 	private boolean multiple = false;
 
 	public ExecuteQueriesConcurrent(String system, String hostname, boolean multiple) {
+		this.system = system;
+		this.hostname = hostname;
 		this.multiple = multiple;
 		if( ! this.multiple )
 			this.con = this.createConnection(system, hostname);
@@ -148,8 +152,16 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
 		for(int i = 1; i <= nStreams; i++) {
-			QueryStream stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT, nQueries,
+			QueryStream stream = null;
+			if( !this.multiple ) {
+				stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT, nQueries,
 					workDir, resultsDir, plansDir, singleCall, random);
+			}
+			else {
+				Connection con = this.createConnection(this.system, this.hostname);
+				stream = new QueryStream(i, this.resultsQueue, con, queriesHT, nQueries,
+						workDir, resultsDir, plansDir, singleCall, random);
+			}
 			this.executor.submit(stream);
 		}
 		this.executor.shutdown();
