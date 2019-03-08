@@ -169,7 +169,7 @@ public class QueryStream implements Callable<Void> {
 			this.logger.error(AppUtil.stringifyStackTrace(ioe));
 		}
 		catch (Exception e) {
-			ioe.printStackTrace();
+			e.printStackTrace();
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
