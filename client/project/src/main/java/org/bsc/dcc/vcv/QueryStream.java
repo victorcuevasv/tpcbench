@@ -82,6 +82,11 @@ public class QueryStream implements Callable<Void> {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
 		finally {
 			queryRecord.setEndTime(System.currentTimeMillis());
 			this.resultsQueue.add(queryRecord);
@@ -156,9 +161,17 @@ public class QueryStream implements Callable<Void> {
 		catch (SQLException e) {
 			e.printStackTrace();
 			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		catch (Exception e) {
+			ioe.printStackTrace();
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
 	
