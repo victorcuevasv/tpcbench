@@ -5,6 +5,9 @@ import java.util.Date;
 
 public class AnalyticsRecorderConcurrent extends AnalyticsRecorder {
 	
+	public AnalyticsRecorderConcurrent(String system) {
+		super(system);
+	}
 	
 	public void header() {
 		String[] titles = {"STREAM", "QUERY", "SUCCESSFUL", "STARTDATE_EPOCH", "STOPDATE_EPOCH",
