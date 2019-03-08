@@ -165,8 +165,8 @@ public class QueryStream implements Callable<Void> {
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
+			this.logger.error(ioe);
+			this.logger.error(AppUtil.stringifyStackTrace(ioe));
 		}
 		catch (Exception e) {
 			ioe.printStackTrace();
