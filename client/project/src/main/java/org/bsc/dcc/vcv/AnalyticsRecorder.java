@@ -10,7 +10,7 @@ public class AnalyticsRecorder {
 	
 	protected static final Logger logger = LogManager.getLogger("AnalyticsLog");
 	
-	private String system;
+	protected String system;
 	
 	public AnalyticsRecorder(String system) {
 		this.system = system;
