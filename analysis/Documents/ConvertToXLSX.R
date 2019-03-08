@@ -1,6 +1,7 @@
 library("rio")
 
-workDir <- "./Documents/RESULTS/power"
+#workDir <- "./Documents/RESULTS/power"
+workDir <- "./Documents/RESULTS/tput"
 systemDirs <- list.files(path=workDir)
 
 #It is assumed that there is a single .log file with the run data.
