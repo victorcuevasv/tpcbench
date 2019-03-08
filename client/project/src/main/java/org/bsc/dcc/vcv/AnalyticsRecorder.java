@@ -24,8 +24,9 @@ public class AnalyticsRecorder {
 		String[] titles = {"QUERY", "SUCCESSFUL", "DURATION", "RESULTS_SIZE", "SYSTEM", 
 						   "STARTDATE_EPOCH", "STOPDATE_EPOCH", "DURATION_MS", "STARTDATE", "STOPDATE"};
 		StringBuilder builder = new StringBuilder();
-		for(String title : titles)
-			builder.append(String.format("%-25s|", title));
+		for(int i = 0; i < titles.length - 1; i++)
+			builder.append(String.format("%-25s|", titles[i]));
+		builder.append(String.format("%-25s", titles[titles.length-1]));
 		logger.info(builder.toString());
 	}
 	
