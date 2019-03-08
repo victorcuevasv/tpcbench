@@ -44,7 +44,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.multiple = multiple;
 		if( ! this.multiple )
 			this.con = this.createConnection(system, hostname);
-		this.recorder = new AnalyticsRecorderConcurrent();
+		this.recorder = new AnalyticsRecorderConcurrent(this.system);
 		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
 		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 	}

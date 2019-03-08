@@ -41,7 +41,7 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 				.config("spark.sql.crossJoin.enabled", "true")
 				.enableHiveSupport()
 				.getOrCreate();
-		this.recorder = new AnalyticsRecorderConcurrent();
+		this.recorder = new AnalyticsRecorderConcurrent("system");
 		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
 		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 	}
