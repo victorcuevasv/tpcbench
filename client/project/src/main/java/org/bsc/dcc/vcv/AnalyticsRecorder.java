@@ -41,9 +41,9 @@ public class AnalyticsRecorder {
 		builder.append(String.format(colFormat, durationFormatted));
 		builder.append(String.format(colFormat, queryRecord.getResultsSize()));
 		builder.append(String.format(colFormat, this.system));
-		builder.append(String.format(colFormat, durationMs));
 		builder.append(String.format(colFormat, queryRecord.getStartTime()));
 		builder.append(String.format(colFormat, queryRecord.getEndTime()));
+		builder.append(String.format(colFormat, durationMs));
 		Date startDate = new Date(queryRecord.getStartTime());
 		String startDateFormatted = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(startDate);
 		builder.append(String.format(colFormat, startDateFormatted));
