@@ -1,8 +1,8 @@
 library("rio")
 
-docsDir <- "./Documents"
+destDir <- "./Documents/RESULTS/power"
 outFileName <- "summaryPower.xlsx"
-outFile <- paste(workDir, "/", system, "/", outFileName, sep="")
+outFile <- paste(destDir, "/", outFileName, sep="")
 workDir <- "./Documents/RESULTS/power"
 systemDirs <- list.files(path=workDir)
 outputDF <- NULL
@@ -22,7 +22,7 @@ for(system in systemDirs) {
 }
 
 print(outputDF)
-
+export(outputDF, outFile)
 
 
 
