@@ -1,16 +1,10 @@
 library("rio")
 
-#workDir <- "./Documents/RESULTS/power"
-workDir <- "./Documents/RESULTS/tput"
+workDir <- "./Documents/RESULTS/power"
+#workDir <- "./Documents/RESULTS/tput"
 systemDirs <- list.files(path=workDir)
 
-#It is assumed that there is a single .log file with the run data.
-for(system in systemDirs) {
-  systemDir <- paste(workDir, "/", system, sep="")
-  files <- list.files(path=systemDir, pattern = "\\.log$")
-  inFile <- paste(workDir, "/", system, "/", files[1], sep="")
-  outFileName <- paste(tools::file_path_sans_ext(files[1]), ".xlsx", sep="")
-  outFile <- paste(workDir, "/", system, "/", outFileName, sep="")
+convertLog <- function(inFile, outFile) {
   #Add colClasses="character" to read the file as characters.
   #Otherwise, long numbers will not be read correctly.
   analytics <- import(inFile, format="psv", colClasses="character")
@@ -22,6 +16,16 @@ for(system in systemDirs) {
   analytics$DURATION <- as.numeric(analytics$DURATION)
   analytics$RESULTS_SIZE <- as.numeric(analytics$RESULTS_SIZE)
   export(analytics, outFile)
+}
+
+#It is assumed that there is a single .log file with the run data.
+for(system in systemDirs) {
+  systemDir <- paste(workDir, "/", system, sep="")
+  files <- list.files(path=systemDir, pattern = "\\.log$")
+  inFile <- paste(workDir, "/", system, "/", files[1], sep="")
+  outFileName <- paste(tools::file_path_sans_ext(files[1]), ".xlsx", sep="")
+  outFile <- paste(workDir, "/", system, "/", outFileName, sep="")
+  convertLog(inFile, outFile)
 }
 
 
