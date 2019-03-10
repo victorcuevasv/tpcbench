@@ -4,25 +4,37 @@ destDir <- "./Documents/RESULTS/power"
 outFileName <- "summaryPower.xlsx"
 outFile <- paste(destDir, "/", outFileName, sep="")
 workDir <- "./Documents/RESULTS/power"
-systemDirs <- list.files(path=workDir)
-outputDF <- NULL
-firstFile <- TRUE
+searchedFile <- "summary.xlsx"
 
-for(system in systemDirs) {
-  systemDir <- paste(workDir, "/", system, sep="")
-  inFile <- paste(workDir, "/", system, "/", "summary.xlsx", sep="")
-  if( firstFile ) {
-    outputDF <- import(inFile)
+#Merge the instances of the searchedFile (must be .xlsx files) found in the
+#workDir, and generate an output xlsx file as specified by outFile. 
+#It is assumed that the instances of the searchedFile are inside each of the
+#subdirectories of the workDir.
+mergeXLSXFiles <- function(workDir, searchedFile, outFile) {
+  subDirs <- list.files(path=workDir)
+  outputDF <- NULL
+  firstFile <- TRUE
+  for(subDir in subDirs) {
+    #Skip files, only consider folders.
+    if( file_test("-f", paste0(workDir, "/", subDir)) )
+      next
+    inFile <- paste(workDir, "/", subDir, "/", searchedFile, sep="")
+    if( firstFile ) {
+      outputDF <- import(inFile)
+    }
+    else {
+      tempDF <- import(inFile)
+      outputDF[nrow(outputDF) + 1,] = tempDF[1,]
+    }
+    firstFile <- FALSE
   }
-  else {
-    tempDF <- import(inFile)
-    outputDF[nrow(outputDF) + 1,] = tempDF[1,]
-  }
-  firstFile <- FALSE
+  print(outputDF)
+  export(outputDF, outFile)
 }
 
-print(outputDF)
-export(outputDF, outFile)
+mergeXLSXFiles(workDir, searchedFile, outFile)
+
+
 
 
 
