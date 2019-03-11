@@ -10,11 +10,18 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+#Get the user id of the user executing this script.
+USER_ID=$(id -u)
+#Get the user id of the user executing this script.
+GROUP_ID=$(id -g)
+
 #Create SQL create table statement files and the query files.
 
 #First separate the multiple create table statements in the tpcds.sql file into separate files.
 printf "\n\n%s\n\n" "${mag}Processing the tpcds.sql file.${end}"
-bash runclient_processcreatescript.sh
+bash runclient_processcreatescript.sh $USER_ID $GROUP_ID
+
+exit 0
 
 #Generate the Presto queries.
 printf "\n\n%s\n\n" "${mag}Generating the Presto queries.${end}"
