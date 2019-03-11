@@ -68,7 +68,16 @@ while( TRUE ) {
 
 #Save all of the plots in a single file, arrange them all in a single page
 #must specify the appropriate total size
-ggsave(paste0(outDir, "/", "PowerTestCompAll.pdf"), width=7, height=16, arrangeGrob(grobs = plots, ncol=1))
+#ggsave(paste0(outDir, "/", "PowerTestCompAll.pdf"), width=7, height=16, arrangeGrob(grobs = plots, ncol=1))
+
+#Save all of the plots in a single file, arrange them all in 2 x 1 plot pages
+#ggsave(paste0(outDir, "/", "PowerTestCompAll.pdf"), width=7, height=4, marrangeGrob(grobs=plots, nrow=1, ncol=2))
+
+#Save all of the plots in a single file, one plot per page
+pdf(paste0(outDir, "/", "PowerTestCompAll.pdf"), width=7, height=4)
+invisible(lapply(plots, print))
+dev.off()
+
 
 
 
