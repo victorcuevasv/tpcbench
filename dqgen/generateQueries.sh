@@ -8,8 +8,11 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
 #Build the client project.
 printf "\n\n%s\n\n" "${blu}Generating queries.${end}"
 
-docker run --name tpc --volume /$(pwd)/output:/TPC-DS/v2.10.1rc3/output tpcds:dev /TPC-DS/v2.10.1rc3/tools/createQueries.sh        
+docker run --rm --name tpc --volume $DIR/output:/TPC-DS/v2.10.1rc3/output \
+	tpcds:dev /TPC-DS/v2.10.1rc3/tools/createQueries.sh        
 

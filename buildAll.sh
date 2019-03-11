@@ -39,24 +39,43 @@ if [ ! -d datavol ]; then
    mkdir datavol/plans
    mkdir datavol/logs
    #Copy the queries file into the datavol directory.
-   cp benchmark/tpcds.sql datavol
+   cp dqgen/v2.10.1rc3/tools/tpcds.sql datavol
 fi
 
 #Build the Ubuntu with Java base image.
-printf "\n\n%s\n\n" "${mag}Creating Ubuntu with Java base image.${end}"
+printf "\n\n%s\n\n" "${mag}Creating the Ubuntu with Java base image.${end}"
 bash ubuntujava/build.sh
 
-#Build the server image.
-printf "\n\n%s\n\n" "${mag}Building the server image.${end}"
+#Build the dqgen image with the TPC-DS toolkit to generate data and queries.
+printf "\n\n%s\n\n" "${mag}Creating the dqgen TPC-DS toolkit image.${end}"
+bash dqgen/createContainer.sh
+
+#Build the presto server image.
+printf "\n\n%s\n\n" "${mag}Building the Presto server image.${end}"
 bash server/buildPresto.sh
+
+#Build the Spark Master server image.
+printf "\n\n%s\n\n" "${mag}Building the Spark Master server image.${end}"
+bash server/buildSparkMaster.sh
+
+#Build the Spark Worker server image.
+printf "\n\n%s\n\n" "${mag}Building the Spark Worker server image.${end}"
+bash server/buildSparkWorker.sh
 
 #Build the client project builder image.
 printf "\n\n%s\n\n" "${mag}Building the client project builder image.${end}"
-bash client/buildPresto.sh
+bash client/buildSingle.sh
 
-#Compile the client project.
-printf "\n\n%s\n\n" "${blu}Compiling the client project.${end}"
+#Compile the Presto/Hive JDBC client project.
+printf "\n\n%s\n\n" "${blu}Compiling the Presto/Hive JDBC client project.${end}"
 bash client/compile.sh
 
+#Compile the Spark (spark-submit) client project.
+printf "\n\n%s\n\n" "${blu}Compiling the Spark client project.${end}"
+bash client/compileSpark.sh
+
+#Compile the Spark (spark-submit) client project.
+printf "\n\n%s\n\n" "${blu}Compiling the Spark JDBC client project.${end}"
+bash client/compileSparkJDBC.sh
 
 

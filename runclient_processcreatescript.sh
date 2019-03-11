@@ -1,10 +1,8 @@
 #!/bin/bash
 #Execute the Java project with Maven by running the container (standalone container, no docker-compose). Can fail due to being unable to resolve localhost to the hiveservercontainer.
 
-#docker run --rm -v $(pwd)/project:/project  --entrypoint mvn buildhiveclient:dev exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ProcessCreateScript" -Dexec.args="/data tpcds.sql" -f /project/pom.xml   
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-#Execute the Java project with Maven on the buildhiveclient container running in docker-compose. 
-
-docker exec -ti  hiveclientcontainer  /bin/bash -c "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ProcessCreateScript\" -Dexec.args=\"/data tpcds.sql\" -f /project/pom.xml"
+docker run --rm -v $DIR/client/project:/project -v $DIR/datavol:/data  --entrypoint mvn clientbuilder:dev exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ProcessCreateScript" -Dexec.args="/data tables tpcds.sql" -f /project/pom.xml   
 
 
