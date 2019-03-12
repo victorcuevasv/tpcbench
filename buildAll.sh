@@ -55,7 +55,7 @@ bash ubuntujava/build.sh
 
 #Build the dqgen image with the TPC-DS toolkit to generate data and queries.
 printf "\n\n%s\n\n" "${mag}Creating the dqgen TPC-DS toolkit image.${end}"
-bash dqgen/createContainer.sh
+bash dqgen/createContainer.sh $USER_NAME $USER_ID $GROUP_ID
 
 #Build the presto server image.
 printf "\n\n%s\n\n" "${mag}Building the Presto server image.${end}"
