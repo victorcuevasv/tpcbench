@@ -1,11 +1,28 @@
-#!/bin/bash
-#Execute the Java project with Maven by running the container (standalone container, no docker-compose). Can fail due to being unable to resolve localhost to the hiveservercontainer.
+#!/bin/bash   
 
-#docker run --rm -v $(pwd)/project:/project  --entrypoint mvn buildhiveclient:dev exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ProcessCreateScript" -Dexec.args="/data tpcds.sql" -f /project/pom.xml   
+#Variables for console output with colors.
 
-#Execute the Java project with Maven on the buildhiveclient container running in docker-compose. 
+red=$'\e[1;31m'
+grn=$'\e[1;32m'
+yel=$'\e[1;33m'
+blu=$'\e[1;34m'
+mag=$'\e[1;35m'
+cyn=$'\e[1;36m'
+end=$'\e[0m'
 
-#docker exec -ti  hiveclientcontainer  /bin/bash -c "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ProcessCreateScript\" -Dexec.args=\"/data tpcds.sql\" -f /project/pom.xml"
+#Create and populate the database from the .dat files. The scale factor is passed as an argument
+#and used to identify the folder that holds the data.
+#$1 scale factor (positive integer)
 
-docker exec -ti  hiveclientcontainer  /bin/bash -c "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateDatabase\" -Dexec.args=\"/data/tables _ext /temporal/1GB hiveservercontainer\" -f /project/pom.xml" 
+if [ $# -lt 1 ]; then
+    echo "Usage bash runclient_createdb.sh <scale factor>."
+    exit 0
+fi
+
+#Execute the Java project with Maven on the client builder container running in the docker-compose setup. 
+
+printf "\n\n%s\n\n" "${mag}Creating and populating the database.${end}"
+
+docker exec -ti  clientbuildercontainer  /bin/bash -c \
+	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateDatabase\" -Dexec.args=\"/data/tables _ext /temporal/$1GB prestohiveservercontainer\" -f /project/pom.xml"       
 

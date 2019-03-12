@@ -11,6 +11,7 @@ cyn=$'\e[1;36m'
 end=$'\e[0m'
 
 #Create .dat files to populate the database. The scale factor is passed as an argument.
+#$1 scale factor (positive integer)
 
 if [ $# -lt 1 ]; then
     echo "Usage bash createDataFiles.sh <scale factor>."
