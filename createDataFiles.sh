@@ -20,3 +20,6 @@ fi
 printf "\n\n%s\n\n" "${mag}Generating the data files.${end}"
 bash dqgen/generateData.sh $1
 
+printf "\n\n%s\n\n" "${mag}Moving the generated files to subdirectories.${end}"
+bash datFiles.sh $1
+
