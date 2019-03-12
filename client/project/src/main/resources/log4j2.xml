@@ -7,9 +7,11 @@
 		<File name="LogFile" fileName="/data/logs/all.log" immediateFlush="true" append="false">
 			<PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
 		</File>
+		<!--  
 		<File name="AnalyticsLogFile" fileName="/data/logs/analytics.log" immediateFlush="true" append="false">
 			<PatternLayout pattern="%msg%n" />
 		</File>
+		-->
 	</Appenders>
 	<Loggers> 
 		<Root level="info">
@@ -17,7 +19,7 @@
 			<AppenderRef ref="LogFile" />
 		</Root>
 		<Logger name="AnalyticsLog" level="info" additivity="false">
-    		<AppenderRef ref="AnalyticsLogFile" />
+    		<!-- <AppenderRef ref="AnalyticsLogFile" /> -->
 		</Logger>
 	</Loggers>
 </Configuration>

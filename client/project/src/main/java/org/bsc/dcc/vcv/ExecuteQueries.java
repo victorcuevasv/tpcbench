@@ -48,7 +48,7 @@ public class ExecuteQueries {
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
-			this.recorder = new AnalyticsRecorder(system);
+			this.recorder = new AnalyticsRecorder("power", system);
 		}
 		catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
