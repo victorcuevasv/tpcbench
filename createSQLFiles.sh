@@ -21,8 +21,6 @@ GROUP_ID=$(id -g)
 printf "\n\n%s\n\n" "${mag}Processing the tpcds.sql file.${end}"
 bash runclient_processcreatescript.sh $USER_ID $GROUP_ID
 
-exit 0
-
 #Generate the Presto queries.
 printf "\n\n%s\n\n" "${mag}Generating the Presto queries.${end}"
 bash dqgen/generateQueriesPresto.sh
