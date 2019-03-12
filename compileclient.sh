@@ -8,7 +8,12 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+#Get the user id of the user executing this script.
+USER_ID=$(id -u)
+#Get the user id of the user executing this script.
+GROUP_ID=$(id -g)
+
 #Build the client project.
 printf "\n\n%s\n\n" "${blu}Compiling the client project.${end}"
-bash client/compile.sh
+bash client/compile.sh $USER_ID $GROUP_ID
 

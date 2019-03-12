@@ -53,14 +53,20 @@ public class CreateDatabase {
 	 * args[1] suffix used for intermediate table text files
 	 * args[2] directory for generated data raw files
 	 * args[3] hostname of the server
+	 * args[4] whether to run queries to count the tuples generated
 	 */
 	public static void main(String[] args) throws SQLException {
+		if( args.length != 5 ) {
+			System.out.println("Incorrect number of arguments.");
+			System.exit(0);
+		}
 		CreateDatabase prog = new CreateDatabase(args[3]);
+		boolean doCount = Boolean.parseBoolean(args[4]);
 		File directory = new File(args[0]);
 		// Process each .sql create table file found in the directory.
 		for (final File fileEntry : directory.listFiles()) {
 			if (!fileEntry.isDirectory()) {
-				prog.createTable(args[0], fileEntry, args[1], args[2]);
+				prog.createTable(args[0], fileEntry, args[1], args[2], doCount);
 			}
 		}
 	}
@@ -70,7 +76,8 @@ public class CreateDatabase {
 	// external table.
 	// The SQL create table statement found in the file has to be manipulated for
 	// creating these tables.
-	private void createTable(String workDir, File tableSQLfile, String suffix, String genDataDir) {
+	private void createTable(String workDir, File tableSQLfile, String suffix, String genDataDir,
+			boolean doCount) {
 		try {
 			String tableName = tableSQLfile.getName().substring(0, tableSQLfile.getName().indexOf('.'));
 			System.out.println("Processing: " + tableName);
@@ -87,14 +94,16 @@ public class CreateDatabase {
 			Statement stmt = con.createStatement();
 			stmt.execute("drop table if exists " + tableName + suffix);
 			stmt.execute(extSqlCreate);
-			countRowsQuery(stmt, tableName + suffix);
+			if( doCount )
+				countRowsQuery(stmt, tableName + suffix);
 			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "");
 			String intSqlCreate = internalCreateTable(incIntSqlCreate, tableName);
 			saveCreateTableFile(workDir, "parquet", tableName, intSqlCreate);
 			stmt.execute("drop table if exists " + tableName);
 			stmt.execute(intSqlCreate);
 			stmt.execute("INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix);
-			countRowsQuery(stmt, tableName);
+			if( doCount )
+				countRowsQuery(stmt, tableName);
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
