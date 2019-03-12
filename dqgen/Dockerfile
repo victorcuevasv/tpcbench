@@ -28,6 +28,10 @@ RUN mkdir /TPC-DS/v2.10.1rc3/output
 WORKDIR /TPC-DS/v2.10.1rc3/tools
 RUN make
 
+#Change the owner of the TPC-DS folder recursively to 
+#the user and group id supplied.
+RUN chown -R $UID:$GID /TPC-DS
+
 USER $UNAME
 
 CMD ["bash"]

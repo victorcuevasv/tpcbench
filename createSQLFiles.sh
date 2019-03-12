@@ -21,13 +21,16 @@ GROUP_ID=$(id -g)
 printf "\n\n%s\n\n" "${mag}Processing the tpcds.sql file.${end}"
 bash runclient_processcreatescript.sh $USER_ID $GROUP_ID
 
+#Generate the unused Netezza queries.
+printf "\n\n%s\n\n" "${mag}Generating the Presto queries.${end}"
+bash dqgen/generateQueries.sh $USER_ID $GROUP_ID
+
 #Generate the Presto queries.
 printf "\n\n%s\n\n" "${mag}Generating the Presto queries.${end}"
-bash dqgen/generateQueriesPresto.sh
-cp -r dqgen/output/QueriesPresto ./datavol
+bash dqgen/generateQueriesPresto.sh $USER_ID $GROUP_ID
 
 #Generate the Spark queries.
 printf "\n\n%s\n\n" "${mag}Generating the Spark queries.${end}"
-bash dqgen/generateQueriesSpark.sh
-cp -r dqgen/output/QueriesSpark ./datavol
+bash dqgen/generateQueriesSpark.sh $USER_ID $GROUP_ID
+
 
