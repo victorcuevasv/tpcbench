@@ -71,6 +71,8 @@ public class HiveJdbcClient {
         while (res.next()) {
             System.out.println(res.getString(1));
         }
+        
+        con.close();
     }
 }
 

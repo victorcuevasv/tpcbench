@@ -69,6 +69,7 @@ public class CreateDatabase {
 				prog.createTable(args[0], fileEntry, args[1], args[2], doCount);
 			}
 		}
+		prog.closeConnection();
 	}
 
 	// To create each table from the .dat file, an external table is first created.
@@ -213,5 +214,17 @@ public class CreateDatabase {
 		}
 		return retVal;
 	}
+	
+	public void closeConnection() {
+		try {
+			this.con.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
+	}
 
 }
+
+
