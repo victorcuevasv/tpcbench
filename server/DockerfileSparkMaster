@@ -34,7 +34,16 @@ ENV PATH="${PATH}:/opt/hadoop-2.7.7/bin:/opt/hadoop-2.7.7/sbin"
 
 #Copy the Hadoop configuration files.
 
-COPY etc_hadoop/*.* /opt/hadoop-2.7.7/etc/hadoop/
+COPY etc_hadoop/* /opt/hadoop-2.7.7/etc/hadoop/
+
+#Change the owner of the Hadoop files.
+
+RUN useradd hadoop && \
+    chown -R hadoop:hadoop /opt/hadoop-2.7.7
+
+#Format the hdfs namenode.
+
+RUN hdfs namenode -format
 
 #Download and decompress Hive.
 
@@ -71,11 +80,15 @@ ENV PATH="${PATH}:/opt/spark-2.4.0-bin-hadoop2.7/bin"
 #Copy the Spark configuration file which will override selected defaults.
 
 COPY spark_conf/spark-defaults.conf /opt/spark-2.4.0-bin-hadoop2.7/conf/spark-defaults.conf
+COPY spark_conf/slaves /opt/spark-2.4.0-bin-hadoop2.7/conf/slaves
 COPY hive-defaultSpark.xml /opt/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
 
 #Add the Hadoop jars to the Spark classpath.
 
 ENV SPARK_DIST_CLASSPATH="$HADOOP_HOME/etc/hadoop/*:$HADOOP_HOME/share/hadoop/common/lib/*:$HADOOP_HOME/share/hadoop/common/*:$HADOOP_HOME/share/hadoop/hdfs/*:$HADOOP_HOME/share/hadoop/hdfs/lib/*:$HADOOP_HOME/share/hadoop/hdfs/*:$HADOOP_HOME/share/hadoop/yarn/lib/*:$HADOOP_HOME/share/hadoop/yarn/*:$HADOOP_HOME/share/hadoop/mapreduce/lib/*:$HADOOP_HOME/share/hadoop/mapreduce/*:$HADOOP_HOME/share/hadoop/tools/lib/*"   
+
+#Create directory for event log.
+RUN mkdir /tmp/spark-events
 
 #Copy the initialization script for Hadoop, Hive, Spark and make it executable.
 
@@ -90,6 +103,13 @@ RUN spark-submit \
      --class org.apache.spark.examples.sql.hive.JavaSparkHiveExample \
      --deploy-mode client \
      $SPARK_HOME/examples/jars/spark-examples_2.11-2.4.0.jar ; exit 0
+     
+#Add the environment variable to enable execution with YARN
+ENV HADOOP_CONF_DIR /opt/hadoop-2.7.7/etc/hadoop
+ENV HIVE_CONF_DIR /opt/spark-2.4.0-bin-hadoop2.7/conf/
+
+#Copy postgres driver jar.
+RUN cp /opt/apache-hive-2.3.4-bin/lib/postgresql-42.2.5.jar /opt/spark-2.4.0-bin-hadoop2.7/jars 
 
 CMD ["bash"]
 

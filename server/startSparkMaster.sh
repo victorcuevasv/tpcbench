@@ -3,9 +3,6 @@
 #Start the ssh server.
 /etc/init.d/ssh start
 
-#Format the hdfs namenode.
-hdfs namenode -format
-
 #Start the Hadoop daemons.
 start-dfs.sh
 start-yarn.sh
@@ -24,7 +21,7 @@ hadoop fs -put /temporal /temporal
 mkdir -p /tmp/hive/java
 chmod -R 777 /tmp
 hadoop fs -mkdir -p /tmp/hive
-hadoop fs -chmod -R 777 /tmp/hive
+hadoop fs -chmod -R 777 /tmp
 
 # $1 host $2 port $3 tries
 wait_for_server() {
@@ -40,7 +37,7 @@ wait_for_server() {
   	fi
   	i=$((i+1))
   	printf "$1:$2 is unreachable, retrying.\n"
-  	sleep 3
+  	sleep 5
 	done
 	printf "$1:$2 is reachable.\n"
 }
@@ -51,10 +48,15 @@ if [ ! -f /metastore/metastorecreated ]; then
 fi
 
 hive --service metastore  &
-wait_for_server localhost 9083 10
+wait_for_server localhost 9083 24
 hive --service hiveserver2 &
 wait_for_server localhost 10000 10
-$SPARK_HOME/bin/spark-class org.apache.spark.deploy.master.Master -h sparkhiveservercontainer 
+bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-all.sh
+bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-history-server.sh
+#bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh --master spark://mastercontainer:7077   --conf spark.eventLog.enabled=true  --driver-memory 2g --executor-memory 2g --num-executors 2   --hiveconf hive.server2.thrift.port=10015  --conf "spark.sql.hive.metastore.jars=maven"   --conf "spark.sql.hive.metastore.version=2.3.0"  --conf  "spark.sql.crossJoin.enabled=true"      
+bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh --master spark://mastercontainer:7077   --conf spark.eventLog.enabled=true   --hiveconf hive.server2.thrift.port=10015  --conf "spark.sql.hive.metastore.jars=maven"   --conf "spark.sql.hive.metastore.version=2.3.0"  --conf  "spark.sql.crossJoin.enabled=true"                 
+
+sleep infinity 
 
    
 
