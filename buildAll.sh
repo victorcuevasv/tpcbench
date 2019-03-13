@@ -73,11 +73,6 @@ bash server/buildSparkWorker.sh
 printf "\n\n%s\n\n" "${mag}Building the client project builder image.${end}"
 bash client/buildSingle.sh $USER_NAME $USER_ID $GROUP_ID
 
-#Get the user id of the user executing this script.
-USER_ID=$(id -u)
-#Get the user id of the user executing this script.
-GROUP_ID=$(id -g)
-
 #Compile the Presto/Hive JDBC client project.
 printf "\n\n%s\n\n" "${blu}Compiling the Presto/Hive JDBC client project.${end}"
 bash client/compile.sh $USER_ID $GROUP_ID
