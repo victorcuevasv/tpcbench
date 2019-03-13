@@ -54,7 +54,7 @@ wait_for_server localhost 10000 10
 bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-all.sh
 bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-history-server.sh
 #bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh --master spark://mastercontainer:7077   --conf spark.eventLog.enabled=true  --driver-memory 2g --executor-memory 2g --num-executors 2   --hiveconf hive.server2.thrift.port=10015  --conf "spark.sql.hive.metastore.jars=maven"   --conf "spark.sql.hive.metastore.version=2.3.0"  --conf  "spark.sql.crossJoin.enabled=true"      
-bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh --master spark://mastercontainer:7077   --conf spark.eventLog.enabled=true   --hiveconf hive.server2.thrift.port=10015  --conf "spark.sql.hive.metastore.jars=maven"   --conf "spark.sql.hive.metastore.version=2.3.0"  --conf  "spark.sql.crossJoin.enabled=true"                 
+bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh --master spark://mastercontainer:7077   --conf spark.eventLog.enabled=true  --num-executors 1 --executor-cores 2  --hiveconf hive.server2.thrift.port=10015  --conf "spark.sql.hive.metastore.jars=maven"   --conf "spark.sql.hive.metastore.version=2.3.0"  --conf  "spark.sql.crossJoin.enabled=true"                 
 
 sleep infinity 
 
