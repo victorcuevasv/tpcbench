@@ -37,7 +37,7 @@ public class ExecuteQueriesSpark {
 				.config("spark.sql.crossJoin.enabled", "true")
 				.enableHiveSupport()
 				.getOrCreate();
-			this.recorder = new AnalyticsRecorder("spark");
+			this.recorder = new AnalyticsRecorder("power", "spark");
 		}
 		catch(Exception e) {
 			e.printStackTrace();
