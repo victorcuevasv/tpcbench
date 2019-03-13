@@ -70,6 +70,7 @@ public class AnalyticsRecorder {
 				.withLayout(layout)
 		        .withFileName( "/data/logs/" + testName + "/" + system + "/analytics.log")
 		        .withName("AnalyticsLogFilePower")
+		        .withAppend(false)
 		        .build();
 		appender.start();
 		config.addAppender(appender);
