@@ -10,7 +10,7 @@ end=$'\e[0m'
 
 #Copying the database to hdfs.
 printf "\n\n%s\n\n" "${blu}Copying to hdfs.${end}"
-docker exec -ti prestohiveservercontainer  /bin/bash -c \
+docker exec -ti mastercontainer  /bin/bash -c \
 	"hadoop fs -put /user/hive/warehouse/* /user/hive/warehouse" 
 
 

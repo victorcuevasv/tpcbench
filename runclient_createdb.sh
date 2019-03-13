@@ -31,7 +31,7 @@ fi
 printf "\n\n%s\n\n" "${mag}Creating and populating the database.${end}"
 
 docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
-	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateDatabase\" -Dexec.args=\"/data/tables _ext /temporal/$1GB prestohiveservercontainer false\" -f /project/pom.xml"       
+	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateDatabase\" -Dexec.args=\"/data/tables _ext /temporal/$1GB mastercontainer false\" -f /project/pom.xml"       
   
 
 

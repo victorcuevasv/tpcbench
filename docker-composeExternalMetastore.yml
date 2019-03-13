@@ -2,7 +2,7 @@ version: '2.0'
 services:
     hiveservice:
         image: prestohiveserver:dev
-        container_name: prestohiveservercontainer
+        container_name: mastercontainer
         ports:
             - 10000:10000
         volumes:
