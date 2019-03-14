@@ -50,20 +50,22 @@ USER_ID=$(id -u)
 GROUP_ID=$(id -g)
 
 #Build the Ubuntu with Java base image.
-printf "\n\n%s\n\n" "${mag}Creating the Ubuntu with Java base image.${end}"
-bash ubuntujava/build.sh
+#printf "\n\n%s\n\n" "${mag}Creating the Ubuntu with Java base image.${end}"
+#bash ubuntujava/build.sh
 
 #Build the dqgen image with the TPC-DS toolkit to generate data and queries.
-printf "\n\n%s\n\n" "${mag}Creating the dqgen TPC-DS toolkit image.${end}"
-bash dqgen/createContainer.sh $USER_NAME $USER_ID $GROUP_ID
+#printf "\n\n%s\n\n" "${mag}Creating the dqgen TPC-DS toolkit image.${end}"
+#bash dqgen/createContainer.sh $USER_NAME $USER_ID $GROUP_ID
 
 #Build the presto server image.
-printf "\n\n%s\n\n" "${mag}Building the Presto server image.${end}"
-bash server/buildPresto.sh
+#printf "\n\n%s\n\n" "${mag}Building the Presto server image.${end}"
+#bash server/buildPresto.sh
 
 #Build the Spark Master server image.
 printf "\n\n%s\n\n" "${mag}Building the Spark Master server image.${end}"
-bash server/buildSparkMaster.sh
+bash server/buildSparkMaster.sh $USER_NAME $USER_ID $GROUP_ID
+
+exit 0
 
 #Build the Spark Worker server image.
 printf "\n\n%s\n\n" "${mag}Building the Spark Worker server image.${end}"

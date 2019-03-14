@@ -21,6 +21,13 @@ RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
     
 COPY ssh_config /root/.ssh/config
 
+ARG UNAME=anyuser
+ARG UID=1000
+ARG GID=100
+
+RUN groupadd -g $GID -o $UNAME
+RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
+
 #Download and decompress Hadoop
 
 RUN wget -q -P /opt http://apache.rediris.es/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
@@ -109,7 +116,17 @@ ENV HADOOP_CONF_DIR /opt/hadoop-2.7.7/etc/hadoop
 ENV HIVE_CONF_DIR /opt/spark-2.4.0-bin-hadoop2.7/conf/
 
 #Copy postgres driver jar.
-RUN cp /opt/apache-hive-2.3.4-bin/lib/postgresql-42.2.5.jar /opt/spark-2.4.0-bin-hadoop2.7/jars 
+RUN cp /opt/apache-hive-2.3.4-bin/lib/postgresql-42.2.5.jar /opt/spark-2.4.0-bin-hadoop2.7/jars
+
+USER $UNAME
+
+RUN spark-submit \
+     --packages org.apache.zookeeper:zookeeper:3.4.6 \
+     --class org.apache.spark.examples.sql.hive.JavaSparkHiveExample \
+     --deploy-mode client \
+     $SPARK_HOME/examples/jars/spark-examples_2.11-2.4.0.jar ; exit 0
+     
+USER root
 
 CMD ["bash"]
 
