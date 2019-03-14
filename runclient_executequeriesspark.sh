@@ -13,5 +13,5 @@ docker exec --user $USER_ID:$GROUP_ID -ti  mastercontainer  /bin/bash -c \
 	--class org.bsc.dcc.vcv.ExecuteQueriesSpark \
 	--master spark://mastercontainer:7077 --deploy-mode client \
 	/project/targetspark/client-1.0-SNAPSHOT.jar \
-	/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar query4.sql"               
+	/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar"               
 	
