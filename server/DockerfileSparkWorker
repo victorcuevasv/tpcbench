@@ -11,10 +11,13 @@ RUN apt-get update && apt-get install -y \
     python-pip \
     python-dev
 
-#Generate a key and add it to the authorized set.
+#Add the generated key to the authorized set.
 
-RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
-    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+COPY ssh /root/.ssh
+
+RUN chmod 600 /root/.ssh/id_rsa
+
+RUN cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
     
 #The configuration file will enable passwordless login to nodes
 #and without confirmation prompt.
