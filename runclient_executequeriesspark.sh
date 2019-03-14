@@ -8,6 +8,6 @@ docker exec -ti  mastercontainer  /bin/bash -c \
 	--class org.bsc.dcc.vcv.ExecuteQueriesSpark \
 	--master spark://mastercontainer:7077 --deploy-mode client \
 	/project/targetspark/client-1.0-SNAPSHOT.jar \
-	/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar"               
+	/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar query3.sql"               
 
 
