@@ -16,12 +16,15 @@ services:
             - ./hivevol:/temporal
             - ./warehousevol:/user/hive/warehouse
             - ./metastorevol:/metastore
+            #Enable to use spark-submit, disable to use JDBC.
+            - ./datavol:/data
+            - ./client/project/targetspark:/project/targetspark
     sparkworkerservice:
         image: sparkworker:dev
         container_name: sparkworkercontainer
-        environment:
-            SPARK_WORKER_CORES: 2
-            SPARK_WORKER_MEMORY: 2g
+        #environment:
+            #SPARK_WORKER_CORES: 2
+            #SPARK_WORKER_MEMORY: 2g
     postgresservice:
         image: postgres:10.6
         container_name: postgrescontainer
@@ -34,9 +37,10 @@ services:
     sparkhiveclient:
         image: clientbuilder:dev
         container_name: clientbuildercontainer
-        volumes:
-            - ./client/project:/project
-            - ./datavol:/data
+        #Enable to use JDBC, disable to use spark-submit.
+        #volumes:
+            #- ./client/project:/project
+            #- ./datavol:/data
         entrypoint:
             - bash
         tty: true
