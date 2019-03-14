@@ -32,5 +32,6 @@ bash dqgen/generateQueriesPresto.sh $USER_ID $GROUP_ID
 #Generate the Spark queries.
 printf "\n\n%s\n\n" "${mag}Generating the Spark queries.${end}"
 bash dqgen/generateQueriesSpark.sh $USER_ID $GROUP_ID
+cp -r datavol/QueriesSpark client/project/src/main/resources/
 
 
