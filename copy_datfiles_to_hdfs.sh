@@ -10,6 +10,6 @@ end=$'\e[0m'
 
 #Copying the .dat files to hdfs.
 printf "\n\n%s\n\n" "${blu}Copying to hdfs.${end}"
-docker exec -ti  hiveservercontainer  /bin/bash -c "hadoop fs -mkdir /temporal/1GB"
-docker exec -ti  hiveservercontainer  /bin/bash -c "hadoop fs -put /temporal/1GB/* /temporal/1GB" 
+docker exec -ti  mastercontainer  /bin/bash -c "hadoop fs -mkdir /temporal/1GB"
+docker exec -ti  mastercontainer  /bin/bash -c "hadoop fs -put /temporal/1GB/* /temporal/1GB" 
 

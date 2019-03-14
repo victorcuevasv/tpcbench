@@ -1,4 +1,5 @@
 #!/bin/bash
 
-docker exec -ti  hiveclientcontainer  /bin/bash -c "/opt/presto --server hiveservercontainer:8080 --catalog hive --schema default"     
+docker exec -ti  clientbuildercontainer  /bin/bash -c \
+	"/opt/presto --server mastercontainer:8080 --catalog hive --schema default"     
 
