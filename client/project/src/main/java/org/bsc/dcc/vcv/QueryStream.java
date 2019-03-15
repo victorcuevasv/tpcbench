@@ -30,10 +30,12 @@ public class QueryStream implements Callable<Void> {
 	private String plansDir;
 	private boolean singleCall;
 	private Random random;
+	private final String system;
 
 	public QueryStream(int nStream, BlockingQueue<QueryRecordConcurrent> resultsQueue,
 			Connection con, HashMap<Integer, String> queriesHT, int nQueries,
-			String workDir, String resultsDir, String plansDir, boolean singleCall, Random random) {
+			String workDir, String resultsDir, String plansDir, boolean singleCall, 
+			Random random, String system) {
 		this.nStream = nStream;
 		this.resultsQueue = resultsQueue;
 		this.con = con;
@@ -44,6 +46,7 @@ public class QueryStream implements Callable<Void> {
 		this.plansDir = plansDir;
 		this.singleCall = singleCall;
 		this.random = random;
+		this.system = system;
 	}
 
 	@Override
@@ -73,7 +76,8 @@ public class QueryStream implements Callable<Void> {
 				this.executeQueryMultipleCalls(nStream, workDir, resultsDir, plansDir,
 						fileName, sqlStr, queryRecord);
 			// Record the results file size.
-			File resultsFile = new File(workDir + "/" + resultsDir + "/" + nStream + "_" + fileName + ".txt");
+			File resultsFile = new File(workDir + "/" + resultsDir + "/" + "tput" + "/" + 
+					this.system + "/" + nStream + "_" + fileName + ".txt");
 			queryRecord.setResultsSize(resultsFile.length());
 			queryRecord.setSuccessful(true);
 		}
@@ -127,15 +131,18 @@ public class QueryStream implements Callable<Void> {
 			// Obtain the plan for the query.
 			Statement stmt = con.createStatement();
 			ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
-			this.saveResults(workDir + "/" + plansDir + "/" + nStream + "_" + fileName + ".txt", planrs, !firstQuery);
+			this.saveResults(workDir + "/" + plansDir + "/" + "tput" + "/" + this.system + "/" + 
+					nStream + "_" + fileName + ".txt", planrs, !firstQuery);
 			planrs.close();
 			// Execute the query.
 			if (firstQuery)
 				queryRecord.setStartTime(System.currentTimeMillis());
-			System.out.println("Stream " + nStream + " executing iteration " + iteration + " of query " + fileName + ".");
+			System.out.println("Stream " + nStream + " executing iteration " + iteration + " of query " + 
+				fileName + ".");
 			ResultSet rs = stmt.executeQuery(sqlStr);
 			// Save the results.
-			this.saveResults(workDir + "/" + resultsDir + "/" + nStream + "_" + fileName + ".txt", rs, !firstQuery);
+			this.saveResults(workDir + "/" + resultsDir + "/" + "tput" + "/" + this.system + "/" + 
+					nStream + "_" + fileName + ".txt", rs, !firstQuery);
 			stmt.close();
 			rs.close();
 			firstQuery = false;
@@ -145,6 +152,8 @@ public class QueryStream implements Callable<Void> {
 
 	private void saveResults(String resFileName, ResultSet rs, boolean append) {
 		try {
+			File tmp = new File(resFileName);
+			tmp.getParentFile().mkdirs();
 			FileWriter fileWriter = new FileWriter(resFileName, append);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			ResultSetMetaData metadata = rs.getMetaData();

@@ -18,7 +18,7 @@ services:
             - ./metastorevol:/metastore
             #Enable to use spark-submit, disable to use JDBC.
             - ./datavol:/data
-            - ./client/project/targetspark:/project/targetspark
+            - ./client/project:/project
     sparkworkerservice:
         image: sparkworker:dev
         container_name: sparkworkercontainer

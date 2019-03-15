@@ -81,7 +81,8 @@ public class ExecuteQueriesSpark {
 				String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
 				//long resultsSize = calculateSize(workDir + "/" + resultsDir + "/" + noExtFileName, ".csv", this.logger);
 				//queryRecord.setResultsSize(resultsSize);
-				File resultsFile = new File(workDir + "/" + resultsDir + "/" + noExtFileName + ".txt");
+				File resultsFile = new File(workDir + "/" + resultsDir + "/" + "power" + "/" + 
+						this.recorder.system + "/" + noExtFileName + ".txt");
 				queryRecord.setResultsSize(resultsFile.length());
 				queryRecord.setSuccessful(true);
 			}
@@ -131,28 +132,18 @@ public class ExecuteQueriesSpark {
 					" of query " + fileName + ".");
 			// Obtain the plan for the query.
 			Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
-			if( firstQuery ) {
-				//planDataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + plansDir + "/" + noExtFileName);
-				this.saveResults(workDir + "/" + plansDir + "/" + noExtFileName + ".txt", planDataset, false);
-			}
-			else {
-				//planDataset.write().mode(SaveMode.Append).csv(workDir + "/" + plansDir + "/" + noExtFileName);
-				this.saveResults(workDir + "/" + plansDir + "/" + noExtFileName + ".txt", planDataset, true);
-			}
-			// Execute the query.
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
+			//planDataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + plansDir + "/" + noExtFileName);
+			this.saveResults(workDir + "/" + plansDir + "/" + "power" + "/" + this.recorder.system + "/" + 
+					noExtFileName + ".txt", planDataset, ! firstQuery);
+			// Execute the query.
 			System.out.println("Executing iteration " + iteration + " of query " + fileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
-			if( firstQuery ) {
-				//dataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
-				this.saveResults(workDir + "/" + resultsDir + "/" + noExtFileName + ".txt", dataset, false);
-			}
-			else {
-				//dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
-				this.saveResults(workDir + "/" + resultsDir + "/" + noExtFileName + ".txt", dataset, true);
-			}
+			//dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
+			this.saveResults(workDir + "/" + resultsDir + "/" + "power" + "/" + this.recorder.system + "/" + 
+					noExtFileName + ".txt", dataset, ! firstQuery);
 			firstQuery = false;
 			iteration++;
 		}
@@ -200,6 +191,8 @@ public class ExecuteQueriesSpark {
 	
 	private void saveResults(String resFileName, Dataset<Row> dataset, boolean append) {
 		try {
+			File tmp = new File(resFileName);
+			tmp.getParentFile().mkdirs();
 			FileWriter fileWriter = new FileWriter(resFileName, append);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			//List<String> list = dataset.as(Encoders.STRING()).collectAsList();

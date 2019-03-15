@@ -155,12 +155,12 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			QueryStream stream = null;
 			if( !this.multiple ) {
 				stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT, nQueries,
-					workDir, resultsDir, plansDir, singleCall, random);
+					workDir, resultsDir, plansDir, singleCall, random, this.recorder.system);
 			}
 			else {
 				Connection con = this.createConnection(this.system, this.hostname);
 				stream = new QueryStream(i, this.resultsQueue, con, queriesHT, nQueries,
-						workDir, resultsDir, plansDir, singleCall, random);
+						workDir, resultsDir, plansDir, singleCall, random, this.recorder.system);
 			}
 			this.executor.submit(stream);
 		}

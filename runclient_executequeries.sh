@@ -4,5 +4,5 @@
 
 docker exec -ti  clientbuildercontainer  /bin/bash -c \
 	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueries\" \
-	-Dexec.args=\"/data QueriesPresto results plans presto mastercontainer query3.sql \" -f /project/pom.xml"      
+	-Dexec.args=\"/data QueriesPresto results plans presto mastercontainer query2.sql \" -f /project/pom.xml"      
 

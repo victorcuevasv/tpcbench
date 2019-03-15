@@ -44,10 +44,12 @@ public class QueryStreamSpark implements Callable<Void> {
 	private String plansDir;
 	private boolean singleCall;
 	private Random random;
+	private final String system;
 
 	public QueryStreamSpark(int nStream, BlockingQueue<QueryRecordConcurrent> resultsQueue,
 			SparkSession spark, HashMap<Integer, String> queriesHT, int nQueries,
-			String workDir, String resultsDir, String plansDir, boolean singleCall, Random random) {
+			String workDir, String resultsDir, String plansDir, boolean singleCall, 
+			Random random, String system) {
 		this.nStream = nStream;
 		this.resultsQueue = resultsQueue;
 		this.spark = spark;
@@ -58,6 +60,7 @@ public class QueryStreamSpark implements Callable<Void> {
 		this.plansDir = plansDir;
 		this.singleCall = singleCall;
 		this.random = random;
+		this.system = system;
 	}
 
 	@Override
@@ -90,8 +93,8 @@ public class QueryStreamSpark implements Callable<Void> {
 			//long resultsSize = calculateSize(workDir + "/" + resultsDir + "/" + nStream + "_" + 
 			//noExtFileName, ".csv");
 			//queryRecord.setResultsSize(resultsSize);
-			File resultsFile = new File(workDir + "/" + resultsDir + "/" + nStream + "_" + 
-					noExtFileName + ".txt");
+			File resultsFile = new File(workDir + "/" + resultsDir + "/" + "tput" + "/" + 
+					this.system + "/" + nStream + "_" + noExtFileName + ".txt");
 			queryRecord.setResultsSize(resultsFile.length());
 			queryRecord.setSuccessful(true);
 		}
@@ -140,18 +143,10 @@ public class QueryStreamSpark implements Callable<Void> {
 					" executing iteration " + iteration + " of query " + noExtFileName + ".");
 			// Obtain the plan for the query.
 			Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
-			if( firstQuery ) {
-				//planDataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + plansDir + "/" + 
-				//nStream + "_" + noExtFileName);
-				this.saveResults(workDir + "/" + plansDir + "/" + nStream + "_" + 
-						noExtFileName + ".txt", planDataset, false);
-			}
-			else {
-				//planDataset.write().mode(SaveMode.Append).csv(workDir + "/" + plansDir + "/" + 
-				//noExtFileName);
-				this.saveResults(workDir + "/" + plansDir + "/" + nStream + "_" + 
-						noExtFileName + ".txt", planDataset, true);
-			}
+			//planDataset.write().mode(SaveMode.Append).csv(workDir + "/" + plansDir + "/" + 
+			//noExtFileName);
+			this.saveResults(workDir + "/" + plansDir + "/" + "tput" + "/" + this.system + "/" + 
+					nStream + "_" + noExtFileName + ".txt", planDataset, ! firstQuery);
 			// Execute the query.
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
@@ -159,24 +154,18 @@ public class QueryStreamSpark implements Callable<Void> {
 					" executing iteration " + iteration + " of query " + noExtFileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
-			if( firstQuery ) {
-				//dataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + resultsDir + "/" + 
-				//nStream + "_" + noExtFileName);      
-				this.saveResults(workDir + "/" + resultsDir + "/" + nStream + "_" + 
-						noExtFileName + ".txt", dataset, false);
-			}
-			else {
-				//dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + 
-				//nStream + "_" + noExtFileName);
-				this.saveResults(workDir + "/" + resultsDir + "/" + nStream + "_" + 
-						noExtFileName + ".txt", dataset, true);
-			}
+			//dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + 
+			//nStream + "_" + noExtFileName);
+			this.saveResults(workDir + "/" + resultsDir + "/" + "tput" + "/" + this.system + "/" + 
+					nStream + "_" + noExtFileName + ".txt", dataset, ! firstQuery);
 			firstQuery = false;
 			iteration++;
 		}
 	}
 	
 	private void saveResults(String resFileName, Dataset<Row> dataset, boolean append) throws Exception {
+		File temp = new File(resFileName);
+		temp.getParentFile().mkdirs();
 		FileWriter fileWriter = new FileWriter(resFileName, append);
 		PrintWriter printWriter = new PrintWriter(fileWriter);
 		// List<String> list = dataset.as(Encoders.STRING()).collectAsList();

@@ -128,7 +128,8 @@ public class ExecuteQueries {
 			else
 				this.executeQueryMultipleCalls(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
 			//Record the results file size.
-			File resultsFile = new File(workDir + "/" + resultsDir + "/" + fileName + ".txt");
+			File resultsFile = new File(workDir + "/" + resultsDir + "/" + "power" + "/" + 
+					this.recorder.system + "/" + fileName + ".txt");
 			queryRecord.setResultsSize(resultsFile.length());
 			queryRecord.setSuccessful(true);
 		}
@@ -177,7 +178,9 @@ public class ExecuteQueries {
 			// Obtain the plan for the query.
 			Statement stmt = con.createStatement();
 			ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
-			this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs, ! firstQuery);
+			//this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs, ! firstQuery);
+			this.saveResults(workDir + "/" + plansDir + "/" + "power" + "/" + this.recorder.system + "/" +
+					fileName + ".txt", planrs, ! firstQuery);
 			planrs.close();
 			// Execute the query.
 			if( firstQuery )
@@ -185,7 +188,9 @@ public class ExecuteQueries {
 			System.out.println("Executing iteration " + iteration + " of query " + fileName + ".");
 			ResultSet rs = stmt.executeQuery(sqlStr);
 			// Save the results.
-			this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, ! firstQuery);
+			//this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, ! firstQuery);
+			this.saveResults(workDir + "/" + resultsDir + "/" + "power" + "/" + this.recorder.system + "/" + 
+					fileName + ".txt", rs, ! firstQuery);
 			stmt.close();
 			rs.close();
 			firstQuery = false;
@@ -195,6 +200,8 @@ public class ExecuteQueries {
 
 	private void saveResults(String resFileName, ResultSet rs, boolean append) {
 		try {
+			File tmp = new File(resFileName);
+			tmp.getParentFile().mkdirs();
 			FileWriter fileWriter = new FileWriter(resFileName, append);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			ResultSetMetaData metadata = rs.getMetaData();
