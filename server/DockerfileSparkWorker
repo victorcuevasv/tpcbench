@@ -39,6 +39,10 @@ ENV PATH="${PATH}:/opt/hadoop-2.7.7/bin:/opt/hadoop-2.7.7/sbin"
 
 COPY etc_hadoop/* /opt/hadoop-2.7.7/etc/hadoop/
 
+#Use the same slaves file used for Spark for hadoop.
+
+COPY spark_conf/slaves /opt/hadoop-2.7.7/etc/hadoop/
+
 #Change the owner of the Hadoop files.
 
 RUN useradd hadoop && \
