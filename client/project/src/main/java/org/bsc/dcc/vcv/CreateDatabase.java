@@ -170,6 +170,8 @@ public class CreateDatabase {
 
 	public void saveCreateTableFile(String workDir, String suffix, String tableName, String sqlCreate) {
 		try {
+			File temp = new File(workDir + suffix + "/" + tableName + ".sql");
+			temp.getParentFile().mkdirs();
 			FileWriter fileWriter = new FileWriter(workDir + suffix + "/" + tableName + ".sql");
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			printWriter.println(sqlCreate);

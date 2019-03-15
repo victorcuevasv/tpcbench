@@ -11,7 +11,7 @@ services:
             - 7077:7077 #Spark master job submission
             - 8080:8080 #Spark standalone GUI
             - 18080:18080 #Spark history server
-            - 8088:8088 #Yarn job UI
+            - 8088:8088 #Hadoop/Yarn job UI
         volumes:
             - ./hivevol:/temporal
             - ./warehousevol:/user/hive/warehouse

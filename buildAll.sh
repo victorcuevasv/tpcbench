@@ -28,20 +28,6 @@ if [ ! -d warehousevol ]; then
    mkdir warehousevol
 fi
 
-#Create the datavol directory and its subdirectories if it does not exist.
-
-if [ ! -d datavol ]; then
-   mkdir datavol
-   mkdir datavol/tables
-   mkdir datavol/tablestextfile
-   mkdir datavol/tablesparquet
-   mkdir datavol/results
-   mkdir datavol/plans
-   mkdir datavol/logs
-   #Copy the queries file into the datavol directory.
-   cp dqgen/v2.10.1rc3/tools/tpcds.sql datavol
-fi
-
 #Get the username the user executing this script.
 USER_NAME=$(whoami)
 #Get the user id of the user executing this script.
