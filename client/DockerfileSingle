@@ -38,6 +38,9 @@ RUN mvn  dependency:go-offline -f /home/$UNAME/pom.xml && \
     
 RUN mvn  dependency:go-offline -f /home/$UNAME/pomSpark.xml && \
     rm -f /home/$UNAME/pomSpark.xml
+    
+RUN mvn  dependency:go-offline -f /home/$UNAME/pomSparkJDBC.xml && \
+    rm -f /home/$UNAME/pomSparkJDBC.xml
 
 CMD ["bash"]
 
