@@ -10,6 +10,12 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+#Create the datavol directory if it does not exist.
+
+if [ ! -d datavol ]; then
+   mkdir datavol
+fi
+
 #Create the hivevol directory if it does not exist.
 
 if [ ! -d hivevol ]; then
