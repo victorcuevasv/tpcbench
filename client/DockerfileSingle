@@ -33,10 +33,10 @@ USER $UNAME
 
 ADD project/*.xml /home/$UNAME/
 
-RUN mvn  dependency:go-offline -f /opt/pom.xml && \
+RUN mvn  dependency:go-offline -f /home/$UNAME/pom.xml && \
     rm -f /home/$UNAME/pom.xml
     
-RUN mvn  dependency:go-offline -f /opt/pomSpark.xml && \
+RUN mvn  dependency:go-offline -f /home/$UNAME/pomSpark.xml && \
     rm -f /home/$UNAME/pomSpark.xml
 
 CMD ["bash"]
