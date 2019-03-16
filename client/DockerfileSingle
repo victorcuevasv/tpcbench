@@ -31,7 +31,7 @@ RUN wget --no-check-certificate -q -P /opt \
 
 USER $UNAME
 
-ADD project/*.xml /home/$UNAME
+ADD project/*.xml /home/$UNAME/
 
 RUN mvn  dependency:go-offline -f /opt/pom.xml && \
     rm -f /home/$UNAME/pom.xml
