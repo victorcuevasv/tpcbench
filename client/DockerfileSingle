@@ -29,15 +29,15 @@ RUN wget --no-check-certificate -q -P /opt \
 
 #Download the Maven dependencies.
 
-ADD project/*.xml /opt/
-
 USER $UNAME
 
+ADD project/*.xml /home/$UNAME
+
 RUN mvn  dependency:go-offline -f /opt/pom.xml && \
-    rm -f /opt/pom.xml
+    rm -f /home/$UNAME/pom.xml
     
 RUN mvn  dependency:go-offline -f /opt/pomSpark.xml && \
-    rm -f /opt/pomSpark.xml
+    rm -f /home/$UNAME/pomSpark.xml
 
 CMD ["bash"]
 
