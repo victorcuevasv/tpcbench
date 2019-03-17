@@ -38,7 +38,7 @@ services:
         container_name: clientbuildercontainer
         #Enable to use JDBC, disable to use spark-submit.
         volumes:
-            - ./client/project:/project
+            - ./../client/project:/project
             - ./datavol:/data
         entrypoint:
             - bash
