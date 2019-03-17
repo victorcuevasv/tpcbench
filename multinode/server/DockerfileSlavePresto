@@ -68,7 +68,7 @@ RUN useradd hadoop && \
 
 #Download and decompress Presto.
 
-RUN wget -q -P /opt \
+RUN wget --no-check-certificate -q -P /opt \
     https://$PRESTO_MIRROR/maven2/com/facebook/presto/presto-server/0.214/presto-server-0.214.tar.gz && \
     tar xzf /opt/presto-server-0.214.tar.gz -C /opt && \
     rm -f /opt/presto-server-0.214.tar.gz
