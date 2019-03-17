@@ -21,7 +21,7 @@ GROUP_ID=$(id -g)
 
 #First separate the multiple create table statements in the tpcds.sql file into separate files.
 #Copy the file with create table statements into the datavol directory.
-cp $DIR/dqgen/v2.10.1rc3/tools/tpcds.sql datavol
+cp $DIR/dqgen/v2.10.1rc3/tools/tpcds.sql $DIR/datavol
 printf "\n\n%s\n\n" "${mag}Processing the tpcds.sql file.${end}"
 bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID
 
