@@ -1,7 +1,7 @@
 version: '2.0'
 services:
     namenodeservice:
-        image: hiveserver:dev
+        image: prestohiveservermult:dev
         container_name: namenodecontainer
         ports:
             - 10000:10000
@@ -10,10 +10,10 @@ services:
             - ./warehousevol:/user/hive/warehouse
             - ./metastorevol:/metastore
     slave1service:
-        image: hadoopslave1:dev
+        image: prestoslave1mult:dev
         container_name: slave1container
     slave2service:
-        image: hadoopslave2:dev
+        image: prestoslave2mult:dev
         container_name: slave2container
     postgresservice:
         image: postgres:10.6
@@ -25,8 +25,8 @@ services:
             POSTGRES_USER: root
             POSTGRES_PASSWORD: postgres
     hiveclient:
-        image: buildhiveclient:dev
-        container_name: hiveclientcontainer
+        image: clientbuilder:dev
+        container_name: clientbuildercontainer
         volumes:
             - ./client/project:/project
             - ./datavol:/data

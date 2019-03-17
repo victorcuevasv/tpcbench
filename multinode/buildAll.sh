@@ -10,6 +10,12 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+#Create the datavol directory if it does not exist.
+
+if [ ! -d datavol ]; then
+   mkdir datavol
+fi
+
 #Create the hivevol directory if it does not exist.
 
 if [ ! -d hivevol ]; then
@@ -28,20 +34,6 @@ if [ ! -d warehousevol ]; then
    mkdir warehousevol
 fi
 
-#Create the datavol directory and its subdirectories if it does not exist.
-
-if [ ! -d datavol ]; then
-   mkdir datavol
-   mkdir datavol/tables
-   mkdir datavol/tablestextfile
-   mkdir datavol/tablesparquet
-   mkdir datavol/results
-   mkdir datavol/plans
-   mkdir datavol/logs
-   #Copy the queries file into the datavol directory.
-   cp ../benchmark/tpcds.sql datavol
-fi
-
 #Build the namenode server image.
 printf "\n\n%s\n\n" "${mag}Building the namenode server image.${end}"
 bash server/buildPresto.sh
@@ -50,18 +42,13 @@ bash server/buildPresto.sh
 printf "\n\n%s\n\n" "${mag}Building the slave server image.${end}"
 bash server/buildSlavesPresto.sh
 
-#Set permissions for data volume and client project.
-chmod -R 777 client/project
-sudo chmod -R 777 client/project
-chmod -R 777 datavol
-sudo chmod -R 777 datavol
-chmod -R 777 warehousevol
-sudo chmod -R 777 warehousevol
-chmod -R 777 metastorevol
-sudo chmod -R 777 metastorevol
-chmod -R 777 hivevol
-sudo chmod -R 777 hivevol
+#Build the namenode server image.
+printf "\n\n%s\n\n" "${mag}Building the namenode server image.${end}"
+bash server/buildSparkMaster.sh
 
+#Build the slave server image.
+printf "\n\n%s\n\n" "${mag}Building the slave server image.${end}"
+bash server/buildSparkSlave.sh
 
 
 

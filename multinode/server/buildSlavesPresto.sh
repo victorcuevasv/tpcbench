@@ -29,15 +29,15 @@ cat $DIR/presto_etc_worker/node.properties.base > $DIR/presto_etc_worker/etc/nod
 #Add to the previously generated file the node.id line using the first line in the node.id.list file.
 echo "node.id="$(sed '1q;d' $DIR/presto_etc_worker/node.id.list)"" >> $DIR/presto_etc_worker/etc/node.properties
 
-docker build -t hadoopslave1:dev $DIR -f $DIR/DockerfileSlavePresto 
+docker build -t prestoslave1mult:dev $DIR -f $DIR/DockerfileSlavePresto 
 
 #Generate a new node.properties file inside the etc directory from the base file.
 cat $DIR/presto_etc_worker/node.properties.base > $DIR/presto_etc_worker/etc/node.properties
 
-#Add to the previously generated file the node.id line using the first line in the node.id.list file.
+#Add to the previously generated file the node.id line using the second line in the node.id.list file.
 echo "node.id="$(sed '2q;d' $DIR/presto_etc_worker/node.id.list)"" >> $DIR/presto_etc_worker/etc/node.properties
 
-docker build -t hadoopslave2:dev $DIR -f $DIR/DockerfileSlavePresto 
+docker build -t prestoslave2mult:dev $DIR -f $DIR/DockerfileSlavePresto 
 
 
 

@@ -24,5 +24,5 @@ cat $DIR/presto_etc_coordinator/hive.properties.base > $DIR/presto_etc_coordinat
 #Add to the previously generated file the hive.metastore.uri line.
 echo "hive.metastore.uri="$(cat $DIR/presto_etc_coordinator/hive.metastore.uri)"" >> $DIR/presto_etc_coordinator/etc/catalog/hive.properties   
 
-docker build -t hiveserver:dev $DIR -f $DIR/DockerfilePresto 
+docker build -t prestohiveservermult:dev $DIR -f $DIR/DockerfilePresto 
 

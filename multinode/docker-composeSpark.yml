@@ -15,8 +15,9 @@ services:
         volumes:
             - ./warehousevol:/user/hive/warehouse
             - ./metastorevol:/metastore
+            #Enable to use spark-submit, disable to use JDBC.
             #- ./datavol:/data
-            #- ./client/project/targetspark:/project/targetspark
+            #- ./client/project:/project
     slave1service:
         image: sparkslave:dev
         container_name: slave1container
@@ -33,8 +34,9 @@ services:
             POSTGRES_USER: root
             POSTGRES_PASSWORD: postgres
     hiveclient:
-        image: buildhiveclient:dev
-        container_name: hiveclientcontainer
+        image: clientbuilder:dev
+        container_name: clientbuildercontainer
+        #Enable to use JDBC, disable to use spark-submit.
         volumes:
             - ./client/project:/project
             - ./datavol:/data
