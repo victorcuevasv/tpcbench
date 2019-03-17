@@ -85,7 +85,7 @@ RUN wget --no-check-certificate -q -P /opt/apache-hive-2.3.4-bin/lib \
 RUN wget -q -P /opt http://apache.rediris.es/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
     tar xzf /opt/spark-2.4.0-bin-hadoop2.7.tgz -C /opt && \
     rm -f /opt/spark-2.4.0-bin-hadoop2.7.tgz
-    
+
 #Add the Spark installation directory variable and update the path.
 
 ENV SPARK_HOME /opt/spark-2.4.0-bin-hadoop2.7

@@ -3,6 +3,7 @@ FROM ubuntujava:dev
 USER root
 
 ARG APACHE_MIRROR=apache.rediris.es
+ARG POSTGRES_DRIVER_MIRROR=jdbc.postgresql.org
 
 #Install netcat to use nc to check connections, ssh and python.
 
@@ -66,7 +67,7 @@ COPY hive-siteExternalMetastore.xml /opt/apache-hive-2.3.4-bin/conf/hive-site.xm
 #Download the postgres driver.
 
 RUN wget --no-check-certificate -q -P /opt/apache-hive-2.3.4-bin/lib \
-    https://jdbc.postgresql.org/download/postgresql-42.2.5.jar
+    https://$POSTGRES_DRIVER_MIRROR/download/postgresql-42.2.5.jar
 
 #Download and decompress Spark.
 #Use the version prebuilt for Hadoop, spark-sql does not work in the version without Hadoop.

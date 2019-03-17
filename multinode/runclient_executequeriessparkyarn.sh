@@ -10,4 +10,3 @@ docker exec -ti  namenodecontainer  /bin/bash -c \
 	/project/targetspark/client-1.0-SNAPSHOT.jar \
 	/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar query2.sql"               
 
-

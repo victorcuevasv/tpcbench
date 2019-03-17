@@ -24,5 +24,13 @@ cat $DIR/presto_etc_coordinator/hive.properties.base > $DIR/presto_etc_coordinat
 #Add to the previously generated file the hive.metastore.uri line.
 echo "hive.metastore.uri="$(cat $DIR/presto_etc_coordinator/hive.metastore.uri)"" >> $DIR/presto_etc_coordinator/etc/catalog/hive.properties   
 
-docker build -t prestohiveservermult:dev $DIR -f $DIR/DockerfilePresto 
+#Use the default mirrors.
+#docker build -t prestohiveservermult:dev $DIR -f $DIR/DockerfilePresto 
+
+#Use the nginx mirror server.
+docker build -t prestohiveservermult:dev $DIR -f $DIR/DockerfilePresto \
+	--build-arg APACHE_MIRROR=localhost:8888 \
+	--build-arg POSTGRES_DRIVER_MIRROR=localhost:8888 \
+	--build-arg PRESTO_MIRROR=localhost:8888
+
 
