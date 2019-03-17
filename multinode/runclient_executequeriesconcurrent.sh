@@ -4,6 +4,6 @@
 
 docker exec -ti  clientbuildercontainer  /bin/bash -c \
 	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueriesConcurrent\" \
-	-Dexec.args=\"/data QueriesPresto results plans presto namenodecontainer 2 1954\" \
+	-Dexec.args=\"/data QueriesPresto results plans presto namenodecontainer 2 1954 false\" \
 	-f /project/pom.xml"
 
