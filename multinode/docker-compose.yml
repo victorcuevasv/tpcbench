@@ -28,7 +28,7 @@ services:
         image: clientbuilder:dev
         container_name: clientbuildercontainer
         volumes:
-            - ./client/project:/project
+            - ./../client/project:/project
             - ./datavol:/data
         entrypoint:
             - bash
