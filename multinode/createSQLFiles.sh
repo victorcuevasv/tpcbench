@@ -16,7 +16,7 @@ read -p "${red}Are you sure? (y/n)${end} " -n 2 -r
 echo    ""
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-    bash ../createSQLFiles.sql
+    bash ../createSQLFiles.sh
     echo "Files generated."
 fi
 
