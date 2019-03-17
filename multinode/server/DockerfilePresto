@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y \
 
 COPY ssh /root/.ssh
 
+RUN chmod 600 /root/.ssh/id_rsa
+
 RUN cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
     
 #The configuration file will enable passwordless login to nodes
