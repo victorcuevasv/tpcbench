@@ -26,13 +26,19 @@ if [ $# -lt 1 ]; then
     exit 0
 fi
 
+#Default ontainer to execute the command over, can be overriden by an argument.
+CONTAINER=mastercontainer
+if [ -z "$2" ]; then
+    CONTAINER=$2
+fi
+
 #Execute the Java project with Maven on the client builder container running in the docker-compose setup. 
 
 printf "\n\n%s\n\n" "${mag}Creating and populating the database.${end}"
 
 docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateDatabase\" \
-	-Dexec.args=\"/data/tables _ext /temporal/$1GB mastercontainer false\" -f /project/pom.xml"       
+	-Dexec.args=\"/data/tables _ext /temporal/$1GB $CONTAINER false\" -f /project/pom.xml"       
   
 
 
