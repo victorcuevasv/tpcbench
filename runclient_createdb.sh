@@ -28,7 +28,7 @@ fi
 
 #Default ontainer to execute the command over, can be overriden by an argument.
 CONTAINER=mastercontainer
-if [ -z "$2" ]; then
+if [ $# -gt 1 ]; then
     CONTAINER=$2
 fi
 
