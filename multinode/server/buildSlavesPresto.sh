@@ -35,8 +35,8 @@ echo "node.id="$(sed '1q;d' $DIR/presto_etc_worker/node.id.list)"" >> $DIR/prest
 #Use the nginx mirror server.
 docker build --network="host" -t prestoslave1mult:dev $DIR -f $DIR/DockerfileSlavePresto \
 	--build-arg APACHE_MIRROR=localhost:8888 \
-	--build-arg POSTGRES_DRIVER_MIRROR=localhost:8888 \
-	--build-arg PRESTO_MIRROR=localhost:8888
+	--build-arg POSTGRES_DRIVER_MIRROR=localhost:443 \
+	--build-arg PRESTO_MIRROR=localhost:443
 
 #Generate a new node.properties file inside the etc directory from the base file.
 cat $DIR/presto_etc_worker/node.properties.base > $DIR/presto_etc_worker/etc/node.properties
@@ -50,8 +50,8 @@ echo "node.id="$(sed '2q;d' $DIR/presto_etc_worker/node.id.list)"" >> $DIR/prest
 #Use the nginx mirror server.
 docker build --network="host" -t prestoslave2mult:dev $DIR -f $DIR/DockerfileSlavePresto \
 	--build-arg APACHE_MIRROR=localhost:8888 \
-	--build-arg POSTGRES_DRIVER_MIRROR=localhost:8888 \
-	--build-arg PRESTO_MIRROR=localhost:8888
+	--build-arg POSTGRES_DRIVER_MIRROR=localhost:443 \
+	--build-arg PRESTO_MIRROR=localhost:443
 
 
 

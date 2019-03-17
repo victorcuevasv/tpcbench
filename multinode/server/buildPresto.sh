@@ -30,7 +30,7 @@ echo "hive.metastore.uri="$(cat $DIR/presto_etc_coordinator/hive.metastore.uri)"
 #Use the nginx mirror server.
 docker build --network="host" -t prestohiveservermult:dev $DIR -f $DIR/DockerfilePresto \
 	--build-arg APACHE_MIRROR=localhost:8888 \
-	--build-arg POSTGRES_DRIVER_MIRROR=localhost:8888 \
-	--build-arg PRESTO_MIRROR=localhost:8888
+	--build-arg POSTGRES_DRIVER_MIRROR=localhost:443 \
+	--build-arg PRESTO_MIRROR=localhost:443
 
 
