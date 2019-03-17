@@ -10,6 +10,8 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
 #Get the user id of the user executing this script.
 USER_ID=$(id -u)
 #Get the user id of the user executing this script.
@@ -24,8 +26,8 @@ if [ $# -lt 1 ]; then
 fi
 
 printf "\n\n%s\n\n" "${mag}Generating the data files.${end}"
-bash dqgen/generateData.sh $1 $USER_ID $GROUP_ID
+bash $DIR/dqgen/generateData.sh $1 $USER_ID $GROUP_ID
 
 printf "\n\n%s\n\n" "${mag}Moving the generated files to subdirectories.${end}"
-bash datFiles.sh $1
+bash $DIR/datFiles.sh $1
 
