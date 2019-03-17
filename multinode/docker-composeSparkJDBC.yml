@@ -17,7 +17,7 @@ services:
             - ./metastorevol:/metastore
             #Enable to use spark-submit, disable to use JDBC.
             #- ./datavol:/data
-            #- ./client/project:/project
+            #- ./../client/project:/project
     slave1service:
         image: sparkslavemult:dev
         container_name: slave1container
