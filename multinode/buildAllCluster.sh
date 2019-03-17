@@ -10,6 +10,9 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+#Get the time of start of execution to measure total execution time.
+start_time=`date +%s`
+
 #Generate the unused Netezza queries.
 printf "\n\n%s\n\n" "${cyn}Executing the buildAll.sh script.${end}"
 bash buildAll.sh
@@ -20,4 +23,7 @@ chmod -R 777 warehousevol
 #Permissions on datavol needed only for running Spark on YARN.
 chmod -R 777 datavol
 
+end_time=`date +%s`
 
+runtime=$((end_time-start_time))
+printf "\n\n%s\n\n" "${cyn}Total execution time: ${runtime} sec.${end}"

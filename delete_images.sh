@@ -19,7 +19,7 @@ read -p "${red}Are you sure? (y/n)${end} " -n 2 -r
 echo    ""
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-    #docker rmi $(docker images --filter=reference="*:dev" -q)
+    docker rmi $(docker images --filter=reference="*:dev" -q)
     echo "Images deleted."
 fi
 
