@@ -33,7 +33,7 @@ echo "node.id="$(sed '1q;d' $DIR/presto_etc_worker/node.id.list)"" >> $DIR/prest
 #docker build -t prestoslave1mult:dev $DIR -f $DIR/DockerfileSlavePresto 
 
 #Use the nginx mirror server.
-docker build -t prestoslave1mult:dev $DIR -f $DIR/DockerfileSlavePresto \
+docker build --network="host" -t prestoslave1mult:dev $DIR -f $DIR/DockerfileSlavePresto \
 	--build-arg APACHE_MIRROR=localhost:8888 \
 	--build-arg POSTGRES_DRIVER_MIRROR=localhost:8888 \
 	--build-arg PRESTO_MIRROR=localhost:8888
@@ -48,7 +48,7 @@ echo "node.id="$(sed '2q;d' $DIR/presto_etc_worker/node.id.list)"" >> $DIR/prest
 #docker build -t prestoslave2mult:dev $DIR -f $DIR/DockerfileSlavePresto 
 
 #Use the nginx mirror server.
-docker build -t prestoslave2mult:dev $DIR -f $DIR/DockerfileSlavePresto \
+docker build --network="host" -t prestoslave2mult:dev $DIR -f $DIR/DockerfileSlavePresto \
 	--build-arg APACHE_MIRROR=localhost:8888 \
 	--build-arg POSTGRES_DRIVER_MIRROR=localhost:8888 \
 	--build-arg PRESTO_MIRROR=localhost:8888
