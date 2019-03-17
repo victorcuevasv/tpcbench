@@ -5,7 +5,7 @@
 
 #Pass the scale factor first parameter to the script in the parent directory,
 #along with the user and group id.s
-bash ../dqgen/createDataFiles.sh $1
+bash ../createDataFiles.sh $1
 
 
 
