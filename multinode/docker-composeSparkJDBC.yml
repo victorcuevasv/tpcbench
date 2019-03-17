@@ -1,7 +1,7 @@
 version: '2.0'
 services:
     namenodeservice:
-        image: sparkmaster:dev
+        image: sparkhiveservermult:dev
         container_name: namenodecontainer
         ports:
             - 10000:10000 #HiveServer2 Thrift interface
@@ -19,10 +19,10 @@ services:
             #- ./datavol:/data
             #- ./client/project:/project
     slave1service:
-        image: sparkslave:dev
+        image: sparkslavemult:dev
         container_name: slave1container
     slave2service:
-        image: sparkslave:dev
+        image: sparkslavemult:dev
         container_name: slave2container
     postgresservice:
         image: postgres:10.6
