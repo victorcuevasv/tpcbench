@@ -17,6 +17,9 @@ ssh -l vcuevas -N -L 8088:localhost:8088 bscdc07 &
 ssh -l vcuevas -N -L 19888:localhost:19888 bscdc07 & 
 ssh -l vcuevas -N -L 8080:localhost:8080 bscdc07 &
 
+#The trap will kill the background processed started above when the script
+#execution is terminated (ctrl+c).
 trap 'jobs -p | xargs kill' EXIT
 
+#Necessary to avoid immediate script termination.
 sleep infinity
