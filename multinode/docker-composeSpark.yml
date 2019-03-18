@@ -20,7 +20,6 @@ services:
             - ./../client/project:/project
         environment:
             - RUN_THRIFT_SERVER=0
-            - SPARK_CORES_MAX=20
     slave1service:
         image: sparkslavemult:dev
         container_name: slave1container
