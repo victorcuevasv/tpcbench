@@ -6,7 +6,7 @@ services:
         ports:
             - 10000:10000
         volumes:
-            #Only used for reading .dat files for database creation.
+            #Only used for reading .dat files for database creation (use parent folder).
             - ./../hivevol:/temporal
             - ./warehousevol:/user/hive/warehouse
             - ./metastorevol:/metastore
