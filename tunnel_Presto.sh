@@ -17,6 +17,6 @@ ssh -l vcuevas -N -L 8088:localhost:8088 bscdc07 &
 ssh -l vcuevas -N -L 19888:localhost:19888 bscdc07 & 
 ssh -l vcuevas -N -L 8080:localhost:8080 bscdc07 &
 
+trap 'jobs -p | xargs kill' EXIT
 
-
-
+sleep infinity
