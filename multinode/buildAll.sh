@@ -1,5 +1,7 @@
 #!/bin/bash
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
 #Variables for console output with colors.
 
 red=$'\e[1;31m'
@@ -12,26 +14,26 @@ end=$'\e[0m'
 
 #Create the datavol directory if it does not exist.
 
-if [ ! -d datavol ]; then
-   mkdir datavol
+if [ ! -d $DIR/datavol ]; then
+   mkdir $DIR/datavol
 fi
 
-#Create the hivevol directory if it does not exist.
+#Create the hivevol on the PARENT directory if it does not exist.
 
-if [ ! -d hivevol ]; then
-   mkdir hivevol
+if [ ! -d $DIR/../hivevol ]; then
+   mkdir $DIR/../hivevol
 fi
 
 #Create the metastorevol directory if it does not exist.
 
-if [ ! -d metastorevol ]; then
-   mkdir metastorevol
+if [ ! -d $DIR/metastorevol ]; then
+   mkdir $DIR/metastorevol
 fi
    
 #Create the warehousevol directory if it does not exist.
 
-if [ ! -d warehousevol ]; then
-   mkdir warehousevol
+if [ ! -d $DIR/warehousevol ]; then
+   mkdir $DIR/warehousevol
 fi
 
 #Build the namenode server image.

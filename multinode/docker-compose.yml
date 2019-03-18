@@ -6,7 +6,8 @@ services:
         ports:
             - 10000:10000
         volumes:
-            - ./hivevol:/temporal
+            #Only used for reading .dat files for database creation.
+            - ./../hivevol:/temporal
             - ./warehousevol:/user/hive/warehouse
             - ./metastorevol:/metastore
     slave1service:
