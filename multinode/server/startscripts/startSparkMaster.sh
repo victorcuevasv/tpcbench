@@ -62,7 +62,7 @@ bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-history-server.sh
 wait_for_server localhost 18080 24 
 if [[ $RUN_THRIFT_SERVER -eq 1 ]]; then                 
 	bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh --master spark://namenodecontainer:7077  --hiveconf hive.server2.thrift.port=10015      
-	wait_for_server localhost 10015 48       
+	wait_for_server localhost 10015 72       
 fi
 sleep infinity    
 
