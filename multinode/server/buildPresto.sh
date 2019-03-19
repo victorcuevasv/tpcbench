@@ -35,7 +35,7 @@ docker build --network="host" -t prestohiveservermult:dev $DIR -f $DIR/Dockerfil
 	--build-arg POSTGRES_DRIVER_MIRROR=localhost:443 \
 	--build-arg PRESTO_MIRROR=localhost:443
 	
-if [[ $? -neq 0 ]]; then
+if [[ $? -ne 0 ]]; then
 	exitCode=1;
 fi
 

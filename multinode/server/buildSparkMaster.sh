@@ -20,7 +20,7 @@ docker build --network="host" -t sparkhiveservermult:dev $DIR -f $DIR/Dockerfile
 	--build-arg POSTGRES_DRIVER_MIRROR=localhost:443 \
 	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3
 
-if [[ $? -neq 0 ]]; then
+if [[ $? -ne 0 ]]; then
 	exitCode=1;
 fi
 
