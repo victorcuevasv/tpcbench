@@ -120,21 +120,19 @@ RUN chmod +x /startSparkMaster.sh
 #Run the Spark-Hive example only to download the jars, it doesn't matter if it fails.
 
 RUN spark-submit \
-	 --master local \
      --packages org.apache.zookeeper:zookeeper:3.4.6 \
      --class org.apache.spark.examples.sql.hive.JavaSparkHiveExample \
+     --deploy-mode client \
      $SPARK_HOME/examples/jars/spark-examples_2.11-2.4.0.jar ; exit 0
-
-RUN bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh --master local  --hiveconf hive.server2.thrift.port=10015    
 
 USER $UNAME
 
 #Run the Spark-Hive example only to download the jars, it doesn't matter if it fails.
 
 RUN spark-submit \
-	 --master local \
      --packages org.apache.zookeeper:zookeeper:3.4.6 \
      --class org.apache.spark.examples.sql.hive.JavaSparkHiveExample \
+     --deploy-mode client \
      $SPARK_HOME/examples/jars/spark-examples_2.11-2.4.0.jar ; exit 0
 
 USER root
