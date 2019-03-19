@@ -18,7 +18,7 @@ RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
     
 #The configuration file will enable passwordless login to nodes
 #and without confirmation prompt.
-    
+
 COPY ssh_config /root/.ssh/config
 
 #Download and decompress Hadoop
