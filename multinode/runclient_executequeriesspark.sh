@@ -2,7 +2,12 @@
 
 #Test query execution with Spark.
 
-docker exec -ti  namenodecontainer  /bin/bash -c \
+#Get the user id of the user executing this script.
+USER_ID=$(id -u)
+#Get the user id of the user executing this script.
+GROUP_ID=$(id -g)
+
+docker exec --user $USER_ID:$GROUP_ID -ti  namenodecontainer  /bin/bash -c \
 	"/opt/spark-2.4.0-bin-hadoop2.7/bin/spark-submit --conf spark.eventLog.enabled=true  \
 	--packages org.apache.logging.log4j:log4j-api:2.8.2,org.apache.logging.log4j:log4j-core:2.8.2 \
 	--class org.bsc.dcc.vcv.ExecuteQueriesSpark \

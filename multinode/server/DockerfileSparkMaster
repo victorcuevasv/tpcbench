@@ -2,6 +2,13 @@ FROM ubuntujava:dev
 
 USER root
 
+ARG UNAME=anyuser
+ARG UID=1000
+ARG GID=100
+
+RUN groupadd -g $GID -o $UNAME
+RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
+
 ARG APACHE_MIRROR=apache.rediris.es
 ARG POSTGRES_DRIVER_MIRROR=jdbc.postgresql.org
 
@@ -102,6 +109,13 @@ COPY startSparkMaster.sh /startSparkMaster.sh
 
 RUN chmod +x /startSparkMaster.sh
 
+#Add the environment variable to enable execution with YARN
+ENV HADOOP_CONF_DIR /opt/hadoop-2.7.7/etc/hadoop
+ENV HIVE_CONF_DIR /opt/spark-2.4.0-bin-hadoop2.7/conf/
+
+#Copy postgres driver jar.
+RUN cp /opt/apache-hive-2.3.4-bin/lib/postgresql-42.2.5.jar /opt/spark-2.4.0-bin-hadoop2.7/jars 
+
 #Run the Spark-Hive example only to download the jars, it doesn't matter if it fails.
      
 RUN spark-submit \
@@ -109,13 +123,18 @@ RUN spark-submit \
      --class org.apache.spark.examples.sql.hive.JavaSparkHiveExample \
      --deploy-mode client \
      $SPARK_HOME/examples/jars/spark-examples_2.11-2.4.0.jar ; exit 0
-     
-#Add the environment variable to enable execution with YARN
-ENV HADOOP_CONF_DIR /opt/hadoop-2.7.7/etc/hadoop
-ENV HIVE_CONF_DIR /opt/spark-2.4.0-bin-hadoop2.7/conf/
 
-#Copy postgres driver jar.
-RUN cp /opt/apache-hive-2.3.4-bin/lib/postgresql-42.2.5.jar /opt/spark-2.4.0-bin-hadoop2.7/jars 
+USER $UNAME
+
+#Run the Spark-Hive example only to download the jars, it doesn't matter if it fails.
+     
+RUN spark-submit \
+     --packages org.apache.zookeeper:zookeeper:3.4.6 \
+     --class org.apache.spark.examples.sql.hive.JavaSparkHiveExample \
+     --deploy-mode client \
+     $SPARK_HOME/examples/jars/spark-examples_2.11-2.4.0.jar ; exit 0
+
+USER root
 
 CMD ["bash"]
 

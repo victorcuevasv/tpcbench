@@ -36,6 +36,13 @@ if [ ! -d $DIR/warehousevol ]; then
    mkdir $DIR/warehousevol
 fi
 
+#Get the username the user executing this script.
+USER_NAME=$(whoami)
+#Get the user id of the user executing this script.
+USER_ID=$(id -u)
+#Get the user id of the user executing this script.
+GROUP_ID=$(id -g)
+
 #Build the namenode server image.
 printf "\n\n%s\n\n" "${mag}Building the namenode server image.${end}"
 bash server/buildPresto.sh
@@ -46,7 +53,7 @@ bash server/buildSlavesPresto.sh
 
 #Build the namenode server image.
 printf "\n\n%s\n\n" "${mag}Building the namenode server image.${end}"
-bash server/buildSparkMaster.sh
+bash server/buildSparkMaster.sh $USER_NAME $USER_ID $GROUP_ID
 
 #Build the slave server image.
 printf "\n\n%s\n\n" "${mag}Building the slave server image.${end}"
