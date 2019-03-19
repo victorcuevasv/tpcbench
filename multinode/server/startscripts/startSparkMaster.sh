@@ -58,7 +58,7 @@ hive --service hiveserver2 &
 wait_for_server localhost 10000 24
 bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-all.sh
 bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-history-server.sh
-wait_for_server localhost 7077 24 
+wait_for_server localhost 18080 24 
 if [[ $RUN_THRIFT_SERVER -eq 1 ]]; then                 
 	bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh --master spark://namenodecontainer:7077  --hiveconf hive.server2.thrift.port=10015      
 	wait_for_server localhost 10015 24       
