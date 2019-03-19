@@ -60,6 +60,10 @@ public class ExecuteQueriesSpark {
 	 * all directories without slash
 	 */
 	public static void main(String[] args) {
+		if( args.length < 5 ) {
+			System.out.println("Incorrect number of arguments.");
+			System.exit(0);
+		}
 		ExecuteQueriesSpark prog = new ExecuteQueriesSpark(args[3], args[4]);
 		String queryFile = args.length >= 6 ? args[5] : null;
 		prog.executeQueries(args[0], args[1], args[2], queryFile);
