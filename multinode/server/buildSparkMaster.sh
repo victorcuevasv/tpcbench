@@ -6,6 +6,8 @@
 #$2 user id
 #$3 group id
 
+exitCode=0
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 #Use the default mirrors.
@@ -17,4 +19,10 @@ docker build --network="host" -t sparkhiveservermult:dev $DIR -f $DIR/Dockerfile
 	--build-arg APACHE_MIRROR=localhost:8888 \
 	--build-arg POSTGRES_DRIVER_MIRROR=localhost:443 \
 	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3
+
+if [[ $? -neq 0 ]]; then
+	exitCode=1;
+fi
+
+exit exitCode
 

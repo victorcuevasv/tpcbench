@@ -2,6 +2,8 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+exitCode=0
+
 #First generate the Presto worker node configuration files.
 #The node.properties files have to be generated later since the node.id values have to be different.
 
@@ -37,6 +39,10 @@ docker build --network="host" -t prestoslave1mult:dev $DIR -f $DIR/DockerfileSla
 	--build-arg APACHE_MIRROR=localhost:8888 \
 	--build-arg POSTGRES_DRIVER_MIRROR=localhost:443 \
 	--build-arg PRESTO_MIRROR=localhost:443
+	
+if [[ $? -eq 1 ]]; then
+	exitCode=1;
+fi
 
 #Generate a new node.properties file inside the etc directory from the base file.
 cat $DIR/presto_etc_worker/node.properties.base > $DIR/presto_etc_worker/etc/node.properties
@@ -52,6 +58,11 @@ docker build --network="host" -t prestoslave2mult:dev $DIR -f $DIR/DockerfileSla
 	--build-arg APACHE_MIRROR=localhost:8888 \
 	--build-arg POSTGRES_DRIVER_MIRROR=localhost:443 \
 	--build-arg PRESTO_MIRROR=localhost:443
+	
+if [[ $? -neq 0 ]]; then
+	exitCode=1;
+fi
 
+exit exitCode
 
 
