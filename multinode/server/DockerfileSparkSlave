@@ -24,7 +24,7 @@ RUN cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 #The configuration file will enable passwordless login to nodes
 #and without confirmation prompt.
     
-COPY ssh_config /root/.ssh/config
+COPY conf/ssh_config /root/.ssh/config
 
 #Download and decompress Hadoop
 
@@ -40,6 +40,7 @@ ENV PATH="${PATH}:/opt/hadoop-2.7.7/bin:/opt/hadoop-2.7.7/sbin"
 #Copy the Hadoop configuration files.
 
 COPY etc_hadoop/* /opt/hadoop-2.7.7/etc/hadoop/
+COPY conf/slaves /opt/hadoop-2.7.7/etc/hadoop/
 
 #Change the owner of the Hadoop files.
 
@@ -64,7 +65,7 @@ ENV SPARK_DIST_CLASSPATH="$HADOOP_HOME/etc/hadoop/*:$HADOOP_HOME/share/hadoop/co
 
 #Copy the initialization script for Hadoop, Hive, Presto and make it executable.
 
-COPY startSparkSlave.sh /startSparkSlave.sh
+COPY startscripts/startSparkSlave.sh /startSparkSlave.sh
 
 RUN chmod +x /startSparkSlave.sh
 

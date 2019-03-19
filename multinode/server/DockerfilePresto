@@ -26,7 +26,7 @@ RUN cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 #The configuration file will enable passwordless login to nodes
 #and without confirmation prompt.
     
-COPY ssh_config /root/.ssh/config
+COPY conf/ssh_config /root/.ssh/config
 
 #Download and decompress Hadoop
 
@@ -42,6 +42,7 @@ ENV PATH="${PATH}:/opt/hadoop-2.7.7/bin:/opt/hadoop-2.7.7/sbin"
 #Copy the Hadoop configuration files.
 
 COPY etc_hadoop/* /opt/hadoop-2.7.7/etc/hadoop/
+COPY conf/slaves /opt/hadoop-2.7.7/etc/hadoop/
 
 #Change the owner of the Hadoop files.
 
@@ -65,7 +66,7 @@ ENV PATH="${PATH}:/opt/apache-hive-2.3.4-bin/bin"
 
 #Copy the Hive configuration file which will override selected defaults.
 
-COPY hive-siteExternalMetastore.xml /opt/apache-hive-2.3.4-bin/conf/hive-site.xml
+COPY conf/hive-siteExternalMetastore.xml /opt/apache-hive-2.3.4-bin/conf/hive-site.xml
 
 #Download the postgres driver.
 
@@ -85,7 +86,7 @@ COPY presto_etc_coordinator/etc/ /opt/presto-server-0.214/etc/
 
 #Copy the initialization script for Hadoop, Hive, Presto and make it executable.
 
-COPY startPresto.sh /startPresto.sh
+COPY startscripts/startPresto.sh /startPresto.sh
 
 RUN chmod +x /startPresto.sh
 

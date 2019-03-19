@@ -32,7 +32,7 @@ RUN cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 #The configuration file will enable passwordless login to nodes
 #and without confirmation prompt.
     
-COPY ssh_config /root/.ssh/config
+COPY conf/ssh_config /root/.ssh/config
 
 #Download and decompress Hadoop
 
@@ -48,6 +48,7 @@ ENV PATH="${PATH}:/opt/hadoop-2.7.7/bin:/opt/hadoop-2.7.7/sbin"
 #Copy the Hadoop configuration files.
 
 COPY etc_hadoop/* /opt/hadoop-2.7.7/etc/hadoop/
+COPY conf/slaves /opt/hadoop-2.7.7/etc/hadoop/
 
 #Change the owner of the Hadoop files.
 
@@ -71,7 +72,7 @@ ENV PATH="${PATH}:/opt/apache-hive-2.3.4-bin/bin"
 
 #Copy the Hive configuration file which will override selected defaults.
 
-COPY hive-siteExternalMetastore.xml /opt/apache-hive-2.3.4-bin/conf/hive-site.xml
+COPY conf/hive-siteExternalMetastore.xml /opt/apache-hive-2.3.4-bin/conf/hive-site.xml
 
 #Download the postgres driver.
 
@@ -93,8 +94,8 @@ ENV PATH="${PATH}:/opt/spark-2.4.0-bin-hadoop2.7/bin"
 #Copy the Spark configuration file which will override selected defaults.
 
 COPY spark_conf/spark-defaults.conf /opt/spark-2.4.0-bin-hadoop2.7/conf/spark-defaults.conf
-COPY spark_conf/slaves /opt/spark-2.4.0-bin-hadoop2.7/conf/slaves
-COPY hive-siteExternalMetastoreSpark.xml /opt/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
+COPY conf/slaves /opt/spark-2.4.0-bin-hadoop2.7/conf/slaves
+COPY conf/hive-siteExternalMetastoreSpark.xml /opt/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
 
 #Add the Hadoop jars to the Spark classpath.
 
@@ -103,12 +104,6 @@ ENV SPARK_DIST_CLASSPATH="$HADOOP_HOME/etc/hadoop/*:$HADOOP_HOME/share/hadoop/co
 #Create directory for event log.
 RUN mkdir /tmp/spark-events
 
-#Copy the initialization script for Hadoop, Hive, Spark and make it executable.
-
-COPY startSparkMaster.sh /startSparkMaster.sh
-
-RUN chmod +x /startSparkMaster.sh
-
 #Add the environment variable to enable execution with YARN
 ENV HADOOP_CONF_DIR /opt/hadoop-2.7.7/etc/hadoop
 ENV HIVE_CONF_DIR /opt/spark-2.4.0-bin-hadoop2.7/conf/
@@ -116,8 +111,14 @@ ENV HIVE_CONF_DIR /opt/spark-2.4.0-bin-hadoop2.7/conf/
 #Copy postgres driver jar.
 RUN cp /opt/apache-hive-2.3.4-bin/lib/postgresql-42.2.5.jar /opt/spark-2.4.0-bin-hadoop2.7/jars 
 
+#Copy the initialization script for Hadoop, Hive, Spark and make it executable.
+
+COPY startscripts/startSparkMaster.sh /startSparkMaster.sh
+
+RUN chmod +x /startSparkMaster.sh
+
 #Run the Spark-Hive example only to download the jars, it doesn't matter if it fails.
-     
+
 RUN spark-submit \
      --packages org.apache.zookeeper:zookeeper:3.4.6 \
      --class org.apache.spark.examples.sql.hive.JavaSparkHiveExample \
@@ -127,7 +128,7 @@ RUN spark-submit \
 USER $UNAME
 
 #Run the Spark-Hive example only to download the jars, it doesn't matter if it fails.
-     
+
 RUN spark-submit \
      --packages org.apache.zookeeper:zookeeper:3.4.6 \
      --class org.apache.spark.examples.sql.hive.JavaSparkHiveExample \
