@@ -30,14 +30,14 @@ public class ExecuteQueriesSpark {
 	private AnalyticsRecorder recorder;
 	private JarQueriesReaderAsZipFile queriesReader;
 
-	public ExecuteQueriesSpark(String jarFile) {
+	public ExecuteQueriesSpark(String jarFile, String system) {
 		try {
 			this.queriesReader = new JarQueriesReaderAsZipFile(jarFile);
 			this.spark = SparkSession.builder().appName("Java Spark Hive Example")
 				.config("spark.sql.crossJoin.enabled", "true")
 				.enableHiveSupport()
 				.getOrCreate();
-			this.recorder = new AnalyticsRecorder("power", "spark");
+			this.recorder = new AnalyticsRecorder("power", system);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -54,13 +54,14 @@ public class ExecuteQueriesSpark {
 	 * args[1] subdirectory of work directory to store the results
 	 * args[2] subdirectory of work directory to store the execution plans
 	 * args[3] jar file
-	 * args[4] OPTIONAL: query file
+	 * args[4] system (directory name used to store logs)
+	 * args[5] OPTIONAL: query file
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) {
-		ExecuteQueriesSpark prog = new ExecuteQueriesSpark(args[3]);
-		String queryFile = args.length >= 5 ? args[4] : null;
+		ExecuteQueriesSpark prog = new ExecuteQueriesSpark(args[3], args[4]);
+		String queryFile = args.length >= 6 ? args[5] : null;
 		prog.executeQueries(args[0], args[1], args[2], queryFile);
 	}
 	

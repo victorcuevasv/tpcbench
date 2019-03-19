@@ -66,7 +66,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 						hostname + ":8080/hive/default", "hive", "");
 				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
-			else if( system.equals("spark") ) {
+			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
 						hostname + ":10015/default", "", "");

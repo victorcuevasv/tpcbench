@@ -35,13 +35,13 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	private long seed;
 	private Random random;
 
-	public ExecuteQueriesConcurrentSpark(String jarFile) {
+	public ExecuteQueriesConcurrentSpark(String jarFile, String system) {
 		this.queriesReader = new JarQueriesReaderAsZipFile(jarFile);
 		this.spark = SparkSession.builder().appName("Java Spark Hive Example")
 				.config("spark.sql.crossJoin.enabled", "true")
 				.enableHiveSupport()
 				.getOrCreate();
-		this.recorder = new AnalyticsRecorderConcurrent("tput", "spark");
+		this.recorder = new AnalyticsRecorderConcurrent("tput", system);
 		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
 		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 	}
@@ -54,17 +54,22 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	 * args[1] subdirectory of work directory to store the results
 	 * args[2] subdirectory of work directory to store the execution plans
 	 * args[3] jar file
-	 * args[4] number of streams
-	 * args[5] random seed
+	 * args[4] system (directory name used to store logs)
+	 * args[5] number of streams
+	 * args[6] random seed
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) throws SQLException {
-		ExecuteQueriesConcurrentSpark prog = new ExecuteQueriesConcurrentSpark(args[3]);
+		if( args.length != 7 ) {
+			System.out.println("Incorrect number of arguments.");
+			System.exit(0);
+		}
+		ExecuteQueriesConcurrentSpark prog = new ExecuteQueriesConcurrentSpark(args[3], args[4]);
 		List<String> files = prog.queriesReader.getFilesOrdered();
 		HashMap<Integer, String> queriesHT = prog.createQueriesHT(files, prog.queriesReader);
-		int nStreams = Integer.parseInt(args[4]);
-		long seed = Long.parseLong(args[5]);
+		int nStreams = Integer.parseInt(args[5]);
+		long seed = Long.parseLong(args[6]);
 		prog.seed = seed;
 		prog.random = new Random(seed);
 		int nQueries = files.size();

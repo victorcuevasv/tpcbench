@@ -14,7 +14,7 @@ docker exec  mastercontainer  /bin/bash -c \
 	--class org.bsc.dcc.vcv.ExecuteQueriesConcurrentSpark \
 	--master yarn --deploy-mode client \
 	/project/targetspark/client-1.0-SNAPSHOT.jar \
-	/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar 2 1954"                      
+	/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar sparkyarn 2 1954"                      
  
 	
 	
