@@ -48,28 +48,28 @@ buildLabels=()
 index=0
 
 #Build the Presto namenode server image.
-printf "\n\n%s\n\n" "${mag}Building the namenode server image.${end}"
+printf "\n\n%s\n\n" "${mag}Building the Presto namenode server image.${end}"
 bash server/buildPresto.sh
 buildFlags[$index]=$?
 buildLabels[$index]=presto_namenode
 index=$((index+1))
 
 #Build the Presto slave server image.
-printf "\n\n%s\n\n" "${mag}Building the slave server image.${end}"
+printf "\n\n%s\n\n" "${mag}Building the Presto slave server image.${end}"
 bash server/buildSlavesPresto.sh
 buildFlags[$index]=$?
 buildLabels[$index]=presto_slave
 index=$((index+1))
 
 #Build the Spark namenode server image.
-printf "\n\n%s\n\n" "${mag}Building the namenode server image.${end}"
+printf "\n\n%s\n\n" "${mag}Building the Spark namenode server image.${end}"
 bash server/buildSparkMaster.sh $USER_NAME $USER_ID $GROUP_ID
 buildFlags[$index]=$?
 buildLabels[$index]=spark_namenode
 index=$((index+1))
 
 #Build the Spark slave server image.
-printf "\n\n%s\n\n" "${mag}Building the slave server image.${end}"
+printf "\n\n%s\n\n" "${mag}Building the Spark slave server image.${end}"
 bash server/buildSparkSlave.sh
 buildFlags[$index]=$?
 buildLabels[$index]=spark_slave
@@ -78,9 +78,9 @@ index=$((index+1))
 index=0
 for flag in ${buildFlags[@]} ; do
    if [[ $flag -eq 0 ]]; then
-   	echo "{grn}Image ${buildLabels[$index]} succeeded.{end}"
+   	echo "${grn}Image ${buildLabels[$index]} succeeded.${end}"
    else
-   	echo "{red}Image ${buildLabels[$index]} failed.{end}"
+   	echo "${red}Image ${buildLabels[$index]} failed.${end}"
    fi
    index=$((index+1))
 done
