@@ -39,7 +39,11 @@ if [[ $? -ne 0 ]]; then
 	exitCode=1;
 fi
 
-exit exitCode
+if [[ $exitCode -ne 0 ]]; then
+	exit 1
+else
+	exit 0
+fi
 
 
 
