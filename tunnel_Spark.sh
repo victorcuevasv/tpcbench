@@ -11,7 +11,7 @@ cyn=$'\e[1;36m'
 end=$'\e[0m'
 
 #Generate the unused Netezza queries.
-printf "\n\n%s\n\n" "${cyn}Tunneling the ports for Presto.${end}"
+printf "\n\n%s\n\n" "${cyn}Tunneling the ports for Spark (4040, 4041, 8080, 8088, 18080).${end}"
 
 ssh -l vcuevas -N -L 4040:localhost:4040 bscdc07 &
 ssh -l vcuevas -N -L 4041:localhost:4041 bscdc07 &
