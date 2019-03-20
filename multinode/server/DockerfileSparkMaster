@@ -110,6 +110,7 @@ RUN spark-submit \
      $SPARK_HOME/examples/jars/spark-examples_2.11-2.4.0.jar ; exit 0
 
 #Create a soft link for the user to access the ivy repository of the root.
+RUN chmod -R 777 /root/.ivy2
 RUN ln -s /root/.ivy2 /home/$UNAME
 
 USER $UNAME
