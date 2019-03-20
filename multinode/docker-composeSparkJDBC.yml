@@ -15,7 +15,8 @@ services:
         volumes:
             - ./warehousevol:/user/hive/warehouse
             - ./metastorevol:/metastore
-            - ./ivyvol:/root/.ivy2
+            - ./ivyvolroot:/root/.ivy2
+            - ./ivyvoluser:/home/${USER_NAME_DC}/.ivy2
             #Enable to use spark-submit, disable to use JDBC.
             #- ./datavol:/data
             #- ./../client/project:/project

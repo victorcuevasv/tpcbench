@@ -1,19 +1,11 @@
-FROM ubuntujava:dev
+FROM ubuntujavahadoop:dev
 
 USER root
 
 ARG APACHE_MIRROR=apache.rediris.es
 
-#Install netcat to use nc to check connections, ssh and python.
-
-RUN apt-get update && apt-get install -y \
-    netcat \
-    ssh \
-    python2.7 \
-    python-pip \
-    python-dev
-
 #Add the generated key to the authorized set.
+#The ssh server has been installed in the ubuntujavahadoop image.
 
 COPY ssh /root/.ssh
 
@@ -26,26 +18,18 @@ RUN cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
     
 COPY conf/ssh_config /root/.ssh/config
 
-#Download and decompress Hadoop
-
-RUN wget -q -P /opt http://$APACHE_MIRROR/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
-    tar xzf /opt/hadoop-2.7.7.tar.gz -C /opt && \
-    rm -f /opt/hadoop-2.7.7.tar.gz
-
 #Add the Hadoop installation directory variable and update the path.
+#The hadoop files have been downloaded for the ubuntujavahadoop image.
 
 ENV HADOOP_HOME /opt/hadoop-2.7.7
 ENV PATH="${PATH}:/opt/hadoop-2.7.7/bin:/opt/hadoop-2.7.7/sbin"
 
 #Copy the Hadoop configuration files.
+#The owner of the rest of the hadoop files has been changed in the ubuntujavahadoop image.
 
 COPY etc_hadoop/* /opt/hadoop-2.7.7/etc/hadoop/
 COPY conf/slaves /opt/hadoop-2.7.7/etc/hadoop/
-
-#Change the owner of the Hadoop files.
-
-RUN useradd hadoop && \
-    chown -R hadoop:hadoop /opt/hadoop-2.7.7
+RUN chown -R hadoop:hadoop /opt/hadoop-2.7.7/etc/hadoop/
 
 #Download and decompress Spark.
 #Use the version prebuilt for Hadoop, spark-sql does not work in the version without Hadoop.

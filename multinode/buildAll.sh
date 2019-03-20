@@ -36,10 +36,16 @@ if [ ! -d $DIR/warehousevol ]; then
    mkdir $DIR/warehousevol
 fi
 
-#Create the ivyvol directory if it does not exist.
+#Create the ivyvolroot directory if it does not exist.
 
-if [ ! -d $DIR/ivyvol ]; then
-   mkdir $DIR/ivyvol
+if [ ! -d $DIR/ivyvolroot ]; then
+   mkdir $DIR/ivyvolroot
+fi
+
+#Create the ivyvoluser directory if it does not exist.
+
+if [ ! -d $DIR/ivyvoluser ]; then
+   mkdir $DIR/ivyvoluser
 fi
 
 #Get the username the user executing this script.
@@ -52,6 +58,13 @@ GROUP_ID=$(id -g)
 buildFlags=()
 buildLabels=()
 index=0
+
+#Build the Hadoop base image.
+printf "\n\n%s\n\n" "${mag}Building the hadoop base image.${end}"
+bash server/buildHadoop.sh
+buildFlags[$index]=$?
+buildLabels[$index]=hadoop_base
+index=$((index+1))
 
 #Build the Presto namenode server image.
 printf "\n\n%s\n\n" "${mag}Building the Presto namenode server image.${end}"
