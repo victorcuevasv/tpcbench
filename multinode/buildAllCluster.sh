@@ -22,8 +22,9 @@ chmod -R 777 metastorevol
 chmod -R 777 warehousevol
 #Permissions on datavol needed only for running Spark on YARN.
 chmod -R 777 datavol
-#Permissions on ivyvol used only for running Spark JDBC.
-chmod -R 777 ivyvol
+#Permissions on ivyvolroot and ivyvoluser used only for running Spark.
+chmod -R 777 ivyvolroot
+chmod -R 777 ivyvoluser
 
 end_time=`date +%s`
 
