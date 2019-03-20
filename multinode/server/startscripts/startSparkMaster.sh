@@ -21,12 +21,8 @@ hadoop fs -put /temporal /temporal
 mkdir -p /tmp/hive/java
 chmod -R 777 /tmp
 hadoop fs -mkdir -p /tmp/hive
-#hadoop fs -chmod -R 777 /tmp/hive
 #Permissions required for the tmp directory for the thrift server.
 hadoop fs -chmod -R 777 /tmp
-
-#hadoop fs -mkdir -p    /user/hive/warehouse  && \
-#hadoop fs -chown hive:hive   /user/hive/warehouse
 
 # $1 host $2 port $3 tries
 wait_for_server() {
