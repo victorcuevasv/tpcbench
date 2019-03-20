@@ -1,5 +1,7 @@
 FROM ubuntujava:dev
 
+ARG APACHE_MIRROR=apache.rediris.es
+
 #Install netcat to use nc to check connections, ssh and python.
 
 RUN apt-get update && apt-get install -y \
