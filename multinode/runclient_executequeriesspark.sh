@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #Test query execution with Spark.
+#$1 Optional argument denoting a single query to execute (e.g. query3.sql).
 
 #Get the user id of the user executing this script.
 USER_ID=$(id -u)
@@ -14,6 +15,6 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.ExecuteQueriesSpark \
 --master spark://namenodecontainer:7077 --deploy-mode client \
 /project/targetspark/client-1.0-SNAPSHOT.jar \
-/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar spark query3.sql"               
+/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar spark $1"               
 
 
