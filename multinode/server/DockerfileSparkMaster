@@ -1,4 +1,4 @@
-FROM ubuntujava:dev
+FROM ubuntujavahadoop:dev
 
 USER root
 
