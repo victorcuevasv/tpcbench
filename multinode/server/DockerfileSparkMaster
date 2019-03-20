@@ -95,6 +95,12 @@ ENV HIVE_CONF_DIR /opt/spark-2.4.0-bin-hadoop2.7/conf/
 #Copy postgres driver jar.
 RUN cp /opt/apache-hive-2.3.4-bin/lib/postgresql-42.2.5.jar /opt/spark-2.4.0-bin-hadoop2.7/jars 
 
+#Add hive user and supergroup, also add UNAME to the supergroup.
+RUN useradd hive && \
+	groupadd supergroup && \
+	usermod -a -G supergroup hive && \
+	usermod -a -G supergroup $UNAME
+
 #Copy the initialization script for Hadoop, Hive, Spark and make it executable.
 
 COPY startscripts/startSparkMaster.sh /startSparkMaster.sh
