@@ -15,11 +15,7 @@ hadoop fs -mkdir -p    /user/hive/warehouse  && \
 hadoop fs -chmod g+w   /user/hive/warehouse && \
 useradd hive && \
 groupadd supergroup && \
-usermod -a -G supergroup hive && \
-hadoop fs -put /temporal /temporal
-
-#hadoop fs -mkdir -p    /user/hive/warehouse  && \
-#hadoop fs -chown hive:hive   /user/hive/warehouse
+usermod -a -G supergroup hive
 
 # $1 host $2 port $3 tries
 wait_for_server() {
