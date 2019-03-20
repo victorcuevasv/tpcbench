@@ -17,11 +17,11 @@ useradd hive && \
 groupadd supergroup && \
 usermod -a -G supergroup hive
 #Required specifically for Spark-Hive.
-mkdir -p /tmp/hive/java
-chmod -R 777 /tmp
-hadoop fs -mkdir -p /tmp/hive
+#mkdir -p /tmp/hive/java
+#chmod -R 777 /tmp
+#hadoop fs -mkdir -p /tmp/hive
 #Permissions required for the tmp directory for the thrift server.
-hadoop fs -chmod -R 777 /tmp
+#hadoop fs -chmod -R 777 /tmp
 
 # $1 host $2 port $3 tries
 wait_for_server() {
