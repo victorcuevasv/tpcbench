@@ -1,0 +1,26 @@
+FROM ubuntujava:dev
+
+#Install netcat to use nc to check connections, ssh and python.
+
+RUN apt-get update && apt-get install -y \
+    netcat \
+    ssh \
+    vim \
+    python2.7 \
+    python-pip \
+    python-dev
+
+#Download and decompress Hadoop
+
+RUN wget -q -P /opt http://$APACHE_MIRROR/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
+    tar xzf /opt/hadoop-2.7.7.tar.gz -C /opt && \
+    rm -f /opt/hadoop-2.7.7.tar.gz
+
+#Change the owner of the Hadoop files.
+
+RUN useradd hadoop && \
+    chown -R hadoop:hadoop /opt/hadoop-2.7.7
+
+CMD ["bash"]
+
+

@@ -53,6 +53,13 @@ buildFlags=()
 buildLabels=()
 index=0
 
+#Build the Hadoop base image.
+printf "\n\n%s\n\n" "${mag}Building the hadoop base image.${end}"
+bash server/buildHadoop.sh
+buildFlags[$index]=$?
+buildLabels[$index]=hadoop_base
+index=$((index+1))
+
 #Build the Presto namenode server image.
 printf "\n\n%s\n\n" "${mag}Building the Presto namenode server image.${end}"
 bash server/buildPresto.sh
