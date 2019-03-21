@@ -8,21 +8,6 @@ start-dfs.sh
 start-yarn.sh
 mr-jobhistory-daemon.sh start historyserver
 
-#Create the Hive warehouse directory.
-#Create a hive user and a supergroup group with hive as a member.
-#Add the temporal directory holding the data to hdfs. 
-#hadoop fs -mkdir -p    /user/hive/warehouse  && \
-#hadoop fs -chmod g+w   /user/hive/warehouse && \
-#useradd hive && \
-#groupadd supergroup && \
-#usermod -a -G supergroup hive
-#Required specifically for Spark-Hive.
-#mkdir -p /tmp/hive/java
-#chmod -R 777 /tmp
-#hadoop fs -mkdir -p /tmp/hive
-#Permissions required for the tmp directory for the thrift server.
-#hadoop fs -chmod -R 777 /tmp
-
 # $1 host $2 port $3 tries
 wait_for_server() {
 	if [ $# -lt 3 ]; then
@@ -55,8 +40,12 @@ bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-all.sh
 wait_for_server localhost 8080 24 
 bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-history-server.sh
 wait_for_server localhost 18080 24 
-if [[ $RUN_THRIFT_SERVER -eq 1 ]]; then   
+if [[ $RUN_THRIFT_SERVER -eq 1 ]]; then
+	#Must force the logs to be created inside the USER_NAME_DC home directory.   
     echo "SPARK_LOG_DIR=/home/$USER_NAME_DC/logs" >> $SPARK_HOME/conf/spark-env.sh 
+    #Execute the thrift server the user USER_NAME_DC.
+    #The jars should be downloaded to /home/USER_NAME_DC/.ivy2
+    #Note that the eventLog.dir parameter uses the previously created directory.
     sudo -u $USER_NAME_DC mkdir /home/$USER_NAME_DC/tmp          
 	sudo -u $USER_NAME_DC bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh \
 		--master spark://namenodecontainer:7077  \
