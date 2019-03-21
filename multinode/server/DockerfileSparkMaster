@@ -9,6 +9,10 @@ ARG GID=100
 RUN groupadd -g $GID -o $UNAME
 RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
 
+#Install sudo to run the thrift server script as user $UNAME.
+RUN apt-get update && apt-get install -y \
+    sudo
+
 ARG APACHE_MIRROR=apache.rediris.es
 ARG POSTGRES_DRIVER_MIRROR=jdbc.postgresql.org
 

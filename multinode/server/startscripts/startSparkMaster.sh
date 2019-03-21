@@ -56,7 +56,7 @@ wait_for_server localhost 8080 24
 bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-history-server.sh
 wait_for_server localhost 18080 24 
 if [[ $RUN_THRIFT_SERVER -eq 1 ]]; then                 
-	bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh \
+	sudo -u $USER_NAME_DC bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh \
 		--master spark://namenodecontainer:7077  \
 		--hiveconf hive.server2.thrift.port=10015 \
 		--packages org.apache.zookeeper:zookeeper:3.4.6     
