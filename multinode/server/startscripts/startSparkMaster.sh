@@ -61,7 +61,7 @@ if [[ $RUN_THRIFT_SERVER -eq 1 ]]; then
 	sudo -u $USER_NAME_DC bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh \
 		--master spark://namenodecontainer:7077  \
 		--hiveconf hive.server2.thrift.port=10015 \
-		--conf spark.eventLog.dir=/home/$USER_NAME/tmp \
+		--conf spark.eventLog.dir=/home/$USER_NAME_DC/tmp \
 		--packages org.apache.zookeeper:zookeeper:3.4.6     
 	wait_for_server localhost 10015 72       
 fi
