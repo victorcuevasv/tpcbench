@@ -2,6 +2,12 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+#Receives as parameters the user name, user id, and group id of the user who is executing this script.
+#
+#$1 user name
+#$2 user id
+#$3 group id
+
 exitCode=0
 
 #Generate the Presto coordinator node configuration files.
@@ -33,7 +39,8 @@ echo "hive.metastore.uri="$(cat $DIR/presto_etc_coordinator/hive.metastore.uri)"
 docker build --network="host" -t prestohiveservermult:dev $DIR -f $DIR/DockerfilePresto \
 	--build-arg APACHE_MIRROR=localhost:8888 \
 	--build-arg POSTGRES_DRIVER_MIRROR=localhost:443 \
-	--build-arg PRESTO_MIRROR=localhost:443
+	--build-arg PRESTO_MIRROR=localhost:443 \
+	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3
 	
 if [[ $? -ne 0 ]]; then
 	exitCode=1;
