@@ -19,6 +19,3 @@ docker exec --user $USER_ID:$GROUP_ID -ti  namenodecontainer  /bin/bash -c \
 	"hadoop fs -get /user/hive/warehouse/* /user/hive/warehouse" 
 
 
-
-
-
