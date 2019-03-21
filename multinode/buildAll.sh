@@ -68,7 +68,7 @@ index=$((index+1))
 
 #Build the Presto namenode server image.
 printf "\n\n%s\n\n" "${mag}Building the Presto namenode server image.${end}"
-bash server/buildPresto.sh
+bash server/buildPresto.sh $USER_NAME $USER_ID $GROUP_ID
 buildFlags[$index]=$?
 buildLabels[$index]=presto_namenode
 index=$((index+1))
