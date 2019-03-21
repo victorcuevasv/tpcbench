@@ -16,6 +16,9 @@ mr-jobhistory-daemon.sh start historyserver
 #useradd hive && \
 #groupadd supergroup && \
 #usermod -a -G supergroup hive
+#Copy to hdfs the temporal folder which is mapped to the hivevol
+#in the docker-compose file.
+hadoop fs -put /temporal /temporal
 
 # $1 host $2 port $3 tries
 wait_for_server() {
