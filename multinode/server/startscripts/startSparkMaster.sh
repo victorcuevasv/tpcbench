@@ -57,7 +57,8 @@ bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-history-server.sh
 wait_for_server localhost 18080 24 
 if [[ $RUN_THRIFT_SERVER -eq 1 ]]; then   
     echo "SPARK_LOG_DIR=/home/$USER_NAME_DC/logs" >> $SPARK_HOME/conf/spark-env.sh 
-    mkdir /home/$USER_NAME_DC/tmp             
+    mkdir /home/$USER_NAME_DC/tmp   
+    sudo -u $USER_NAME_DC /home/$USER_NAME_DC/tmp          
 	sudo -u $USER_NAME_DC bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh \
 		--master spark://namenodecontainer:7077  \
 		--hiveconf hive.server2.thrift.port=10015 \
