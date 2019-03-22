@@ -13,6 +13,8 @@ services:
             - ./../hivevol:/temporal
             - ./warehousevol:/user/hive/warehouse
             - ./metastorevol:/metastore
+        environment:
+            - USER_NAME_DC=${USER_NAME_DC}
     slave1service:
         image: prestoslave1mult:dev
         container_name: slave1container

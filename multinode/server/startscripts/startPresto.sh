@@ -41,7 +41,7 @@ wait_for_server() {
 
 if [ ! -f /metastore/metastorecreated ]; then
    schematool -dbType postgres -initSchema --verbose
-   echo "metastorecreated" > /metastore/metastorecreated
+   sudo -u $USER_NAME_DC echo "metastorecreated" > /metastore/metastorecreated
 fi
 
 hive --service metastore &

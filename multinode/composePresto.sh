@@ -7,5 +7,7 @@ if [ $# -lt 1 ]; then
     exit 0
 fi
 
-docker-compose -f docker-compose.yml $1
+USER_NAME=$(whoami)
+
+USER_NAME_DC=$USER_NAME docker-compose -f docker-compose.yml $1
 
