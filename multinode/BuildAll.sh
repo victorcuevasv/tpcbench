@@ -12,10 +12,21 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+#Get the time of start of execution to measure total execution time.
+start_time=`date +%s`
+
 #Create the datavol directory if it does not exist.
 
 if [ ! -d $DIR/datavol ]; then
    mkdir $DIR/datavol
+fi
+
+#Create the datavol directory in the PARENT directory if it does not exist.
+#SQL files are generated in the datavol of the PARENT directory and then copied
+#into the datavol of the execution directory of this script.
+
+if [ ! -d $DIR/../datavol ]; then
+   mkdir $DIR/../datavol
 fi
 
 #Create the hivevol on the PARENT directory if it does not exist.
@@ -111,6 +122,14 @@ for flag in ${buildFlags[@]} ; do
    fi
    index=$((index+1))
 done
+
+end_time=`date +%s`
+
+runtime=$((end_time-start_time))
+printf "\n\n%s\n\n" "${cyn}Total execution time: ${runtime} sec.${end}"
+
+
+
 
 
 
