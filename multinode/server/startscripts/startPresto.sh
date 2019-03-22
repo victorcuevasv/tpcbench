@@ -8,14 +8,6 @@ start-dfs.sh
 start-yarn.sh
 mr-jobhistory-daemon.sh start historyserver
 
-#Create the Hive warehouse directory.
-#Create a hive user and a supergroup group with hive as a member.
-#Add the temporal directory holding the data to hdfs. 
-#hadoop fs -mkdir -p    /user/hive/warehouse  && \
-#hadoop fs -chmod g+w   /user/hive/warehouse && \
-#useradd hive && \
-#groupadd supergroup && \
-#usermod -a -G supergroup hive
 #Copy to hdfs the temporal folder which is mapped to the hivevol
 #in the docker-compose file.
 hadoop fs -put /temporal /temporal
