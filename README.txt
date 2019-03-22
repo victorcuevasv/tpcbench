@@ -11,7 +11,7 @@ bash createSQLFiles.sh
 
 3) To generate the data (.dat files) use the command (note the scale factor parameter):
 
-bash createData.sh <scale factor>
+bash createDataFiles.sh <scale factor>
 
 
 
@@ -21,7 +21,7 @@ A) For Presto
 
 A.1) Start the infrastructure with the following command:
 
-docker-compose -f docker-composeExternalMetastore.yml up
+bash composePresto.sh up
 
 A.2) In case the database has not been created from the .dat files, use the command:
 
@@ -42,7 +42,7 @@ bash runclient_executequeries.sh
 
 A.4) To shutdown the infrastructure deployment use the command:
 
-docker-compose -f docker-composeExternalMetastore.yml down
+bash composePresto.sh down
 
 
 
