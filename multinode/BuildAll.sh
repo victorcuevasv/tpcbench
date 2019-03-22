@@ -124,7 +124,7 @@ index=$((index+1))
 printf "\n\n%s\n\n" "${mag}Creating the dqgen TPC-DS toolkit image.${end}"
 bash ../dqgen/createContainer.sh $USER_NAME $USER_ID $GROUP_ID
 buildFlags[$index]=$?
-buildLabels[$index]=client
+buildLabels[$index]=tpcds
 index=$((index+1))
 
 index=0
