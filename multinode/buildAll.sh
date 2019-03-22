@@ -36,16 +36,16 @@ if [ ! -d $DIR/warehousevol ]; then
    mkdir $DIR/warehousevol
 fi
 
-#Create the ivyvolroot directory if it does not exist.
+#Create the ivyrootvol directory if it does not exist.
 
-if [ ! -d $DIR/ivyvolroot ]; then
-   mkdir $DIR/ivyvolroot
+if [ ! -d ivyrootvol ]; then
+   mkdir ivyrootvol
 fi
 
-#Create the ivyvoluser directory if it does not exist.
+#Create the ivyrootvol directory if it does not exist.
 
-if [ ! -d $DIR/ivyvoluser ]; then
-   mkdir $DIR/ivyvoluser
+if [ ! -d ivyuservol ]; then
+   mkdir ivyuservol
 fi
 
 #Get the username the user executing this script.
