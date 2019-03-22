@@ -17,11 +17,11 @@ echo    ""
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
     bash ../createSQLFiles.sh
-    echo "Files generated."
+    printf "\n\n%s\n\n" "${blu}Files generated.${end}"
 fi
 
 cp -r ../datavol/tables datavol
 cp -r ../datavol/QueriesSpark datavol
 cp -r ../datavol/QueriesPresto datavol
-echo "Files copied."
+printf "\n\n%s\n\n" "${blu}Files copied.${end}"
 
