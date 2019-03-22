@@ -65,16 +65,5 @@ bash server/buildSparkWorker.sh
 printf "\n\n%s\n\n" "${mag}Building the client project builder image.${end}"
 bash client/buildSingle.sh $USER_NAME $USER_ID $GROUP_ID
 
-#Compile the Presto/Hive JDBC client project.
-printf "\n\n%s\n\n" "${blu}Compiling the Presto/Hive JDBC client project.${end}"
-bash client/compile.sh $USER_ID $GROUP_ID
-
-#Compile the Spark (spark-submit) client project.
-printf "\n\n%s\n\n" "${blu}Compiling the Spark client project.${end}"
-bash client/compileSpark.sh $USER_ID $GROUP_ID
-
-#Compile the Spark (spark-submit) client project.
-printf "\n\n%s\n\n" "${blu}Compiling the Spark JDBC client project.${end}"
-bash client/compileSparkJDBC.sh $USER_ID $GROUP_ID
 
 

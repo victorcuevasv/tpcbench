@@ -113,6 +113,20 @@ buildFlags[$index]=$?
 buildLabels[$index]=spark_slave
 index=$((index+1))
 
+#Build the client image.
+printf "\n\n%s\n\n" "${mag}Building the client image.${end}"
+bash ../client/buildSingle.sh $USER_NAME $USER_ID $GROUP_ID
+buildFlags[$index]=$?
+buildLabels[$index]=client
+index=$((index+1))
+
+#Build the dqgen image with the TPC-DS toolkit to generate data and queries.
+printf "\n\n%s\n\n" "${mag}Creating the dqgen TPC-DS toolkit image.${end}"
+bash ../dqgen/createContainer.sh $USER_NAME $USER_ID $GROUP_ID
+buildFlags[$index]=$?
+buildLabels[$index]=client
+index=$((index+1))
+
 index=0
 for flag in ${buildFlags[@]} ; do
    if [[ $flag -eq 0 ]]; then
