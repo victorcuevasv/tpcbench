@@ -34,6 +34,18 @@ if [ ! -d warehousevol ]; then
    mkdir warehousevol
 fi
 
+#Create the ivyrootvol directory if it does not exist.
+
+if [ ! -d ivyrootvol ]; then
+   mkdir ivyrootvol
+fi
+
+#Create the ivyrootvol directory if it does not exist.
+
+if [ ! -d ivyuservol ]; then
+   mkdir ivyuservol
+fi
+
 #Get the username the user executing this script.
 USER_NAME=$(whoami)
 #Get the user id of the user executing this script.
