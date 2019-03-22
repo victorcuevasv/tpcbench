@@ -25,6 +25,6 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.ExecuteQueriesConcurrentSpark \
 --master spark://namenodecontainer:7077 --deploy-mode client \
 /project/targetspark/client-1.0-SNAPSHOT.jar \
-/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar $1 1954"                      
+/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar spark $1 1954"                      
 
 
