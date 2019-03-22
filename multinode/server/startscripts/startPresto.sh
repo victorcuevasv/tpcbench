@@ -39,9 +39,12 @@ wait_for_server() {
 	printf "$1:$2 is reachable.\n"
 }
 
+#The metastorecreated file is used to indicate if the metastore has been
+#created previously.
 if [ ! -f /metastore/metastorecreated ]; then
    schematool -dbType postgres -initSchema --verbose
-   sudo -u $USER_NAME_DC echo "metastorecreated" > /metastore/metastorecreated
+   #Due to permission issues, the command needs to be run with sudo and inside a bash command.
+   sudo -u $USER_NAME_DC bash -c 'echo "metastorecreated" > /metastore/metastorecreated'
 fi
 
 hive --service metastore &
