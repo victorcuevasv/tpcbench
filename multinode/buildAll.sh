@@ -59,6 +59,14 @@ buildFlags=()
 buildLabels=()
 index=0
 
+
+#Build the Ubuntu with java base image.
+printf "\n\n%s\n\n" "${mag}Building the ubuntu with java image.${end}"
+bash ../ubuntujava/build.sh
+buildFlags[$index]=$?
+buildLabels[$index]=ubuntujava
+index=$((index+1))
+
 #Build the Hadoop base image.
 printf "\n\n%s\n\n" "${mag}Building the hadoop base image.${end}"
 bash server/buildHadoop.sh

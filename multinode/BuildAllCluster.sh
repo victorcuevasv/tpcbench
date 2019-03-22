@@ -17,15 +17,6 @@ start_time=`date +%s`
 printf "\n\n%s\n\n" "${cyn}Executing the buildAll.sh script.${end}"
 bash buildAll.sh
 
-#Set permissions for data volume and hive volume.
-#chmod -R 777 metastorevol
-#chmod -R 777 warehousevol
-#Permissions on datavol needed only for running Spark on YARN.
-#chmod -R 777 datavol
-#Permissions on ivyvolroot and ivyvoluser used only for running Spark.
-#chmod -R 777 ivyvolroot
-#chmod -R 777 ivyvoluser
-
 end_time=`date +%s`
 
 runtime=$((end_time-start_time))
