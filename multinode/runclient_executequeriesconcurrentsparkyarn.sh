@@ -9,6 +9,13 @@ USER_ID=$(id -u)
 #Get the user id of the user executing this script.
 GROUP_ID=$(id -g)
 
+#$1 Required argument denoting the number of streams. 
+
+if [ $# -lt 1 ]; then
+    echo "Usage bash runclient_executequeriesconcurrentsparkyarn.sh <number of streams>."
+    exit 0
+fi
+
 docker exec --user $USER_ID:$GROUP_ID -ti  namenodecontainer  /bin/bash -c \
 "/opt/spark-2.4.0-bin-hadoop2.7/bin/spark-submit --conf spark.eventLog.enabled=true  \
 --packages org.apache.logging.log4j:log4j-api:2.8.2,org.apache.logging.log4j:log4j-core:2.8.2,\
