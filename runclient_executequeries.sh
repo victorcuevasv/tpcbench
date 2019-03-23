@@ -1,8 +1,10 @@
 #!/bin/bash
 
-#Execute the Java project with Maven on the client builder container running in the docker-compose setup. 
+#Execute the Java project with Maven on the buildhiveclient container running in docker-compose. 
+#$1 Optional argument denoting a single query to execute (e.g. query2.sql).
 
 docker exec -ti  clientbuildercontainer  /bin/bash -c \
 	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueries\" \
-	-Dexec.args=\"/data QueriesPresto results plans presto mastercontainer query2.sql \" -f /project/pom.xml"      
+	-Dexec.args=\"/data QueriesPresto results plans presto mastercontainer $1\" \
+	-f /project/pom.xml"      
 
