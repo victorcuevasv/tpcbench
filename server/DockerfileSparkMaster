@@ -10,13 +10,18 @@ RUN groupadd -g $GID -o $UNAME
 RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
 
 #Install netcat to use nc to check connections, ssh and python.
+#Install sudo to run the thrift server script as user $UNAME.
 
 RUN apt-get update && apt-get install -y \
     netcat \
     ssh \
+    sudo \
     python2.7 \
     python-pip \
     python-dev
+
+ARG APACHE_MIRROR=apache.rediris.es
+ARG POSTGRES_DRIVER_MIRROR=jdbc.postgresql.org
 
 #Add the generated key to the authorized set.
 
@@ -33,7 +38,7 @@ COPY ssh_config /root/.ssh/config
 
 #Download and decompress Hadoop
 
-RUN wget -q -P /opt http://apache.rediris.es/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
+RUN wget -q -P /opt http://$APACHE_MIRROR/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
     tar xzf /opt/hadoop-2.7.7.tar.gz -C /opt && \
     rm -f /opt/hadoop-2.7.7.tar.gz
 
@@ -61,7 +66,7 @@ RUN hdfs namenode -format
 
 #Download and decompress Hive.
 
-RUN wget -q -P /opt http://apache.rediris.es/hive/hive-2.3.4/apache-hive-2.3.4-bin.tar.gz && \
+RUN wget -q -P /opt http://$APACHE_MIRROR/hive/hive-2.3.4/apache-hive-2.3.4-bin.tar.gz && \
     tar xzf /opt/apache-hive-2.3.4-bin.tar.gz -C /opt && \
     rm -f /opt/apache-hive-2.3.4-bin.tar.gz
     
@@ -77,12 +82,12 @@ COPY hive-siteExternalMetastore.xml /opt/apache-hive-2.3.4-bin/conf/hive-site.xm
 #Download the postgres driver.
 
 RUN wget --no-check-certificate -q -P /opt/apache-hive-2.3.4-bin/lib \
-    https://jdbc.postgresql.org/download/postgresql-42.2.5.jar
+    https://$POSTGRES_DRIVER_MIRROR/download/postgresql-42.2.5.jar
     
 #Download and decompress Spark.
 #Use the version prebuilt for Hadoop, spark-sql does not work in the version without Hadoop.
 
-RUN wget -q -P /opt http://apache.rediris.es/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
+RUN wget -q -P /opt http://$APACHE_MIRROR/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
     tar xzf /opt/spark-2.4.0-bin-hadoop2.7.tgz -C /opt && \
     rm -f /opt/spark-2.4.0-bin-hadoop2.7.tgz
 
@@ -104,12 +109,6 @@ ENV SPARK_DIST_CLASSPATH="$HADOOP_HOME/etc/hadoop/*:$HADOOP_HOME/share/hadoop/co
 #Create directory for event log.
 RUN mkdir /tmp/spark-events
 
-#Copy the initialization script for Hadoop, Hive, Spark and make it executable.
-
-COPY startSparkMaster.sh /startSparkMaster.sh
-
-RUN chmod +x /startSparkMaster.sh
-
 #Add the environment variable to enable execution with YARN
 ENV HADOOP_CONF_DIR /opt/hadoop-2.7.7/etc/hadoop
 ENV HIVE_CONF_DIR /opt/spark-2.4.0-bin-hadoop2.7/conf/
@@ -117,25 +116,17 @@ ENV HIVE_CONF_DIR /opt/spark-2.4.0-bin-hadoop2.7/conf/
 #Copy postgres driver jar.
 RUN cp /opt/apache-hive-2.3.4-bin/lib/postgresql-42.2.5.jar /opt/spark-2.4.0-bin-hadoop2.7/jars
 
-#Run the Spark-Hive example only to download the jars, it doesn't matter if it fails.
-     
-RUN spark-submit \
-     --packages org.apache.zookeeper:zookeeper:3.4.6 \
-     --class org.apache.spark.examples.sql.hive.JavaSparkHiveExample \
-     --deploy-mode client \
-     $SPARK_HOME/examples/jars/spark-examples_2.11-2.4.0.jar ; exit 0
+#Add hive user and supergroup, also add UNAME to the supergroup.
+RUN useradd hive && \
+	groupadd supergroup && \
+	usermod -a -G supergroup hive && \
+	usermod -a -G supergroup $UNAME
 
-USER $UNAME
+#Copy the initialization script for Hadoop, Hive, Spark and make it executable.
 
-#Run the Spark-Hive example only to download the jars, it doesn't matter if it fails.
+COPY startSparkMaster.sh /startSparkMaster.sh
 
-RUN spark-submit \
-     --packages org.apache.zookeeper:zookeeper:3.4.6 \
-     --class org.apache.spark.examples.sql.hive.JavaSparkHiveExample \
-     --deploy-mode client \
-     $SPARK_HOME/examples/jars/spark-examples_2.11-2.4.0.jar ; exit 0
-     
-USER root
+RUN chmod +x /startSparkMaster.sh
 
 CMD ["bash"]
 

@@ -27,7 +27,7 @@ if [ $# -lt 1 ]; then
 fi
 
 #Default ontainer to execute the command over, can be overriden by an argument.
-CONTAINER=mastercontainer
+CONTAINER=namenodecontainer
 if [ $# -gt 1 ]; then
     CONTAINER=$2
 fi

@@ -8,20 +8,9 @@ start-dfs.sh
 start-yarn.sh
 mr-jobhistory-daemon.sh start historyserver
 
-#Create the Hive warehouse directory.
-#Create a hive user and a supergroup group with hive as a member.
-#Add the temporal directory holding the data to hdfs. 
-hadoop fs -mkdir -p    /user/hive/warehouse  && \
-hadoop fs -chmod g+w   /user/hive/warehouse && \
-useradd hive && \
-groupadd supergroup && \
-usermod -a -G supergroup hive && \
-hadoop fs -put /temporal /temporal
-#Required specifically for Spark-Hive.
-mkdir -p /tmp/hive/java
-chmod -R 777 /tmp
-hadoop fs -mkdir -p /tmp/hive
-hadoop fs -chmod -R 777 /tmp
+#Copy to hdfs the temporal folder which is mapped to the hivevol
+#in the docker-compose file.
+#hadoop fs -put /temporal /temporal
 
 # $1 host $2 port $3 tries
 wait_for_server() {
@@ -42,23 +31,39 @@ wait_for_server() {
 	printf "$1:$2 is reachable.\n"
 }
 
+#The metastorecreated file is used to indicate if the metastore has been
+#created previously.
 if [ ! -f /metastore/metastorecreated ]; then
    schematool -dbType postgres -initSchema --verbose
-   echo "metastorecreated" > /metastore/metastorecreated
+   #Due to permission issues, the command needs to be run with sudo and inside a bash command.
+   sudo -u $USER_NAME_DC bash -c 'echo "metastorecreated" > /metastore/metastorecreated'
 fi
 
-hive --service metastore  &
+hive --service metastore &
 wait_for_server localhost 9083 24
 hive --service hiveserver2 &
-wait_for_server localhost 10000 10
+wait_for_server localhost 10000 24
 bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-all.sh
+wait_for_server localhost 8080 24 
 bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-history-server.sh
-#bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh --master spark://mastercontainer:7077   --conf spark.eventLog.enabled=true  --driver-memory 2g --executor-memory 2g --num-executors 2   --hiveconf hive.server2.thrift.port=10015  --conf "spark.sql.hive.metastore.jars=maven"   --conf "spark.sql.hive.metastore.version=2.3.0"  --conf  "spark.sql.crossJoin.enabled=true"      
-bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh --master spark://mastercontainer:7077   --conf spark.eventLog.enabled=true  --hiveconf hive.server2.thrift.port=10015  --conf "spark.sql.hive.metastore.jars=maven"   --conf "spark.sql.hive.metastore.version=2.3.0"  --conf  "spark.sql.crossJoin.enabled=true"                 
+wait_for_server localhost 18080 24 
+if [[ $RUN_THRIFT_SERVER -eq 1 ]]; then
+	#Must force the logs to be created inside the USER_NAME_DC home directory.   
+    echo "SPARK_LOG_DIR=/home/$USER_NAME_DC/logs" >> $SPARK_HOME/conf/spark-env.sh 
+    #Execute the thrift server the user USER_NAME_DC.
+    #The jars should be downloaded to /home/USER_NAME_DC/.ivy2
+    #Note that the eventLog.dir parameter uses the previously created directory.
+    sudo -u $USER_NAME_DC mkdir /home/$USER_NAME_DC/tmp          
+	sudo -u $USER_NAME_DC bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh \
+		--master spark://namenodecontainer:7077  \
+		--hiveconf hive.server2.thrift.port=10015 \
+		--conf spark.eventLog.dir=/home/$USER_NAME_DC/tmp \
+		--packages org.apache.zookeeper:zookeeper:3.4.6     
+	wait_for_server localhost 10015 72       
+fi
+sleep infinity
 
-sleep infinity 
 
-   
 
 
  

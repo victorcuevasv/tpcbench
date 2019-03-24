@@ -3,23 +3,14 @@
 #Start the ssh server.
 /etc/init.d/ssh start
 
-#Format the hdfs namenode.
-hdfs namenode -format
-
 #Start the Hadoop daemons.
 start-dfs.sh
 start-yarn.sh
 mr-jobhistory-daemon.sh start historyserver
 
-#Create the Hive warehouse directory.
-#Create a hive user and a supergroup group with hive as a member.
-#Add the temporal directory holding the data to hdfs. 
-hadoop fs -mkdir -p    /user/hive/warehouse  && \
-hadoop fs -chmod g+w   /user/hive/warehouse && \
-useradd hive && \
-groupadd supergroup && \
-usermod -a -G supergroup hive && \
-hadoop fs -put /temporal /temporal
+#Copy to hdfs the temporal folder which is mapped to the hivevol
+#in the docker-compose file.
+#hadoop fs -put /temporal /temporal
 
 # $1 host $2 port $3 tries
 wait_for_server() {
@@ -35,20 +26,23 @@ wait_for_server() {
   	fi
   	i=$((i+1))
   	printf "$1:$2 is unreachable, retrying.\n"
-  	sleep 2
+  	sleep 5
 	done
 	printf "$1:$2 is reachable.\n"
 }
 
+#The metastorecreated file is used to indicate if the metastore has been
+#created previously.
 if [ ! -f /metastore/metastorecreated ]; then
    schematool -dbType postgres -initSchema --verbose
-   echo "metastorecreated" > /metastore/metastorecreated
+   #Due to permission issues, the command needs to be run with sudo and inside a bash command.
+   sudo -u $USER_NAME_DC bash -c 'echo "metastorecreated" > /metastore/metastorecreated'
 fi
 
 hive --service metastore &
-wait_for_server localhost 9083 8
+wait_for_server localhost 9083 12
 hive --service hiveserver2 &
-wait_for_server localhost 10000 8
+wait_for_server localhost 10000 12
 /opt/presto-server-0.214/bin/launcher run
 
 
