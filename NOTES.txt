@@ -1,6 +1,6 @@
 scp to the cluster: 
 
-scp hivevol/a.txt bscdc07:/home/vcuevas/databricksworkspace/tpcdsbench/hivevol
+scp bscdc07:/home/vcuevas/databricksworkspace/tpcdsbench/datavol/logs/power/presto/analytics.log  /home/bscuser/workspacedatabricks/benchinf/analysis/Documents/RESULTS/power/presto/analytics.log 
 
 scp -r hivevol/1GB bscdc07:/home/vcuevas/databricksworkspace/tpcdsbench/hivevol/
 
