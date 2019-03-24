@@ -16,7 +16,7 @@
 	<!-- Site specific YARN configuration properties -->
 	<property>
 		<name>yarn.resourcemanager.hostname</name>
-		<value>mastercontainer</value>
+		<value>namenodecontainer</value>
 	</property>
 	<property>
 		<name>yarn.nodemanager.aux-services</name>

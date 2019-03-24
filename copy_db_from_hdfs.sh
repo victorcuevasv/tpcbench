@@ -15,7 +15,7 @@ GROUP_ID=$(id -g)
 
 #Copying the database from hdfs.
 printf "\n\n%s\n\n" "${blu}Copying from hdfs.${end}"
-docker exec --user $USER_ID:$GROUP_ID -ti  mastercontainer  /bin/bash -c \
+docker exec --user $USER_ID:$GROUP_ID -ti  namenodecontainer  /bin/bash -c \
 	"hadoop fs -get /user/hive/warehouse/* /user/hive/warehouse" 
 
 

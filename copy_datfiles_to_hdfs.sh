@@ -8,8 +8,15 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+#$1 scale factor (positive integer)
+
+if [ $# -lt 1 ]; then
+    echo "Usage: bash copy_datfiles_to_hdfs.sh <scale factor>."
+    exit 0
+fi
+
 #Copying the .dat files to hdfs.
 printf "\n\n%s\n\n" "${blu}Copying to hdfs.${end}"
-docker exec -ti  mastercontainer  /bin/bash -c "hadoop fs -mkdir /temporal/1GB"
-docker exec -ti  mastercontainer  /bin/bash -c "hadoop fs -put /temporal/1GB/* /temporal/1GB" 
+docker exec -ti  namenodecontainer  /bin/bash -c "hadoop fs -mkdir -p /temporal/$1GB && \
+	hadoop fs -put /temporal/$1GB/* /temporal/$1GB" 
 

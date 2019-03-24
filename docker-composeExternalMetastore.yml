@@ -2,7 +2,7 @@ version: '2.0'
 services:
     hiveservice:
         image: prestohiveserver:dev
-        container_name: mastercontainer
+        container_name: namenodecontainer
         ports:
             - 10000:10000 #HiveServer2 Thrift interface
             - 8088:8088 #Hadoop/Yarn job UI
