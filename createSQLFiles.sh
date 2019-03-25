@@ -19,6 +19,10 @@ GROUP_ID=$(id -g)
 
 #Create SQL create table statement files and the query files.
 
+#The runclient_processcreatescript script uses the java ProcessCreateScript class.
+#Compile the java classes for the client first.
+bash $DIR/compileclient.sh
+
 #First separate the multiple create table statements in the tpcds.sql file into separate files.
 #Copy the file with create table statements into the datavol directory.
 cp $DIR/dqgen/v2.10.1rc3/tools/tpcds.sql $DIR/datavol
