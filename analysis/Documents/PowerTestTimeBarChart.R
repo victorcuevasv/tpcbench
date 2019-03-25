@@ -32,7 +32,7 @@ theme(axis.title.x=element_blank()) +
 theme(axis.text=element_text(size=16), axis.title=element_text(size=18)) +
 #The str_wrap function makes the name of the column appear on multiple lines instead of just one
 scale_x_discrete(labels = function(x) str_wrap(x, width = 7)) + 
-scale_y_continuous("Time (sec.)", limits=c(0,1000)) + 
+scale_y_continuous("Time (sec.)", limits=c(0,1200)) + 
 scale_fill_manual(name="", values=c("#585574")) + 
 theme(legend.position = "bottom") + 
 theme(legend.text=element_text(size=16)) 
