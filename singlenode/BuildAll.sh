@@ -10,11 +10,13 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
 #Get the time of start of execution to measure total execution time.
 start_time=`date +%s`
 
 #Create the volume directories.
-bash createDirs.sh
+bash ../createDirs.sh
 
 #Get the username the user executing this script.
 USER_NAME=$(whoami)
@@ -29,14 +31,14 @@ index=0
 
 #Build the Ubuntu with Java base image.
 printf "\n\n%s\n\n" "${mag}Creating the Ubuntu with Java base image.${end}"
-bash ubuntujava/build.sh
+bash ../ubuntujava/build.sh
 buildFlags[$index]=$?
 buildLabels[$index]=ubuntujava
 index=$((index+1))
 
 #Build the dqgen image with the TPC-DS toolkit to generate data and queries.
 printf "\n\n%s\n\n" "${mag}Creating the dqgen TPC-DS toolkit image.${end}"
-bash dqgen/createContainer.sh $USER_NAME $USER_ID $GROUP_ID
+bash ../dqgen/createContainer.sh $USER_NAME $USER_ID $GROUP_ID
 buildFlags[$index]=$?
 buildLabels[$index]=tpcds
 index=$((index+1))
@@ -64,7 +66,7 @@ index=$((index+1))
 
 #Build the client project builder image.
 printf "\n\n%s\n\n" "${mag}Building the client project builder image.${end}"
-bash client/buildSingle.sh $USER_NAME $USER_ID $GROUP_ID
+bash ../client/buildSingle.sh $USER_NAME $USER_ID $GROUP_ID
 buildFlags[$index]=$?
 buildLabels[$index]=client
 index=$((index+1))

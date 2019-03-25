@@ -10,8 +10,18 @@ exitCode=0
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-docker build --build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3 \
-	-t clientbuilder:dev $DIR -f $DIR/DockerfileSingle
+#Check if the local mirror can be used.
+nc -z localhost 8888 && nc -z localhost 443
+mirror=$?
+if [[ $mirror -eq 0 ]]; then
+	docker build --network="host" -t clientbuilder:dev $DIR -f $DIR/DockerfileSingle \
+	--build-arg APACHE_MIRROR=localhost:8888 \
+	--build-arg PRESTO_MIRROR=localhost:443 \
+	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3
+else
+	docker build -t clientbuilder:dev $DIR -f $DIR/DockerfileSingle \
+	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3
+fi
 
 if [[ $? -ne 0 ]]; then
 	exitCode=1

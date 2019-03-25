@@ -12,9 +12,12 @@ RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
 RUN apt-get update && apt-get install -y \
     less
 
+ARG APACHE_MIRROR=apache.rediris.es
+ARG PRESTO_MIRROR=repo1.maven.org
+
 #Download and decompress Maven.
 
-RUN wget -q -P /opt http://apache.rediris.es/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz && \
+RUN wget -q -P /opt http://$APACHE_MIRROR/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz && \
     tar xzf /opt/apache-maven-3.6.0-bin.tar.gz -C /opt && \
     rm -f /opt/apache-maven-3.6.0-bin.tar.gz
 
@@ -23,7 +26,7 @@ ENV PATH="${PATH}:/opt/apache-maven-3.6.0/bin"
 #Download the Presto CLI jar.
 
 RUN wget --no-check-certificate -q -P /opt \ 
-    https://repo1.maven.org/maven2/com/facebook/presto/presto-cli/0.214/presto-cli-0.214-executable.jar && \
+    https://$PRESTO_MIRROR/maven2/com/facebook/presto-cli/0.214/presto-cli-0.214-executable.jar && \
     mv /opt/presto-cli-0.214-executable.jar /opt/presto && \
     chmod +x /opt/presto 
 

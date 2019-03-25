@@ -7,7 +7,7 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-docker run --rm --user $1:$2 -v $DIR/client/project:/project -v $DIR/datavol:/data \
+docker run --rm --user $1:$2 -v $DIR/client/project:/project -v $DIR/vols/data:/data \
 	--entrypoint mvn clientbuilder:dev exec:java \
 	 -Dexec.mainClass="org.bsc.dcc.vcv.ProcessCreateScript" \
 	 -Dexec.args="/data tables tpcds.sql" -f /project/pom.xml   

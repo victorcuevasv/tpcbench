@@ -13,16 +13,16 @@ services:
             - 18080:18080 #Spark history server
             - 8088:8088 #Yarn job UI
         volumes:
-            - ./hivevol:/temporal
-            - ./warehousevol:/user/hive/warehouse
-            - ./metastorevol:/metastore
-            - ./ivyrootvol:/root/.ivy2
-            - ./ivyuservol:/home/${USER_NAME_DC}/.ivy2
+            - ./../vols/hive:/temporal
+            - ./../vols/warehouse:/user/hive/warehouse
+            - ./../vols/metastore:/metastore
+            - ./../vols/ivyroot:/root/.ivy2
+            - ./../vols/ivyuser:/home/${USER_NAME_DC}/.ivy2
             #Enable to use spark-submit, disable to use JDBC.
-            - ./datavol:/data
-            - ./client/project:/project
+            #- ./../vols/data:/data
+            #- ./../client/project/targetspark:/project/targetspark
         environment:
-            - RUN_THRIFT_SERVER=0
+            - RUN_THRIFT_SERVER=1
             - USER_NAME_DC=${USER_NAME_DC}
     sparkworkerservice:
         image: sparkworker:dev
@@ -43,9 +43,9 @@ services:
         image: clientbuilder:dev
         container_name: clientbuildercontainer
         #Enable to use JDBC, disable to use spark-submit.
-        #volumes:
-            #- ./client/project:/project
-            #- ./datavol:/data
+        volumes:
+            - ./../client/project:/project
+            - ./../vols/data:/data
         entrypoint:
             - bash
         tty: true
