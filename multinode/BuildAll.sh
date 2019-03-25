@@ -15,6 +15,9 @@ end=$'\e[0m'
 #Get the time of start of execution to measure total execution time.
 start_time=`date +%s`
 
+#Create the volume directories in the PARENT directory.
+bash ../createDirs.sh
+
 #Get the username the user executing this script.
 USER_NAME=$(whoami)
 #Get the user id of the user executing this script.

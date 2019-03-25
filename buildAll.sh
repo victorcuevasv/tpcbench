@@ -13,41 +13,8 @@ end=$'\e[0m'
 #Get the time of start of execution to measure total execution time.
 start_time=`date +%s`
 
-#Create the datavol directory if it does not exist.
-
-if [ ! -d datavol ]; then
-   mkdir datavol
-fi
-
-#Create the hivevol directory if it does not exist.
-
-if [ ! -d hivevol ]; then
-   mkdir hivevol
-fi
-
-#Create the metastorevol directory if it does not exist.
-
-if [ ! -d metastorevol ]; then
-   mkdir metastorevol
-fi
-   
-#Create the warehousevol directory if it does not exist.
-
-if [ ! -d warehousevol ]; then
-   mkdir warehousevol
-fi
-
-#Create the ivyrootvol directory if it does not exist.
-
-if [ ! -d ivyrootvol ]; then
-   mkdir ivyrootvol
-fi
-
-#Create the ivyrootvol directory if it does not exist.
-
-if [ ! -d ivyuservol ]; then
-   mkdir ivyuservol
-fi
+#Create the volume directories.
+bash createDirs.sh
 
 #Get the username the user executing this script.
 USER_NAME=$(whoami)
