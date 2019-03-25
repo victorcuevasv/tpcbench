@@ -10,7 +10,9 @@ mr-jobhistory-daemon.sh start historyserver
 
 #Copy to hdfs the temporal folder which is mapped to the hivevol
 #in the docker-compose file.
-hadoop fs -put /temporal /temporal
+#Disabled to enable the user to do it manually or through a script,
+#avoiding the burden at hdfs boot time.
+#hadoop fs -put /temporal /temporal
 
 # $1 host $2 port $3 tries
 wait_for_server() {
