@@ -10,9 +10,9 @@ services:
             - 8080:8080 #Presto web ui
         volumes:
             #Only used for reading .dat files for database creation (use parent folder).
-            - ./../hivevol:/temporal
-            - ./../warehousevol:/user/hive/warehouse
-            - ./../metastorevol:/metastore
+            - ./../vols/hive:/temporal
+            - ./../vols/warehouse:/user/hive/warehouse
+            - ./../vols/metastore:/metastore
         environment:
             - USER_NAME_DC=${USER_NAME_DC}
     slave1service:
@@ -35,7 +35,7 @@ services:
         container_name: clientbuildercontainer
         volumes:
             - ./../client/project:/project
-            - ./../datavol:/data
+            - ./../vols/data:/data
         entrypoint:
             - bash
         tty: true
