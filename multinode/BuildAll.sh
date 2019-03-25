@@ -15,50 +15,6 @@ end=$'\e[0m'
 #Get the time of start of execution to measure total execution time.
 start_time=`date +%s`
 
-#Create the datavol directory if it does not exist.
-
-if [ ! -d $DIR/datavol ]; then
-   mkdir $DIR/datavol
-fi
-
-#Create the datavol directory in the PARENT directory if it does not exist.
-#SQL files are generated in the datavol of the PARENT directory and then copied
-#into the datavol of the execution directory of this script.
-
-if [ ! -d $DIR/../datavol ]; then
-   mkdir $DIR/../datavol
-fi
-
-#Create the hivevol on the PARENT directory if it does not exist.
-
-if [ ! -d $DIR/../hivevol ]; then
-   mkdir $DIR/../hivevol
-fi
-
-#Create the metastorevol directory if it does not exist.
-
-if [ ! -d $DIR/metastorevol ]; then
-   mkdir $DIR/metastorevol
-fi
-   
-#Create the warehousevol directory if it does not exist.
-
-if [ ! -d $DIR/warehousevol ]; then
-   mkdir $DIR/warehousevol
-fi
-
-#Create the ivyrootvol directory if it does not exist.
-
-if [ ! -d ivyrootvol ]; then
-   mkdir ivyrootvol
-fi
-
-#Create the ivyrootvol directory if it does not exist.
-
-if [ ! -d ivyuservol ]; then
-   mkdir ivyuservol
-fi
-
 #Get the username the user executing this script.
 USER_NAME=$(whoami)
 #Get the user id of the user executing this script.
