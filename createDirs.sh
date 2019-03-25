@@ -40,14 +40,14 @@ fi
 
 #Create the ivyrootvol directory if it does not exist.
 
-if [ ! -d ivyrootvol ]; then
-   mkdir ivyrootvol
+if [ ! -d $DIR/ivyrootvol ]; then
+   mkdir $DIR/ivyrootvol
 fi
 
 #Create the ivyrootvol directory if it does not exist.
 
-if [ ! -d ivyuservol ]; then
-   mkdir ivyuservol
+if [ ! -d $DIR/ivyuservol ]; then
+   mkdir $DIR/ivyuservol
 fi
 
 
