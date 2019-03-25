@@ -12,7 +12,7 @@ services:
             #Only used for reading .dat files for database creation.
             - ./../vols/hive:/temporal
             - ./../vols/warehouse:/user/hive/warehouse
-            - ./../metastore:/metastore
+            - ./../vols/metastore:/metastore
         environment:
             - USER_NAME_DC=${USER_NAME_DC}
     postgresservice:
