@@ -19,9 +19,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #Generate the data.
 printf "\n\n%s\n\n" "${blu}Generating the data.${end}"
 
-mkdir $DIR/../hivevol/$1GB
+mkdir $DIR/../vols/hive/$1GB
 
-docker run --rm --user $2:$3 --name tpc --volume $DIR/../hivevol:/TPC-DS/v2.10.1rc3/output \
+docker run --rm --user $2:$3 --name tpc --volume $DIR/../vols/hive:/TPC-DS/v2.10.1rc3/output \
 	--entrypoint /TPC-DS/v2.10.1rc3/tools/dsdgen tpcds:dev \
 	-scale $1 -dir ../output/$1GB  -terminate n   
 

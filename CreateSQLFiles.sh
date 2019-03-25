@@ -19,9 +19,13 @@ GROUP_ID=$(id -g)
 
 #Create SQL create table statement files and the query files.
 
+#The runclient_processcreatescript script uses the java ProcessCreateScript class.
+#Compile the java classes for the client first.
+bash $DIR/compileclient.sh
+
 #First separate the multiple create table statements in the tpcds.sql file into separate files.
 #Copy the file with create table statements into the datavol directory.
-cp $DIR/dqgen/v2.10.1rc3/tools/tpcds.sql $DIR/datavol
+cp $DIR/dqgen/v2.10.1rc3/tools/tpcds.sql $DIR/vols/data
 printf "\n\n%s\n\n" "${mag}Processing the tpcds.sql file.${end}"
 bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID
 
@@ -36,6 +40,6 @@ bash $DIR/dqgen/generateQueriesPresto.sh $USER_ID $GROUP_ID
 #Generate the Spark queries.
 printf "\n\n%s\n\n" "${mag}Generating the Spark queries.${end}"
 bash $DIR/dqgen/generateQueriesSpark.sh $USER_ID $GROUP_ID
-cp -r $DIR/datavol/QueriesSpark $DIR/client/project/src/main/resources/
+cp -r $DIR/vols/data/QueriesSpark $DIR/client/project/src/main/resources/
 
 

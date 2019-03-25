@@ -1,8 +1,10 @@
 FROM ubuntujava:dev
 
+ARG APACHE_MIRROR=apache.rediris.es
+
 #Download and decompress Maven
 
-RUN wget -q -P /opt http://apache.rediris.es/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz && \
+RUN wget -q -P /opt http://$APACHE_MIRROR/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz && \    
     tar xzf /opt/apache-maven-3.6.0-bin.tar.gz -C /opt && \
     rm -f /opt/apache-maven-3.6.0-bin.tar.gz
 
