@@ -7,7 +7,8 @@
 USER_NAME=$(whoami)
 
 #Run as a subshell inside the USER_NAME home directory because the metastore is stored there.
-#The command is executed in docker as the default root user because otherwise some directories are not created. 
+#The command is executed in docker as the default root user because otherwise some directories are not created.
+#Note that the master used is local. 
 
 docker exec -ti  namenodecontainer  /bin/bash -c \
 "( cd /home/$USER_NAME ; /opt/spark-2.4.0-bin-hadoop2.7/bin/spark-submit --conf spark.eventLog.enabled=true  \
