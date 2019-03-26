@@ -1,0 +1,23 @@
+version: '2.0'
+services:
+    hiveservice:
+        image: hiveserverstandalone:dev
+        container_name: namenodecontainer
+        ports:
+            - 10000:10000
+        volumes:
+            - ./../vols/hive:/temporal
+            - ./../vols/warehouse:/user/hive/warehouse
+            - ./../vols/metastore:/metastore
+    hiveclient:
+        image: clientbuilder:dev
+        container_name: clientbuildercontainer
+        volumes:
+            - ./../client/project:/project
+            - ./../vols/data:/data
+        entrypoint:
+            - bash
+        tty: true
+        stdin_open: true
+
+
