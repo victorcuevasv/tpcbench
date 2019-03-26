@@ -6,6 +6,9 @@
 #Get the user name of the user executing this script.
 USER_NAME=$(whoami)
 
+#Run as a subshell inside the USER_NAME home directory because the metastore is stored there.
+#The command is executed in docker as the default root user because otherwise some directories are not created. 
+
 docker exec -ti  namenodecontainer  /bin/bash -c \
 "( cd /home/$USER_NAME ; /opt/spark-2.4.0-bin-hadoop2.7/bin/spark-submit --conf spark.eventLog.enabled=true  \
 --packages org.apache.logging.log4j:log4j-api:2.8.2,org.apache.logging.log4j:log4j-core:2.8.2,\
