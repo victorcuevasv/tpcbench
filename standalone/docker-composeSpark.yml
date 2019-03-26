@@ -4,7 +4,7 @@ services:
         image: hiveserverstandalone:dev
         container_name: namenodecontainer
         ports:
-            - 10000:10000
+            - 4040:4040 #Spark driver GUI.
         volumes:
             - ./../vols/hive:/temporal
             - ./../vols/warehouse:/user/hive/warehouse
