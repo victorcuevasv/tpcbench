@@ -9,15 +9,17 @@ services:
             - ./../vols/hive:/temporal
             - ./../vols/warehouse:/user/hive/warehouse
             - ./../vols/metastore:/home/${USER_NAME_DC}/metastore
+            - ./../client/project:/project
+            - ./../vols/data:/data
         environment:
             - USER_NAME_DC=${USER_NAME_DC}
-            - RUN_HIVE_SERVER=1
+            - RUN_HIVE_SERVER=0
     hiveclient:
         image: clientbuilder:dev
         container_name: clientbuildercontainer
-        volumes:
-            - ./../client/project:/project
-            - ./../vols/data:/data
+        #volumes:
+        #    - ./../client/project:/project
+        #    - ./../vols/data:/data
         entrypoint:
             - bash
         tty: true

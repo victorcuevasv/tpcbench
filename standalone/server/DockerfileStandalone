@@ -1,8 +1,18 @@
 FROM ubuntujava:dev
 
-#Install netcat to use nc to check connections.
+ARG UNAME=anyuser
+ARG UID=1000
+ARG GID=100
 
-RUN apt-get update && apt-get install -y netcat
+RUN groupadd -g $GID -o $UNAME
+RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
+
+#Install netcat to use nc to check connections.
+#Also, install sudo to create the metastore creation indication file as user $UNAME.
+
+RUN apt-get update && apt-get install -y \
+	netcat \
+	sudo
 
 #Download and decompress Hadoop.
 
@@ -32,10 +42,21 @@ ENV PATH="${PATH}:/opt/apache-hive-2.3.4-bin/bin"
 
 COPY hive-site.xml /opt/apache-hive-2.3.4-bin/conf/
 
-#Initialize Hadoop directories for Hive.
+#Download and decompress Spark.
+#Use the version prebuilt for Hadoop, spark-sql does not work in the version without Hadoop.
 
-#RUN hadoop fs -mkdir -p    /user/hive/warehouse  && \
-#    hadoop fs -chmod g+w   /user/hive/warehouse
+RUN wget -q -P /opt http://$APACHE_MIRROR/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
+    tar xzf /opt/spark-2.4.0-bin-hadoop2.7.tgz -C /opt && \
+    rm -f /opt/spark-2.4.0-bin-hadoop2.7.tgz
+
+#Add the Spark installation directory variable and update the path.
+
+ENV SPARK_HOME /opt/spark-2.4.0-bin-hadoop2.7
+ENV PATH="${PATH}:/opt/spark-2.4.0-bin-hadoop2.7/bin"
+
+#Copy the hive-site configuration file to enable access to the metastore.
+
+COPY hive-site.xml /opt/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
 
 COPY startStandalone.sh /startStandalone.sh
 

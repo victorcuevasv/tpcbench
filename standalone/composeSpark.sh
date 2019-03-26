@@ -11,7 +11,7 @@ fi
 
 USER_NAME=$(whoami)
 
-USER_NAME_DC=$USER_NAME docker-compose -f $DIR/docker-compose.yml $1
+USER_NAME_DC=$USER_NAME docker-compose -f $DIR/docker-composeSpark.yml $1
 
 #docker-compose -f $DIR/docker-compose.yml $1
 
