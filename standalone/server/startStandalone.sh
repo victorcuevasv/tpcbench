@@ -14,7 +14,7 @@ fi
 #The hive server has to be running to create the database and to run  beeline.
 #On the other hand, it should not be running to use spark.
 if [[ $RUN_HIVE_SERVER -eq 1 ]]; then
-   (cd /home/$USER_NAME_DC ; hiveserver2)
+   (cd /home/$USER_NAME_DC ; sudo -E -u $USER_NAME_DC $HIVE_HOME/bin/hiveserver2)
 else
 	sleep infinity
 fi
