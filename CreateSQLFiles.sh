@@ -25,9 +25,12 @@ bash $DIR/compileclient.sh
 
 #First separate the multiple create table statements in the tpcds.sql file into separate files.
 #Copy the file with create table statements into the datavol directory.
-cp $DIR/dqgen/v2.10.1rc3/tools/tpcds.sql $DIR/vols/data
-printf "\n\n%s\n\n" "${mag}Processing the tpcds.sql file.${end}"
-bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID
+
+#cp $DIR/dqgen/v2.10.1rc3/tools/tpcds.sql $DIR/vols/data/tpcds.sql
+cp $DIR/dqgen/tpcdsvarchar.sql $DIR/vols/data/tpcdsvarchar.sql
+printf "\n\n%s\n\n" "${mag}Processing the tpcds[varchar].sql file.${end}"
+#bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID tpcds.sql
+bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID tpcdsvarchar.sql
 cp -r $DIR/vols/data/tables $DIR/client/project/src/main/resources/
 
 #Generate the unused Netezza queries.
