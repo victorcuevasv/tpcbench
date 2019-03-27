@@ -6,7 +6,7 @@
 #jar -uvfe ./client/project/targetspark/client-1.0-SNAPSHOT.jar org.bsc.dcc.vcv.JarQueriesReaderAsZipFile
 
 #Run the main method for the class.
-#java -jar ./client/project/targetspark/client-1.0-SNAPSHOT.jar ./client/project/targetspark/client-1.0-SNAPSHOT.jar    
+#java -jar ./client/project/targetspark/client-1.0-SNAPSHOT.jar ./client/project/targetspark/client-1.0-SNAPSHOT.jar QueriesSpark      
 
 #$1 Required argument denoting the number of streams. 
 

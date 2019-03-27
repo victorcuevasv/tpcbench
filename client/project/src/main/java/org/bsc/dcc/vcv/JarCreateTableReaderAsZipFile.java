@@ -10,30 +10,23 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-public class JarQueriesReaderAsZipFile {
+public class JarCreateTableReaderAsZipFile {
 	
 	private Map<String, String> ht;
-	private List<String> filesNamesSorted;
+	private List<String> filesNames;
 	
 	public static void main(String[] args) {
-		JarQueriesReaderAsZipFile app = new JarQueriesReaderAsZipFile(args[0], args[1]);
+		JarCreateTableReaderAsZipFile app = new JarCreateTableReaderAsZipFile(args[0], args[1]);
 	}
 	
-	public JarQueriesReaderAsZipFile(String inFile, String subDir) {
+	public JarCreateTableReaderAsZipFile(String inFile, String subDir) {
 		System.out.println("Extracting files from jar as zip file.");
 		this.ht = new HashMap<String, String>();
 		List<String> files = this.listFiles(inFile, subDir);
-		List<String> filesNamesSorted = files.stream().
-				map(JarQueriesReaderAsZipFile::extractNumber).
-				sorted().
-				map(n -> "query" + n + ".sql").
-				collect(Collectors.toList());
-		System.out.println("query1.sql :");
-		System.out.println(ht.get("query1.sql"));
-		for(String s : filesNamesSorted) {
+		for(String s : files) {
 			System.out.println(s);
 		}
-		this.filesNamesSorted = filesNamesSorted;
+		this.filesNames = files;
 	}
 
 	// Obtain the names with paths of all the .sql files in the jar structure.
@@ -84,18 +77,12 @@ public class JarQueriesReaderAsZipFile {
 		return builder.toString();
 	}
 	
-	public List<String> getFilesOrdered() {
-		return this.filesNamesSorted;
+	public List<String> getFiles() {
+		return this.filesNames;
 	}
 	
 	public String getFile(String fileName) {
 		return this.ht.get(fileName);
-	}
-	
-	// Converts a string representing a filename like query12.sql to the integer 12.
-	public static int extractNumber(String fileName) {
-		String nStr = fileName.substring(0, fileName.indexOf('.')).replaceAll("[^\\d.]", "");
-		return Integer.parseInt(nStr);
 	}
 
 }

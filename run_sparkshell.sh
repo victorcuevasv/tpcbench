@@ -10,7 +10,8 @@ GROUP_ID=$(id -g)
 #Specify explicitly the metastore uri.
 
 #docker exec --user $USER_ID:$GROUP_ID -it namenodecontainer bash -c \
-#"spark-shell --driver-java-options -Dhive.metastore.uris=thrift://localhost:9083"    
+#"spark-shell --driver-java-options -Dhive.metastore.uris=thrift://localhost:9083 \
+#--packages org.apache.zookeeper:zookeeper:3.4.6"    
 
 
 #Use the metastore uri specified in the hive-site.xml file inside the spark conf directory.

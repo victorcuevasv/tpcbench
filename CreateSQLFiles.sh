@@ -28,6 +28,7 @@ bash $DIR/compileclient.sh
 cp $DIR/dqgen/v2.10.1rc3/tools/tpcds.sql $DIR/vols/data
 printf "\n\n%s\n\n" "${mag}Processing the tpcds.sql file.${end}"
 bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID
+cp -r $DIR/vols/data/tables $DIR/client/project/src/main/resources/
 
 #Generate the unused Netezza queries.
 printf "\n\n%s\n\n" "${mag}Generating the Presto queries.${end}"

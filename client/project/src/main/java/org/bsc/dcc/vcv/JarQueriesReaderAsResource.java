@@ -16,12 +16,12 @@ public class JarQueriesReaderAsResource {
 	private List<String> filesNamesSorted;
 	
 	public static void main(String[] args) {
-		JarQueriesReaderAsResource app = new JarQueriesReaderAsResource();
+		JarQueriesReaderAsResource app = new JarQueriesReaderAsResource(args[0]);
 	}
 	
-	public JarQueriesReaderAsResource() {
+	public JarQueriesReaderAsResource(String subDir) {
 		System.out.println("Extracting files from jar as resources.");
-		List<File> files = this.listFiles();
+		List<File> files = this.listFiles(subDir);
 		Map<String, String> ht = this.readFiles(files);
 		List<String> filesNamesSorted = files.stream().
 				map(File::getName).
@@ -39,11 +39,11 @@ public class JarQueriesReaderAsResource {
 	}
 
 	// Obtain the names with paths of all the .sql files in the jar structure.
-	public List<File> listFiles() {
+	public List<File> listFiles(String subDir) {
 		List<File> files = new ArrayList<File>();
 		try {
-			//Get the path from the jar.
-			URI uri = JarQueriesReaderAsResource.class.getResource("/").toURI();
+			//URI uri = JarQueriesReaderAsResource.class.getResource("/").toURI();
+			URI uri = JarQueriesReaderAsResource.class.getClassLoader().getResource(subDir).toURI();
 			Path path = Paths.get(uri);
 			Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
 				@Override

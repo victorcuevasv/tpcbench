@@ -36,7 +36,7 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	private Random random;
 
 	public ExecuteQueriesConcurrentSpark(String jarFile, String system) {
-		this.queriesReader = new JarQueriesReaderAsZipFile(jarFile);
+		this.queriesReader = new JarQueriesReaderAsZipFile(jarFile, "QueriesSpark");
 		this.spark = SparkSession.builder().appName("Java Spark Hive Example")
 				.config("spark.sql.crossJoin.enabled", "true")
 				.enableHiveSupport()

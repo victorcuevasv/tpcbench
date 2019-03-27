@@ -32,7 +32,7 @@ public class ExecuteQueriesSpark {
 
 	public ExecuteQueriesSpark(String jarFile, String system) {
 		try {
-			this.queriesReader = new JarQueriesReaderAsZipFile(jarFile);
+			this.queriesReader = new JarQueriesReaderAsZipFile(jarFile, "QueriesSpark");
 			this.spark = SparkSession.builder().appName("Java Spark Hive Example")
 				.config("spark.sql.crossJoin.enabled", "true")
 				.enableHiveSupport()
