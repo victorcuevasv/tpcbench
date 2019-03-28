@@ -29,9 +29,13 @@ public class ExecuteQueriesSpark {
 	private SparkSession spark;
 	private AnalyticsRecorder recorder;
 	private JarQueriesReaderAsZipFile queriesReader;
+	boolean savePlans;
+	boolean saveResults;
 
-	public ExecuteQueriesSpark(String jarFile, String system) {
+	public ExecuteQueriesSpark(String jarFile, String system, boolean savePlans, boolean saveResults) {
 		try {
+			this.savePlans = savePlans;
+			this.saveResults = saveResults;
 			this.queriesReader = new JarQueriesReaderAsZipFile(jarFile, "QueriesSpark");
 			this.spark = SparkSession.builder().appName("Java Spark Hive Example")
 				.config("spark.sql.crossJoin.enabled", "true")
@@ -55,17 +59,21 @@ public class ExecuteQueriesSpark {
 	 * args[2] subdirectory of work directory to store the execution plans
 	 * args[3] jar file
 	 * args[4] system (directory name used to store logs)
-	 * args[5] OPTIONAL: query file
+	 * args[5] save plans (boolean)
+	 * args[6] save results (boolean)
+	 * args[7] OPTIONAL: query file
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) {
-		if( args.length < 5 ) {
+		if( args.length < 7 ) {
 			System.out.println("Incorrect number of arguments.");
 			System.exit(0);
 		}
-		ExecuteQueriesSpark prog = new ExecuteQueriesSpark(args[3], args[4]);
-		String queryFile = args.length >= 6 ? args[5] : null;
+		boolean savePlans = Boolean.parseBoolean(args[5]);
+		boolean saveResults = Boolean.parseBoolean(args[6]);
+		ExecuteQueriesSpark prog = new ExecuteQueriesSpark(args[3], args[4], savePlans, saveResults);
+		String queryFile = args.length >= 8 ? args[7] : null;
 		prog.executeQueries(args[0], args[1], args[2], queryFile);
 	}
 	
@@ -141,15 +149,17 @@ public class ExecuteQueriesSpark {
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
 			//planDataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + plansDir + "/" + noExtFileName);
-			this.saveResults(workDir + "/" + plansDir + "/" + "power" + "/" + this.recorder.system + "/" + 
-					noExtFileName + ".txt", planDataset, ! firstQuery);
+			if( this.savePlans )
+				this.saveResults(workDir + "/" + plansDir + "/" + "power" + "/" + 
+						this.recorder.system + "/" + noExtFileName + ".txt", planDataset, ! firstQuery);
 			// Execute the query.
 			System.out.println("Executing iteration " + iteration + " of query " + fileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
 			//dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
-			this.saveResults(workDir + "/" + resultsDir + "/" + "power" + "/" + this.recorder.system + "/" + 
-					noExtFileName + ".txt", dataset, ! firstQuery);
+			if( this.saveResults )
+				this.saveResults(workDir + "/" + resultsDir + "/" + "power" + "/" + 
+						this.recorder.system + "/" + noExtFileName + ".txt", dataset, ! firstQuery);
 			firstQuery = false;
 			iteration++;
 		}
