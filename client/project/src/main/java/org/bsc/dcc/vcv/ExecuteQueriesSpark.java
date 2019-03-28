@@ -82,7 +82,6 @@ public class ExecuteQueriesSpark {
 		this.recorder.header();
 		for (final String fileName : this.queriesReader.getFilesOrdered()) {
 			String sqlStr = this.queriesReader.getFile(fileName);
-			this.logger.info(sqlStr);
 			String nQueryStr = fileName.replaceAll("[^\\d]", "");
 			int nQuery = Integer.parseInt(nQueryStr);
 			QueryRecord queryRecord = new QueryRecord(nQuery);
@@ -90,6 +89,7 @@ public class ExecuteQueriesSpark {
 				if( ! fileName.equals(queryFile) )
 					continue;
 			}
+			this.logger.info(sqlStr);
 			try {
 				this.executeQueryMultipleCalls(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
 				String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
