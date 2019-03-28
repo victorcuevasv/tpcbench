@@ -74,6 +74,7 @@ public class ExecuteQueriesSpark {
 		this.recorder.header();
 		for (final String fileName : this.queriesReader.getFilesOrdered()) {
 			String sqlStr = this.queriesReader.getFile(fileName);
+			this.logger.info(sqlStr);
 			String nQueryStr = fileName.replaceAll("[^\\d]", "");
 			int nQuery = Integer.parseInt(nQueryStr);
 			QueryRecord queryRecord = new QueryRecord(nQuery);

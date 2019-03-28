@@ -13,4 +13,3 @@ printf "\n\n%s\n\n" "${blu}Copying to hdfs.${end}"
 docker exec -ti namenodecontainer  /bin/bash -c "hadoop fs -mkdir -p /project/targetspark && \
 	hadoop fs -put /project/targetspark/client-1.0-SNAPSHOT.jar /project/targetspark" 
 
-
