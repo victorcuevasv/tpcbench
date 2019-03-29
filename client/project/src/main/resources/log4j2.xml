@@ -14,13 +14,15 @@
 		-->
 		
 		<RollingFile
-    		name="RollingFile"
+    		name="LogRollingFile"
     		fileName="/data/logs/allrolling.log"
-    		filePattern="/data/logs/allrolling.%d{yyyy-MM-dd HH:mm}.log"
-    		ignoreExceptions="false">
+    		filePattern="/data/logs/allrolling.%d{yyyy-MM-dd HH:mm}.log">
     		<PatternLayout>
         		<Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5p %m%n</Pattern>
     		</PatternLayout>
+    		<Policies>
+            	<OnStartupTriggeringPolicy />
+        	</Policies>
     		<DefaultRolloverStrategy max="1" />
 		</RollingFile>
 		
@@ -29,14 +31,14 @@
 		<Root level="info">
 			<AppenderRef ref="Console" />
 			<!-- <AppenderRef ref="LogFile" /> -->
-			<AppenderRef ref="RollingFile" />
+			<AppenderRef ref="LogRollingFile" />
 		</Root>
 		<Logger name="AnalyticsLog" level="info" additivity="false">
     		<!-- <AppenderRef ref="AnalyticsLogFile" /> -->
 		</Logger>
 		<Logger name="AllLog" level="info" additivity="false">
     		<!-- <AppenderRef ref="LogFile" /> -->
-    		<AppenderRef ref="RollingFile" />
+    		<AppenderRef ref="LogRollingFile" />
     		
     		
 		</Logger>
