@@ -145,8 +145,8 @@ public class ExecuteQueriesSpark {
 			this.spark.sparkContext().setJobDescription("Executing iteration " + iteration + 
 					" of query " + fileName + ".");
 			// Obtain the plan for the query.
-			//Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
-			Dataset<Row> planDataset = null;
+			Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
+			//Dataset<Row> planDataset = null;
 			//this.spark.sql("EXPLAIN " + sqlStr).show();
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
