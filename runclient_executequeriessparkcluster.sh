@@ -18,6 +18,8 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --conf spark.eventLog.dir=/home/$USER_NAME/tmp \
 --class org.bsc.dcc.vcv.ExecuteQueriesSpark \
 --master spark://namenodecontainer:7077 --deploy-mode cluster \
-/project/targetspark/client-1.0-SNAPSHOT.jar \
-/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar spark false true $1"                
+/project/targetsparkcluster/client-1.0-SNAPSHOT-jar-with-dependencies.jar  \
+/data results plans /project/targetsparkcluster/client-1.0-SNAPSHOT-jar-with-dependencies.jar  spark true true $1"                
 	
+
+
