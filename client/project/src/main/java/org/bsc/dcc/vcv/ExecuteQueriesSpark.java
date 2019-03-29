@@ -147,7 +147,7 @@ public class ExecuteQueriesSpark {
 			// Obtain the plan for the query.
 			//Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
 			Dataset<Row> planDataset = null;
-			this.spark.sql("EXPLAIN " + sqlStr).show();
+			//this.spark.sql("EXPLAIN " + sqlStr).show();
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
 			//planDataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + plansDir + "/" + noExtFileName);
