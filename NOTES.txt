@@ -39,4 +39,14 @@ docker cp namenodecontainer:/data/logs/analytics.log .
 
 
 
+spark.serializer=org.apache.spark.serializer.JavaSerializer
+
+
+
+
+
+
+
+
+
 
