@@ -25,7 +25,8 @@ import org.apache.spark.sql.Encoders;
 
 public class ExecuteQueriesSpark {
 	
-	private static final Logger logger = LogManager.getLogger(ExecuteQueriesSpark.class);
+	//private static final Logger logger = LogManager.getLogger(ExecuteQueriesSpark.class);
+	private static final Logger logger = LogManager.getLogger("AllLog");
 	private SparkSession spark;
 	private AnalyticsRecorder recorder;
 	private JarQueriesReaderAsZipFile queriesReader;
