@@ -156,9 +156,9 @@ public class ExecuteQueriesSpark {
 						this.recorder.system + "/" + noExtFileName + ".txt", planDataset, ! firstQuery);
 			// Execute the query.
 			System.out.println("Executing iteration " + iteration + " of query " + fileName + ".");
-			//Dataset<Row> dataset = this.spark.sql(sqlStr);
-			Dataset<Row> dataset = null;
-			this.spark.sql(sqlStr).show();
+			Dataset<Row> dataset = this.spark.sql(sqlStr);
+			//Dataset<Row> dataset = null;
+			//this.spark.sql(sqlStr).show();
 			// Save the results.
 			//dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
 			if( this.saveResults )
