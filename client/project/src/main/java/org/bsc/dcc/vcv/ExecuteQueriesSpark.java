@@ -90,7 +90,7 @@ public class ExecuteQueriesSpark {
 				if( ! fileName.equals(queryFile) )
 					continue;
 			}
-			this.logger.error(sqlStr);
+			this.logger.info("\nExecuting query: " + fileName + "\n" + sqlStr);
 			try {
 				this.executeQueryMultipleCalls(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
 				String noExtFileName = fileName.substring(0, fileName.indexOf('.'));

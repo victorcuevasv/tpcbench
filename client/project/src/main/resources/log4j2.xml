@@ -2,32 +2,30 @@
 <Configuration status="INFO">
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
-			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{2} %C{1} - %msg%n" />
+			<PatternLayout pattern="%-5level: %d{HH:mm:ss.SSS} %C{1} %t %logger{2} - %msg%n" />
 		</Console>
 		<!--  
 		<File name="LogFile" fileName="/data/logs/all.log" immediateFlush="true" append="false">
-			<PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+			<PatternLayout pattern="%-5level: %d{HH:mm:ss.SSS} %C{1} %t %logger{2} - %msg%n" />
 		</File>
 		-->
 		<!--  
 		<File name="AnalyticsLogFile" fileName="/data/logs/analytics.log" immediateFlush="true" append="false">
-			<PatternLayout pattern="%msg%n" />
+			<PatternLayout pattern="%-5level: %d{HH:mm:ss.SSS} %C{1} %t %logger{2} - %msg%n" />
 		</File>
 		-->
-		
 		<RollingFile
     		name="LogRollingFile"
     		fileName="/data/logs/all.log"
     		filePattern="/data/logs/all_%d{yyyy-MM-dd_HH:mm}.log">
     		<PatternLayout>
-        		<Pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{2} %C{1} - %msg%n</Pattern>
+        		<Pattern>%-5level: %d{HH:mm:ss.SSS} %C{1} %t %logger{2} - %msg%n</Pattern>
     		</PatternLayout>
     		<Policies>
             	<OnStartupTriggeringPolicy />
         	</Policies>
     		<DefaultRolloverStrategy max="1" />
 		</RollingFile>
-		
 	</Appenders>
 	<Loggers> 
 		<Root level="info">
