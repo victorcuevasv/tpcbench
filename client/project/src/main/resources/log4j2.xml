@@ -13,16 +13,16 @@
 		</File>
 		-->
 		
-		<appender name="RollingFile" class="org.apache.log4j.RollingFileAppender">
-    		<param name="File" value="/data/logs/allrolling.log" />
-    			
-    		<!-- <param name="filePattern" value="/data/logs/all%i.log"/> -->
-    			
-    		<param name="MaxBackupIndex" value="1" />
-        	<layout class="org.apache.log4j.PatternLayout">
-            	<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %m%n" />
-        	</layout>
-		</appender>
+		<RollingFile
+    		name="RollingFile"
+    		fileName="/data/logs/allrolling.log"
+    		filePattern="/data/logs/allrolling.%d{yyyy-MM-dd HH:mm}.log"
+    		ignoreExceptions="false">
+    		<PatternLayout>
+        		<Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5p %m%n</Pattern>
+    		</PatternLayout>
+    		<DefaultRolloverStrategy max="1" />
+		</RollingFile>
 		
 	</Appenders>
 	<Loggers> 
@@ -35,7 +35,7 @@
 		</Logger>
 		<Logger name="AllLog" level="info" additivity="false">
     		<!-- <AppenderRef ref="LogFile" /> -->
-    		<!-- <AppenderRef ref="RollingFile" /> -->
+    		<AppenderRef ref="RollingFile" />
     		
     		
 		</Logger>
