@@ -28,7 +28,8 @@
 	<Loggers> 
 		<Root level="info">
 			<AppenderRef ref="Console" />
-			<AppenderRef ref="LogFile" />
+			<!-- <AppenderRef ref="LogFile" /> -->
+			<AppenderRef ref="RollingFile" />
 		</Root>
 		<Logger name="AnalyticsLog" level="info" additivity="false">
     		<!-- <AppenderRef ref="AnalyticsLogFile" /> -->
