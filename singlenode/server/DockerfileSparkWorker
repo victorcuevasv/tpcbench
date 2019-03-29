@@ -62,6 +62,12 @@ RUN wget -q -P /opt http://$APACHE_MIRROR/spark/spark-2.4.0/spark-2.4.0-bin-hado
 ENV SPARK_HOME /opt/spark-2.4.0-bin-hadoop2.7
 ENV PATH="${PATH}:/opt/spark-2.4.0-bin-hadoop2.7/bin"
 
+#Copy the Spark configuration file which will override selected defaults.
+
+COPY spark_conf/spark-defaults.conf /opt/spark-2.4.0-bin-hadoop2.7/conf/spark-defaults.conf
+COPY spark_conf/slaves /opt/spark-2.4.0-bin-hadoop2.7/conf/slaves
+COPY hive-siteExternalMetastoreSpark.xml /opt/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
+
 #Add the Hadoop jars to the Spark classpath.
 
 ENV SPARK_DIST_CLASSPATH="$HADOOP_HOME/etc/hadoop/*:$HADOOP_HOME/share/hadoop/common/lib/*:$HADOOP_HOME/share/hadoop/common/*:$HADOOP_HOME/share/hadoop/hdfs/*:$HADOOP_HOME/share/hadoop/hdfs/lib/*:$HADOOP_HOME/share/hadoop/hdfs/*:$HADOOP_HOME/share/hadoop/yarn/lib/*:$HADOOP_HOME/share/hadoop/yarn/*:$HADOOP_HOME/share/hadoop/mapreduce/lib/*:$HADOOP_HOME/share/hadoop/mapreduce/*:$HADOOP_HOME/share/hadoop/tools/lib/*"   
