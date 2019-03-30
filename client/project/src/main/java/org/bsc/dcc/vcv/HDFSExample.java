@@ -17,8 +17,8 @@ public class HDFSExample {
 		// Set FileSystem URI
 		conf.set("fs.defaultFS", uri);
 		// Because of Maven
-		conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
-		conf.set("fs.file.impl", org.apache.hadoop.fs.LocalFileSystem.class.getName());
+		//conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
+		//conf.set("fs.file.impl", org.apache.hadoop.fs.LocalFileSystem.class.getName());
 		// Set HADOOP user
 		System.setProperty("HADOOP_USER_NAME", "hdfs");
 		System.setProperty("hadoop.home.dir", "/");
