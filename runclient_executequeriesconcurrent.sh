@@ -11,6 +11,6 @@ fi
 
 docker exec -ti  clientbuildercontainer  /bin/bash -c \
 	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueriesConcurrent\" \
-	-Dexec.args=\"/data QueriesPresto results plans presto namenodecontainer $1 1954 false\" \
+	-Dexec.args=\"/data QueriesPresto results plans presto namenodecontainer $1 1954 false true true\" \
 	-f /project/pom.xml"       
 

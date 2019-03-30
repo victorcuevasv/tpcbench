@@ -7,6 +7,6 @@
 
 docker exec -ti  clientbuildercontainer  /bin/bash -c \
 	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueries\" \
-	-Dexec.args=\"/data QueriesSpark results plans sparkjdbc namenodecontainer $1\" \
+	-Dexec.args=\"/data QueriesSpark results plans sparkjdbc namenodecontainer true true $1\" \
 	-f /project/pomSparkJDBC.xml"    
 
