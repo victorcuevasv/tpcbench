@@ -71,8 +71,8 @@ COPY hive-siteExternalMetastoreSpark.xml /opt/spark-2.4.0-bin-hadoop2.7/conf/hiv
 
 #Download the postgres driver.
 
-RUN wget --no-check-certificate -q -P /opt/spark-2.4.0-bin-hadoop2.7/jars \
-    https://$POSTGRES_DRIVER_MIRROR/download/postgresql-42.2.5.jar
+#RUN wget --no-check-certificate -q -P /opt/spark-2.4.0-bin-hadoop2.7/jars \
+#    https://$POSTGRES_DRIVER_MIRROR/download/postgresql-42.2.5.jar
 
 #Add the Hadoop jars to the Spark classpath.
 
