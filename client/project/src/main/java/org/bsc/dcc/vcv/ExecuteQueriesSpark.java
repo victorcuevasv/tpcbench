@@ -147,8 +147,6 @@ public class ExecuteQueriesSpark {
 					" of query " + fileName + ".");
 			// Obtain the plan for the query.
 			Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
-			//Dataset<Row> planDataset = null;
-			//this.spark.sql("EXPLAIN " + sqlStr).show();
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
 			//planDataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + plansDir + "/" + noExtFileName);
@@ -158,8 +156,6 @@ public class ExecuteQueriesSpark {
 			// Execute the query.
 			System.out.println("Executing iteration " + iteration + " of query " + fileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
-			//Dataset<Row> dataset = null;
-			//this.spark.sql(sqlStr).show();
 			// Save the results.
 			//dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
 			if( this.saveResults )

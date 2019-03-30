@@ -31,9 +31,9 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --conf spark.local.dir=/home/$USER_NAME/tmp \
 --conf spark.eventLog.dir=/home/$USER_NAME/tmp \
 --class org.bsc.dcc.vcv.ExecuteQueriesConcurrentSpark \
---master spark://namenodecontainer:7077 --deploy-mode client \
-/project/targetspark/client-1.0-SNAPSHOT.jar \
-/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar spark $1 1954 true true" 
+--master spark://namenodecontainer:7077 --deploy-mode cluster \
+/project/targetsparkcluster/client-1.0-SNAPSHOT-jar-with-dependencies.jar \
+/data results plans /project/targetsparkcluster/client-1.0-SNAPSHOT-jar-with-dependencies.jar spark $1 1954 true true" 
 
 
                      

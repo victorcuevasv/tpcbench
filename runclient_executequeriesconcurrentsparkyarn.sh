@@ -25,7 +25,7 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.ExecuteQueriesConcurrentSpark \
 --master yarn --deploy-mode client \
 /project/targetspark/client-1.0-SNAPSHOT.jar \
-/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar sparkyarn $1 1954"                      
+/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar sparkyarn $1 1954 true true"                      
  
 	
 	

@@ -36,23 +36,13 @@
 			<artifactId>log4j-core</artifactId>
 			<version>2.8.2</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.esotericsoftware.kryo/kryo -->
-		
-		<!--
-		<dependency>
-			<groupId>com.esotericsoftware</groupId>
-			<artifactId>kryo</artifactId>
-			<version>5.0.0-RC2</version>
-		</dependency>
-		-->
-		
+		<!-- Required for cluster mode, in which the execution is delegated to a worker node. -->
 		<!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
 		<dependency>
     		<groupId>org.postgresql</groupId>
     		<artifactId>postgresql</artifactId>
     		<version>42.2.5</version>
 		</dependency>
-		
 	</dependencies>
 	<properties>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -62,20 +52,20 @@
 		<directory>targetsparkcluster</directory>
 		<plugins>
 			<plugin>
-				 	<artifactId>maven-assembly-plugin</artifactId>
-				 	<executions> 
-						<execution>
-							<phase>package</phase>
-							<goals>
-								<goal>single</goal>
-							</goals>
-						</execution> 
-					</executions>
-					<configuration>
-						<descriptorRefs>
-							<descriptorRef>jar-with-dependencies</descriptorRef> 
-						</descriptorRefs>
-					</configuration>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions> 
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+				</execution> 
+				</executions>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef> 
+					</descriptorRefs>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

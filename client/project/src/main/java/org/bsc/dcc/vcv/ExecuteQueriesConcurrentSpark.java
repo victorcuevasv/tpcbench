@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
 
 public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 
-	private static final Logger logger = LogManager.getLogger(ExecuteQueriesConcurrentSpark.class);
+	private static final Logger logger = LogManager.getLogger("AllLog");
 	private SparkSession spark;
 	private AnalyticsRecorderConcurrent recorder;
 	private ExecutorService executor;
@@ -34,8 +34,13 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	private static final int POOL_SIZE = 100;
 	private long seed;
 	private Random random;
+	boolean savePlans;
+	boolean saveResults;
 
-	public ExecuteQueriesConcurrentSpark(String jarFile, String system) {
+	public ExecuteQueriesConcurrentSpark(String jarFile, String system, 
+			boolean savePlans, boolean saveResults) {
+		this.savePlans = savePlans;
+		this.saveResults = saveResults;
 		this.queriesReader = new JarQueriesReaderAsZipFile(jarFile, "QueriesSpark");
 		this.spark = SparkSession.builder().appName("Java Spark Hive Example")
 				.config("spark.sql.crossJoin.enabled", "true")
@@ -57,15 +62,20 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	 * args[4] system (directory name used to store logs)
 	 * args[5] number of streams
 	 * args[6] random seed
+	 * args[7] save plans (boolean)
+	 * args[8] save results (boolean)
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 7 ) {
+		if( args.length != 9 ) {
 			System.out.println("Incorrect number of arguments.");
 			System.exit(0);
 		}
-		ExecuteQueriesConcurrentSpark prog = new ExecuteQueriesConcurrentSpark(args[3], args[4]);
+		boolean savePlans = Boolean.parseBoolean(args[7]);
+		boolean saveResults = Boolean.parseBoolean(args[8]);
+		ExecuteQueriesConcurrentSpark prog = new ExecuteQueriesConcurrentSpark(args[3], args[4],
+				savePlans, saveResults);
 		List<String> files = prog.queriesReader.getFilesOrdered();
 		HashMap<Integer, String> queriesHT = prog.createQueriesHT(files, prog.queriesReader);
 		int nStreams = Integer.parseInt(args[5]);
@@ -88,7 +98,7 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 		for(int i = 1; i <= nStreams; i++) {
 			QueryStreamSpark stream = new QueryStreamSpark(i, this.resultsQueue, this.spark,
 					queriesHT, nQueries, workDir, resultsDir, plansDir, singleCall, random, 
-					this.recorder.system);
+					this.recorder.system, this.savePlans, this.saveResults);
 			this.executor.submit(stream);
 		}
 		this.executor.shutdown();
