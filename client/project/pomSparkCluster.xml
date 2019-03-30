@@ -38,11 +38,13 @@
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.esotericsoftware.kryo/kryo -->
 		
+		<!--
 		<dependency>
 			<groupId>com.esotericsoftware</groupId>
 			<artifactId>kryo</artifactId>
 			<version>5.0.0-RC2</version>
 		</dependency>
+		-->
 		
 		<!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
 		<dependency>
