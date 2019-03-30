@@ -31,11 +31,13 @@ public class QueryStream implements Callable<Void> {
 	private boolean singleCall;
 	private Random random;
 	private final String system;
+	boolean savePlans;
+	boolean saveResults;
 
 	public QueryStream(int nStream, BlockingQueue<QueryRecordConcurrent> resultsQueue,
 			Connection con, HashMap<Integer, String> queriesHT, int nQueries,
 			String workDir, String resultsDir, String plansDir, boolean singleCall, 
-			Random random, String system) {
+			Random random, String system, boolean savePlans, boolean saveResults) {
 		this.nStream = nStream;
 		this.resultsQueue = resultsQueue;
 		this.con = con;
@@ -47,6 +49,8 @@ public class QueryStream implements Callable<Void> {
 		this.singleCall = singleCall;
 		this.random = random;
 		this.system = system;
+		this.savePlans = savePlans;
+		this.saveResults = saveResults;
 	}
 
 	@Override
@@ -131,7 +135,8 @@ public class QueryStream implements Callable<Void> {
 			// Obtain the plan for the query.
 			Statement stmt = con.createStatement();
 			ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
-			this.saveResults(workDir + "/" + plansDir + "/" + "tput" + "/" + this.system + "/" + 
+			if( this.savePlans )
+				this.saveResults(workDir + "/" + plansDir + "/" + "tput" + "/" + this.system + "/" + 
 					nStream + "_" + fileName + ".txt", planrs, !firstQuery);
 			planrs.close();
 			// Execute the query.
@@ -141,7 +146,8 @@ public class QueryStream implements Callable<Void> {
 				fileName + ".");
 			ResultSet rs = stmt.executeQuery(sqlStr);
 			// Save the results.
-			this.saveResults(workDir + "/" + resultsDir + "/" + "tput" + "/" + this.system + "/" + 
+			if( this.saveResults )
+				this.saveResults(workDir + "/" + resultsDir + "/" + "tput" + "/" + this.system + "/" + 
 					nStream + "_" + fileName + ".txt", rs, !firstQuery);
 			stmt.close();
 			rs.close();

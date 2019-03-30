@@ -21,13 +21,17 @@ public class ExecuteQueries {
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private Connection con;
-	private static final Logger logger = LogManager.getLogger(ExecuteQueries.class);
+	private static final Logger logger = LogManager.getLogger("AllLog");
 	private AnalyticsRecorder recorder;
+	boolean savePlans;
+	boolean saveResults;
 
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public ExecuteQueries(String system, String hostname) {
+	public ExecuteQueries(String system, String hostname, boolean savePlans, boolean saveResults) {
 		try {
+			this.savePlans = savePlans;
+			this.saveResults = saveResults;
 			system = system.toLowerCase();
 			String driverName = "";
 			if( system.equals("hive") ) {
@@ -80,12 +84,21 @@ public class ExecuteQueries {
 	 * args[3] subdirectory of work directory to store the execution plans
 	 * args[4] system to evaluate the queries (hive/presto)
 	 * args[5] hostname of the server
-	 * args[6] OPTIONAL: query file
+	 * args[6] save plans (boolean)
+	 * args[7] save results (boolean)
+	 * args[8] OPTIONAL: query file
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) throws SQLException {
-		ExecuteQueries prog = new ExecuteQueries(args[4], args[5]);
+		if( args.length < 8 ) {
+			System.out.println("Incorrect number of arguments.");
+			logger.error("Insufficient arguments.");
+			System.exit(1);
+		}
+		boolean savePlans = Boolean.parseBoolean(args[6]);
+		boolean saveResults = Boolean.parseBoolean(args[7]);
+		ExecuteQueries prog = new ExecuteQueries(args[4], args[5], savePlans, saveResults);
 		File directory = new File(args[0] + "/" + args[1]);
 		// Process each .sql file found in the directory.
 		// The preprocessing steps are necessary to obtain the right order, i.e.,
@@ -98,7 +111,7 @@ public class ExecuteQueries {
 				map(s -> new File(args[0] + "/" + args[1] + "/" + s)).
 				toArray(File[]::new);
 		prog.recorder.header();
-		String queryFile = args.length >= 7 ? args[6] : null;
+		String queryFile = args.length >= 9 ? args[8] : null;
 		for (final File fileEntry : files) {
 			if (!fileEntry.isDirectory()) {
 				if( queryFile != null ) {
@@ -116,12 +129,12 @@ public class ExecuteQueries {
 			String plansDir, boolean singleCall) {
 		QueryRecord queryRecord = null;
 		try {
-			this.logger.info("Processing: " + sqlFile.getName());
 			String fileName = sqlFile.getName().substring(0, sqlFile.getName().indexOf('.'));
 			String nQueryStr = fileName.replaceAll("[^\\d.]", "");
 			int nQuery = Integer.parseInt(nQueryStr);
 			queryRecord = new QueryRecord(nQuery);
 			String sqlStr = readFileContents(sqlFile.getAbsolutePath());
+			this.logger.info("\nExecuting query: " + sqlFile.getName() + "\n" + sqlStr);
 			//Execute the query or queries.
 			if( singleCall )
 				this.executeQuerySingleCall(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
@@ -179,7 +192,8 @@ public class ExecuteQueries {
 			Statement stmt = con.createStatement();
 			ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
 			//this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs, ! firstQuery);
-			this.saveResults(workDir + "/" + plansDir + "/" + "power" + "/" + this.recorder.system + "/" +
+			if( this.savePlans )
+				this.saveResults(workDir + "/" + plansDir + "/" + "power" + "/" + this.recorder.system + "/" +
 					fileName + ".txt", planrs, ! firstQuery);
 			planrs.close();
 			// Execute the query.
@@ -189,7 +203,8 @@ public class ExecuteQueries {
 			ResultSet rs = stmt.executeQuery(sqlStr);
 			// Save the results.
 			//this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, ! firstQuery);
-			this.saveResults(workDir + "/" + resultsDir + "/" + "power" + "/" + this.recorder.system + "/" + 
+			if( this.saveResults )
+				this.saveResults(workDir + "/" + resultsDir + "/" + "power" + "/" + this.recorder.system + "/" + 
 					fileName + ".txt", rs, ! firstQuery);
 			stmt.close();
 			rs.close();

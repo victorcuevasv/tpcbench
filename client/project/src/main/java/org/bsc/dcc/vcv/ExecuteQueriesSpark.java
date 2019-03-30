@@ -69,7 +69,8 @@ public class ExecuteQueriesSpark {
 	public static void main(String[] args) {
 		if( args.length < 7 ) {
 			System.out.println("Incorrect number of arguments.");
-			System.exit(0);
+			logger.error("Insufficient arguments.");
+			System.exit(1);
 		}
 		boolean savePlans = Boolean.parseBoolean(args[5]);
 		boolean saveResults = Boolean.parseBoolean(args[6]);

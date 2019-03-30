@@ -27,7 +27,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private Connection con;
-	private static final Logger logger = LogManager.getLogger(ExecuteQueriesConcurrent.class);
+	private static final Logger logger = LogManager.getLogger("AllLog");
 	private AnalyticsRecorderConcurrent recorder;
 	private ExecutorService executor;
 	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
@@ -37,8 +37,13 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private String system;
 	private String hostname;
 	private boolean multiple = false;
+	boolean savePlans;
+	boolean saveResults;
 
-	public ExecuteQueriesConcurrent(String system, String hostname, boolean multiple) {
+	public ExecuteQueriesConcurrent(String system, String hostname, boolean multiple,
+			boolean savePlans, boolean saveResults) {
+		this.savePlans = savePlans;
+		this.saveResults = saveResults;
 		this.system = system;
 		this.hostname = hostname;
 		this.multiple = multiple;
@@ -111,17 +116,22 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	 * args[6] number of streams
 	 * args[7] random seed
 	 * args[8] use multiple connections (true|false)
+	 * args[9] save plans (boolean)
+	 * args[10] save results (boolean)
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 9 ) {
+		if( args.length != 11 ) {
 			System.out.println("Insufficient arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
 		}
+		boolean savePlans = Boolean.parseBoolean(args[7]);
+		boolean saveResults = Boolean.parseBoolean(args[8]);
 		boolean multiple = Boolean.parseBoolean(args[8]);
-		ExecuteQueriesConcurrent prog = new ExecuteQueriesConcurrent(args[4], args[5], multiple);
+		ExecuteQueriesConcurrent prog = new ExecuteQueriesConcurrent(args[4], args[5], multiple,
+				savePlans, saveResults);
 		File directory = new File(args[0] + "/" + args[1]);
 		// Process each .sql file found in the directory.
 		// The preprocessing steps are necessary to obtain the right order, i.e.,
@@ -155,12 +165,14 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			QueryStream stream = null;
 			if( !this.multiple ) {
 				stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT, nQueries,
-					workDir, resultsDir, plansDir, singleCall, random, this.recorder.system);
+					workDir, resultsDir, plansDir, singleCall, random, this.recorder.system,
+					this.savePlans, this.saveResults);
 			}
 			else {
 				Connection con = this.createConnection(this.system, this.hostname);
 				stream = new QueryStream(i, this.resultsQueue, con, queriesHT, nQueries,
-						workDir, resultsDir, plansDir, singleCall, random, this.recorder.system);
+						workDir, resultsDir, plansDir, singleCall, random, this.recorder.system,
+						this.savePlans, this.saveResults);
 			}
 			this.executor.submit(stream);
 		}

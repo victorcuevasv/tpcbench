@@ -70,7 +70,8 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	public static void main(String[] args) throws SQLException {
 		if( args.length != 9 ) {
 			System.out.println("Incorrect number of arguments.");
-			System.exit(0);
+			logger.error("Insufficient arguments.");
+			System.exit(1);
 		}
 		boolean savePlans = Boolean.parseBoolean(args[7]);
 		boolean saveResults = Boolean.parseBoolean(args[8]);
