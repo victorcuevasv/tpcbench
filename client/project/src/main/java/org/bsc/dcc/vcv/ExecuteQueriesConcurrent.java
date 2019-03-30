@@ -127,9 +127,9 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			logger.error("Insufficient arguments.");
 			System.exit(1);
 		}
-		boolean savePlans = Boolean.parseBoolean(args[7]);
-		boolean saveResults = Boolean.parseBoolean(args[8]);
 		boolean multiple = Boolean.parseBoolean(args[8]);
+		boolean savePlans = Boolean.parseBoolean(args[9]);
+		boolean saveResults = Boolean.parseBoolean(args[10]);
 		ExecuteQueriesConcurrent prog = new ExecuteQueriesConcurrent(args[4], args[5], multiple,
 				savePlans, saveResults);
 		File directory = new File(args[0] + "/" + args[1]);
