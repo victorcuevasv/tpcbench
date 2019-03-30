@@ -27,6 +27,8 @@ services:
     sparkworkerservice:
         image: sparkworker:dev
         container_name: sparkworkercontainer
+        ports:
+            - 4040:4040 #Running Spark driver GUI for first application
         #environment:
             #SPARK_WORKER_CORES: 2
             #SPARK_WORKER_MEMORY: 2g
@@ -42,8 +44,6 @@ services:
     sparkhiveclient:
         image: clientbuilder:dev
         container_name: clientbuildercontainer
-        ports:
-            - 4040:4040 #Running Spark driver GUI for first application
         #Enable to use JDBC, disable to use spark-submit.
         #volumes:
             #- ./../client/project:/project
