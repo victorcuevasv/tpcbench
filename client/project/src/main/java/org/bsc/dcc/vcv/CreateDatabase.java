@@ -77,7 +77,9 @@ public class CreateDatabase {
 		List<File> filesList = Arrays.stream(filesArray).sorted().collect(Collectors.toList());
 		for (final File fileEntry : filesList) {
 			if (!fileEntry.isDirectory()) {
-				prog.createTable(args[0], fileEntry, args[1], args[2], doCount, i);
+				System.out.println("Processing table: " + fileEntry.getName());
+				this.logger.info("Processing table: " + fileEntry.getName());
+				//prog.createTable(args[0], fileEntry, args[1], args[2], doCount, i);
 				i++;
 			}
 		}
@@ -96,7 +98,6 @@ public class CreateDatabase {
 			String tableName = tableSQLfile.getName().substring(0, tableSQLfile.getName().indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			return;
 			String sqlCreate = readFileContents(tableSQLfile.getAbsolutePath());
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, suffix);
 			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName, genDataDir);
