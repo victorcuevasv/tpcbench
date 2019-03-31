@@ -114,8 +114,10 @@ public class CreateDatabaseSpark {
 			this.logger.error(e);
 		}
 		finally {
-			queryRecord.setEndTime(System.currentTimeMillis());
-			this.recorder.record(queryRecord);
+			if( queryRecord != null ) {
+				queryRecord.setEndTime(System.currentTimeMillis());
+				this.recorder.record(queryRecord);
+			}
 		}
 	}
 
