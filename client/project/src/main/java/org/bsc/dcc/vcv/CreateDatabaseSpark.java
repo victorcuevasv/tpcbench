@@ -72,9 +72,7 @@ public class CreateDatabaseSpark {
 		int i = 0;
 		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
-			System.out.println("Processing table: " + fileName);
-			this.logger.info("Processing table: " + fileName);
-			//createTable(workDir, fileName, sqlCreate, suffix, genDataDir, doCount, i);
+			createTable(workDir, fileName, sqlCreate, suffix, genDataDir, doCount, i);
 			i++;
 		}
 	}
