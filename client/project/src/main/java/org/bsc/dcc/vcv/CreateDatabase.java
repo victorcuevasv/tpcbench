@@ -78,7 +78,7 @@ public class CreateDatabase {
 		for (final File fileEntry : filesList) {
 			if (!fileEntry.isDirectory()) {
 				System.out.println("Processing table: " + fileEntry.getName());
-				this.logger.info("Processing table: " + fileEntry.getName());
+				logger.info("Processing table: " + fileEntry.getName());
 				//prog.createTable(args[0], fileEntry, args[1], args[2], doCount, i);
 				i++;
 			}
