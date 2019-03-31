@@ -24,7 +24,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #$1 scale factor (positive integer)
 
 if [ $# -lt 1 ]; then
-    echo "Usage: bash runclient_createdb.sh <scale factor>."
+    echo "Usage: bash runclient_createdbspark.sh <scale factor>."
     exit 0
 fi
 

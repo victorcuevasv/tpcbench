@@ -69,7 +69,7 @@ public class CreateDatabaseSpark {
 		this.recorder.header();
 		List<String> unorderedList = this.createTableReader.getFiles();
 		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
-		int i = 0;
+		int i = 1;
 		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
 			createTable(workDir, fileName, sqlCreate, suffix, genDataDir, doCount, i);

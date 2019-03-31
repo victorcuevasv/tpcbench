@@ -3,14 +3,18 @@ library(ggplot2)
 #Use the stringr package to use the str_wrap function below
 library(stringr)
 
-inFile <- "./Documents/RESULTS/power/summaryPower.xlsx"
-outFile <- "./Documents/RESULTS/power/PowerTestTimeBarChart.pdf"
+#inFile <- "./Documents/RESULTS/power/summaryPower.xlsx"
+#outFile <- "./Documents/RESULTS/power/PowerTestTimeBarChart.pdf"
+
+inFile <- "./Documents/RESULTS/load/summaryLoad.xlsx"
+outFile <- "./Documents/RESULTS/load/LoadTestTimeBarChart.pdf"
 
 dataf = read.xlsx(inFile, sheet="Sheet 1", rows=seq(1,3), cols=seq(1,4))
 
 # Map DisplayNames to pseudonyms
 pseudonyms<-new.env()
-pseudonyms[["presto"]]<-"Presto"
+#pseudonyms[["presto"]]<-"Presto"
+pseudonyms[["presto"]]<-"HadoopMR"
 pseudonyms[["spark"]]<-"Spark"
 i <- 1
 for(name in dataf$SYSTEM) {
