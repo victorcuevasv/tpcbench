@@ -4,6 +4,9 @@ import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.List;
 import java.sql.DriverManager;
 import java.io.*;
 import org.apache.logging.log4j.LogManager;
@@ -70,7 +73,9 @@ public class CreateDatabase {
 		prog.recorder.header();
 		// Process each .sql create table file found in the directory.
 		int i = 0;
-		for (final File fileEntry : directory.listFiles()) {
+		File[] filesArray = directory.listFiles();
+		List<File> filesList = Arrays.stream(filesArray).sorted().collect(Collectors.toList());
+		for (final File fileEntry : filesList) {
 			if (!fileEntry.isDirectory()) {
 				prog.createTable(args[0], fileEntry, args[1], args[2], doCount, i);
 				i++;
@@ -91,6 +96,7 @@ public class CreateDatabase {
 			String tableName = tableSQLfile.getName().substring(0, tableSQLfile.getName().indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
+			return;
 			String sqlCreate = readFileContents(tableSQLfile.getAbsolutePath());
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, suffix);
 			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName, genDataDir);
