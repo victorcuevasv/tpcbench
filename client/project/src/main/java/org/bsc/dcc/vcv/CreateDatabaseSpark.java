@@ -64,6 +64,7 @@ public class CreateDatabaseSpark {
 	
 	private void createTables(String workDir, String suffix, String genDataDir, boolean doCount) {
 		// Process each .sql create table file found in the jar file.
+		this.recorder.header();
 		int i = 0;
 		for (final String fileName : this.createTableReader.getFiles()) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
