@@ -1,6 +1,8 @@
 package org.bsc.dcc.vcv;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -65,10 +67,14 @@ public class CreateDatabaseSpark {
 	private void createTables(String workDir, String suffix, String genDataDir, boolean doCount) {
 		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
+		List<String> unorderedList = this.createTableReader.getFiles();
+		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
 		int i = 0;
-		for (final String fileName : this.createTableReader.getFiles()) {
+		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
-			createTable(workDir, fileName, sqlCreate, suffix, genDataDir, doCount, i);
+			System.out.println("Processing table: " + fileName);
+			this.logger.info("Processing table: " + fileName);
+			//createTable(workDir, fileName, sqlCreate, suffix, genDataDir, doCount, i);
 			i++;
 		}
 	}

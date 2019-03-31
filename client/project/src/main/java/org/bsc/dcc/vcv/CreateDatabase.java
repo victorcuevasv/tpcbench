@@ -72,14 +72,12 @@ public class CreateDatabase {
 		File directory = new File(args[0]);
 		prog.recorder.header();
 		// Process each .sql create table file found in the directory.
-		int i = 0;
 		File[] filesArray = directory.listFiles();
 		List<File> filesList = Arrays.stream(filesArray).sorted().collect(Collectors.toList());
+		int i = 0;
 		for (final File fileEntry : filesList) {
 			if (!fileEntry.isDirectory()) {
-				System.out.println("Processing table: " + fileEntry.getName());
-				logger.info("Processing table: " + fileEntry.getName());
-				//prog.createTable(args[0], fileEntry, args[1], args[2], doCount, i);
+				prog.createTable(args[0], fileEntry, args[1], args[2], doCount, i);
 				i++;
 			}
 		}
