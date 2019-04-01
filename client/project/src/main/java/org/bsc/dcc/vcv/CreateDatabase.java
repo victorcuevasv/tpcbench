@@ -11,10 +11,12 @@ import java.sql.DriverManager;
 import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.facebook.presto.jdbc.PrestoConnection;
 
 public class CreateDatabase {
 
 	private static String driverName = "org.apache.hive.jdbc.HiveDriver";
+	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private AnalyticsRecorder recorder;
@@ -23,11 +25,22 @@ public class CreateDatabase {
 	// running locally or under docker-compose).
 	public CreateDatabase(String hostname, String system) {
 		try {
-			Class.forName(driverName);
-			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
-			// "hive", "");
-			con = DriverManager.getConnection("jdbc:hive2://" + hostname + 
+			if( system.equals("hive") ) {
+				Class.forName(driverName);
+				// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
+				// "hive", "");
+				con = DriverManager.getConnection("jdbc:hive2://" + hostname + 
 					":10000/default", "hive", "");
+			}
+			else if( system.equals("presto") ) {
+				Class.forName(prestoDriverName);
+				con = DriverManager.getConnection("jdbc:presto://" + 
+						hostname + ":8080/hive/default", "hive", "");
+				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
+			}
+			else {
+				throw new java.lang.RuntimeException("Unsupported system: " + system);
+			}
 		}
 		catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -97,8 +110,13 @@ public class CreateDatabase {
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			String sqlCreate = readFileContents(tableSQLfile.getAbsolutePath());
-			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, suffix);
-			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName, genDataDir);
+			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, 
+					! this.recorder.system.equals("presto"), suffix);
+			String extSqlCreate = null;
+			if( this.recorder.system.equals("hive") )
+				extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, genDataDir);
+			else if( this.recorder.system.equals("presto") )
+				extSqlCreate = externalCreateTablePresto(incExtSqlCreate, tableName, genDataDir);
 			saveCreateTableFile(workDir, "textfile", tableName, extSqlCreate);
 			// Skip the dbgen_version table since its time attribute is not
 			// compatible with Hive.
@@ -114,11 +132,18 @@ public class CreateDatabase {
 			if( doCount )
 				countRowsQuery(stmt, tableName + suffix);
 			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "");
-			String intSqlCreate = internalCreateTable(incIntSqlCreate, tableName);
+			String intSqlCreate = null;
+			if( this.recorder.system.equals("hive") )
+				intSqlCreate = internalCreateTableHive(incIntSqlCreate, tableName);
+			else if( this.recorder.system.equals("presto") )
+				intSqlCreate = internalCreateTablePresto(incIntSqlCreate, tableName);
 			saveCreateTableFile(workDir, "parquet", tableName, intSqlCreate);
 			stmt.execute("drop table if exists " + tableName);
 			stmt.execute(intSqlCreate);
-			stmt.execute("INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix);
+			if( this.recorder.system.equals("hive") )
+				stmt.execute("INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix);
+			else if( this.recorder.system.equals("presto") )
+				stmt.execute("INSERT INTO " + tableName + " SELECT * FROM " + tableName + suffix);
 			queryRecord.setSuccessful(true);
 			if( doCount )
 				countRowsQuery(stmt, tableName);
@@ -173,21 +198,40 @@ public class CreateDatabase {
 
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an external textfile table in Hive.
-	private String externalCreateTable(String incompleteSqlCreate, String tableName, String genDataDir) {
+	private String externalCreateTableHive(String incompleteSqlCreate, String tableName, String genDataDir) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
-		builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' \n");
+		builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY '\001' \n");
 		builder.append("STORED AS TEXTFILE \n");
 		builder.append("LOCATION '" + genDataDir + "/" + tableName + "' \n");
+		return builder.toString();
+	}
+	
+	// Based on the supplied incomplete SQL create statement, generate a full create
+	// table statement for an external textfile table in Presto.
+	private String externalCreateTablePresto(String incompleteSqlCreate, String tableName, String genDataDir) {
+		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
+		// Add the stored as statement.
+		builder.append("WITH ( format = 'TEXTFILE', \n");
+		builder.append("external_location = '" + genDataDir + "/" + tableName + "' ) \n");
 		return builder.toString();
 	}
 
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an internal parquet table in Hive.
-	private String internalCreateTable(String incompleteSqlCreate, String tableName) {
+	private String internalCreateTableHive(String incompleteSqlCreate, String tableName) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
 		builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
+		return builder.toString();
+	}
+	
+	// Based on the supplied incomplete SQL create statement, generate a full create
+	// table statement for an internal parquet table in Presto.
+	private String internalCreateTablePresto(String incompleteSqlCreate, String tableName) {
+		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
+		// Add the stored as statement.
+		builder.append("WITH ( format = 'PARQUET' ) \n");
 		return builder.toString();
 	}
 

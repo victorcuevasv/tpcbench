@@ -167,7 +167,7 @@ public class CreateDatabaseSpark {
 	private String externalCreateTable(String incompleteSqlCreate, String tableName, String genDataDir) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
-		builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' \n");
+		builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY '\001' \n");
 		builder.append("STORED AS TEXTFILE \n");
 		builder.append("LOCATION '" + genDataDir + "/" + tableName + "' \n");
 		return builder.toString();

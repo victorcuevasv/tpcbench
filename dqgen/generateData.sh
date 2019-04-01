@@ -23,5 +23,5 @@ mkdir $DIR/../vols/hive/$1GB
 
 docker run --rm --user $2:$3 --name tpc --volume $DIR/../vols/hive:/TPC-DS/v2.10.1rc3/output \
 	--entrypoint /TPC-DS/v2.10.1rc3/tools/dsdgen tpcds:dev \
-	-scale $1 -dir ../output/$1GB  -terminate n   
+	-scale $1 -dir ../output/$1GB  -terminate n -delimiter $(echo -e "\001")
 
