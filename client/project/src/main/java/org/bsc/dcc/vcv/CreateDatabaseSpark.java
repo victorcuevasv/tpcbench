@@ -1,6 +1,8 @@
 package org.bsc.dcc.vcv;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -16,11 +18,12 @@ import org.apache.spark.sql.Encoders;
 
 public class CreateDatabaseSpark {
 
-	private static final Logger logger = LogManager.getLogger(CreateDatabaseSpark.class);
+	private static final Logger logger = LogManager.getLogger("AllLog");
 	private SparkSession spark;
 	private JarCreateTableReaderAsZipFile createTableReader;
+	private AnalyticsRecorder recorder;
 
-	public CreateDatabaseSpark(String jarFile, String subDir) {
+	public CreateDatabaseSpark(String jarFile, String subDir, String system) {
 		try {
 			this.createTableReader = new JarCreateTableReaderAsZipFile(jarFile, subDir);
 			this.spark = SparkSession.builder().appName("Java Create Database Spark")
@@ -33,6 +36,7 @@ public class CreateDatabaseSpark {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+		this.recorder = new AnalyticsRecorder("load", system);
 	}
 
 	/**
@@ -43,26 +47,33 @@ public class CreateDatabaseSpark {
 	 * args[1] suffix used for intermediate table text files
 	 * args[2] directory for generated data raw files
 	 * args[3] hostname of the server
-	 * args[4] whether to run queries to count the tuples generated
-	 * args[5] subdirectory within the jar that contains the create table files
-	 * args[6] jar file
+	 * args[4] system running the data loading queries
+	 * args[5] whether to run queries to count the tuples generated
+	 * args[6] subdirectory within the jar that contains the create table files
+	 * args[7] jar file
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 7 ) {
+		if( args.length != 8 ) {
 			System.out.println("Incorrect number of arguments.");
+			logger.error("Insufficient arguments.");
 			System.exit(0);
 		}
-		CreateDatabaseSpark prog = new CreateDatabaseSpark(args[6], args[5]);
-		boolean doCount = Boolean.parseBoolean(args[4]);
+		CreateDatabaseSpark prog = new CreateDatabaseSpark(args[7], args[6], args[4]);
+		boolean doCount = Boolean.parseBoolean(args[5]);
 		prog.createTables(args[0], args[1], args[2], doCount);
 		prog.closeConnection();
 	}
 	
 	private void createTables(String workDir, String suffix, String genDataDir, boolean doCount) {
 		// Process each .sql create table file found in the jar file.
-		for (final String fileName : this.createTableReader.getFiles()) {
+		this.recorder.header();
+		List<String> unorderedList = this.createTableReader.getFiles();
+		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
+		int i = 1;
+		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
-			createTable(workDir, fileName, sqlCreate, suffix, genDataDir, doCount);
+			createTable(workDir, fileName, sqlCreate, suffix, genDataDir, doCount, i);
+			i++;
 		}
 	}
 
@@ -72,10 +83,12 @@ public class CreateDatabaseSpark {
 	// The SQL create table statement found in the file has to be manipulated for
 	// creating these tables.
 	private void createTable(String workDir, String sqlCreateFilename, String sqlCreate, String suffix, 
-			String genDataDir, boolean doCount) {
+			String genDataDir, boolean doCount, int index) {
+		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
-			System.out.println("Processing: " + tableName);
+			System.out.println("Processing table " + index + ": " + tableName);
+			this.logger.info("Processing table " + index + ": " + tableName);
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, suffix);
 			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName, genDataDir);
 			saveCreateTableFile(workDir, "textfile", tableName, extSqlCreate);
@@ -85,6 +98,8 @@ public class CreateDatabaseSpark {
 				System.out.println("Skipping: " + tableName);
 				return;
 			}
+			queryRecord = new QueryRecord(index);
+			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql("drop table if exists " + tableName + suffix);
 			this.spark.sql(extSqlCreate);
 			if( doCount )
@@ -95,12 +110,19 @@ public class CreateDatabaseSpark {
 			this.spark.sql("drop table if exists " + tableName);
 			this.spark.sql(intSqlCreate);
 			this.spark.sql("INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix);
+			queryRecord.setSuccessful(true);
 			if( doCount )
 				countRowsQuery(tableName);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 			this.logger.error(e);
+		}
+		finally {
+			if( queryRecord != null ) {
+				queryRecord.setEndTime(System.currentTimeMillis());
+				this.recorder.record(queryRecord);
+			}
 		}
 	}
 

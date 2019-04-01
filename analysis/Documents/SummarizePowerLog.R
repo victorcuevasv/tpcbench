@@ -23,10 +23,15 @@ summarizeLog <- function(inFile, outFile, scaleFactor) {
   export(outputDF, outFile)
 }
 
-workDir <- "./Documents/RESULTS/power"
+#workDir <- "./Documents/RESULTS/power"
+workDir <- "./Documents/RESULTS/load"
 systemDirs <- list.files(path=workDir)
 
 for(system in systemDirs) {
+  #Skip files and only process directories
+  if( file_test("-f", paste0(workDir, "/", system)) ) {
+    next
+  }
   systemDir <- paste(workDir, "/", system, sep="")
   files <- list.files(path=systemDir, pattern = "\\.log$")
   inFile <- paste(workDir, "/", system, "/", files[1], sep="")

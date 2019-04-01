@@ -17,6 +17,8 @@ services:
             - ./../vols/metastore:/metastore
             - ./../vols/ivyroot:/root/.ivy2
             - ./../vols/ivyuser:/home/${USER_NAME_DC}/.ivy2
+            #Only used for reading .dat files for database creation (use parent folder).
+            - ./../vols/hive:/temporal
             #Enable to use spark-submit, disable to use JDBC.
             - ./../vols/data:/data
             - ./../client/project:/project

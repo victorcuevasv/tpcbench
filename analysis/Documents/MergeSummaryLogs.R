@@ -1,9 +1,15 @@
 library("rio")
 
-destDir <- "./Documents/RESULTS/power"
-outFileName <- "summaryPower.xlsx"
+#destDir <- "./Documents/RESULTS/power"
+#outFileName <- "summaryPower.xlsx"
+#outFile <- paste(destDir, "/", outFileName, sep="")
+#workDir <- "./Documents/RESULTS/power"
+#searchedFile <- "summary.xlsx"
+
+destDir <- "./Documents/RESULTS/load"
+outFileName <- "summaryLoad.xlsx"
 outFile <- paste(destDir, "/", outFileName, sep="")
-workDir <- "./Documents/RESULTS/power"
+workDir <- "./Documents/RESULTS/load"
 searchedFile <- "summary.xlsx"
 
 #Merge the instances of the searchedFile (must be .xlsx files) found in the

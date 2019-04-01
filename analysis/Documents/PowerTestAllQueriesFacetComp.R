@@ -4,13 +4,17 @@ library(dplyr)
 #Use the stringr package to use the str_wrap function below
 library(stringr)
 
-inFile <- "./Documents/RESULTS/power/mergedPower.xlsx"
-outFile <- "./Documents/RESULTS/power/PowerTestFacetComp.pdf"
+#inFile <- "./Documents/RESULTS/power/mergedPower.xlsx"
+#outFile <- "./Documents/RESULTS/power/PowerTestFacetComp.pdf"
+
+inFile <- "./Documents/RESULTS/load/mergedLoad.xlsx"
+outFile <- "./Documents/RESULTS/load/LoadTestFacetComp.pdf"
 
 #Read the data.
 dataf = import(inFile)
 #List that represents all queries
-queriesAll <- seq(1, 99)
+#queriesAll <- seq(1, 99)
+queriesAll <- seq(1, 25)
 #Filter the queries below if desired
 queriesRemove <- seq(31, 99)
 queries <- setdiff(queriesAll, queriesRemove)

@@ -4,6 +4,9 @@ import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.List;
 import java.sql.DriverManager;
 import java.io.*;
 import org.apache.logging.log4j.LogManager;
@@ -13,11 +16,12 @@ public class CreateDatabase {
 
 	private static String driverName = "org.apache.hive.jdbc.HiveDriver";
 	private Connection con;
-	private static final Logger logger = LogManager.getLogger(CreateDatabase.class);
+	private static final Logger logger = LogManager.getLogger("AllLog");
+	private AnalyticsRecorder recorder;
 
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public CreateDatabase(String hostname) {
+	public CreateDatabase(String hostname, String system) {
 		try {
 			Class.forName(driverName);
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
@@ -43,6 +47,7 @@ public class CreateDatabase {
 			this.logger.error(e);
 			System.exit(1);
 		}
+		this.recorder = new AnalyticsRecorder("load", system);
 	}
 
 	/**
@@ -53,20 +58,27 @@ public class CreateDatabase {
 	 * args[1] suffix used for intermediate table text files
 	 * args[2] directory for generated data raw files
 	 * args[3] hostname of the server
-	 * args[4] whether to run queries to count the tuples generated
+	 * args[4] system running the data loading queries
+	 * args[5] count (boolean) whether to run queries to count the tuples generated
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 5 ) {
+		if( args.length != 6 ) {
 			System.out.println("Incorrect number of arguments.");
+			logger.error("Insufficient arguments.");
 			System.exit(0);
 		}
-		CreateDatabase prog = new CreateDatabase(args[3]);
-		boolean doCount = Boolean.parseBoolean(args[4]);
+		CreateDatabase prog = new CreateDatabase(args[3], args[4]);
+		boolean doCount = Boolean.parseBoolean(args[5]);
 		File directory = new File(args[0]);
+		prog.recorder.header();
 		// Process each .sql create table file found in the directory.
-		for (final File fileEntry : directory.listFiles()) {
+		File[] filesArray = directory.listFiles();
+		List<File> filesList = Arrays.stream(filesArray).sorted().collect(Collectors.toList());
+		int i = 1;
+		for (final File fileEntry : filesList) {
 			if (!fileEntry.isDirectory()) {
-				prog.createTable(args[0], fileEntry, args[1], args[2], doCount);
+				prog.createTable(args[0], fileEntry, args[1], args[2], doCount, i);
+				i++;
 			}
 		}
 		prog.closeConnection();
@@ -78,10 +90,12 @@ public class CreateDatabase {
 	// The SQL create table statement found in the file has to be manipulated for
 	// creating these tables.
 	private void createTable(String workDir, File tableSQLfile, String suffix, String genDataDir,
-			boolean doCount) {
+			boolean doCount, int index) {
+		QueryRecord queryRecord = null;
 		try {
 			String tableName = tableSQLfile.getName().substring(0, tableSQLfile.getName().indexOf('.'));
-			System.out.println("Processing: " + tableName);
+			System.out.println("Processing table " + index + ": " + tableName);
+			this.logger.info("Processing table " + index + ": " + tableName);
 			String sqlCreate = readFileContents(tableSQLfile.getAbsolutePath());
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, suffix);
 			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName, genDataDir);
@@ -92,6 +106,8 @@ public class CreateDatabase {
 				System.out.println("Skipping: " + tableName);
 				return;
 			}
+			queryRecord = new QueryRecord(index);
+			queryRecord.setStartTime(System.currentTimeMillis());
 			Statement stmt = con.createStatement();
 			stmt.execute("drop table if exists " + tableName + suffix);
 			stmt.execute(extSqlCreate);
@@ -103,12 +119,19 @@ public class CreateDatabase {
 			stmt.execute("drop table if exists " + tableName);
 			stmt.execute(intSqlCreate);
 			stmt.execute("INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix);
+			queryRecord.setSuccessful(true);
 			if( doCount )
 				countRowsQuery(stmt, tableName);
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
 			this.logger.error(e);
+		}
+		finally {
+			if( queryRecord != null ) {
+				queryRecord.setEndTime(System.currentTimeMillis());
+				this.recorder.record(queryRecord);
+			}
 		}
 	}
 
