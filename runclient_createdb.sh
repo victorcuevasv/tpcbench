@@ -41,7 +41,7 @@ docker exec -ti namenodecontainer  /bin/bash -c "hadoop fs -mkdir -p /user/hive/
 
 docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateDatabase\" \
-	-Dexec.args=\"/data/tables _ext /temporal/$1GB $CONTAINER presto true\" -f /project/pom.xml"       
+	-Dexec.args=\"/data/tables _ext /temporal/$1GB $CONTAINER presto false\" -f /project/pom.xml"       
   
 
 
