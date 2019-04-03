@@ -32,7 +32,14 @@ public class JarCreateTableReaderAsZipFile {
 	// Obtain the names with paths of all the .sql files in the jar structure.
 	public List<String> listFiles(String inFile, String subDir) {
 		List<String> files = new ArrayList<String>();
-		try {  
+		//Check if it is an hdfs file
+		if( inFile.startsWith("hdfs") ) {
+			String outFile = System.getProperty("java.io.tmpdir") + "/tpcdsclusterappqueries.jar";
+			HdfsUtil hdfsUtil = new HdfsUtil();
+			hdfsUtil.saveToLocal(inFile, outFile);
+			inFile = outFile;
+		}
+		try {
 			File jarFile = new File(inFile);  
 			Map<String, String> zipProperties = new HashMap<>();
 			//Reading from an existing zip file, so set to false.
