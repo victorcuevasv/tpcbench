@@ -13,8 +13,7 @@ dataf = read.xlsx(inFile, sheet="Sheet 1", rows=seq(1,3), cols=seq(1,4))
 
 # Map DisplayNames to pseudonyms
 pseudonyms<-new.env()
-#pseudonyms[["presto"]]<-"Presto"
-pseudonyms[["presto"]]<-"HadoopMR"
+pseudonyms[["presto"]]<-"Presto"
 pseudonyms[["spark"]]<-"Spark"
 i <- 1
 for(name in dataf$SYSTEM) {
