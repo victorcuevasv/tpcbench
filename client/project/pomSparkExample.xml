@@ -67,6 +67,7 @@
 				<configuration>
 					<includes>
 						<include>org/bsc/dcc/vcv/JavaSparkPiExample.java</include>
+						<include>org/bsc/dcc/vcv/HdfsUtil.java</include>
 					</includes>
 				</configuration>
 			</plugin>
