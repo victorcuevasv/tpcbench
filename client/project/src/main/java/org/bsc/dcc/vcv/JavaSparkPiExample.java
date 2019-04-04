@@ -47,11 +47,11 @@ public class JavaSparkPiExample {
 		String results = "Pi is roughly " + 4.0 * count / n;
 		System.out.println(results);
 		this.saveResults(results, System.getenv("HOME") + "/pi.txt");
-		this.logger.info("Copying file to hdfs: " + "hdfs://namenodecontainer:9000" + 
-				System.getenv("HOME") + "/pi.txt");
-		HdfsUtil hdfsUtil = new HdfsUtil();
-		hdfsUtil.copyToHdfs(System.getenv("HOME") + "/pi.txt", 
-				"hdfs://namenodecontainer:9000" + System.getenv("HOME") + "/pi.txt");
+//		this.logger.info("Copying file to hdfs: " + "hdfs://namenodecontainer:9000" + 
+//				System.getenv("HOME") + "/pi.txt");
+//		HdfsUtil hdfsUtil = new HdfsUtil();
+//		hdfsUtil.copyToHdfs(System.getenv("HOME") + "/pi.txt", 
+//				"hdfs://namenodecontainer:9000" + System.getenv("HOME") + "/pi.txt");
 		this.spark.stop();
 	}
 	

@@ -72,6 +72,17 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<resources>
+			<resource>
+				<directory>${project.basedir}/src/main/resources</directory>
+				
+				<includes>
+					<include>log4j2.xml</include>
+				</includes>
+				
+			</resource>
+		</resources>
 	</build>
 </project>
+
 
