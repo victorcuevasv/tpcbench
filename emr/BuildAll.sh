@@ -24,6 +24,8 @@ USER_NAME=$(whoami)
 USER_ID=$(id -u)
 #Get the user id of the user executing this script.
 GROUP_ID=$(id -g)
+#Indicates whether to use the local mirror for the dependencies.
+LOCAL_MIRROR=0
 
 buildFlags=()
 buildLabels=()
@@ -45,7 +47,7 @@ index=$((index+1))
 
 #Build the client project builder image.
 printf "\n\n%s\n\n" "${mag}Building the client project builder image.${end}"
-bash ../client/buildSingle.sh $USER_NAME $USER_ID $GROUP_ID
+bash ../client/buildSingle.sh $USER_NAME $USER_ID $GROUP_ID $LOCAL_MIRROR
 buildFlags[$index]=$?
 buildLabels[$index]=client
 index=$((index+1))

@@ -1,17 +1,19 @@
 #!/bin/bash
 
 #Receives as parameters the username, user id and group id of the user who is executing this script.
-#
+#A final parameter indicates whether to use the local mirror server for dependencies.
+
 #$1 username
 #$2 user id
 #$3 group id
+#$4 use local mirror (1/0)
 
 exitCode=0
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 #Check if the local mirror can be used.
-nc -z localhost 8888 && nc -z localhost 443
+nc -z localhost 8888 && nc -z localhost 443 && $4
 mirror=$?
 if [[ $mirror -eq 0 ]]; then
 	docker build --network="host" -t clientbuilder:dev $DIR -f $DIR/DockerfileSingle \
