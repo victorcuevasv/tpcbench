@@ -26,7 +26,7 @@ ENV PATH="${PATH}:/opt/apache-maven-3.6.0/bin"
 #Download the Presto CLI jar.
 
 RUN wget --no-check-certificate -q -P /opt \ 
-    https://$PRESTO_MIRROR/maven2/com/facebook/presto-cli/0.214/presto-cli-0.214-executable.jar && \
+    https://$PRESTO_MIRROR/maven2/com/facebook/presto/presto-cli/0.214/presto-cli-0.214-executable.jar && \
     mv /opt/presto-cli-0.214-executable.jar /opt/presto && \
     chmod +x /opt/presto 
 
