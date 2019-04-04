@@ -1,14 +1,4 @@
 
-ssh -i ~/aloja.pem hadoop@ec2-54-191-217-47.us-west-2.compute.amazonaws.com
-
-
-
-ssh -i id_rsa -o "ProxyCommand nc %h %p" hadoop@ec2-54-191-217-47.us-west-2.compute.amazonaws.com
-
-ssh -i id_rsa -o "ProxyCommand ncat %h %p" hadoop@ec2-54-191-217-47.us-west-2.compute.amazonaws.com
-
-
-
 #Obtain the fingerprint for the keypair that will be generated in AWS
 
 openssl pkey -in id_rsa -pubout -outform DER | openssl md5 -c
@@ -22,6 +12,66 @@ openssl rsa -in id_rsa -pubout -out extracted.pub -outform DER
 openssl base64 -in extracted.pub -out extracted64.pub
 
 
-ssh -i id_rsa ec2-user@ec2-54-186-45-103.us-west-2.compute.amazonaws.com
+
+#SSH login to the master node.
+
+ssh -i id_rsa hadoop@ec2-34-208-100-49.us-west-2.compute.amazonaws.com
+
+#SSH login to an ec2 instance.
+
+ssh -i id_rsa ec2-user@ec2-54-184-80-27.us-west-2.compute.amazonaws.com
+
+
+#Run docker without sudo in the master node (logged in as ec2-user).
+
+sudo groupadd docker         (group already created)
+
+sudo usermod -aG docker $USER
+
+Logout and then login to see group membership change.
+
+
+
+#Spark configuration directory.
+
+/usr/lib/spark/conf
+
+#Run SparkPi example.
+
+sudo spark-submit --deploy-mode client --class org.apache.spark.examples.SparkPi  /usr/lib/spark/examples/jars/spark-examples_2.11-2.4.0.jar            
+
+#Run SparkPi example.
+
+sudo spark-submit --deploy-mode client --class org.apache.spark.examples.sql.hive.JavaSparkHiveExample  /usr/lib/spark/examples/jars/spark-examples_2.11-2.4.0.jar      
+
+
+#Get the full name of the master node.
+
+echo $(hostname -f)
+
+ip-172-31-25-127.us-west-2.compute.internal
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+UNUSED
+
+#SSH login problem.
+
+ssh -i id_rsa -o "ProxyCommand nc %h %p" hadoop@ec2-34-208-100-49.us-west-2.compute.amazonaws.com
+
+
 
 

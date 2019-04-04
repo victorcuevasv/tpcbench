@@ -1,6 +1,10 @@
 aws emr create-cluster --termination-protected \
 --applications Name=Hadoop Name=Hive Name=Spark Name=JupyterHub Name=Ganglia Name=Presto Name=Tez \
---ec2-attributes '{"KeyName":"testalojakeypair","InstanceProfile":"EMR_EC2_DefaultRole","SubnetId":"subnet-01033078","EmrManagedSlaveSecurityGroup":"sg-0d6c7aa7f3a231e50","EmrManagedMasterSecurityGroup":"sg-0cefde07cc1a0a36e"}' --release-label emr-5.23.0 --log-uri 's3n://bsc-results/emr/logs/' --instance-groups '[{"InstanceCount":2,"BidPrice":"OnDemandPrice","InstanceGroupType":"CORE","InstanceType":"r3.xlarge","Name":"Core - 2"},{"InstanceCount":1,"BidPrice":"OnDemandPrice","InstanceGroupType":"MASTER","InstanceType":"r3.xlarge","Name":"Master - 1"}]' --configurations '[{"Classification":"hive-site","Properties":{"hive.metastore.client.factory.class":"com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"}},{"Classification":"presto-connector-hive","Properties":{"hive.metastore.glue.datacatalog.enabled":"true"}},{"Classification":"spark-hive-site","Properties":{"hive.metastore.client.factory.class":"com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"}}]'  \
+--ec2-attributes '{"KeyName":"testalojakeypair","InstanceProfile":"EMR_EC2_DefaultRole","SubnetId":"subnet-01033078","EmrManagedSlaveSecurityGroup":"sg-0d6c7aa7f3a231e50","EmrManagedMasterSecurityGroup":"sg-0cefde07cc1a0a36e"}' \
+--release-label emr-5.23.0 \
+--log-uri 's3n://bsc-results/emr/logs/' \
+--instance-groups '[{"InstanceCount":2,"BidPrice":"OnDemandPrice","InstanceGroupType":"CORE","InstanceType":"r3.xlarge","Name":"Core - 2"},{"InstanceCount":1,"BidPrice":"OnDemandPrice","InstanceGroupType":"MASTER","InstanceType":"r3.xlarge","Name":"Master - 1"}]' \
+--configurations '[{"Classification":"hive-site","Properties":{"hive.metastore.client.factory.class":"com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"}},{"Classification":"presto-connector-hive","Properties":{"hive.metastore.glue.datacatalog.enabled":"true"}},{"Classification":"spark-hive-site","Properties":{"hive.metastore.client.factory.class":"com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"}}]'  \
 --auto-scaling-role EMR_AutoScaling_DefaultRole \
 --ebs-root-volume-size 10 \
 --service-role EMR_DefaultRole \
