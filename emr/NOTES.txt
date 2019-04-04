@@ -1,0 +1,27 @@
+
+ssh -i ~/aloja.pem hadoop@ec2-54-191-217-47.us-west-2.compute.amazonaws.com
+
+
+
+ssh -i id_rsa -o "ProxyCommand nc %h %p" hadoop@ec2-54-191-217-47.us-west-2.compute.amazonaws.com
+
+ssh -i id_rsa -o "ProxyCommand ncat %h %p" hadoop@ec2-54-191-217-47.us-west-2.compute.amazonaws.com
+
+
+
+#Obtain the fingerprint for the keypair that will be generated in AWS
+
+openssl pkey -in id_rsa -pubout -outform DER | openssl md5 -c
+
+#Extract the public key (that needs to be submitted to AWS) from the private key file.
+
+openssl rsa -in id_rsa -pubout -out extracted.pub -outform DER
+
+#Convert the file generated in the step above to base 64
+
+openssl base64 -in extracted.pub -out extracted64.pub
+
+
+ssh -i id_rsa ec2-user@ec2-54-186-45-103.us-west-2.compute.amazonaws.com
+
+
