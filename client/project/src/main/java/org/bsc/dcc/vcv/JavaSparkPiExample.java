@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,14 +25,20 @@ public class JavaSparkPiExample {
 				appName("JavaSparkPiExample").
 				getOrCreate();
 	}
-
+	
+	/**
+	 * @param args
+	 * 
+	 * args[0] hostname of the hdfs namenode
+	 * args[1] number of slices for the pi calculation task (integer, optional)
+	 */
 	public static void main(String[] args) {
 		JavaSparkPiExample prog = new JavaSparkPiExample();
-		int slices = (args.length == 1) ? Integer.parseInt(args[0]) : 2;
-		prog.calculatePi(slices);
+		int slices = (args.length == 2) ? Integer.parseInt(args[1]) : 2;
+		prog.calculatePi(args[0], slices);
 	}
 	
-	private void calculatePi(int slices) {
+	private void calculatePi(String namenodeHostname, int slices) {
 		JavaSparkContext jsc = new JavaSparkContext(spark.sparkContext());
 		int n = 100000 * slices;
 		List<Integer> l = new ArrayList<>(n);
@@ -47,11 +54,11 @@ public class JavaSparkPiExample {
 		String results = "Pi is roughly " + 4.0 * count / n;
 		System.out.println(results);
 		this.saveResults(results, System.getenv("HOME") + "/pi.txt");
-		this.logger.info("Copying file to hdfs: " + "hdfs://namenodecontainer:9000" + 
+		this.logger.info("Copying file to hdfs: " + "hdfs:// " + namenodeHostname + 
 				System.getenv("HOME") + "/pi.txt");
 		HdfsUtil hdfsUtil = new HdfsUtil();
 		hdfsUtil.copyToHdfs(System.getenv("HOME") + "/pi.txt", 
-				"hdfs://namenodecontainer:9000" + System.getenv("HOME") + "/pi.txt");
+				"hdfs://" + namenodeHostname + System.getenv("HOME") + "/pi.txt");
 		this.spark.stop();
 	}
 	

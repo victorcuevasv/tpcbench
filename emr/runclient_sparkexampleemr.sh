@@ -17,10 +17,6 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --conf spark.eventLog.dir=/home/$USER_NAME/tmp \
 --class org.bsc.dcc.vcv.JavaSparkPiExample \
 --master yarn --deploy-mode client \
-hdfs://$(hostname)/project/targetsparkexample/client-1.0-SNAPSHOT-jar-with-dependencies.jar  \
-/data results plans \
-hdfs://$(hostname)/project/targetsparkexample/client-1.0-SNAPSHOT-jar-with-dependencies.jar  \
-4
-
+hdfs://$(hostname)/project/targetsparkexample/client-1.0-SNAPSHOT-jar-with-dependencies.jar $(hostname) 4
 
 
