@@ -11,7 +11,7 @@ end=$'\e[0m'
 #Copying the database to hdfs.
 printf "\n\n%s\n\n" "${blu}Copying to hdfs.${end}"
 hadoop fs -mkdir -p /project/targetsparkexample && \
-	hadoop fs -put -f /project/targetsparkexample/client-1.0-SNAPSHOT-jar-with-dependencies.jar \
+	hadoop fs -put -f ../client/project/targetsparkexample/client-1.0-SNAPSHOT-jar-with-dependencies.jar \
 	/project/targetsparkexample 
  
 
