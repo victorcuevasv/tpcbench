@@ -52,6 +52,23 @@ echo $(hostname -f)
 ip-172-31-25-127.us-west-2.compute.internal
 
 
+#Update the metastore for a new namenode.
+
+#Obtain the rootFS for the current namenode.
+
+hive --service metatool -listFSRoot
+
+#Update from the old value to the new value.
+
+#NOTE: does not seem to work, do the change in the Glue GUI at the AWS portal instead.
+
+hive --service metatool -dryRun -updateLocation <new_value> <old_value>
+
+example:
+
+hive --service metatool -dryRun -updateLocation \
+hdfs://ip-172-31-21-222.us-west-2.compute.internal:8020/user/hive/warehouse \
+hdfs://ip-172-31-30-11.us-west-2.compute.internal:8020/user/hive/warehouse
 
 
 

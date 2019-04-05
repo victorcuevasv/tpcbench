@@ -46,7 +46,7 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.CreateDatabaseSpark \
 --master yarn --deploy-mode client \
 ../client/project/targetspark/client-1.0-SNAPSHOT.jar \
-/data/tables _ext /temporal/$1GB $CONTAINER spark false tables ../client/project/targetspark/client-1.0-SNAPSHOT.jar
+/data/tables _ext /temporal/$1GB $CONTAINER spark true tables ../client/project/targetspark/client-1.0-SNAPSHOT.jar
 
 
  
