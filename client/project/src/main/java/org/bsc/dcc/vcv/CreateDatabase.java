@@ -138,7 +138,7 @@ public class CreateDatabase {
 			String intSqlCreate = null;
 			if( this.recorder.system.equals("hive") )
 				intSqlCreate = internalCreateTableHive(incIntSqlCreate, tableName);
-			else if( this.recorder.system.equals("presto") )
+			else if( this.recorder.system.startsWith("presto") )
 				intSqlCreate = internalCreateTablePresto(incIntSqlCreate, tableName);
 			saveCreateTableFile(workDir, "parquet", tableName, intSqlCreate);
 			stmt.execute("drop table if exists " + tableName);
