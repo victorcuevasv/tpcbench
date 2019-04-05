@@ -21,9 +21,9 @@ GROUP_ID=$(id -g)
 #$1 Optional argument denoting a single query to execute (e.g. query2.sql).
 
 docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
---entrypoint mvn clientbuilder:dev \
 --volume $DIR/../vols/data:/data \
 --volume $DIR/../client/project:/project \
+--entrypoint mvn clientbuilder:dev \
 	exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueries\" \
 	-Dexec.args=\"/data QueriesPresto results plans prestoemr $(hostname) true true $1\" \
 	-f /project/pom.xml      
