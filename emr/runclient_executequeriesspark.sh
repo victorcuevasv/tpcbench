@@ -18,5 +18,5 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.ExecuteQueriesSpark \
 --master yarn --deploy-mode client \
 /project/targetspark/client-1.0-SNAPSHOT.jar \
-/data results plans ../client/project/targetspark/client-1.0-SNAPSHOT.jar spark true true $1"                
+/data results plans ../client/project/targetspark/client-1.0-SNAPSHOT.jar spark true true $1                
 	
