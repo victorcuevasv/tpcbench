@@ -46,7 +46,7 @@ public class CreateDatabaseSpark {
 	 * args[0] subdirectory within main work directory for the create table files (read from the jar)
 	 * args[1] suffix used for intermediate table text files
 	 * args[2] directory for generated data raw files
-	 * args[3] hostname of the server
+	 * args[3] hostname of the server (unused)
 	 * args[4] system running the data loading queries
 	 * args[5] whether to run queries to count the tuples generated
 	 * args[6] subdirectory within the jar that contains the create table files

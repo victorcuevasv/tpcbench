@@ -40,8 +40,9 @@ public class CreateDatabase {
 			}
 			else if( system.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
+				//Should use hadoop to drop a table created by spark.
 				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8889/hive/default", "hive", "");
+						hostname + ":8889/hive/default", "hadoop", "");
 			}
 			else {
 				throw new java.lang.RuntimeException("Unsupported system: " + system);

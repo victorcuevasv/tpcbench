@@ -70,6 +70,21 @@ hive --service metatool -dryRun -updateLocation \
 hdfs://ip-172-31-21-222.us-west-2.compute.internal:8020/user/hive/warehouse \
 hdfs://ip-172-31-30-11.us-west-2.compute.internal:8020/user/hive/warehouse
 
+#Run presto cli
+
+presto-cli --catalog hive --schema default
+
+#Show table schemas.
+
+presto:default> describe hive.default.inventory;
+
+#Run beeline
+
+beeline> !connect jdbc:hive2://localhost:10000/default
+
+#Show table metadata.
+
+beeline> describe extended inventory;
 
 
 
