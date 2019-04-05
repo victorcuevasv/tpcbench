@@ -45,8 +45,8 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --conf spark.eventLog.dir=/home/$USER_NAME/tmp \
 --class org.bsc.dcc.vcv.CreateDatabaseSpark \
 --master yarn --deploy-mode client \
-../project/targetspark/client-1.0-SNAPSHOT.jar \
-/data/tables _ext /temporal/$1GB $CONTAINER spark false tables ../project/targetspark/client-1.0-SNAPSHOT.jar
+../client/project/targetspark/client-1.0-SNAPSHOT.jar \
+/data/tables _ext /temporal/$1GB $CONTAINER spark false tables ../client/project/targetspark/client-1.0-SNAPSHOT.jar
 
 
  
