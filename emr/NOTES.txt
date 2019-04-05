@@ -70,6 +70,20 @@ hive --service metatool -dryRun -updateLocation \
 hdfs://ip-172-31-21-222.us-west-2.compute.internal:8020/user/hive/warehouse \
 hdfs://ip-172-31-30-11.us-west-2.compute.internal:8020/user/hive/warehouse
 
+
+
+#Enable presto to drop tables.
+
+#Add the following line to /etc/presto/conf/catalog/hive.properties
+
+hive.allow-drop-table=true
+
+#then restart the presto server
+
+sudo restart presto-server
+
+
+
 #Run presto cli
 
 presto-cli --catalog hive --schema default
