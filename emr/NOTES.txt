@@ -86,7 +86,9 @@ beeline> !connect jdbc:hive2://localhost:10000/default
 
 beeline> describe extended inventory;
 
+#Delete the directories in hdfs associated with the tables.
 
+hadoop fs -rm -r /user/hive/warehouse/*
 
 
 
@@ -103,6 +105,12 @@ UNUSED
 #SSH login problem.
 
 ssh -i id_rsa -o "ProxyCommand nc %h %p" hadoop@ec2-34-208-100-49.us-west-2.compute.amazonaws.com
+
+Presto massage create tables
+
+Full thread dump Java HotSpot(TM) 64-Bit Server VM
+
+
 
 
 
