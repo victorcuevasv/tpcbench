@@ -45,6 +45,11 @@ public class ExecuteQueries {
 						hostname + ":8080/hive/default", "hive", "");
 				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
+			else if( system.equals("prestoemr") ) {
+				Class.forName(prestoDriverName);
+				con = DriverManager.getConnection("jdbc:presto://" + 
+						hostname + ":8889/hive/default", "hive", "");
+			}
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
