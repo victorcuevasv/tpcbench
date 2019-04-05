@@ -114,7 +114,7 @@ public class CreateDatabase {
 			this.logger.info("Processing table " + index + ": " + tableName);
 			String sqlCreate = readFileContents(tableSQLfile.getAbsolutePath());
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, 
-					! this.recorder.system.equals("presto"), suffix);
+					! this.recorder.system.startsWith("presto"), suffix);
 			String extSqlCreate = null;
 			if( this.recorder.system.equals("hive") )
 				extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, genDataDir);
@@ -145,7 +145,7 @@ public class CreateDatabase {
 			stmt.execute(intSqlCreate);
 			if( this.recorder.system.equals("hive") )
 				stmt.execute("INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix);
-			else if( this.recorder.system.equals("presto") )
+			else if( this.recorder.system.startsWith("presto") )
 				stmt.execute("INSERT INTO " + tableName + " SELECT * FROM " + tableName + suffix);
 			queryRecord.setSuccessful(true);
 			if( doCount )
