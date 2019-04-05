@@ -88,6 +88,7 @@
 						<exclude>org/bsc/dcc/vcv/ProcessCreateScript.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesConcurrent.java</exclude>
 						<exclude>org/bsc/dcc/vcv/QueryStream.java</exclude>
+						<exclude>org/bsc/dcc/vcv/JavaSparkPiExample.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
