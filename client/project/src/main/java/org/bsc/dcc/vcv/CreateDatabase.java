@@ -118,7 +118,7 @@ public class CreateDatabase {
 			String extSqlCreate = null;
 			if( this.recorder.system.equals("hive") )
 				extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, genDataDir);
-			else if( this.recorder.system.equals("presto") )
+			else if( this.recorder.system.startsWith("presto") )
 				extSqlCreate = externalCreateTablePresto(incExtSqlCreate, tableName, genDataDir);
 			saveCreateTableFile(workDir, "textfile", tableName, extSqlCreate);
 			// Skip the dbgen_version table since its time attribute is not
