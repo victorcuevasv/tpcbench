@@ -18,5 +18,5 @@ fi
 #Copying the .dat files to hdfs.
 printf "\n\n%s\n\n" "${blu}Copying to hdfs.${end}"
 hadoop fs -mkdir -p /temporal/$1GB && \
-	hadoop fs -put ../vols/hive/$1GB/* /temporal/$1GB" 
+	hadoop fs -put ../vols/hive/$1GB/* /temporal/$1GB
 
