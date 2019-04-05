@@ -17,6 +17,6 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --conf spark.eventLog.dir=/home/$USER_NAME/tmp \
 --class org.bsc.dcc.vcv.ExecuteQueriesSpark \
 --master yarn --deploy-mode client \
-/project/targetspark/client-1.0-SNAPSHOT.jar \
+../client/project/targetspark/client-1.0-SNAPSHOT.jar \
 /data results plans ../client/project/targetspark/client-1.0-SNAPSHOT.jar spark true true $1                
 	
