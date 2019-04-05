@@ -13,7 +13,7 @@ exitCode=0
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 #Check if the local mirror can be used.
-nc -z localhost 8888 && nc -z localhost 443 && $4
+nc -z localhost 8888 && nc -z localhost 443 && [ $4 -eq 1 ]
 mirror=$?
 if [[ $mirror -eq 0 ]]; then
 	docker build --network="host" -t clientbuilder:dev $DIR -f $DIR/DockerfileSingle \

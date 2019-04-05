@@ -24,8 +24,8 @@ USER_NAME=$(whoami)
 USER_ID=$(id -u)
 #Get the user id of the user executing this script.
 GROUP_ID=$(id -g)
-#Indicates whether to use the local mirror for the dependencies.
-LOCAL_MIRROR=0
+#Indicates whether to use the local mirror for the dependencies (0=no / 1=yes).
+LOCAL_MIRROR=1
 
 buildFlags=()
 buildLabels=()

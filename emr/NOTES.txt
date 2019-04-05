@@ -15,11 +15,11 @@ openssl base64 -in extracted.pub -out extracted64.pub
 
 #SSH login to the master node.
 
-ssh -i id_rsa hadoop@ec2-34-208-100-49.us-west-2.compute.amazonaws.com
+ssh -i id_rsa hadoop@ec2-54-218-139-60.us-west-2.compute.amazonaws.com
 
 #SSH login to an ec2 instance.
 
-ssh -i id_rsa ec2-user@ec2-54-184-80-27.us-west-2.compute.amazonaws.com
+ssh -i id_rsa ec2-user@ec2-54-218-139-60.us-west-2.compute.amazonaws.com
 
 
 #Run docker without sudo in the master node (logged in as ec2-user).
