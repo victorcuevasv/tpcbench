@@ -10,7 +10,7 @@ USER_ID=$(id -u)
 #Get the user id of the user executing this script.
 GROUP_ID=$(id -g)
 
-spark-submit --conf spark.eventLog.enabled=true  \
+sudo spark-submit --conf spark.eventLog.enabled=true  \
 --packages org.apache.logging.log4j:log4j-api:2.8.2,org.apache.logging.log4j:log4j-core:2.8.2,\
 org.apache.zookeeper:zookeeper:3.4.6 \
 --conf spark.local.dir=/home/$USER_NAME/tmp \
