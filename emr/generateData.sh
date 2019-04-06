@@ -35,7 +35,7 @@ docker run --rm --user $USER_ID:$GROUP_ID --name tpc --volume /mnt/vols/hive:/TP
 
 for f in /mnt/vols/hive/$1GB/*.dat ; do 
    fileName=$(basename "$f" .dat) #This invocation removes the .dat extension.
-   mkdir mnt/vols/hive/$1GB/$fileName
+   mkdir /mnt/vols/hive/$1GB/$fileName
    mv /mnt/vols/hive/$1GB/"$fileName".dat /mnt/vols/hive/$1GB/$fileName
 done
 
