@@ -30,7 +30,22 @@ docker run --rm --user $USER_ID:$GROUP_ID --name tpc --volume /mnt/vols/hive:/TP
 	--entrypoint /TPC-DS/v2.10.1rc3/tools/dsdgen tpcds:dev \
 	-scale $1 -dir ../output/$1GB  -terminate n -delimiter $(echo -e "\001")
 
+#For each .dat file, create a directory with that name and move the .dat file to
+#that directory.
+
+for f in /mnt/vols/hive/$1GB/*.dat ; do 
+   fileName=$(basename "$f" .dat) #This invocation removes the .dat extension.
+   mkdir mnt/vols/hive/$1GB/$fileName
+   mv /mnt/vols/hive/$1GB/"$fileName".dat /mnt/vols/hive/$1GB/$fileName
+done
+
 ln -s /mnt/vols/hive/$1GB $DIR/../vols/hive/$1GB
+
+
+
+
+
+
 
 
 
