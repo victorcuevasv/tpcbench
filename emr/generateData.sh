@@ -39,7 +39,7 @@ for f in /mnt/vols/hive/$1GB/*.dat ; do
    mv /mnt/vols/hive/$1GB/"$fileName".dat /mnt/vols/hive/$1GB/$fileName
 done
 
-ln -s $DIR/../vols/hive/$1GB /mnt/vols/hive/$1GB 
+ln -s /mnt/vols/hive/$1GB $DIR/../vols/hive/$1GB
 
 
 
