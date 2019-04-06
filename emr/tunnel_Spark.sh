@@ -13,8 +13,8 @@ end=$'\e[0m'
 #Generate the unused Netezza queries.
 printf "\n\n%s\n\n" "${cyn}Tunneling the ports for Spark (4040, 4041, 8080, 8088, 18080).${end}"
 
-ssh -i id_rsa -l ec2-user -N -L 4040:localhost:4040 ec2-34-208-100-49.us-west-2.compute.amazonaws.com &
-ssh -i id_rsa -l ec2-user -N -L 18080:localhost:18080 ec2-34-208-100-49.us-west-2.compute.amazonaws.com
+ssh -i id_rsa -l ec2-user -N -L 4040:localhost:4040 ec2-18-237-94-60.us-west-2.compute.amazonaws.com &
+ssh -i id_rsa -l ec2-user -N -L 18080:localhost:18080 ec2-18-237-94-60.us-west-2.compute.amazonaws.com &
 
 #The trap will kill the background processed started above when the script
 #execution is terminated (ctrl+c).

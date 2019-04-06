@@ -17,7 +17,7 @@ end=$'\e[0m'
 #Tunnel through ssh the presto web interfaces.
 printf "\n\n%s\n\n" "${cyn}Tunneling the ports for Presto (8088, 19888, 8080).${end}"
 
-ssh -i id_rsa -l hadoop -N -L 8889:localhost:8889 $1
+ssh -i id_rsa -l hadoop -N -L 8889:localhost:8889 $1 &
 
 #The trap will kill the background processed started above when the script
 #execution is terminated (ctrl+c).
