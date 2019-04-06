@@ -26,13 +26,6 @@ if [ $# -lt 1 ]; then
     exit 0
 fi
 
-#Create the folder for the logs and results.
-
-if [ ! -d /data ]; then
-	sudo mkdir /data
-	sudo chown hadoop:hadoop /data
-fi
-
 #Execute the Java project with Maven on the client builder container running in the docker-compose setup. 
 
 printf "\n\n%s\n\n" "${mag}Creating and populating the database.${end}"
