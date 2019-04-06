@@ -16,6 +16,6 @@ aws emr create-cluster --termination-protected \
 
 
 {
-    "ClusterId": "j-A6QK7QCMZ1GX"
+    "ClusterId": "j-23RXUIMAIZNY8"
 }
 
