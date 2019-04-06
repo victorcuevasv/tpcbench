@@ -11,8 +11,11 @@ end=$'\e[0m'
 #The scale factor is passed as an argument.
 #Also receives as parameters the user and group id of the user who is executing this script.
 #$1 scale factor (positive integer)
-#$2 user id
-#$3 group id
+
+#Get the user id of the user executing this script.
+USER_ID=$(id -u)
+#Get the user id of the user executing this script.
+GROUP_ID=$(id -g)
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
@@ -27,6 +30,7 @@ docker run --rm --user $2:$3 --name tpc --volume /mnt/vols/hive:/TPC-DS/v2.10.1r
 	--entrypoint /TPC-DS/v2.10.1rc3/tools/dsdgen tpcds:dev \
 	-scale $1 -dir ../output/$1GB  -terminate n -delimiter $(echo -e "\001")
 
-sudo ln -s $DIR/../vols/hive/$1GB /mnt/vols/hive/$1GB
+sudo ln -s /mnt/vols/hive/$1GB $DIR/../vols/hive/$1GB
+
 
 
