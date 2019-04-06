@@ -30,7 +30,7 @@ docker run --rm --user $USER_ID:$GROUP_ID --name tpc --volume /mnt/vols/hive:/TP
 	--entrypoint /TPC-DS/v2.10.1rc3/tools/dsdgen tpcds:dev \
 	-scale $1 -dir ../output/$1GB  -terminate n -delimiter $(echo -e "\001")
 
-sudo ln -s /mnt/vols/hive/$1GB $DIR/../vols/hive/$1GB
+ln -s /mnt/vols/hive/$1GB $DIR/../vols/hive/$1GB
 
 
 
