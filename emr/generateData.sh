@@ -26,7 +26,7 @@ sudo mkdir -p /mnt/vols/hive/$1GB
 
 sudo chmod -R 777 /mnt/vols/hive/$1GB
 
-docker run --rm --user $2:$3 --name tpc --volume /mnt/vols/hive:/TPC-DS/v2.10.1rc3/output \
+docker run --rm --user $USER_ID:$GROUP_ID --name tpc --volume /mnt/vols/hive:/TPC-DS/v2.10.1rc3/output \
 	--entrypoint /TPC-DS/v2.10.1rc3/tools/dsdgen tpcds:dev \
 	-scale $1 -dir ../output/$1GB  -terminate n -delimiter $(echo -e "\001")
 
