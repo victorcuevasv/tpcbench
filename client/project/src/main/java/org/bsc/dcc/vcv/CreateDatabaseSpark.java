@@ -26,7 +26,7 @@ public class CreateDatabaseSpark {
 	public CreateDatabaseSpark(String jarFile, String subDir, String system) {
 		try {
 			this.createTableReader = new JarCreateTableReaderAsZipFile(jarFile, subDir);
-			this.spark = SparkSession.builder().appName("Java Create Database Spark")
+			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
 				.enableHiveSupport()
 				.getOrCreate();
 		}

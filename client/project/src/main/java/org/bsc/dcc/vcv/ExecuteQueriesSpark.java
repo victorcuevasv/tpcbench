@@ -38,7 +38,7 @@ public class ExecuteQueriesSpark {
 			this.savePlans = savePlans;
 			this.saveResults = saveResults;
 			this.queriesReader = new JarQueriesReaderAsZipFile(jarFile, "QueriesSpark");
-			this.spark = SparkSession.builder().appName("Java Spark Hive Example")
+			this.spark = SparkSession.builder().appName("TPC-DS Sequential Query Execution")
 				.config("spark.sql.crossJoin.enabled", "true")
 				.enableHiveSupport()
 				.getOrCreate();
