@@ -13,8 +13,8 @@ outFile <- "./Documents/RESULTS/load/LoadTestFacetComp.pdf"
 #Read the data.
 dataf = import(inFile)
 #List that represents all queries
-#queriesAll <- seq(1, 99)
-queriesAll <- seq(1, 25)
+queriesAll <- seq(1, 99)
+#queriesAll <- seq(1, 25)
 #Filter the queries below if desired
 queriesRemove <- seq(31, 99)
 queries <- setdiff(queriesAll, queriesRemove)
