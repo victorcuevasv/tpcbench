@@ -14,8 +14,13 @@ end=$'\e[0m'
 #
 #$1 master node hostname
 
+if [ $# -lt 1 ]; then
+    echo "Usage bash tunnel_Spark.sh <Public DNS name>."
+    exit 0
+fi
+
 #Tunnel through ssh the presto web interfaces.
-printf "\n\n%s\n\n" "${cyn}Tunneling the ports for Presto (8088, 19888, 8080).${end}"
+printf "\n\n%s\n\n" "${cyn}Tunneling the ports for Presto (8889).${end}"
 
 ssh -i id_rsa -l hadoop -N -L 8889:localhost:8889 $1 &
 
