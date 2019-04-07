@@ -28,12 +28,6 @@ if [ $# -lt 1 ]; then
     exit 0
 fi
 
-#Default ontainer to execute the command over, can be overriden by an argument.
-CONTAINER=namenodecontainer
-if [ $# -gt 1 ]; then
-    CONTAINER=$2
-fi
-
 #Create the folder for the logs and results.
 
 if [ ! -d /data ]; then
@@ -48,12 +42,10 @@ printf "\n\n%s\n\n" "${mag}Creating and populating the database.${end}"
 spark-submit --conf spark.eventLog.enabled=true  \
 --packages org.apache.logging.log4j:log4j-api:2.8.2,org.apache.logging.log4j:log4j-core:2.8.2,\
 org.apache.zookeeper:zookeeper:3.4.6 \
---conf spark.local.dir=/home/$USER_NAME/tmp \
---conf spark.eventLog.dir=/home/$USER_NAME/tmp \
 --class org.bsc.dcc.vcv.CreateDatabaseSpark \
 --master yarn --deploy-mode client \
 $DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar \
-/data/tables _ext /temporal/$1GB $CONTAINER spark true tables $DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar     
+/data/tables _ext /temporal/$1GB UNUSED spark true tables $DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar     
 
 
  
