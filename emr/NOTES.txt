@@ -104,7 +104,9 @@ beeline> describe extended inventory;
 
 hadoop fs -rm -r /user/hive/warehouse/*
 
+#Kill and application with yarn example.
 
+yarn application -kill application_1554559921361_0013
 
 
 
@@ -140,6 +142,18 @@ spark-submit --conf spark.eventLog.enabled=true
 --master yarn 
 --deploy-mode client 
 $DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar /data results plans $DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar spark true true $1       
+
+
+The file
+
+/usr/lib/hadoop/etc/hadoop/yarn-env.sh 
+
+defines
+
+export YARN_OPTS="$YARN_OPTS -XX:OnOutOfMemoryError='kill -9 %p'"
+
+
+
 
 
 

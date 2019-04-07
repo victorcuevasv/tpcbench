@@ -16,6 +16,8 @@ printf "\n\n%s\n\n" "${cyn}Tunneling the ports for Spark (4040, 4041, 8080, 8088
 ssh -i id_rsa -l ec2-user -N -L 18080:localhost:18080 ec2-18-237-94-60.us-west-2.compute.amazonaws.com &
 ssh -i id_rsa -l ec2-user -N -L 20888:ip-172-31-28-132.us-west-2.compute.internal:20888 \
 	ec2-18-237-94-60.us-west-2.compute.amazonaws.com  &
+ssh -i id_rsa -l ec2-user -N -L 19888:ip-172-31-28-132.us-west-2.compute.internal:19888 \
+	ec2-18-237-94-60.us-west-2.compute.amazonaws.com  &
 
 #History server web gui url.
 #http://localhost:18080/
