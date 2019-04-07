@@ -38,7 +38,7 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 --volume $DIR/../client/project:/project \
 --entrypoint mvn clientbuilder:dev \
 	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.CreateDatabase" \
-	-Dexec.args="/data/tables _ext /temporal/$1GB $(hostname) prestoemr true" \
+	-Dexec.args="/data/tables _ext /temporal/$1GB $(hostname) prestoemr false" \
 	-f /project/pom.xml       
   
 
