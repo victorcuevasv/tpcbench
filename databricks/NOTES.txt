@@ -3,6 +3,19 @@
 
 ssh -p 2200 -i id_rsa ubuntu@ec2-34-219-76-81.us-west-2.compute.amazonaws.com
 
+#Install pip3
 
+apt-get --assume-yes install python3-pip
 
+#Update pip3.
+
+pip3 install --upgrade pip
+
+#Install dbfs cli
+
+pip install databricks-cli
+
+#Configure the dbfs cli. (the \n character separates the host and token)
+
+printf 'https://dbc-....faef.cloud.databricks.com\ndapib5b...90da294d' | dbfs configure --token
 
