@@ -19,3 +19,14 @@ pip install databricks-cli
 
 printf 'https://dbc-....faef.cloud.databricks.com\ndapib5b...90da294d' | dbfs configure --token
 
+
+
+
+Spark example.
+
+#Copy the results file.
+
+dbfs cp  dbfs:/root/pi_dataframe.txt/part-00000-tid-4746470960100063989-bd257991-ef9c-477a-ba8f-15b4bb89006a-4-c000.txt  ./pi_dataframe.txt        
+
+
+
