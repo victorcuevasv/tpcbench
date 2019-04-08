@@ -63,7 +63,7 @@ public class JavaSparkPiExample {
 		List<String> resultsList = new ArrayList<String>();
 		resultsList.add(results);
 		Dataset<Row> df = this.spark.createDataset(resultsList, Encoders.STRING()).toDF();
-		this.logger.info("Saving results from the dataframe to HDFS in: " + 
+		this.logger.info("Saving results from the dataframe to [DBFS|HDFS] in: " + 
 				System.getenv("HOME") + "/pi_dataframe.txt" );
 		df.write().mode(SaveMode.Overwrite).text(System.getenv("HOME") + "/pi_dataframe.txt");
 		this.logger.info("Saving results from the dataframe to local filesystem in: " + 

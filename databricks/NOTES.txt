@@ -1,0 +1,8 @@
+
+#SSH access to the cluster master node (does not work, has to be enabled in AWS).
+
+ssh -p 2200 -i id_rsa ubuntu@ec2-34-219-76-81.us-west-2.compute.amazonaws.com
+
+
+
+
