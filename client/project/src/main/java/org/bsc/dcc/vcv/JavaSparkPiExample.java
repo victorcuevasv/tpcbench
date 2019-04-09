@@ -60,6 +60,8 @@ public class JavaSparkPiExample {
 		String results = "Pi is roughly " + 4.0 * count / n;
 		System.out.println(results);
 		this.saveResults(results, System.getenv("HOME") + "/pi.txt");
+		System.out.println("Saving file to: " + "/dbfs/pi.txt");
+		this.saveResults(results, "/dbfs/pi.txt");
 		List<String> resultsList = new ArrayList<String>();
 		resultsList.add(results);
 		Dataset<Row> df = this.spark.createDataset(resultsList, Encoders.STRING()).toDF();

@@ -14,6 +14,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 printf "\n\n%s\n\n" "${blu}Uploading the jar using REST API.${end}"
 
 curl -n \
+-H "Authorization: Bearer $(echo $DATABRICKS_TOKEN)" \
 -F filedata=@"$DIR/../client/project/targetsparkexample/client-1.0-SNAPSHOT-jar-with-dependencies.jar" \
 -F path="/docs/modsparkpi.jar" \
 -F overwrite=true \

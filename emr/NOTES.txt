@@ -109,6 +109,9 @@ hadoop fs -rm -r /user/hive/warehouse/*
 yarn application -kill application_1554559921361_0013
 
 
+#Synchronize local directory with S3 bucket
+
+aws s3 sync RESULTS_5GB s3://bsc-results/RESULTS_5GB
 
 
 
