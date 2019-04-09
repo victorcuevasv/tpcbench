@@ -10,13 +10,20 @@ end=$'\e[0m'
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+#$1 scale factor (positive integer)
+
+if [ $# -lt 1 ]; then
+    echo "${yel}Usage: bash createjob_rest.sh <json file>.${end}"
+    exit 0
+fi
+
 #Run the job on the databricks instance.
 printf "\n\n%s\n\n" "${blu}Run a job using the REST API.${end}"
 
 curl -X POST \
 -H "Authorization: Bearer $(echo $DATABRICKS_TOKEN)" \
 -H "Content-Type: application/json" \
--d @jobExample.json \
+-d $1 \
 https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/jobs/create
 
 
