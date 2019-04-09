@@ -16,7 +16,7 @@ printf "\n\n%s\n\n" "${blu}Run a job using the REST API.${end}"
 curl -X POST \
 -H "Authorization: Bearer $(echo $DATABRICKS_TOKEN)" \
 -H "Content-Type: application/json" \
--d '{"job_id": 8}' \
+-d '{"job_id": 13}' \
 https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/jobs/run-now
 
 

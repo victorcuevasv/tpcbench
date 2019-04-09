@@ -2,6 +2,11 @@
   "name": "Spark create TPC-DS database",
   "new_cluster": {
   	"spark_version": "5.2.x-scala2.11",
+  	"spark_conf": {
+        "spark.sql.hive.metastore.version": "2.3.0",
+        "spark.sql.hive.metastore.jars": "maven",
+        "hive.metastore.schema.verification": "false"
+    },
   	"aws_attributes": {
     	"zone_id": "us-west-2b",
         "first_on_demand": 1,

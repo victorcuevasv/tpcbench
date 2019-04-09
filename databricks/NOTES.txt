@@ -30,3 +30,26 @@ dbfs cp  dbfs:/root/pi_dataframe.txt/part-00000-tid-4746470960100063989-bd257991
 
 
 
+#Metastore jars.
+
+/local_disk0/tmp/hive-v2_3-c222c891-2fd0-422d-856e-4063d6b838c5
+
+%sh cp -r /local_disk0/tmp/hive-v2_3-c222c891-2fd0-422d-856e-4063d6b838c5 /dbfs/hive_metastore_jar
+
+dbfs cp init_scriptHiveJars.sh dbfs:/databricks/scripts/init_scriptHiveJars.sh
+
+spark.sql.hive.metastore.jars /databricks/hive_metastore_jars/*
+
+19/04/09 15:56:15 INFO IsolatedClientLoader: Initiating download of metastore jars from maven. 
+This may take a while and is not recommended for production use. Please follow the instructions 
+here: https://docs.databricks.com/user-guide/advanced/external-hive-metastore.html#spark-options 
+on how to download the jars just once and use them in your cluster configuration. A log message 
+beginning with 'Downloaded metastore jars' will print once the download is complete.
+
+
+
+
+
+
+
+
