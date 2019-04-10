@@ -178,7 +178,8 @@ public class CreateDatabaseSpark {
 	private String internalCreateTable(String incompleteSqlCreate, String tableName) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
-		builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
+		//builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
+		builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
 		return builder.toString();
 	}
 

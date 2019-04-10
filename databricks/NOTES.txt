@@ -29,6 +29,10 @@ Spark example.
 dbfs cp  dbfs:/root/pi_dataframe.txt/part-00000-tid-4746470960100063989-bd257991-ef9c-477a-ba8f-15b4bb89006a-4-c000.txt  ./pi_dataframe.txt        
 
 
+#Copy data volume.
+
+dbfs cp -r data dbfs:/data
+
 
 #Metastore jars.
 
@@ -151,9 +155,34 @@ mysql --host=mdpartyyphlhsp.caj77bnxuhme.us-west-2.rds.amazonaws.com --user=woA7
 
 
 
+CREATE TEMPORARY TABLE dev_user_login 
+(event_name STRING,  datetime TIMESTAMP,  ip_address STRING,  acting_user_id STRING)
+USING org.apache.spark.sql.parquet
+OPTIONS (
+  path "examples/src/main/resources/people.parquet"
+)
 
 
 
+create external table reason_ext2 (r_reason_sk int, r_reason_id string, r_reason_desc string ) ROW FORMAT DELIMITED FIELDS TERMINATED BY '' STORED AS TEXTFILE LOCATION 'dbfs:/temporal/1GB/reason'
+
+
+create table reason 
+(
+    r_reason_sk               int                           ,
+    r_reason_id               varchar(16)                      ,
+    r_reason_desc             varchar(100)                      
+) 
+USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat
+
+
+
+
+
+
+
+
+         
 
 
 

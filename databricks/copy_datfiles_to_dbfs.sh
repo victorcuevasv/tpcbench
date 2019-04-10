@@ -20,8 +20,8 @@ fi
 #Copy the .dat files inside each subdirectory.
 for d in $DIR/../vols/hive/$1GB/* ; do 
    dirName=$(basename "$d") #This invocation removes the front path.
-   dbfs mkdirs dbfs:/temporal/$dirName
-   dbfs cp $DIR/../vols/hive/$1GB/$dirName/$dirName.dat dbfs:/temporal/$dirName/$dirName.dat
+   dbfs mkdirs dbfs:/temporal/$1GB/$dirName
+   dbfs cp $DIR/../vols/hive/$1GB/$dirName/$dirName.dat dbfs:/temporal/$1GB/$dirName/$dirName.dat
    echo "${cyn}Copied $dirName.${end}"
 done
 
