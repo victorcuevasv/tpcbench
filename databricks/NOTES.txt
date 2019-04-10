@@ -52,6 +52,7 @@ spark.sql.hive.metastore.jars /databricks/hive_metastore_jars/*
 hive.metastore.schema.verification true
 hive.metastore.schema.verification.record.version 2.3.0
 
+#From the singlenode docker setup.
 
 psql metastore root
 
@@ -142,6 +143,10 @@ metastore=# SELECT * FROM "VERSION";
 Caused by: MetaException(message:Hive Schema version 2.3.0 does not match metastore's schema version 0.13.0 Metastore is not upgraded or corrupt)    
       
 
+ssh ubuntu@ec2-34-214-164-80.us-west-2.compute.amazonaws.com -p 2200 -i id_rsa -o StrictHostKeyChecking=no
+
+
+mysql --host=mdpartyyphlhsp.caj77bnxuhme.us-west-2.rds.amazonaws.com --user=woA71HHf3Yvu6VWs --password=ep840EV9gKRZvonicYNJSH5paWFIDzkJdxGsjU98      
 
 
 
