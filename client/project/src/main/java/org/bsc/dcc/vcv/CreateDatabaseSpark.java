@@ -1,7 +1,9 @@
 package org.bsc.dcc.vcv;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.sql.SQLException;
 import java.sql.Connection;
@@ -16,6 +18,10 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Encoders;
 
+import scala.collection.immutable.Map;
+import scala.collection.*;
+import scala.Tuple2;
+
 public class CreateDatabaseSpark {
 
 	private static final Logger logger = LogManager.getLogger("AllLog");
@@ -26,9 +32,11 @@ public class CreateDatabaseSpark {
 	public CreateDatabaseSpark(String jarFile, String subDir, String system) {
 		try {
 			this.createTableReader = new JarCreateTableReaderAsZipFile(jarFile, subDir);
-			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
-				.enableHiveSupport()
+			this.spark = SparkSession.builder().appName("TPC-DS Database Creation No Hive Support")
+			//	.enableHiveSupport()
 				.getOrCreate();
+			this.logger.info("TPC-DS Database Creation No Hive Support.");
+			this.logger.info(getSparkConfiguration());
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -37,6 +45,23 @@ public class CreateDatabaseSpark {
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		this.recorder = new AnalyticsRecorder("load", system);
+	}
+	
+	private String getSparkConfiguration() {
+		scala.collection.immutable.Map<String, String> map = this.spark.conf().getAll();
+		scala.collection.Iterator<Tuple2<String, String>> iter = map.iterator();
+		StringBuilder sb = new StringBuilder();
+		while (iter.hasNext()) {
+		    Tuple2<String, String> entry = iter.next();
+		    sb.append(entry._1);
+		    sb.append('=').append('"');
+		    sb.append(entry._2);
+		    sb.append('"');
+		    if (iter.hasNext()) {
+		        sb.append('\n');
+		    }
+		}
+		return sb.toString();
 	}
 
 	/**
@@ -100,14 +125,14 @@ public class CreateDatabaseSpark {
 			}
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
-			this.spark.sql("drop table if exists " + tableName + suffix);
+			this.dropTable("drop table if exists " + tableName + suffix);
 			this.spark.sql(extSqlCreate);
 			if( doCount )
 				countRowsQuery(tableName + suffix);
 			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "");
 			String intSqlCreate = internalCreateTable(incIntSqlCreate, tableName);
 			saveCreateTableFile(workDir, "parquet", tableName, intSqlCreate);
-			this.spark.sql("drop table if exists " + tableName);
+			this.dropTable("drop table if exists " + tableName);
 			this.spark.sql(intSqlCreate);
 			this.spark.sql("INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix);
 			queryRecord.setSuccessful(true);
@@ -123,6 +148,15 @@ public class CreateDatabaseSpark {
 				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
+		}
+	}
+	
+	private void dropTable(String dropStmt) {
+		try {
+			this.spark.sql(dropStmt);
+		}
+		catch(Exception ignored) {
+			//Do nothing.
 		}
 	}
 

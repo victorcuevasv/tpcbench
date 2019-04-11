@@ -178,11 +178,27 @@ USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat
 
 
 
+create external table reason_ext (r_reason_sk int, r_reason_id varchar(16), r_reason_desc varchar(100)) ROW FORMAT DELIMITED FIELDS TERMINATED BY '' STORED AS TEXTFILE LOCATION 'dbfs:/temporal/1GB/reason'
 
+create table reason (r_reason_sk int, r_reason_id varchar(16), r_reason_desc varchar(100)) USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat
 
-
-
+INSERT OVERWRITE TABLE reason SELECT * FROM reason_ext
          
+
+#Get configuration with scala on notebook
+
+sc.getConf.getAll.foreach(println)
+
+
+19/04/11 13:43:47 INFO HiveUtils: Initializing HiveMetastoreConnection version 2.3.0 using maven.
+19/04/11 13:43:47 INFO IsolatedClientLoader: Initiating download of metastore jars from maven.
+This may take a while and is not recommended for production use.
+Please follow the instructions here:
+https://docs.databricks.com/user-guide/advanced/external-hive-metastore.html#spark-options
+on how to download the jars just once and use them in your cluster configuration.
+A log message beginning with 'Downloaded metastore jars' will print once the download is complete.
+
+
 
 
 

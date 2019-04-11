@@ -68,7 +68,7 @@ public class AnalyticsRecorder {
 	            .withPattern("%msg%n").build();
 		FileAppender appender = FileAppender.newBuilder()
 				.withLayout(layout)
-		        .withFileName( "/data/logs/" + testName + "/" + system + "/analytics.log")
+		        .withFileName( "/dbfs/data/logs/" + testName + "/" + system + "/analytics.log")
 		        .withName("AnalyticsLogFilePower")
 		        .withAppend(false)
 		        .build();

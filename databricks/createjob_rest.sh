@@ -18,7 +18,7 @@ if [ $# -lt 1 ]; then
 fi
 
 #Run the job on the databricks instance.
-printf "\n\n%s\n\n" "${blu}Run a job using the REST API.${end}"
+printf "\n\n%s\n\n" "${blu}Create a job using the REST API.${end}"
 
 curl -X POST \
 -H "Authorization: Bearer $(echo $DATABRICKS_TOKEN)" \
