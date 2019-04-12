@@ -1,6 +1,9 @@
 //package org.bsc.dcc.vcv;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
@@ -13,14 +16,21 @@ public class ProcessParallelDataFiles {
 	 * @param args
 	 * 
 	 * args[0] directory that contains the .dat files
+	 * args[1] name of the output script
 	 */
 	public static void main(String[] args) {
+		if( args.length < 2 ) {
+			System.out.println("Usage: ProcessParallelDataFiles <files dir> <output script name>.");
+			System.exit(1);
+		}
 		ProcessParallelDataFiles prog = new ProcessParallelDataFiles();
 		Map<String, List<String>> tablesHT = prog.processFiles(args[0]);
 		prog.printTablesHT(tablesHT);
+		String scriptStr = prog.generateScript(tablesHT);
+		prog.saveScript(scriptStr, args[1]);
 	}
 	
-	public Map<String, List<String>> processFiles(String filesDir) {
+	private Map<String, List<String>> processFiles(String filesDir) {
 		File directory = new File(filesDir);
 		File[] files = directory.listFiles();
 		Map<String, List<String>> tablesHT = new HashMap<String, List<String>>();
@@ -39,7 +49,7 @@ public class ProcessParallelDataFiles {
 		return tablesHT;
 	}
 	
-	public void printTablesHT(Map<String, List<String>> tablesHT) {
+	private void printTablesHT(Map<String, List<String>> tablesHT) {
 		Set<String> keySet = tablesHT.keySet();
 		for(String table : keySet) {
 			List<String> files = tablesHT.get(table);
@@ -49,7 +59,34 @@ public class ProcessParallelDataFiles {
 		}
 	}
 	
-	public String getTableName(String fileName) {
+	private String generateScript(Map<String, List<String>> tablesHT) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("#!/bin/bash" + "\n");
+		Set<String> keySet = tablesHT.keySet();
+		for(String table : keySet) {
+			List<String> files = tablesHT.get(table);
+			sb.append("mkdir " + table + "\n");
+			for(String file : files)
+				sb.append("mv" + " " + file + " " + table + "\n");
+		}
+		return sb.toString();
+	}
+	
+	private void saveScript(String scriptStr, String outFile) {
+		PrintWriter out = null;
+		try {
+			out = new PrintWriter(new FileOutputStream(new File(outFile)));
+			out.println(scriptStr);
+		}
+		catch(IOException ioe) {
+			ioe.printStackTrace();
+		}
+		finally {
+			out.close();
+		}
+	}
+	
+	private String getTableName(String fileName) {
 		int lastPos = fileName.lastIndexOf('_');
 		int nextToLastPos = fileName.lastIndexOf('_', lastPos - 1);
 		String tableName = fileName.substring(0, nextToLastPos);
