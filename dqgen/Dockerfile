@@ -18,6 +18,9 @@ COPY v2.10.1rc3 /TPC-DS/v2.10.1rc3
 #Copy the scripts used to generate the queries.
 COPY containerScripts/* /TPC-DS/v2.10.1rc3/tools/
 
+#Make the scripts executable.
+RUN chmod +x /TPC-DS/v2.10.1rc3/tools/*.sh
+
 #Copy the modified netezza template.
 COPY netezza.tpl /TPC-DS/v2.10.1rc3/query_templates
 

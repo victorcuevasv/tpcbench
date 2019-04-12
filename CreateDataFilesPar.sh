@@ -20,14 +20,12 @@ GROUP_ID=$(id -g)
 #Create .dat files to populate the database. The scale factor is passed as an argument.
 #$1 scale factor (positive integer)
 
-if [ $# -lt 1 ]; then
-    printf "\n%s\n\n" "${yel}Usage bash createDataFiles.sh <scale factor>${end}"
+if [ $# -lt 2 ]; then
+    printf "\n%s\n\n" "${yel}Usage bash createDataFilesPar.sh <scale factor> <degree of parallelism>${end}"
     exit 0
 fi
 
-printf "\n%s\n" "${mag}Generating the data files.${end}"
-bash $DIR/dqgen/generateData.sh $1 $USER_ID $GROUP_ID
+printf "\n%s\n" "${mag}Generating the data files with parallelism.${end}"
+bash $DIR/dqgen/generateDataPar.sh $1 $USER_ID $GROUP_ID $2
 
-printf "\n%s\n\n" "${mag}Moving the generated files to subdirectories.${end}"
-bash $DIR/datFiles.sh $1
 
