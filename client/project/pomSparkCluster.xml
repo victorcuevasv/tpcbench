@@ -52,15 +52,7 @@
     		<artifactId>hadoop-client</artifactId>
     		<version>2.7.7</version>
 		</dependency>
-		-->
-		<!-- https://mvnrepository.com/artifact/org.scala-lang/scala-library -->
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-library</artifactId>
-			<version>2.10.0-M3</version>
-			<scope>provided</scope>
-		</dependency>
-		
+		-->		
 	</dependencies>
 	<properties>
 		<maven.compiler.target>1.8</maven.compiler.target>
