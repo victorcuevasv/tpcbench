@@ -14,11 +14,13 @@
 			<PatternLayout pattern="%-5level: %d{HH:mm:ss.SSS} %C{1} %t %logger{2} - %msg%n" />
 		</File>
 		-->
+		
 		<RollingFile
     		name="LogRollingFile"
     		fileName="/dbfs/data/logs/all.log"
-    		filePattern="/dbfs/data/logs/all_%d{yyyy-MM-dd_HH:mm}.log">
-		<!-- <RollingFile
+    		filePattern="/dbfs/data/logs/all_%d{yyyy-MM-dd_HH:mm}.log"> 
+		<!--
+		<RollingFile
     		name="LogRollingFile"
     		fileName="/data/logs/all.log"
     		filePattern="/data/logs/all_%d{yyyy-MM-dd_HH:mm}.log"> -->

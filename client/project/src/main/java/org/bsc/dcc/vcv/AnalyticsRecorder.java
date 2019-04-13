@@ -69,6 +69,7 @@ public class AnalyticsRecorder {
 		FileAppender appender = FileAppender.newBuilder()
 				.withLayout(layout)
 		        .withFileName( "/dbfs/data/logs/" + testName + "/" + system + "/analytics.log")
+		        //.withFileName( "/data/logs/" + testName + "/" + system + "/analytics.log")
 		        .withName("AnalyticsLogFilePower")
 		        .withAppend(false)
 		        .build();
