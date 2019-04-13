@@ -35,7 +35,7 @@ public class CreateDatabaseSpark {
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation No Hive Support")
 			//	.enableHiveSupport()
 				.getOrCreate();
-			this.logger.info("TPC-DS Database Creation No Hive Support.");
+			this.logger.info("TPC-DS Database Creation No Hive Support (april 13 5 pm).");
 			this.logger.info(getSparkConfiguration());
 		}
 		catch(Exception e) {

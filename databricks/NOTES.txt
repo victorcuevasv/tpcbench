@@ -189,14 +189,39 @@ INSERT OVERWRITE TABLE reason SELECT * FROM reason_ext
 
 sc.getConf.getAll.foreach(println)
 
+#Mount the S3 bucket.
 
-19/04/11 13:43:47 INFO HiveUtils: Initializing HiveMetastoreConnection version 2.3.0 using maven.
-19/04/11 13:43:47 INFO IsolatedClientLoader: Initiating download of metastore jars from maven.
-This may take a while and is not recommended for production use.
-Please follow the instructions here:
-https://docs.databricks.com/user-guide/advanced/external-hive-metastore.html#spark-options
-on how to download the jars just once and use them in your cluster configuration.
-A log message beginning with 'Downloaded metastore jars' will print once the download is complete.
+val AccessKey = "AKIAVTAH7P7CJ7LOM5UH"
+// Encode the Secret Key as that can contain "/"
+val SecretKey = "Z3pL3PEk/UWs6dJiwKJJyQvRzP9zk2SSBDXy00bS"
+val EncodedSecretKey = SecretKey.replace("/", "%2F")
+val AwsBucketName = "tpcds-datasets"
+val MountName = "tpcdsbucket"
+
+dbutils.fs.mount(s"s3a://$AccessKey:$EncodedSecretKey@$AwsBucketName", s"/mnt/$MountName")
+display(dbutils.fs.ls(s"/mnt/$MountName"))
+
+#Unmount the S3 bucket.
+
+val MountName = "tpcdsbucket"
+dbutils.fs.unmount(s"/mnt/$MountName")
+
+
+#List the files in the mounted S3 bucket.
+
+%sh ls /dbfs/mnt/tpcdsbucket/1GB/inventory
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
