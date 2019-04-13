@@ -28,4 +28,21 @@ fi
 printf "\n%s\n" "${mag}Generating the data files with parallelism.${end}"
 bash $DIR/dqgen/generateDataPar.sh $1 $USER_ID $GROUP_ID $2
 
+printf "\n%s\n\n" "${mag}Generate a script to move the generated files to subdirectories.${end}"
+docker run --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer \
+--volume $DIR/vols/hive:/vols/hive \
+--volume $DIR/client/project:/project \
+--entrypoint mvn clientbuilder:dev \
+exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ProcessParallelDataFiles" \
+-Dexec.args="/vols/hive/$1GB moveParallelGenFiles.sh" -f /project/pom.xml
+
+printf "\n%s\n\n" "${mag}Moving the generated files to subdirectories using the script.${end}"
+bash $DIR/vols/hive/$1GB/moveParallelGenFiles.sh
+
+printf "\n%s\n\n" "${mag}Removing the script.${end}"
+rm $DIR/vols/hive/$1GB/moveParallelGenFiles.sh
+
+
+
+
 

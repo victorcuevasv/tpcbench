@@ -1,4 +1,4 @@
-//package org.bsc.dcc.vcv;
+package org.bsc.dcc.vcv;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,7 +27,7 @@ public class ProcessParallelDataFiles {
 		Map<String, List<String>> tablesHT = prog.processFiles(args[0]);
 		prog.printTablesHT(tablesHT);
 		String scriptStr = prog.generateScript(tablesHT);
-		prog.saveScript(scriptStr, args[1]);
+		prog.saveScript(scriptStr, args[0], args[1]);
 	}
 	
 	private Map<String, List<String>> processFiles(String filesDir) {
@@ -62,20 +62,21 @@ public class ProcessParallelDataFiles {
 	private String generateScript(Map<String, List<String>> tablesHT) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("#!/bin/bash" + "\n");
+		sb.append("DIR=\"$( cd \"$( dirname \"${BASH_SOURCE[0]}\" )\" >/dev/null && pwd )\"\n");
 		Set<String> keySet = tablesHT.keySet();
 		for(String table : keySet) {
 			List<String> files = tablesHT.get(table);
-			sb.append("mkdir " + table + "\n");
+			sb.append("mkdir $DIR/" + table + "\n");
 			for(String file : files)
-				sb.append("mv" + " " + file + " " + table + "\n");
+				sb.append("mv" + " " + "$DIR/" + file + " " + "$DIR/" + table + "\n");
 		}
 		return sb.toString();
 	}
 	
-	private void saveScript(String scriptStr, String outFile) {
+	private void saveScript(String scriptStr, String outDir, String outFile) {
 		PrintWriter out = null;
 		try {
-			out = new PrintWriter(new FileOutputStream(new File(outFile)));
+			out = new PrintWriter(new FileOutputStream(new File(outDir + "/" + outFile)));
 			out.println(scriptStr);
 		}
 		catch(IOException ioe) {
