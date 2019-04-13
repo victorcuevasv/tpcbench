@@ -33,7 +33,7 @@ docker run --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer \
 --volume $DIR/vols/hive:/vols/hive \
 --volume $DIR/client/project:/project \
 --entrypoint mvn clientbuilder:dev \
-exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ProcessParallelDataFiles" \
+-q exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ProcessParallelDataFiles" \
 -Dexec.args="/vols/hive/$1GB moveParallelGenFiles.sh" -f /project/pom.xml
 
 printf "\n%s\n\n" "${mag}Moving the generated files to subdirectories using the script.${end}"

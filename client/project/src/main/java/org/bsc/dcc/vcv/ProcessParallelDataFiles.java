@@ -62,13 +62,13 @@ public class ProcessParallelDataFiles {
 	private String generateScript(Map<String, List<String>> tablesHT) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("#!/bin/bash" + "\n");
-		sb.append("DIR=\"$( cd \"$( dirname \"${BASH_SOURCE[0]}\" )\" >/dev/null && pwd )\"\n");
+		sb.append("SDIR=\"$( cd \"$( dirname \"${BASH_SOURCE[0]}\" )\" >/dev/null && pwd )\"\n");
 		Set<String> keySet = tablesHT.keySet();
 		for(String table : keySet) {
 			List<String> files = tablesHT.get(table);
-			sb.append("mkdir $DIR/" + table + "\n");
+			sb.append("mkdir $SDIR/" + table + "\n");
 			for(String file : files)
-				sb.append("mv" + " " + "$DIR/" + file + " " + "$DIR/" + table + "\n");
+				sb.append("mv" + " " + "$SDIR/" + file + " " + "$SDIR/" + table + "\n");
 		}
 		return sb.toString();
 	}
