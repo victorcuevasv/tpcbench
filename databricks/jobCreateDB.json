@@ -19,7 +19,7 @@
   	"jar_uri": "project/targetsparkcluster/client-1.0-SNAPSHOT-jar-with-dependencies.jar",
     "main_class_name": "org.bsc.dcc.vcv.CreateDatabaseSpark",
     "parameters": 
-    	["/dbfs/data/tables", "_ext", "dbfs:/temporal/1GB", "CONTAINER_UNUSED",
+    	["/dbfs/data/tables", "_ext", "dbfs:/mnt/tpcdsbucket/1GB", "CONTAINER_UNUSED",
     	"spark", "false", "tables",
     	"/dbfs/FileStore/job-jars/project/targetsparkcluster/client-1.0-SNAPSHOT-jar-with-dependencies.jar"]
   }

@@ -214,6 +214,7 @@ public class CreateDatabaseSpark {
 		// Add the stored as statement.
 		//builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
 		builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
+		builder.append("LOCATION 'dbfs:/mnt/tpcdswarehousebucket100GB/" + tableName + "' \n");
 		return builder.toString();
 	}
 
