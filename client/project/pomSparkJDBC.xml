@@ -69,6 +69,7 @@
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/HDFSExample.java</exclude>
 						<exclude>org/bsc/dcc/vcv/JavaSparkPiExample.java</exclude>
+						<exclude>org/bsc/dcc/vcv/SparkUtil.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

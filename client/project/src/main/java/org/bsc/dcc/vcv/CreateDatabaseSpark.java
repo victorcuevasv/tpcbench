@@ -32,7 +32,7 @@ public class CreateDatabaseSpark {
 			//	.enableHiveSupport()
 				.getOrCreate();
 			this.logger.info("TPC-DS Database Creation No Hive Support.");
-			this.logger.info(AppUtil.stringifySparkConfiguration(this.spark));
+			this.logger.info(SparkUtil.stringifySparkConfiguration(this.spark));
 		}
 		catch(Exception e) {
 			e.printStackTrace();

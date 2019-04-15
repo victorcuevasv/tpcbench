@@ -72,6 +72,7 @@ public class AnalyticsRecorder {
 		        //.withFileName( "/data/logs/" + testName + "/" + system + "/analytics.log")
 		        .withName("AnalyticsLogFilePower")
 		        .withAppend(false)
+		        .withImmediateFlush(true)
 		        .build();
 		appender.start();
 		config.addAppender(appender);
