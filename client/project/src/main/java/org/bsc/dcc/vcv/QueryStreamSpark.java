@@ -31,9 +31,11 @@ import org.apache.spark.sql.Encoders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import scala.Option;
+
 public class QueryStreamSpark implements Callable<Void> {
 
-	private static final Logger logger = LogManager.getLogger(QueryStreamSpark.class);
+	private static final Logger logger = LogManager.getLogger("AllLog");
 	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
 	private SparkSession spark;
 	private int nStream;
@@ -54,7 +56,12 @@ public class QueryStreamSpark implements Callable<Void> {
 			Random random, String system, boolean savePlans, boolean saveResults) {
 		this.nStream = nStream;
 		this.resultsQueue = resultsQueue;
-		this.spark = spark;
+		//this.spark = spark;
+		//In databricks, take the default session instead of using the same
+		//session reference as in main.
+		Option<SparkSession> opt = SparkSession.getDefaultSession();
+		SparkSession session = opt.getOrElse(null);
+		this.spark = session;
 		this.queriesHT = queriesHT;
 		this.nQueries = nQueries;
 		this.workDir = workDir;
@@ -69,6 +76,8 @@ public class QueryStreamSpark implements Callable<Void> {
 
 	@Override
 	public Void call() {
+		this.logger.info("\n\n\n\n\nStarting query stream: " + this.nStream);
+		//this.logger.info(AppUtil.stringifySparkConfiguration(this.spark));
 		Integer[] queries = this.queriesHT.keySet().toArray(new Integer[] {});
 		this.shuffle(queries);
 		for(int i = 0; i < nQueries; i++) {
@@ -143,8 +152,8 @@ public class QueryStreamSpark implements Callable<Void> {
 			String sqlStr = tokenizer.nextToken().trim();
 			if( sqlStr.length() == 0 )
 				continue;
-			this.spark.sparkContext().setJobDescription("Stream " + nStream + " item " + item + 
-					" executing iteration " + iteration + " of query " + noExtFileName + ".");
+			//this.spark.sparkContext().setJobDescription("Stream " + nStream + " item " + item + 
+			//		" executing iteration " + iteration + " of query " + noExtFileName + ".");
 			// Obtain the plan for the query.
 			Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
 			//planDataset.write().mode(SaveMode.Append).csv(workDir + "/" + plansDir + "/" + 

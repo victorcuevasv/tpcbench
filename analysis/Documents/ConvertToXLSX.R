@@ -1,7 +1,7 @@
 library("rio")
 
-#workDir <- "./Documents/RESULTS/load"
-workDir <- "./Documents/RESULTS/power"
+workDir <- "./Documents/RESULTS/load"
+#workDir <- "./Documents/RESULTS/power"
 #workDir <- "./Documents/RESULTS/tput"
 systemDirs <- list.files(path=workDir)
 

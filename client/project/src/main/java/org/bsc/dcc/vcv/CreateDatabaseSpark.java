@@ -18,10 +18,6 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Encoders;
 
-import scala.collection.immutable.Map;
-import scala.collection.*;
-import scala.Tuple2;
-
 public class CreateDatabaseSpark {
 
 	private static final Logger logger = LogManager.getLogger("AllLog");
@@ -35,8 +31,8 @@ public class CreateDatabaseSpark {
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation No Hive Support")
 			//	.enableHiveSupport()
 				.getOrCreate();
-			this.logger.info("TPC-DS Database Creation No Hive Support (april 13 5 pm).");
-			this.logger.info(getSparkConfiguration());
+			this.logger.info("TPC-DS Database Creation No Hive Support.");
+			this.logger.info(AppUtil.stringifySparkConfiguration(this.spark));
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -45,23 +41,6 @@ public class CreateDatabaseSpark {
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		this.recorder = new AnalyticsRecorder("load", system);
-	}
-	
-	private String getSparkConfiguration() {
-		scala.collection.immutable.Map<String, String> map = this.spark.conf().getAll();
-		scala.collection.Iterator<Tuple2<String, String>> iter = map.iterator();
-		StringBuilder sb = new StringBuilder();
-		while (iter.hasNext()) {
-		    Tuple2<String, String> entry = iter.next();
-		    sb.append(entry._1);
-		    sb.append('=').append('"');
-		    sb.append(entry._2);
-		    sb.append('"');
-		    if (iter.hasNext()) {
-		        sb.append('\n');
-		    }
-		}
-		return sb.toString();
 	}
 
 	/**
@@ -214,7 +193,7 @@ public class CreateDatabaseSpark {
 		// Add the stored as statement.
 		//builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
 		builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
-		builder.append("LOCATION 'dbfs:/mnt/tpcdswarehousebucket100GB/" + tableName + "' \n");
+		builder.append("LOCATION 'dbfs:/mnt/tpcdswarehousebucket1GB/" + tableName + "' \n");
 		return builder.toString();
 	}
 

@@ -23,8 +23,8 @@ summarizeLog <- function(inFile, outFile, scaleFactor) {
   export(outputDF, outFile)
 }
 
-workDir <- "./Documents/RESULTS/power"
-#workDir <- "./Documents/RESULTS/load"
+#workDir <- "./Documents/RESULTS/power"
+workDir <- "./Documents/RESULTS/load"
 systemDirs <- list.files(path=workDir)
 
 for(system in systemDirs) {
