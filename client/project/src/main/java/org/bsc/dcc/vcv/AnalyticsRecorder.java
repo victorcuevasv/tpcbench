@@ -9,6 +9,7 @@ import org.apache.logging.log4j.core.*;
 import org.apache.logging.log4j.core.appender.*;
 import org.apache.logging.log4j.core.config.*;
 import org.apache.logging.log4j.core.layout.*;
+import org.apache.logging.log4j.Level;
 
 public class AnalyticsRecorder {
 	
@@ -68,9 +69,9 @@ public class AnalyticsRecorder {
 	            .withPattern("%msg%n").build();
 		FileAppender appender = FileAppender.newBuilder()
 				.withLayout(layout)
-		        .withFileName( "/dbfs/data/logs/" + testName + "/" + system + "/analytics.log")
-		        //.withFileName( "/data/logs/" + testName + "/" + system + "/analytics.log")
-		        .withName("AnalyticsLogFilePower")
+		        //.withFileName( "/dbfs/data/logs/" + testName + "/" + system + "/analytics.log")
+		        .withFileName( "/data/logs/" + testName + "/" + system + "/analytics.log")
+		        .withName("AnalyticsLogAppender")
 		        .withAppend(false)
 		        .withImmediateFlush(true)
 		        .build();
@@ -78,10 +79,23 @@ public class AnalyticsRecorder {
 		config.addAppender(appender);
 		updateLoggers(appender, config);
 	}
-
+	
+	
 	private void updateLoggers(final Appender appender, final Configuration config) {
 		LoggerConfig loggerConfig = config.getLoggerConfig("AnalyticsLog");
 		loggerConfig.addAppender(appender, null, null);
 	}
+	
+	
+	/*
+	private void updateLoggers(final Appender appender, final Configuration config) {
+	    final Level level = null;
+	    final Filter filter = null;
+	    for (final LoggerConfig loggerConfig : config.getLoggers().values()) {
+	        loggerConfig.addAppender(appender, level, filter);
+	    }
+	    config.getRootLogger().addAppender(appender, level, filter);
+	}
+	*/
 	
 }
