@@ -11,7 +11,7 @@ end=$'\e[0m'
 #$1 scale factor (positive integer)
 
 if [ $# -lt 1 ]; then
-    echo "Usage: bash copy_datfiles_to_hdfs.sh <scale factor>."
+    echo "${yel}Usage: bash copy_datfiles_to_hdfs.sh <scale factor>.${end}"
     exit 0
 fi
 

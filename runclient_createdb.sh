@@ -22,7 +22,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #$1 scale factor (positive integer)
 
 if [ $# -lt 1 ]; then
-    echo "Usage: bash runclient_createdb.sh <scale factor>."
+    echo "${yel}Usage: bash runclient_createdb.sh <scale factor>.${end}"
     exit 0
 fi
 
@@ -41,7 +41,7 @@ docker exec -ti namenodecontainer  /bin/bash -c "hadoop fs -mkdir -p /user/hive/
 
 docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateDatabase\" \
-	-Dexec.args=\"/data/tables _ext /temporal/$1GB $CONTAINER presto false\" -f /project/pom.xml"       
+	-Dexec.args=\"/data/tables _ext /temporal/$1GB $CONTAINER presto false null null\" -f /project/pom.xml"       
   
 
 

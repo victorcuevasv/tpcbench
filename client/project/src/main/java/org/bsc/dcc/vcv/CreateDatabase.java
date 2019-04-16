@@ -17,6 +17,7 @@ public class CreateDatabase {
 
 	private static String driverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
+	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private AnalyticsRecorder recorder;
@@ -27,8 +28,6 @@ public class CreateDatabase {
 		try {
 			if( system.equals("hive") ) {
 				Class.forName(driverName);
-				// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
-				// "hive", "");
 				con = DriverManager.getConnection("jdbc:hive2://" + hostname + 
 					":10000/default", "hive", "");
 			}
@@ -43,6 +42,11 @@ public class CreateDatabase {
 				//Should use hadoop to drop a table created by spark.
 				con = DriverManager.getConnection("jdbc:presto://" + 
 						hostname + ":8889/hive/default", "hadoop", "");
+			}
+			else if( system.startsWith("spark") ) {
+				Class.forName(hiveDriverName);
+				con = DriverManager.getConnection("jdbc:hive2://" +
+						hostname + ":10015/default", "", "");
 			}
 			else {
 				throw new java.lang.RuntimeException("Unsupported system: " + system);
@@ -76,9 +80,11 @@ public class CreateDatabase {
 	 * args[3] hostname of the server
 	 * args[4] system running the data loading queries
 	 * args[5] count (boolean) whether to run queries to count the tuples generated
+	 * args[6] prefix of external location for raw data tables (e.g. S3 bucket), null for none
+	 * args[7] prefix of external location for created tables (e.g. S3 bucket), null for none
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 6 ) {
+		if( args.length != 8 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(0);
@@ -87,13 +93,16 @@ public class CreateDatabase {
 		boolean doCount = Boolean.parseBoolean(args[5]);
 		File directory = new File(args[0]);
 		prog.recorder.header();
+		String extTablePrefixRaw = args[6].equalsIgnoreCase("null") ? null : args[6];
+		String extTablePrefixCreated = args[7].equalsIgnoreCase("null") ? null : args[7];
 		// Process each .sql create table file found in the directory.
 		File[] filesArray = directory.listFiles();
 		List<File> filesList = Arrays.stream(filesArray).sorted().collect(Collectors.toList());
 		int i = 1;
 		for (final File fileEntry : filesList) {
 			if (!fileEntry.isDirectory()) {
-				prog.createTable(args[0], fileEntry, args[1], args[2], doCount, i);
+				prog.createTable(args[0], fileEntry, args[1], args[2], doCount, extTablePrefixRaw,
+						extTablePrefixCreated, i);
 				i++;
 			}
 		}
@@ -103,23 +112,26 @@ public class CreateDatabase {
 	// To create each table from the .dat file, an external table is first created.
 	// Then a parquet table is created and data is inserted into it from the
 	// external table.
-	// The SQL create table statement found in the file has to be manipulated for
+	// The SQL create table statement found in the file has to be modified for
 	// creating these tables.
 	private void createTable(String workDir, File tableSQLfile, String suffix, String genDataDir,
-			boolean doCount, int index) {
+			boolean doCount, String extTablePrefixRaw, String extTablePrefixCreated, int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = tableSQLfile.getName().substring(0, tableSQLfile.getName().indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			String sqlCreate = readFileContents(tableSQLfile.getAbsolutePath());
+			//Hive and Spark use the statement 'create external table ...' for raw data tables
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, 
 					! this.recorder.system.startsWith("presto"), suffix);
 			String extSqlCreate = null;
-			if( this.recorder.system.equals("hive") )
-				extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, genDataDir);
+			if( this.recorder.system.equals("hive") || this.recorder.system.equals("spark"))
+				extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, genDataDir, 
+						extTablePrefixRaw);
 			else if( this.recorder.system.startsWith("presto") )
-				extSqlCreate = externalCreateTablePresto(incExtSqlCreate, tableName, genDataDir);
+				extSqlCreate = externalCreateTablePresto(incExtSqlCreate, tableName, genDataDir,
+						extTablePrefixRaw);
 			saveCreateTableFile(workDir, "textfile", tableName, extSqlCreate);
 			// Skip the dbgen_version table since its time attribute is not
 			// compatible with Hive.
@@ -136,14 +148,14 @@ public class CreateDatabase {
 				countRowsQuery(stmt, tableName + suffix);
 			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "");
 			String intSqlCreate = null;
-			if( this.recorder.system.equals("hive") )
-				intSqlCreate = internalCreateTableHive(incIntSqlCreate, tableName);
+			if( this.recorder.system.equals("hive") || this.recorder.system.equals("spark") )
+				intSqlCreate = internalCreateTableHive(incIntSqlCreate, tableName, extTablePrefixCreated);
 			else if( this.recorder.system.startsWith("presto") )
-				intSqlCreate = internalCreateTablePresto(incIntSqlCreate, tableName);
+				intSqlCreate = internalCreateTablePresto(incIntSqlCreate, tableName, extTablePrefixCreated);
 			saveCreateTableFile(workDir, "parquet", tableName, intSqlCreate);
 			stmt.execute("drop table if exists " + tableName);
 			stmt.execute(intSqlCreate);
-			if( this.recorder.system.equals("hive") )
+			if( this.recorder.system.equals("hive") || this.recorder.system.equals("spark") )
 				stmt.execute("INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix);
 			else if( this.recorder.system.startsWith("presto") )
 				stmt.execute("INSERT INTO " + tableName + " SELECT * FROM " + tableName + suffix);
@@ -201,40 +213,62 @@ public class CreateDatabase {
 
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an external textfile table in Hive.
-	private String externalCreateTableHive(String incompleteSqlCreate, String tableName, String genDataDir) {
+	private String externalCreateTableHive(String incompleteSqlCreate, String tableName, String genDataDir,
+			String extTablePrefixRaw) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
 		builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY '\001' \n");
 		builder.append("STORED AS TEXTFILE \n");
-		builder.append("LOCATION '" + genDataDir + "/" + tableName + "' \n");
+		if( extTablePrefixRaw == null )
+			builder.append("LOCATION '" + genDataDir + "/" + tableName + "' \n");
+		else
+			builder.append("LOCATION '" + extTablePrefixRaw + "/" + genDataDir + "/" + tableName + "' \n");
 		return builder.toString();
 	}
 	
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an external textfile table in Presto.
-	private String externalCreateTablePresto(String incompleteSqlCreate, String tableName, String genDataDir) {
+	private String externalCreateTablePresto(String incompleteSqlCreate, String tableName, String genDataDir,
+			String extTablePrefixRaw) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
 		builder.append("WITH ( format = 'TEXTFILE', \n");
-		builder.append("external_location = '" + genDataDir + "/" + tableName + "' ) \n");
+		if( extTablePrefixRaw == null )
+			builder.append("external_location = '" + genDataDir + "/" + tableName + "' ) \n");
+		else
+			builder.append("external_location = '" + extTablePrefixRaw + "/" + genDataDir + "/" + 
+					tableName + "' ) \n");
 		return builder.toString();
 	}
 
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an internal parquet table in Hive.
-	private String internalCreateTableHive(String incompleteSqlCreate, String tableName) {
+	private String internalCreateTableHive(String incompleteSqlCreate, String tableName,
+			String extTablePrefixCreated) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
-		builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
+		if( extTablePrefixCreated == null )
+			builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
+		else {
+			builder.append("STORED AS PARQUET \n");
+			builder.append("LOCATION '" + extTablePrefixCreated + "/" + tableName + "' \n");
+			builder.append("TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
+		}
 		return builder.toString();
 	}
 	
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an internal parquet table in Presto.
-	private String internalCreateTablePresto(String incompleteSqlCreate, String tableName) {
+	private String internalCreateTablePresto(String incompleteSqlCreate, String tableName,
+			String extTablePrefixCreated) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
-		builder.append("WITH ( format = 'PARQUET' ) \n");
+		if( extTablePrefixCreated == null )
+			builder.append("WITH ( format = 'PARQUET' ) \n");
+		else {
+			builder.append("WITH ( format = 'PARQUET', ");
+			builder.append("external_location = '" + extTablePrefixCreated + "/" + tableName + "' ) \n");
+		}
 		return builder.toString();
 	}
 
