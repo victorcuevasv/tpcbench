@@ -2,7 +2,9 @@ FROM ubuntujava:dev
 
 USER root
 
-ARG APACHE_MIRROR=apache.rediris.es
+ARG APACHE_MIRROR=archive.apache.org
+ARG SPARK_VERSION=2.4.0
+ARG HADOOP_VERSION=2.7.7
 
 #Install netcat to use nc to check connections, ssh and python.
 
@@ -28,43 +30,43 @@ COPY ssh_config /root/.ssh/config
 
 #Download and decompress Hadoop
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
-    tar xzf /opt/hadoop-2.7.7.tar.gz -C /opt && \
-    rm -f /opt/hadoop-2.7.7.tar.gz
+RUN wget -q -P /opt http://$APACHE_MIRROR/dist/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz && \
+    tar xzf /opt/hadoop-$HADOOP_VERSION.tar.gz -C /opt && \
+    rm -f /opt/hadoop-$HADOOP_VERSION.tar.gz
 
 #Add the Hadoop installation directory variable and update the path.
 
-ENV HADOOP_HOME /opt/hadoop-2.7.7
-ENV PATH="${PATH}:/opt/hadoop-2.7.7/bin:/opt/hadoop-2.7.7/sbin"
+ENV HADOOP_HOME /opt/hadoop-$HADOOP_VERSION
+ENV PATH="${PATH}:/opt/hadoop-$HADOOP_VERSION/bin:/opt/hadoop-$HADOOP_VERSION/sbin"
 
 #Copy the Hadoop configuration files.
 
-COPY etc_hadoop/* /opt/hadoop-2.7.7/etc/hadoop/
+COPY etc_hadoop/* /opt/hadoop-$HADOOP_VERSION/etc/hadoop/
 
 #Use the same slaves file used for Spark for hadoop.
 
-COPY spark_conf/slaves /opt/hadoop-2.7.7/etc/hadoop/
+COPY spark_conf/slaves /opt/hadoop-$HADOOP_VERSION/etc/hadoop/
 
 #Change the owner of the Hadoop files.
 
 RUN useradd hadoop && \
-    chown -R hadoop:hadoop /opt/hadoop-2.7.7
+    chown -R hadoop:hadoop /opt/hadoop-$HADOOP_VERSION
     
 #Download and decompress Spark.
 #Use the version prebuilt for Hadoop, spark-sql does not work in the version without Hadoop.
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
-    tar xzf /opt/spark-2.4.0-bin-hadoop2.7.tgz -C /opt && \
-    rm -f /opt/spark-2.4.0-bin-hadoop2.7.tgz
+RUN wget -q -P /opt http://$APACHE_MIRROR/dist/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop2.7.tgz && \
+    tar xzf /opt/spark-$SPARK_VERSION-bin-hadoop2.7.tgz -C /opt && \
+    rm -f /opt/spark-$SPARK_VERSION-bin-hadoop2.7.tgz
     
 #Add the Spark installation directory variable and update the path.
 
-ENV SPARK_HOME /opt/spark-2.4.0-bin-hadoop2.7
-ENV PATH="${PATH}:/opt/spark-2.4.0-bin-hadoop2.7/bin"
+ENV SPARK_HOME /opt/spark-$SPARK_VERSION-bin-hadoop2.7
+ENV PATH="${PATH}:/opt/spark-$SPARK_VERSION-bin-hadoop2.7/bin"
 
 #Add the metastore configuration file for the cluster mode, in which execution occurs in a worker node.
 
-COPY hive-siteExternalMetastoreSpark.xml /opt/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
+COPY hive-siteExternalMetastoreSpark.xml /opt/spark-$SPARK_VERSION-bin-hadoop2.7/conf/hive-site.xml
 
 #Add the Hadoop jars to the Spark classpath.
 

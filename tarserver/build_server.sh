@@ -10,6 +10,6 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
-printf "\n\n%s\n\n" "${yel}Building the apache2 server.${end}"
-docker build -t apache2-tarserver:dev .
+printf "\n\n%s\n\n" "${blu}Building the apache2 server.${end}"
+docker build --force-rm -t apache2-tarserver:dev .
 

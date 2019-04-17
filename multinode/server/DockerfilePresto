@@ -16,6 +16,8 @@ RUN apt-get update && apt-get install -y \
 ARG APACHE_MIRROR=apache.rediris.es
 ARG POSTGRES_DRIVER_MIRROR=jdbc.postgresql.org
 ARG PRESTO_MIRROR=repo1.maven.org
+ARG HADOOP_VERSION=2.7.7
+ARG HIVE_VERSION=2.3.4
 
 #Add the generated key to the authorized set.
 #The ssh server has been installed in the ubuntujavahadoop image.
@@ -34,15 +36,15 @@ COPY conf/ssh_config /root/.ssh/config
 #Add the Hadoop installation directory variable and update the path.
 #The hadoop files have been downloaded for the ubuntujavahadoop image.
 
-ENV HADOOP_HOME /opt/hadoop-2.7.7
-ENV PATH="${PATH}:/opt/hadoop-2.7.7/bin:/opt/hadoop-2.7.7/sbin"
+ENV HADOOP_HOME /opt/hadoop-$HADOOP_VERSION
+ENV PATH="${PATH}:/opt/hadoop-$HADOOP_VERSION/bin:/opt/hadoop-$HADOOP_VERSION/sbin"
 
 #Copy the Hadoop configuration files.
 #The owner of the rest of the hadoop files has been changed in the ubuntujavahadoop image.
 
-COPY etc_hadoop/* /opt/hadoop-2.7.7/etc/hadoop/
-COPY conf/slaves /opt/hadoop-2.7.7/etc/hadoop/
-RUN chown -R hadoop:hadoop /opt/hadoop-2.7.7/etc/hadoop/
+COPY etc_hadoop/* /opt/hadoop-$HADOOP_VERSION/etc/hadoop/
+COPY conf/slaves /opt/hadoop-$HADOOP_VERSION/etc/hadoop/
+RUN chown -R hadoop:hadoop /opt/hadoop-$HADOOP_VERSION/etc/hadoop/
 
 #Format the hdfs namenode.
 
@@ -50,18 +52,18 @@ RUN hdfs namenode -format
 
 #Download and decompress Hive.
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/hive/hive-2.3.4/apache-hive-2.3.4-bin.tar.gz && \
-    tar xzf /opt/apache-hive-2.3.4-bin.tar.gz -C /opt && \
-    rm -f /opt/apache-hive-2.3.4-bin.tar.gz
+RUN wget -q -P /opt http://$APACHE_MIRROR/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz && \
+    tar xzf /opt/apache-hive-$HIVE_VERSION-bin.tar.gz -C /opt && \
+    rm -f /opt/apache-hive-$HIVE_VERSION-bin.tar.gz
     
 #Add the Hive installation directory variable and update the path.
 
-ENV HIVE_HOME /opt/apache-hive-2.3.4-bin
-ENV PATH="${PATH}:/opt/apache-hive-2.3.4-bin/bin"
+ENV HIVE_HOME /opt/apache-hive-$HIVE_VERSION-bin
+ENV PATH="${PATH}:/opt/apache-hive-$HIVE_VERSION-bin/bin"
 
 #Copy the Hive configuration file which will override selected defaults.
 
-COPY conf/hive-siteExternalMetastore.xml /opt/apache-hive-2.3.4-bin/conf/hive-site.xml
+COPY conf/hive-siteExternalMetastore.xml /opt/apache-hive-$HIVE_VERSION-bin/conf/hive-site.xml
 
 #Add hive user and supergroup, also add UNAME to the supergroup.
 RUN useradd hive && \
@@ -71,7 +73,7 @@ RUN useradd hive && \
 
 #Download the postgres driver.
 
-RUN wget --no-check-certificate -q -P /opt/apache-hive-2.3.4-bin/lib \
+RUN wget --no-check-certificate -q -P /opt/apache-hive-$HIVE_VERSION-bin/lib \
     https://$POSTGRES_DRIVER_MIRROR/download/postgresql-42.2.5.jar
 
 #Download and decompress Presto.

@@ -7,21 +7,22 @@ ARG GID=100
 RUN groupadd -g $GID -o $UNAME
 RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
 
-#Install less for the Presto cli pager.
+#Install less for the Presto cli pager and wget to download the presto cli.
 
 RUN apt-get update && apt-get install -y \
-    less
+    less wget
 
-ARG APACHE_MIRROR=apache.rediris.es
+ARG APACHE_MIRROR=archive.apache.org
 ARG PRESTO_MIRROR=repo1.maven.org
+ARG MAVEN_VERSION=3.6.0
 
 #Download and decompress Maven.
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz && \
-    tar xzf /opt/apache-maven-3.6.0-bin.tar.gz -C /opt && \
-    rm -f /opt/apache-maven-3.6.0-bin.tar.gz
+RUN wget -q -P /opt http://$APACHE_MIRROR/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz && \
+    tar xzf /opt/apache-maven-$MAVEN_VERSION-bin.tar.gz -C /opt && \
+    rm -f /opt/apache-maven-$MAVEN_VERSION-bin.tar.gz
 
-ENV PATH="${PATH}:/opt/apache-maven-3.6.0/bin"
+ENV PATH="${PATH}:/opt/apache-maven-$MAVEN_VERSION/bin"
 
 #Download the Presto CLI jar.
 

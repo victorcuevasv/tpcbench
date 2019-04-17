@@ -10,6 +10,6 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
-printf "\n\n%s\n\n" "${yel}Running the apache2 server.${end}"
+printf "\n\n%s\n\n" "${cyn}Running the apache2 server.${end}"
 docker run --name apache-tarserver-container -dit -p 8888:80 -p 443:443 apache2-tarserver:dev
 

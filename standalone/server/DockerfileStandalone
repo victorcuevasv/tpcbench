@@ -16,47 +16,50 @@ RUN apt-get update && apt-get install -y \
 
 #Download and decompress Hadoop.
 
-ARG APACHE_MIRROR=apache.rediris.es
+ARG APACHE_MIRROR=archive.apache.org
+ARG HADOOP_VERSION=2.7.7
+ARG HIVE_VERSION=2.3.4
+ARG SPARK_VERSION=2.4.0
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
-    tar xzf /opt/hadoop-2.7.7.tar.gz -C /opt && \
-    rm -f /opt/hadoop-2.7.7.tar.gz
+RUN wget -q -P /opt http://$APACHE_MIRROR/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz && \
+    tar xzf /opt/hadoop-$HADOOP_VERSION.tar.gz -C /opt && \
+    rm -f /opt/hadoop-$HADOOP_VERSION.tar.gz
     
 #Add the Hadoop installation directory variable and update the path.
 
-ENV HADOOP_HOME /opt/hadoop-2.7.7
-ENV PATH="${PATH}:/opt/hadoop-2.7.7/bin:/opt/hadoop-2.7.7/sbin"
+ENV HADOOP_HOME /opt/hadoop-$HADOOP_VERSION
+ENV PATH="${PATH}:/opt/hadoop-$HADOOP_VERSION/bin:/opt/hadoop-$HADOOP_VERSION/sbin"
 
 #Download and decompress Hive.
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/hive/hive-2.3.4/apache-hive-2.3.4-bin.tar.gz && \
-    tar xzf /opt/apache-hive-2.3.4-bin.tar.gz -C /opt && \
-    rm -f /opt/apache-hive-2.3.4-bin.tar.gz
+RUN wget -q -P /opt http://$APACHE_MIRROR/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz && \
+    tar xzf /opt/apache-hive-$HIVE_VERSION-bin.tar.gz -C /opt && \
+    rm -f /opt/apache-hive-$HIVE_VERSION-bin.tar.gz
 
 #Add the Hive installation directory variable and update the path.
 
-ENV HIVE_HOME /opt/apache-hive-2.3.4-bin
-ENV PATH="${PATH}:/opt/apache-hive-2.3.4-bin/bin"
+ENV HIVE_HOME /opt/apache-hive-$HIVE_VERSION-bin
+ENV PATH="${PATH}:/opt/apache-hive-$HIVE_VERSION-bin/bin"
 
 #Copy the Hive configuration file which will override selected defaults.
 
-COPY hive-site.xml /opt/apache-hive-2.3.4-bin/conf/
+COPY hive-site.xml /opt/apache-hive-$HIVE_VERSION-bin/conf/
 
 #Download and decompress Spark.
 #Use the version prebuilt for Hadoop, spark-sql does not work in the version without Hadoop.
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
-    tar xzf /opt/spark-2.4.0-bin-hadoop2.7.tgz -C /opt && \
-    rm -f /opt/spark-2.4.0-bin-hadoop2.7.tgz
+RUN wget -q -P /opt http://$APACHE_MIRROR/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop2.7.tgz && \
+    tar xzf /opt/spark-$SPARK_VERSION-bin-hadoop2.7.tgz -C /opt && \
+    rm -f /opt/spark-$SPARK_VERSION-bin-hadoop2.7.tgz
 
 #Add the Spark installation directory variable and update the path.
 
-ENV SPARK_HOME /opt/spark-2.4.0-bin-hadoop2.7
-ENV PATH="${PATH}:/opt/spark-2.4.0-bin-hadoop2.7/bin"
+ENV SPARK_HOME /opt/spark-$SPARK_VERSION-bin-hadoop2.7
+ENV PATH="${PATH}:/opt/spark-$SPARK_VERSION-bin-hadoop2.7/bin"
 
 #Copy the hive-site configuration file to enable access to the metastore.
 
-COPY hive-site.xml /opt/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
+COPY hive-site.xml /opt/spark-$SPARK_VERSION-bin-hadoop2.7/conf/hive-site.xml
 
 COPY startStandalone.sh /startStandalone.sh
 

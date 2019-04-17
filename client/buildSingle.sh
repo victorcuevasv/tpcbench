@@ -16,12 +16,12 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 nc -z localhost 8888 && nc -z localhost 443 && [ $4 -eq 1 ]
 mirror=$?
 if [[ $mirror -eq 0 ]]; then
-	docker build --network="host" -t clientbuilder:dev $DIR -f $DIR/DockerfileSingle \
+	docker build --network="host" --force-rm -t clientbuilder:dev $DIR -f $DIR/DockerfileSingle \
 	--build-arg APACHE_MIRROR=localhost:8888 \
 	--build-arg PRESTO_MIRROR=localhost:443 \
 	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3
 else
-	docker build -t clientbuilder:dev $DIR -f $DIR/DockerfileSingle \
+	docker build --force-rm -t clientbuilder:dev $DIR -f $DIR/DockerfileSingle \
 	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3
 fi
 

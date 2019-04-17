@@ -5,6 +5,7 @@ USER root
 ARG APACHE_MIRROR=apache.rediris.es
 ARG POSTGRES_DRIVER_MIRROR=jdbc.postgresql.org
 ARG PRESTO_MIRROR=repo1.maven.org
+ARG HADOOP_VERSION=2.7.7
 
 #Add the generated key to the authorized set.
 #The ssh server has been installed in the ubuntujavahadoop image.
@@ -23,15 +24,15 @@ COPY conf/ssh_config /root/.ssh/config
 #Add the Hadoop installation directory variable and update the path.
 #The hadoop files have been downloaded for the ubuntujavahadoop image.
 
-ENV HADOOP_HOME /opt/hadoop-2.7.7
-ENV PATH="${PATH}:/opt/hadoop-2.7.7/bin:/opt/hadoop-2.7.7/sbin"
+ENV HADOOP_HOME /opt/hadoop-$HADOOP_VERSION
+ENV PATH="${PATH}:/opt/hadoop-$HADOOP_VERSION/bin:/opt/hadoop-$HADOOP_VERSION/sbin"
 
 #Copy the Hadoop configuration files.
 #The owner of the rest of the hadoop files has been changed in the ubuntujavahadoop image.
 
-COPY etc_hadoop/* /opt/hadoop-2.7.7/etc/hadoop/
-COPY conf/slaves /opt/hadoop-2.7.7/etc/hadoop/
-RUN chown -R hadoop:hadoop /opt/hadoop-2.7.7/etc/hadoop/
+COPY etc_hadoop/* /opt/hadoop-$HADOOP_VERSION/etc/hadoop/
+COPY conf/slaves /opt/hadoop-$HADOOP_VERSION/etc/hadoop/
+RUN chown -R hadoop:hadoop /opt/hadoop-$HADOOP_VERSION/etc/hadoop/
 
 #Download and decompress Presto.
 

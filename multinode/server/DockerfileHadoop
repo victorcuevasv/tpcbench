@@ -1,6 +1,7 @@
 FROM ubuntujava:dev
 
-ARG APACHE_MIRROR=apache.rediris.es
+ARG APACHE_MIRROR=archive.apache.org
+ARG HADOOP_VERSION=2.7.7
 
 #Install netcat to use nc to check connections, ssh and python.
 
@@ -14,14 +15,14 @@ RUN apt-get update && apt-get install -y \
 
 #Download and decompress Hadoop
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
-    tar xzf /opt/hadoop-2.7.7.tar.gz -C /opt && \
-    rm -f /opt/hadoop-2.7.7.tar.gz
+RUN wget -q -P /opt http://$APACHE_MIRROR/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz && \
+    tar xzf /opt/hadoop-$HADOOP_VERSION.tar.gz -C /opt && \
+    rm -f /opt/hadoop-$HADOOP_VERSION.tar.gz
 
 #Change the owner of the Hadoop files.
 
 RUN useradd hadoop && \
-    chown -R hadoop:hadoop /opt/hadoop-2.7.7
+    chown -R hadoop:hadoop /opt/hadoop-$HADOOP_VERSION
 
 CMD ["bash"]
 

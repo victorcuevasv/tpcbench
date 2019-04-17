@@ -20,8 +20,11 @@ RUN apt-get update && apt-get install -y \
     python-pip \
     python-dev
 
-ARG APACHE_MIRROR=apache.rediris.es
+ARG APACHE_MIRROR=archive.apache.org
 ARG POSTGRES_DRIVER_MIRROR=jdbc.postgresql.org
+ARG HADOOP_VERSION=2.7.7
+ARG HIVE_VERSION=2.3.4
+ARG SPARK_VERSION=2.4.0
 
 #Add the generated key to the authorized set.
 
@@ -38,27 +41,27 @@ COPY ssh_config /root/.ssh/config
 
 #Download and decompress Hadoop
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz && \
-    tar xzf /opt/hadoop-2.7.7.tar.gz -C /opt && \
-    rm -f /opt/hadoop-2.7.7.tar.gz
+RUN wget -q -P /opt http://$APACHE_MIRROR/dist/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz && \
+    tar xzf /opt/hadoop-$HADOOP_VERSION.tar.gz -C /opt && \
+    rm -f /opt/hadoop-$HADOOP_VERSION.tar.gz
 
 #Add the Hadoop installation directory variable and update the path.
 
-ENV HADOOP_HOME /opt/hadoop-2.7.7
-ENV PATH="${PATH}:/opt/hadoop-2.7.7/bin:/opt/hadoop-2.7.7/sbin"
+ENV HADOOP_HOME /opt/hadoop-$HADOOP_VERSION
+ENV PATH="${PATH}:/opt/hadoop-$HADOOP_VERSION/bin:/opt/hadoop-$HADOOP_VERSION/sbin"
 
 #Copy the Hadoop configuration files.
 
-COPY etc_hadoop/* /opt/hadoop-2.7.7/etc/hadoop/
+COPY etc_hadoop/* /opt/hadoop-$HADOOP_VERSION/etc/hadoop/
 
 #Use the same slaves file used for Spark for hadoop.
 
-COPY spark_conf/slaves /opt/hadoop-2.7.7/etc/hadoop/
+COPY spark_conf/slaves /opt/hadoop-$HADOOP_VERSION/etc/hadoop/
 
 #Change the owner of the Hadoop files.
 
 RUN useradd hadoop && \
-    chown -R hadoop:hadoop /opt/hadoop-2.7.7
+    chown -R hadoop:hadoop /opt/hadoop-$HADOOP_VERSION
 
 #Format the hdfs namenode.
 
@@ -66,41 +69,41 @@ RUN hdfs namenode -format
 
 #Download and decompress Hive.
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/hive/hive-2.3.4/apache-hive-2.3.4-bin.tar.gz && \
-    tar xzf /opt/apache-hive-2.3.4-bin.tar.gz -C /opt && \
-    rm -f /opt/apache-hive-2.3.4-bin.tar.gz
+RUN wget -q -P /opt http://$APACHE_MIRROR/dist/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz && \
+    tar xzf /opt/apache-hive-$HIVE_VERSION-bin.tar.gz -C /opt && \
+    rm -f /opt/apache-hive-$HIVE_VERSION-bin.tar.gz
     
 #Add the Hive installation directory variable and update the path.
 
-ENV HIVE_HOME /opt/apache-hive-2.3.4-bin
-ENV PATH="${PATH}:/opt/apache-hive-2.3.4-bin/bin"
+ENV HIVE_HOME /opt/apache-hive-$HIVE_VERSION-bin
+ENV PATH="${PATH}:/opt/apache-hive-$HIVE_VERSION-bin/bin"
 
 #Copy the Hive configuration file which will override selected defaults.
 
-COPY hive-siteExternalMetastore.xml /opt/apache-hive-2.3.4-bin/conf/hive-site.xml
+COPY hive-siteExternalMetastore.xml /opt/apache-hive-$HIVE_VERSION-bin/conf/hive-site.xml
 
 #Download the postgres driver.
 
-RUN wget --no-check-certificate -q -P /opt/apache-hive-2.3.4-bin/lib \
+RUN wget --no-check-certificate -q -P /opt/apache-hive-$HIVE_VERSION-bin/lib \
     https://$POSTGRES_DRIVER_MIRROR/download/postgresql-42.2.5.jar
     
 #Download and decompress Spark.
 #Use the version prebuilt for Hadoop, spark-sql does not work in the version without Hadoop.
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
-    tar xzf /opt/spark-2.4.0-bin-hadoop2.7.tgz -C /opt && \
-    rm -f /opt/spark-2.4.0-bin-hadoop2.7.tgz
+RUN wget -q -P /opt http://$APACHE_MIRROR/dist/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop2.7.tgz && \
+    tar xzf /opt/spark-$SPARK_VERSION-bin-hadoop2.7.tgz -C /opt && \
+    rm -f /opt/spark-$SPARK_VERSION-bin-hadoop2.7.tgz
 
 #Add the Spark installation directory variable and update the path.
 
-ENV SPARK_HOME /opt/spark-2.4.0-bin-hadoop2.7
-ENV PATH="${PATH}:/opt/spark-2.4.0-bin-hadoop2.7/bin"
+ENV SPARK_HOME /opt/spark-$SPARK_VERSION-bin-hadoop2.7
+ENV PATH="${PATH}:/opt/spark-$SPARK_VERSION-bin-hadoop2.7/bin"
 
 #Copy the Spark configuration file which will override selected defaults.
 
-COPY spark_conf/spark-defaults.conf /opt/spark-2.4.0-bin-hadoop2.7/conf/spark-defaults.conf
-COPY spark_conf/slaves /opt/spark-2.4.0-bin-hadoop2.7/conf/slaves
-COPY hive-siteExternalMetastoreSpark.xml /opt/spark-2.4.0-bin-hadoop2.7/conf/hive-site.xml
+COPY spark_conf/spark-defaults.conf /opt/spark-$SPARK_VERSION-bin-hadoop2.7/conf/spark-defaults.conf
+COPY spark_conf/slaves /opt/spark-$SPARK_VERSION-bin-hadoop2.7/conf/slaves
+COPY hive-siteExternalMetastoreSpark.xml /opt/spark-$SPARK_VERSION-bin-hadoop2.7/conf/hive-site.xml
 
 #Add the Hadoop jars to the Spark classpath.
 
@@ -110,11 +113,11 @@ ENV SPARK_DIST_CLASSPATH="$HADOOP_HOME/etc/hadoop/*:$HADOOP_HOME/share/hadoop/co
 RUN mkdir /tmp/spark-events
 
 #Add the environment variable to enable execution with YARN
-ENV HADOOP_CONF_DIR /opt/hadoop-2.7.7/etc/hadoop
-ENV HIVE_CONF_DIR /opt/spark-2.4.0-bin-hadoop2.7/conf/
+ENV HADOOP_CONF_DIR /opt/hadoop-$HADOOP_VERSION/etc/hadoop
+ENV HIVE_CONF_DIR /opt/spark-$SPARK_VERSION-bin-hadoop2.7/conf/
 
 #Copy postgres driver jar.
-RUN cp /opt/apache-hive-2.3.4-bin/lib/postgresql-42.2.5.jar /opt/spark-2.4.0-bin-hadoop2.7/jars
+RUN cp /opt/apache-hive-$HIVE_VERSION-bin/lib/postgresql-42.2.5.jar /opt/spark-$SPARK_VERSION-bin-hadoop2.7/jars
 
 #Add hive user and supergroup, also add UNAME to the supergroup.
 RUN useradd hive && \

@@ -2,7 +2,9 @@ FROM ubuntujavahadoop:dev
 
 USER root
 
-ARG APACHE_MIRROR=apache.rediris.es
+ARG APACHE_MIRROR=archive.apache.org
+ARG HADOOP_VERSION=2.7.7
+ARG SPARK_VERSION=2.4.0
 
 #Add the generated key to the authorized set.
 #The ssh server has been installed in the ubuntujavahadoop image.
@@ -21,27 +23,27 @@ COPY conf/ssh_config /root/.ssh/config
 #Add the Hadoop installation directory variable and update the path.
 #The hadoop files have been downloaded for the ubuntujavahadoop image.
 
-ENV HADOOP_HOME /opt/hadoop-2.7.7
-ENV PATH="${PATH}:/opt/hadoop-2.7.7/bin:/opt/hadoop-2.7.7/sbin"
+ENV HADOOP_HOME /opt/hadoop-$HADOOP_VERSION
+ENV PATH="${PATH}:/opt/hadoop-$HADOOP_VERSION/bin:/opt/hadoop-$HADOOP_VERSION/sbin"
 
 #Copy the Hadoop configuration files.
 #The owner of the rest of the hadoop files has been changed in the ubuntujavahadoop image.
 
-COPY etc_hadoop/* /opt/hadoop-2.7.7/etc/hadoop/
-COPY conf/slaves /opt/hadoop-2.7.7/etc/hadoop/
-RUN chown -R hadoop:hadoop /opt/hadoop-2.7.7/etc/hadoop/
+COPY etc_hadoop/* /opt/hadoop-$HADOOP_VERSION/etc/hadoop/
+COPY conf/slaves /opt/hadoop-$HADOOP_VERSION/etc/hadoop/
+RUN chown -R hadoop:hadoop /opt/hadoop-$HADOOP_VERSION/etc/hadoop/
 
 #Download and decompress Spark.
 #Use the version prebuilt for Hadoop, spark-sql does not work in the version without Hadoop.
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && \
-    tar xzf /opt/spark-2.4.0-bin-hadoop2.7.tgz -C /opt && \
-    rm -f /opt/spark-2.4.0-bin-hadoop2.7.tgz
+RUN wget -q -P /opt http://$APACHE_MIRROR/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop2.7.tgz && \
+    tar xzf /opt/spark-$SPARK_VERSION-bin-hadoop2.7.tgz -C /opt && \
+    rm -f /opt/spark-$SPARK_VERSION-bin-hadoop2.7.tgz
     
 #Add the Spark installation directory variable and update the path.
 
-ENV SPARK_HOME /opt/spark-2.4.0-bin-hadoop2.7
-ENV PATH="${PATH}:/opt/spark-2.4.0-bin-hadoop2.7/bin"
+ENV SPARK_HOME /opt/spark-$SPARK_VERSION-bin-hadoop2.7
+ENV PATH="${PATH}:/opt/spark-$SPARK_VERSION-bin-hadoop2.7/bin"
 
 #Add the Hadoop jars to the Spark classpath.
 
