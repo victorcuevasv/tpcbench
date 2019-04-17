@@ -36,13 +36,13 @@ RUN chown -R hadoop:hadoop /opt/hadoop-2.7.7/etc/hadoop/
 #Download and decompress Presto.
 
 RUN wget --no-check-certificate -q -P /opt \
-    https://$PRESTO_MIRROR/maven2/com/facebook/presto/presto-server/0.214/presto-server-0.214.tar.gz && \
-    tar xzf /opt/presto-server-0.214.tar.gz -C /opt && \
-    rm -f /opt/presto-server-0.214.tar.gz
+    https://$PRESTO_MIRROR/maven2/com/facebook/presto/presto-server/0.215/presto-server-0.215.tar.gz && \
+    tar xzf /opt/presto-server-0.215.tar.gz -C /opt && \
+    rm -f /opt/presto-server-0.215.tar.gz
     
 #Copy the Presto configuration files.
 
-COPY presto_etc_worker/etc/ /opt/presto-server-0.214/etc/
+COPY presto_etc_worker/etc/ /opt/presto-server-0.215/etc/
 
 #Copy the initialization script for Hadoop, Hive, Presto and make it executable.
 
