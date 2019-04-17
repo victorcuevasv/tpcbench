@@ -8,10 +8,6 @@ start-dfs.sh
 start-yarn.sh
 mr-jobhistory-daemon.sh start historyserver
 
-#Copy to hdfs the temporal folder which is mapped to the hivevol
-#in the docker-compose file.
-#hadoop fs -put /temporal /temporal
-
 # $1 host $2 port $3 tries
 wait_for_server() {
 	if [ $# -lt 3 ]; then
@@ -43,8 +39,7 @@ hive --service metastore &
 wait_for_server localhost 9083 12
 hive --service hiveserver2 &
 wait_for_server localhost 10000 12
-/opt/presto-server-0.214/bin/launcher run
-
+$PRESTO_HOME/bin/launcher run
 
  
 

@@ -25,6 +25,7 @@ ARG POSTGRES_DRIVER_MIRROR=jdbc.postgresql.org
 ARG PRESTO_MIRROR=repo1.maven.org
 ARG HADOOP_VERSION=2.7.7
 ARG HIVE_VERSION=2.3.4
+ARG PRESTO_VERSION=0.215
 
 #Generate a key and add it to the authorized set.
 
@@ -84,13 +85,15 @@ RUN wget --no-check-certificate -q -P /opt/apache-hive-$HIVE_VERSION-bin/lib \
 #Download and decompress Presto.
 
 RUN wget --no-check-certificate -q -P /opt \
-    https://$PRESTO_MIRROR/maven2/com/facebook/presto/presto-server/0.215/presto-server-0.215.tar.gz && \
-    tar xzf /opt/presto-server-0.215.tar.gz -C /opt && \
-    rm -f /opt/presto-server-0.215.tar.gz
+    https://$PRESTO_MIRROR/maven2/com/facebook/presto/presto-server/$PRESTO_VERSION/presto-server-$PRESTO_VERSION.tar.gz && \
+    tar xzf /opt/presto-server-$PRESTO_VERSION.tar.gz -C /opt && \
+    rm -f /opt/presto-server-$PRESTO_VERSION.tar.gz
+
+ENV PRESTO_HOME /opt/presto-server-$PRESTO_VERSION
 
 #Copy the Presto configuration files.
 
-COPY presto_etc/etc/ /opt/presto-server-0.215/etc/
+COPY presto_etc/etc/ /opt/presto-server-$PRESTO_VERSION/etc/
 
 #Copy the initialization script for Hadoop, Hive, Presto and make it executable.
 
