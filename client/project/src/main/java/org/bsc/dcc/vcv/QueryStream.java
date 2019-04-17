@@ -12,6 +12,7 @@ import java.sql.Statement;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 import org.apache.logging.log4j.LogManager;
@@ -19,7 +20,7 @@ import org.apache.logging.log4j.Logger;
 
 public class QueryStream implements Callable<Void> {
 
-	private static final Logger logger = LogManager.getLogger(QueryStream.class);
+	private static final Logger logger = LogManager.getLogger("AllLog");
 	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
 	private Connection con;
 	private int nStream;
@@ -56,18 +57,19 @@ public class QueryStream implements Callable<Void> {
 	@Override
 	public Void call() {
 		Integer[] queries = this.queriesHT.keySet().toArray(new Integer[] {});
+		Arrays.sort(queries);
 		this.shuffle(queries);
 		for(int i = 0; i < nQueries; i++) {
 			String sqlStr = this.queriesHT.get(queries[i]);
 			this.executeQuery(this.nStream, this.workDir, queries[i], sqlStr,
-					this.resultsDir, this.plansDir, this.singleCall);
+					this.resultsDir, this.plansDir, this.singleCall, i);
 		}
 		return null;
 	}
 
 	// Execute the query (or queries) from the provided file.
 	private void executeQuery(int nStream, String workDir, int nQuery, String sqlStr, String resultsDir,
-			String plansDir, boolean singleCall) {
+			String plansDir, boolean singleCall, int item) {
 		QueryRecordConcurrent queryRecord = null;
 		String fileName = "query" + nQuery;
 		try {
@@ -78,7 +80,7 @@ public class QueryStream implements Callable<Void> {
 						fileName, sqlStr, queryRecord);
 			else
 				this.executeQueryMultipleCalls(nStream, workDir, resultsDir, plansDir,
-						fileName, sqlStr, queryRecord);
+						fileName, sqlStr, queryRecord, item);
 			// Record the results file size.
 			File resultsFile = new File(workDir + "/" + resultsDir + "/" + "tput" + "/" + 
 					this.system + "/" + nStream + "_" + fileName + ".txt");
@@ -123,7 +125,7 @@ public class QueryStream implements Callable<Void> {
 
 	// Execute the queries from the provided file.
 	private void executeQueryMultipleCalls(int nStream, String workDir, String resultsDir, String plansDir,
-			String fileName, String sqlStrFull, QueryRecord queryRecord) throws SQLException {
+			String fileName, String sqlStrFull, QueryRecord queryRecord, int item) throws SQLException {
 		// Split the various queries and execute each.
 		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
 		boolean firstQuery = true;
@@ -142,8 +144,8 @@ public class QueryStream implements Callable<Void> {
 			// Execute the query.
 			if (firstQuery)
 				queryRecord.setStartTime(System.currentTimeMillis());
-			System.out.println("Stream " + nStream + " executing iteration " + iteration + " of query " + 
-				fileName + ".");
+			System.out.println("Stream " + nStream + " item " + item + 
+					" executing iteration " + iteration + " of query " + fileName + ".");
 			ResultSet rs = stmt.executeQuery(sqlStr);
 			// Save the results.
 			if( this.saveResults )

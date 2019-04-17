@@ -20,6 +20,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -79,6 +80,7 @@ public class QueryStreamSpark implements Callable<Void> {
 		this.logger.info("\n\n\n\n\nStarting query stream: " + this.nStream);
 		//this.logger.info(AppUtil.stringifySparkConfiguration(this.spark));
 		Integer[] queries = this.queriesHT.keySet().toArray(new Integer[] {});
+		Arrays.sort(queries);
 		this.shuffle(queries);
 		for(int i = 0; i < nQueries; i++) {
 			String sqlStr = this.queriesHT.get(queries[i]);
