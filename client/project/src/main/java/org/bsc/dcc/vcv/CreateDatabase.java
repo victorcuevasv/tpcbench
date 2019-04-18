@@ -236,8 +236,7 @@ public class CreateDatabase {
 		if( extTablePrefixRaw == null )
 			builder.append("external_location = '" + genDataDir + "/" + tableName + "' ) \n");
 		else
-			builder.append("external_location = '" + extTablePrefixRaw + "/" + genDataDir + "/" + 
-					tableName + "' ) \n");
+			builder.append("external_location = '" + extTablePrefixRaw + "/" + tableName + "' ) \n");
 		return builder.toString();
 	}
 
