@@ -28,7 +28,7 @@ IFS=''
 while read -r line || [[ -n "$line" ]]; do
 	IFS=' '
 	for word in $line; do
-		printf "%s\n" "aws s3 mkdir $2/$word"
+		aws s3 mkdir $2/$word
 	done
 	IFS=''
 done < "$1"
