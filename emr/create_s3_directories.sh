@@ -28,7 +28,7 @@ IFS=''
 while read -r line || [[ -n "$line" ]]; do
 	IFS=' '
 	for word in $line; do
-		aws s3 mkdir $2/$word
+		aws s3api put-object --bucket $2 --key $word/ 
 	done
 	IFS=''
 done < "$1"
