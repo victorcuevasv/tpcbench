@@ -13,7 +13,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #$1 scale factor (positive integer)
 
 if [ $# -lt 1 ]; then
-    echo "${yel}Usage: bash copy_datfiles_to_hdfs.sh <scale factor>.${end}"
+    echo "${yel}Usage: bash copy_datfiles_to_hdfs.sh <scale factor>${end}"
     exit 0
 fi
 
