@@ -71,6 +71,12 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 						hostname + ":8080/hive/default", "hive", "");
 				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
+			else if( system.equals("prestoemr") ) {
+				Class.forName(prestoDriverName);
+				con = DriverManager.getConnection("jdbc:presto://" + 
+						hostname + ":8889/hive/default", "hive", "");
+				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
+			}
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
@@ -116,8 +122,8 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	 * args[6] number of streams
 	 * args[7] random seed
 	 * args[8] use multiple connections (true|false)
-	 * args[9] save plans (boolean)
-	 * args[10] save results (boolean)
+	 * args[9] save plans (true|false)
+	 * args[10] save results (true|false)
 	 * 
 	 * all directories without slash
 	 */
