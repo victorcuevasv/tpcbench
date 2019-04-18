@@ -13,7 +13,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #$1 file with the table names
 
 if [ $# -lt 2 ]; then
-    echo "${yel}Usage: bash create_S3_directories.sh <table names file> <S3 bucket>${end}"
+    echo "${yel}Usage: bash create_S3_directories.sh <table names file> <S3 bucket name>${end}"
+    echo "${yel}Example: bash create_S3_directories.sh tableNames.txt tpcds-warehouse-presto-1gb${end}"
     exit 0
 fi
 
