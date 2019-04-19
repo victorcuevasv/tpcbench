@@ -37,13 +37,13 @@ USER $UNAME
 
 ADD project/*.xml /home/$UNAME/
 
-RUN mvn  dependency:go-offline -f /home/$UNAME/pom.xml && \
+RUN mvn  -q dependency:go-offline -f /home/$UNAME/pom.xml && \
     rm -f /home/$UNAME/pom.xml
     
-RUN mvn  dependency:go-offline -f /home/$UNAME/pomSpark.xml && \
+RUN mvn  -q dependency:go-offline -f /home/$UNAME/pomSpark.xml && \
     rm -f /home/$UNAME/pomSpark.xml
     
-RUN mvn  dependency:go-offline -f /home/$UNAME/pomSparkJDBC.xml && \
+RUN mvn  -q dependency:go-offline -f /home/$UNAME/pomSparkJDBC.xml && \
     rm -f /home/$UNAME/pomSparkJDBC.xml
 
 CMD ["bash"]

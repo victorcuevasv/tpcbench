@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#PARAMETERS.
+#$1 scale
+
 #Create a directory for the Presto queries, if it doesn't exist
 if [ ! -d ../output/QueriesNetezza ]; then
   mkdir ../output/QueriesNetezza
@@ -22,7 +25,7 @@ fi
 cp ../query_templates/* ../query_templates_temp
 
 for f in ../query_templates/query*.tpl ; do 
-   ./dsqgen -template $(basename "$f") -OUTPUT_DIR ../output/QueriesNetezza -directory ../query_templates -dialect netezza -scale 1
+   ./dsqgen -template $(basename "$f") -OUTPUT_DIR ../output/QueriesNetezza -directory ../query_templates -dialect netezza -scale $1
    mv ../output/QueriesNetezza/query_0.sql ../output/QueriesNetezza/$(basename "$f" .tpl).sql  ; #.tpl is removed with this invocation of basename
 done
 

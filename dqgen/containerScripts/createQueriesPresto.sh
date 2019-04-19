@@ -8,6 +8,9 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+#PARAMETERS.
+#$1 scale
+
 #Create a directory for the Presto queries, if it doesn't exist
 if [ ! -d ../output/QueriesPresto ]; then
   mkdir ../output/QueriesPresto
@@ -38,7 +41,7 @@ printf "\n\n%s\n\n" "${blu}Generating Presto queries.${end}"
 #and output to the QueriesPresto directory.
 
 for f in ../query_templates_temp/query*.tpl ; do 
-   ./dsqgen -template $(basename "$f") -OUTPUT_DIR ../output/QueriesPresto -directory ../query_templates_temp -dialect netezza -scale 1
+   ./dsqgen -template $(basename "$f") -OUTPUT_DIR ../output/QueriesPresto -directory ../query_templates_temp -dialect netezza -scale $1
    mv ../output/QueriesPresto/query_0.sql ../output/QueriesPresto/$(basename "$f" .tpl).sql  ; #.tpl is removed with this invocation of basename
 done
 

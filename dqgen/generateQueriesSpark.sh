@@ -11,6 +11,7 @@ end=$'\e[0m'
 #Receives as parameters the user and group id of the user who is executing this script.
 #$1 user id
 #$2 group id
+#$3 scale
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
@@ -18,5 +19,5 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 printf "\n\n%s\n\n" "${blu}Generating queries.${end}"
 
 docker run --rm --user $1:$2 --name tpc --volume $DIR/../vols/data:/TPC-DS/v2.10.1rc3/output \
-	tpcds:dev /TPC-DS/v2.10.1rc3/tools/createQueriesSpark.sh        
+	tpcds:dev /TPC-DS/v2.10.1rc3/tools/createQueriesSpark.sh $3       
 

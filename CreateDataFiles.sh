@@ -22,7 +22,7 @@ GROUP_ID=$(id -g)
 
 if [ $# -lt 1 ]; then
     printf "\n%s\n\n" "${yel}Usage bash createDataFiles.sh <scale factor>${end}"
-    exit 0
+    exit 1
 fi
 
 printf "\n%s\n" "${mag}Generating the data files.${end}"

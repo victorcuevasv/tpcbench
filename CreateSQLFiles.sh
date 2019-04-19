@@ -17,6 +17,14 @@ USER_ID=$(id -u)
 #Get the user id of the user executing this script.
 GROUP_ID=$(id -g)
 
+#PARAMETERS.
+#$1 scale factor (positive integer)
+
+if [ $# -lt 1 ]; then
+    echo "${yel}Usage: bash CreateSQLFiles.sh <scale factor>${end}"
+    exit 0
+fi
+
 #Create SQL create table statement files and the query files.
 
 #The runclient_processcreatescript script uses the java ProcessCreateScript class.
@@ -35,15 +43,15 @@ cp -r $DIR/vols/data/tables $DIR/client/project/src/main/resources/
 
 #Generate the unused Netezza queries.
 printf "\n\n%s\n\n" "${mag}Generating the Presto queries.${end}"
-bash $DIR/dqgen/generateQueries.sh $USER_ID $GROUP_ID
+bash $DIR/dqgen/generateQueries.sh $USER_ID $GROUP_ID $1
 
 #Generate the Presto queries.
 printf "\n\n%s\n\n" "${mag}Generating the Presto queries.${end}"
-bash $DIR/dqgen/generateQueriesPresto.sh $USER_ID $GROUP_ID
+bash $DIR/dqgen/generateQueriesPresto.sh $USER_ID $GROUP_ID $1
 
 #Generate the Spark queries.
 printf "\n\n%s\n\n" "${mag}Generating the Spark queries.${end}"
-bash $DIR/dqgen/generateQueriesSpark.sh $USER_ID $GROUP_ID
+bash $DIR/dqgen/generateQueriesSpark.sh $USER_ID $GROUP_ID $1
 cp -r $DIR/vols/data/QueriesSpark $DIR/client/project/src/main/resources/
 
 

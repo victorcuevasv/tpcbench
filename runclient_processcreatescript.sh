@@ -20,5 +20,5 @@ fi
 docker run --rm --user $1:$2 -v $DIR/client/project:/project -v $DIR/vols/data:/data \
 	--entrypoint mvn clientbuilder:dev exec:java \
 	 -Dexec.mainClass="org.bsc.dcc.vcv.ProcessCreateScript" \
-	 -Dexec.args="/data tables $3" -f /project/pom.xml   
+	 -Dexec.args="/data tables $3" -q -f /project/pom.xml   
 

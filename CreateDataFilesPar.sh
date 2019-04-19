@@ -22,7 +22,7 @@ GROUP_ID=$(id -g)
 
 if [ $# -lt 2 ]; then
     printf "\n%s\n\n" "${yel}Usage bash createDataFilesPar.sh <scale factor> <degree of parallelism>${end}"
-    exit 0
+    exit 1
 fi
 
 printf "\n%s\n" "${mag}Generating the data files with parallelism.${end}"
