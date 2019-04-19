@@ -144,7 +144,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		// query1.sql, query2.sql, query3.sql, ..., query99.sql.
 		File[] files = Stream.of(directory.listFiles()).
 				map(File::getName).
-				map(ExecuteQueriesConcurrent::extractNumber).
+				map(AppUtil::extractNumber).
 				sorted().
 				map(n -> "query" + n + ".sql").
 				map(s -> new File(args[0] + "/" + args[1] + "/" + s)).
@@ -188,7 +188,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	public HashMap<Integer, String> createQueriesHT(File[] files) {
 		HashMap<Integer, String> queriesHT = new HashMap<Integer, String>();
 		for(File file : files) {
-			int nQuery = ExecuteQueriesConcurrent.extractNumber(file.getName());
+			int nQuery = AppUtil.extractNumber(file.getName());
 			String sqlStr = readFileContents(file.getAbsolutePath());
 			queriesHT.put(nQuery, sqlStr);
 		}
@@ -222,12 +222,6 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			e.printStackTrace();
 			this.logger.error(e);
 		}
-	}
-	
-	// Converts a string representing a filename like query12.sql to the integer 12.
-	public static int extractNumber(String fileName) {
-		String nStr = fileName.substring(0, fileName.indexOf('.')).replaceAll("[^\\d.]", "");
-		return Integer.parseInt(nStr);
 	}
 
 }

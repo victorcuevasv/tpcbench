@@ -111,7 +111,7 @@ public class ExecuteQueries {
 		// query1.sql, query2.sql, query3.sql, ..., query99.sql.
 		File[] files = Stream.of(directory.listFiles()).
 				map(File::getName).
-				map(ExecuteQueries::extractNumber).
+				map(AppUtil::extractNumber).
 				sorted().
 				map(n -> "query" + n + ".sql").
 				map(s -> new File(args[0] + "/" + args[1] + "/" + s)).
@@ -273,12 +273,6 @@ public class ExecuteQueries {
 			e.printStackTrace();
 			this.logger.error(e);
 		}
-	}
-	
-	// Converts a string representing a filename like query12.sql to the integer 12.
-	public static int extractNumber(String fileName) {
-		String nStr = fileName.substring(0, fileName.indexOf('.')).replaceAll("[^\\d.]", "");
-		return Integer.parseInt(nStr);
 	}
 
 }

@@ -13,6 +13,12 @@ public class AppUtil {
 	    return stackTrace;
 	}
 	
+	// Converts a string representing a filename like query12.sql to the integer 12.
+	public static int extractNumber(String fileName) {
+		String nStr = fileName.substring(0, fileName.indexOf('.')).replaceAll("[^\\d.]", "");
+		return Integer.parseInt(nStr);
+	}
+	
 }
 
 
