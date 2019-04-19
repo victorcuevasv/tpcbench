@@ -32,7 +32,7 @@ fi
 #Copy the original templates.
 cp ../query_templates/* ../query_templates_temp
 
-#Overrided the modified templates for Spark
+#Override the modified templates for Spark
 cp ../query_templates_spark/* ../query_templates_temp
 
 printf "\n\n%s\n\n" "${blu}Generating Spark queries.${end}"

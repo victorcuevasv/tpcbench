@@ -16,7 +16,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 start_time=`date +%s`
 
 #Create the volume directories.
-bash ../createDirs.sh
+bash $DIR/../createDirs.sh
 
 #Get the username the user executing this script.
 USER_NAME=$(whoami)
@@ -31,42 +31,42 @@ index=0
 
 #Build the Ubuntu with Java base image.
 printf "\n\n%s\n\n" "${mag}Creating the Ubuntu with Java base image.${end}"
-bash ../ubuntujava/build.sh
+bash $DIR/../ubuntujava/build.sh
 buildFlags[$index]=$?
 buildLabels[$index]=ubuntujava
 index=$((index+1))
 
 #Build the dqgen image with the TPC-DS toolkit to generate data and queries.
 printf "\n\n%s\n\n" "${mag}Creating the dqgen TPC-DS toolkit image.${end}"
-bash ../dqgen/createContainer.sh $USER_NAME $USER_ID $GROUP_ID
+bash $DIR/../dqgen/createContainer.sh $USER_NAME $USER_ID $GROUP_ID
 buildFlags[$index]=$?
 buildLabels[$index]=tpcds
 index=$((index+1))
 
 #Build the presto server image.
 printf "\n\n%s\n\n" "${mag}Building the Presto server image.${end}"
-bash server/buildPresto.sh $USER_NAME $USER_ID $GROUP_ID
+bash $DIR/server/buildPresto.sh $USER_NAME $USER_ID $GROUP_ID
 buildFlags[$index]=$?
 buildLabels[$index]=presto_server
 index=$((index+1))
 
 #Build the Spark Master server image.
 printf "\n\n%s\n\n" "${mag}Building the Spark Master server image.${end}"
-bash server/buildSparkMaster.sh $USER_NAME $USER_ID $GROUP_ID
+bash $DIR/server/buildSparkMaster.sh $USER_NAME $USER_ID $GROUP_ID
 buildFlags[$index]=$?
 buildLabels[$index]=spark_master
 index=$((index+1))
 
 #Build the Spark Worker server image.
 printf "\n\n%s\n\n" "${mag}Building the Spark Worker server image.${end}"
-bash server/buildSparkWorker.sh
+bash $DIR/server/buildSparkWorker.sh
 buildFlags[$index]=$?
 buildLabels[$index]=spark_worker
 index=$((index+1))
 
 #Build the client project builder image.
 printf "\n\n%s\n\n" "${mag}Building the client project builder image.${end}"
-bash ../client/buildSingle.sh $USER_NAME $USER_ID $GROUP_ID
+bash $DIR/../client/buildSingle.sh $USER_NAME $USER_ID $GROUP_ID
 buildFlags[$index]=$?
 buildLabels[$index]=client
 index=$((index+1))

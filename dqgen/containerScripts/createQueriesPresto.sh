@@ -32,7 +32,7 @@ fi
 #Copy the original templates.
 cp ../query_templates/* ../query_templates_temp
 
-#Overrided the modified templates for Presto
+#Override the modified templates for Presto
 cp ../query_templates_presto/* ../query_templates_temp
 
 printf "\n\n%s\n\n" "${blu}Generating Presto queries.${end}"
