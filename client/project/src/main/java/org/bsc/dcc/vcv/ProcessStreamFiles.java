@@ -24,6 +24,7 @@ public class ProcessStreamFiles {
 		ProcessStreamFiles prog = new ProcessStreamFiles();
 		Map<Integer, List<Integer>> ht = prog.processFiles(args[0], args[1]);
 		prog.saveStreamTable(ht, args[0], args[2]);
+		prog.saveStreamTableClass(ht, args[0], "StreamsTable.java");
 	}
 
 	private Map<Integer, List<Integer>> processFiles(String workDir, String subDir) {
@@ -51,6 +52,38 @@ public class ProcessStreamFiles {
 					sb.append(list.get(j) + " ");
 				sb.append("\n");
 			}
+		    printWriter.println(sb.toString());
+		    printWriter.close();
+		}
+		catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void saveStreamTableClass(Map<Integer, List<Integer>> ht, String workDir, String outFile) {
+		try {
+		    PrintWriter printWriter = new PrintWriter(new FileWriter(new File(workDir + "/" + outFile)));
+		    StringBuilder sb = new StringBuilder();
+		    sb.append("package org.bsc.dcc.vcv;\n\n");
+		    sb.append("public class StreamsTable {\n\n");
+		    sb.append("public static int[][] matrix = {\n\n");
+		    Integer[] queries = ht.keySet().toArray(new Integer[] {});
+			Arrays.sort(queries);
+			for(int i = 0; i < queries.length; i++) {
+				List<Integer> list = ht.get(i);
+				sb.append("{");
+				for(int j = 0; j < list.size(); j++) {
+					sb.append(list.get(j));
+					if( j < list.size() - 1 )
+						sb.append(", ");
+				}
+				sb.append("}");
+				if( i < queries.length - 1 )
+					sb.append(",");
+				sb.append("\n");
+			}
+			sb.append("\n};\n\n");
+			sb.append("}\n\n");
 		    printWriter.println(sb.toString());
 		    printWriter.close();
 		}
