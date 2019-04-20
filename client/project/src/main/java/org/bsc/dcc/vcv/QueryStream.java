@@ -56,9 +56,10 @@ public class QueryStream implements Callable<Void> {
 
 	@Override
 	public Void call() {
-		Integer[] queries = this.queriesHT.keySet().toArray(new Integer[] {});
-		Arrays.sort(queries);
-		this.shuffle(queries);
+		//Integer[] queries = this.queriesHT.keySet().toArray(new Integer[] {});
+		//Arrays.sort(queries);
+		//this.shuffle(queries);
+		int[] queries = StreamsTable.matrix[this.nStream];
 		for(int i = 0; i < nQueries; i++) {
 			String sqlStr = this.queriesHT.get(queries[i]);
 			this.executeQuery(this.nStream, this.workDir, queries[i], sqlStr,
@@ -139,7 +140,7 @@ public class QueryStream implements Callable<Void> {
 			ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
 			if( this.savePlans )
 				this.saveResults(workDir + "/" + plansDir + "/" + "tput" + "/" + this.system + "/" + 
-					nStream + "_" + fileName + ".txt", planrs, !firstQuery);
+					nStream + "_" + item + "_" + fileName + ".txt", planrs, !firstQuery);
 			planrs.close();
 			// Execute the query.
 			if (firstQuery)
@@ -150,7 +151,7 @@ public class QueryStream implements Callable<Void> {
 			// Save the results.
 			if( this.saveResults )
 				this.saveResults(workDir + "/" + resultsDir + "/" + "tput" + "/" + this.system + "/" + 
-					nStream + "_" + fileName + ".txt", rs, !firstQuery);
+					nStream + "_" + item + "_" + fileName + ".txt", rs, !firstQuery);
 			stmt.close();
 			rs.close();
 			firstQuery = false;

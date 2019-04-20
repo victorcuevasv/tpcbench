@@ -167,7 +167,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		ExecutorService resultsCollectorExecutor = Executors.newSingleThreadExecutor();
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
-		for(int i = 1; i <= nStreams; i++) {
+		for(int i = 0; i < nStreams; i++) {
 			QueryStream stream = null;
 			if( !this.multiple ) {
 				stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT, nQueries,
