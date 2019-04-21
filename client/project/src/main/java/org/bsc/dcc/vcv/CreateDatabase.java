@@ -46,7 +46,7 @@ public class CreateDatabase {
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10015/default", "", "");
+						hostname + ":10015/default", "hive", "");
 			}
 			else {
 				throw new java.lang.RuntimeException("Unsupported system: " + system);
