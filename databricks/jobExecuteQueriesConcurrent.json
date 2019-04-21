@@ -21,7 +21,7 @@
     "parameters": 
     	["/dbfs/data", "results", "plans",
     	"/dbfs/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar",
-    	"spark", "2", "1954", "true", "true"
+    	"sparkdatabricks", "2", "1954", "true", "true"
     	]
   }
 }
