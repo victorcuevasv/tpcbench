@@ -15,7 +15,7 @@ end=$'\e[0m'
 #$1 Required argument denoting the number of streams. 
 
 if [ $# -lt 1 ]; then
-    echo "${yel}Usage bash runclient_executequeriesconcurrent.sh <number of streams>.${end}"
+    echo "${yel}Usage bash runclient_executequeriesconcurrent.sh <number of streams>${end}"
     exit 0
 fi
 

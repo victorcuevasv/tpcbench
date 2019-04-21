@@ -79,9 +79,10 @@ public class QueryStreamSpark implements Callable<Void> {
 	public Void call() {
 		this.logger.info("\n\n\n\n\nStarting query stream: " + this.nStream);
 		//this.logger.info(AppUtil.stringifySparkConfiguration(this.spark));
-		Integer[] queries = this.queriesHT.keySet().toArray(new Integer[] {});
-		Arrays.sort(queries);
-		this.shuffle(queries);
+		//Integer[] queries = this.queriesHT.keySet().toArray(new Integer[] {});
+		//Arrays.sort(queries);
+		//this.shuffle(queries);
+		int[] queries = StreamsTable.matrix[this.nStream];
 		for(int i = 0; i < nQueries; i++) {
 			String sqlStr = this.queriesHT.get(queries[i]);
 			this.executeQuery(this.nStream, this.workDir, queries[i], sqlStr,
@@ -162,7 +163,7 @@ public class QueryStreamSpark implements Callable<Void> {
 			//noExtFileName);
 			if( this.savePlans )
 				this.saveResults(workDir + "/" + plansDir + "/" + "tput" + "/" + this.system + "/" + 
-					nStream + "_" + noExtFileName + ".txt", planDataset, ! firstQuery);
+					nStream + "_" + item + "_" + noExtFileName + ".txt", planDataset, ! firstQuery);
 			// Execute the query.
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
@@ -174,7 +175,7 @@ public class QueryStreamSpark implements Callable<Void> {
 			//nStream + "_" + noExtFileName);
 			if( this.saveResults )
 				this.saveResults(workDir + "/" + resultsDir + "/" + "tput" + "/" + this.system + "/" + 
-					nStream + "_" + noExtFileName + ".txt", dataset, ! firstQuery);
+					nStream + "_" + item + "_" + noExtFileName + ".txt", dataset, ! firstQuery);
 			firstQuery = false;
 			iteration++;
 		}

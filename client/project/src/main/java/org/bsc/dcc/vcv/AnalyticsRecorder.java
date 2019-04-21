@@ -67,10 +67,14 @@ public class AnalyticsRecorder {
 		PatternLayout layout = PatternLayout.newBuilder()
 	            .withConfiguration(ctx.getConfiguration())
 	            .withPattern("%msg%n").build();
+		String fileName = null;
+		if( this.system.equals("sparkdb") )
+			fileName = "/dbfs/data/logs/" + testName + "/" + system + "/analytics.log";
+		else
+			fileName = "/data/logs/" + testName + "/" + system + "/analytics.log";
 		FileAppender appender = FileAppender.newBuilder()
 				.withLayout(layout)
-		        //.withFileName( "/dbfs/data/logs/" + testName + "/" + system + "/analytics.log")
-		        .withFileName( "/data/logs/" + testName + "/" + system + "/analytics.log")
+		        .withFileName(fileName)
 		        .withName("AnalyticsLogAppender")
 		        .withAppend(false)
 		        .withImmediateFlush(true)

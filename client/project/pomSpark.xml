@@ -63,18 +63,36 @@
 					</configuration>
 				</plugin> -->
 			<plugin>
+            	<groupId>org.apache.maven.plugins</groupId>
+            	<artifactId>maven-antrun-plugin</artifactId>
+            	<executions>
+                	<execution>
+                    	<phase>generate-resources</phase>
+                    	<goals>
+                        	<goal>run</goal>
+                    	</goals>
+                    	<configuration>
+                        	<tasks>
+                            	<copy file="${basedir}/logging/local/log4j2.xml" 
+                            		tofile="${basedir}/src/main/resources/log4j2.xml" />
+                        	</tasks>
+                    	</configuration>
+                	</execution>
+            	</executions>
+        	</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<excludes>
 						<exclude>org/bsc/dcc/vcv/CreateDatabase.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueries.java</exclude>
-						<exclude>org/bsc/dcc/vcv/HiveJdbcClient.java</exclude>
-						<exclude>org/bsc/dcc/vcv/ProcessCreateScript.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesConcurrent.java</exclude>
-						<exclude>org/bsc/dcc/vcv/QueryStream.java</exclude>
 						<exclude>org/bsc/dcc/vcv/HDFSExample.java</exclude>
+						<exclude>org/bsc/dcc/vcv/HiveJdbcClient.java</exclude>
 						<exclude>org/bsc/dcc/vcv/JavaSparkPiExample.java</exclude>
+						<exclude>org/bsc/dcc/vcv/ProcessCreateScript.java</exclude>
+						<exclude>org/bsc/dcc/vcv/QueryStream.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

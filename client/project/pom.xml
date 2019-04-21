@@ -45,17 +45,35 @@
 	<build>
 		<plugins>
 			<plugin>
+            	<groupId>org.apache.maven.plugins</groupId>
+            	<artifactId>maven-antrun-plugin</artifactId>
+            	<executions>
+                	<execution>
+                    	<phase>generate-resources</phase>
+                    	<goals>
+                        	<goal>run</goal>
+                    	</goals>
+                    	<configuration>
+                        	<tasks>
+                            	<copy file="${basedir}/logging/local/log4j2.xml" 
+                            		tofile="${basedir}/src/main/resources/log4j2.xml" />
+                        	</tasks>
+                    	</configuration>
+                	</execution>
+            	</executions>
+        	</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<excludes>
-						<exclude>org/bsc/dcc/vcv/JavaSparkHiveExample.java</exclude>
-						<exclude>org/bsc/dcc/vcv/ExecuteQueriesSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesConcurrentSpark.java</exclude>
-						<exclude>org/bsc/dcc/vcv/QueryStreamSpark.java</exclude>
+						<exclude>org/bsc/dcc/vcv/ExecuteQueriesSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/HDFSExample.java</exclude>
+						<exclude>org/bsc/dcc/vcv/JavaSparkHiveExample.java</exclude>
 						<exclude>org/bsc/dcc/vcv/JavaSparkPiExample.java</exclude>
+						<exclude>org/bsc/dcc/vcv/QueryStreamSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/SparkUtil.java</exclude>
 					</excludes>
 				</configuration>

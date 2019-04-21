@@ -43,7 +43,7 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 		this.savePlans = savePlans;
 		this.saveResults = saveResults;
 		this.queriesReader = new JarQueriesReaderAsZipFile(jarFile, "QueriesSpark");
-		this.spark = SparkSession.builder().appName("Java Spark Hive Example")
+		this.spark = SparkSession.builder().appName("TPC-DS Throughput Test")
 				.config("spark.sql.crossJoin.enabled", "true")
 				.enableHiveSupport()
 				.getOrCreate();
@@ -97,7 +97,7 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 		ExecutorService resultsCollectorExecutor = Executors.newSingleThreadExecutor();
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
-		for(int i = 1; i <= nStreams; i++) {
+		for(int i = 0; i < nStreams; i++) {
 			QueryStreamSpark stream = new QueryStreamSpark(i, this.resultsQueue, this.spark,
 					queriesHT, nQueries, workDir, resultsDir, plansDir, singleCall, random, 
 					this.recorder.system, this.savePlans, this.saveResults);

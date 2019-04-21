@@ -27,12 +27,19 @@ public class CreateDatabaseSpark {
 
 	public CreateDatabaseSpark(String jarFile, String subDir, String system) {
 		try {
-			this.createTableReader = new JarCreateTableReaderAsZipFile(jarFile, subDir);
-			this.spark = SparkSession.builder().appName("TPC-DS Database Creation No Hive Support")
-			//	.enableHiveSupport()
-				.getOrCreate();
-			this.logger.info("TPC-DS Database Creation No Hive Support.");
-			this.logger.info(SparkUtil.stringifySparkConfiguration(this.spark));
+			if( system.equals("sparkdb") ) {
+				this.createTableReader = new JarCreateTableReaderAsZipFile(jarFile, subDir);
+				this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
+						//	.enableHiveSupport()
+						.getOrCreate();
+				//this.logger.info(SparkUtil.stringifySparkConfiguration(this.spark));
+			}
+			else {
+				this.createTableReader = new JarCreateTableReaderAsZipFile(jarFile, subDir);
+				this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
+						.enableHiveSupport()
+						.getOrCreate();
+			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -191,9 +198,12 @@ public class CreateDatabaseSpark {
 	private String internalCreateTable(String incompleteSqlCreate, String tableName) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
-		//builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
-		builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
-		builder.append("LOCATION 'dbfs:/mnt/tpcdswarehousebucket1GB/" + tableName + "' \n");
+		if( this.recorder.system.equals("sparkdb") ) {
+			builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
+			builder.append("LOCATION 'dbfs:/mnt/tpcdswarehousebucket1GB/" + tableName + "' \n");
+		}
+		else
+			builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
 		return builder.toString();
 	}
 

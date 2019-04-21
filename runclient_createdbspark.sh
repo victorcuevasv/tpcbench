@@ -24,7 +24,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #$1 scale factor (positive integer)
 
 if [ $# -lt 1 ]; then
-    echo "Usage: bash runclient_createdbspark.sh <scale factor>."
+    echo "${yel}Usage: bash runclient_createdbspark.sh <scale factor>${end}"
     exit 0
 fi
 
@@ -38,18 +38,6 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Creating and populating the database.${end}"
 
-#docker exec --user $USER_ID:$GROUP_ID -ti  namenodecontainer  /bin/bash -c \
-#"/opt/spark-2.4.0-bin-hadoop2.7/bin/spark-submit --conf spark.eventLog.enabled=true  \
-#--packages org.apache.logging.log4j:log4j-api:2.8.2,org.apache.logging.log4j:log4j-core:2.8.2,\
-#org.apache.zookeeper:zookeeper:3.4.6 \
-#--conf spark.local.dir=/home/$USER_NAME/tmp \
-#--conf spark.eventLog.dir=/home/$USER_NAME/tmp \
-#--class org.bsc.dcc.vcv.CreateDatabaseSpark \
-#--master spark://namenodecontainer:7077 --deploy-mode client \
-#/project/targetspark/client-1.0-SNAPSHOT.jar \
-#/data/tables _ext /temporal/$1GB $CONTAINER spark false tables /project/targetspark/client-1.0-SNAPSHOT.jar"
-
-
 docker exec --user $USER_ID:$GROUP_ID -ti  namenodecontainer  /bin/bash -c \
 "/opt/spark-2.4.0-bin-hadoop2.7/bin/spark-submit --conf spark.eventLog.enabled=true  \
 --packages org.apache.logging.log4j:log4j-api:2.11.2,org.apache.logging.log4j:log4j-core:2.11.2,\
@@ -62,7 +50,3 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 /data/tables _ext /temporal/$1GB $CONTAINER spark false tables /project/targetspark/client-1.0-SNAPSHOT.jar"
 
 
-
-
-        
- 

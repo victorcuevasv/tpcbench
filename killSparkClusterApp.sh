@@ -13,7 +13,7 @@ end=$'\e[0m'
 #$1 driver id
 
 if [ $# -lt 1 ]; then
-    echo "Usage bash killSparkCluster.sh <driver id>."
+    echo "${yel}Usage bash killSparkCluster.sh <driver id>${end}"
     exit 0
 fi
 
