@@ -16,11 +16,11 @@
   },
   "timeout_seconds": 0,
   "spark_jar_task": {
-  	"jar_uri": "project/targetsparkcluster/client-1.0-SNAPSHOT-jar-with-dependencies.jar",
+  	"jar_uri": "project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar",
     "main_class_name": "org.bsc.dcc.vcv.ExecuteQueriesSpark",
     "parameters": 
     	["/dbfs/data", "results", "plans",
-    	"/dbfs/FileStore/job-jars/project/targetsparkcluster/client-1.0-SNAPSHOT-jar-with-dependencies.jar",
+    	"/dbfs/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar",
     	"spark", "true", "true"
     	]
   }

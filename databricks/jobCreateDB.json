@@ -16,12 +16,12 @@
   },
   "timeout_seconds": 0,
   "spark_jar_task": {
-  	"jar_uri": "project/targetsparkcluster/client-1.0-SNAPSHOT-jar-with-dependencies.jar",
+  	"jar_uri": "project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar",
     "main_class_name": "org.bsc.dcc.vcv.CreateDatabaseSpark",
     "parameters": 
     	["/dbfs/data/tables", "_ext", "dbfs:/mnt/tpcdsbucket/1GB", "CONTAINER_UNUSED",
-    	"spark", "false", "tables",
-    	"/dbfs/FileStore/job-jars/project/targetsparkcluster/client-1.0-SNAPSHOT-jar-with-dependencies.jar"]
+    	"sparkdatabricks", "false", "tables",
+    	"/dbfs/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar"]
   }
 }
 

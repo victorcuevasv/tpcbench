@@ -13,7 +13,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #$1 scale factor (positive integer)
 
 if [ $# -lt 1 ]; then
-    echo "${yel}Usage: bash createjob_rest.sh <json file>.${end}"
+    echo "${yel}Usage: bash createjob_rest.sh <json file>${end}"
     exit 0
 fi
 

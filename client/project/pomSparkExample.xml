@@ -75,7 +75,8 @@
                     	<configuration>
                         	<tasks>
                             	<copy file="${basedir}/logging/local/log4j2.xml" 
-                            		tofile="${basedir}/src/main/resources/log4j2.xml" />
+                            		tofile="${basedir}/src/main/resources/log4j2.xml"
+                            		overwrite="true" />
                         	</tasks>
                     	</configuration>
                 	</execution>

@@ -68,7 +68,7 @@ public class AnalyticsRecorder {
 	            .withConfiguration(ctx.getConfiguration())
 	            .withPattern("%msg%n").build();
 		String fileName = null;
-		if( this.system.equals("sparkdb") )
+		if( this.system.equals("sparkdatabricks") )
 			fileName = "/dbfs/data/logs/" + testName + "/" + system + "/analytics.log";
 		else
 			fileName = "/data/logs/" + testName + "/" + system + "/analytics.log";

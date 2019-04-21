@@ -27,7 +27,7 @@ public class CreateDatabaseSpark {
 
 	public CreateDatabaseSpark(String jarFile, String subDir, String system) {
 		try {
-			if( system.equals("sparkdb") ) {
+			if( system.equals("sparkdatabricks") ) {
 				this.createTableReader = new JarCreateTableReaderAsZipFile(jarFile, subDir);
 				this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
 						//	.enableHiveSupport()
@@ -198,7 +198,7 @@ public class CreateDatabaseSpark {
 	private String internalCreateTable(String incompleteSqlCreate, String tableName) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
-		if( this.recorder.system.equals("sparkdb") ) {
+		if( this.recorder.system.equals("sparkdatabricks") ) {
 			builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
 			builder.append("LOCATION 'dbfs:/mnt/tpcdswarehousebucket1GB/" + tableName + "' \n");
 		}
