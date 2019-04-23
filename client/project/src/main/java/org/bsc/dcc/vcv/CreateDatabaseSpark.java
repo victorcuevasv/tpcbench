@@ -61,21 +61,26 @@ public class CreateDatabaseSpark {
 	 * args[4] system running the data loading queries
 	 * args[5] whether to run queries to count the tuples generated
 	 * args[6] subdirectory within the jar that contains the create table files
-	 * args[7] jar file
+	 * args[7] prefix of external location for raw data tables (e.g. S3 bucket), null for none
+	 * args[8] prefix of external location for created tables (e.g. S3 bucket), null for none
+	 * args[9] jar file
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 8 ) {
+		if( args.length != 10 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
-			System.exit(0);
+			System.exit(1);
 		}
-		CreateDatabaseSpark prog = new CreateDatabaseSpark(args[7], args[6], args[4]);
+		CreateDatabaseSpark prog = new CreateDatabaseSpark(args[9], args[6], args[4]);
 		boolean doCount = Boolean.parseBoolean(args[5]);
-		prog.createTables(args[0], args[1], args[2], doCount);
+		String extTablePrefixRaw = args[7].equalsIgnoreCase("null") ? null : args[7];
+		String extTablePrefixCreated = args[8].equalsIgnoreCase("null") ? null : args[8];
+		prog.createTables(args[0], args[1], args[2], doCount, extTablePrefixRaw, extTablePrefixCreated);
 		prog.closeConnection();
 	}
 	
-	private void createTables(String workDir, String suffix, String genDataDir, boolean doCount) {
+	private void createTables(String workDir, String suffix, String genDataDir, boolean doCount,
+			String extTablePrefixRaw, String extTablePrefixCreated) {
 		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
 		List<String> unorderedList = this.createTableReader.getFiles();
@@ -83,7 +88,8 @@ public class CreateDatabaseSpark {
 		int i = 1;
 		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
-			createTable(workDir, fileName, sqlCreate, suffix, genDataDir, doCount, i);
+			createTable(workDir, fileName, sqlCreate, suffix, genDataDir, doCount, 
+					extTablePrefixRaw, extTablePrefixCreated, i);
 			i++;
 		}
 	}
@@ -94,14 +100,15 @@ public class CreateDatabaseSpark {
 	// The SQL create table statement found in the file has to be manipulated for
 	// creating these tables.
 	private void createTable(String workDir, String sqlCreateFilename, String sqlCreate, String suffix, 
-			String genDataDir, boolean doCount, int index) {
+			String genDataDir, boolean doCount, String extTablePrefixRaw, String extTablePrefixCreated,
+			int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, suffix);
-			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName, genDataDir);
+			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName, genDataDir, extTablePrefixRaw);
 			saveCreateTableFile(workDir, "textfile", tableName, extSqlCreate);
 			// Skip the dbgen_version table since its time attribute is not
 			// compatible with Hive.
@@ -116,7 +123,7 @@ public class CreateDatabaseSpark {
 			if( doCount )
 				countRowsQuery(tableName + suffix);
 			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "");
-			String intSqlCreate = internalCreateTable(incIntSqlCreate, tableName);
+			String intSqlCreate = internalCreateTable(incIntSqlCreate, tableName, extTablePrefixCreated);
 			saveCreateTableFile(workDir, "parquet", tableName, intSqlCreate);
 			this.dropTable("drop table if exists " + tableName);
 			this.spark.sql(intSqlCreate);
@@ -184,23 +191,29 @@ public class CreateDatabaseSpark {
 
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an external textfile table in Hive.
-	private String externalCreateTable(String incompleteSqlCreate, String tableName, String genDataDir) {
+	private String externalCreateTable(String incompleteSqlCreate, String tableName, String genDataDir,
+			String extTablePrefixRaw) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
 		builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY '\001' \n");
 		builder.append("STORED AS TEXTFILE \n");
-		builder.append("LOCATION '" + genDataDir + "/" + tableName + "' \n");
+		if( extTablePrefixRaw == null )
+			builder.append("LOCATION '" + genDataDir + "/" + tableName + "' \n");
+		else
+			builder.append("LOCATION '" + extTablePrefixRaw + "/" + tableName + "' \n");
 		return builder.toString();
 	}
 
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an internal parquet table in Hive.
-	private String internalCreateTable(String incompleteSqlCreate, String tableName) {
+	private String internalCreateTable(String incompleteSqlCreate, String tableName,
+			String extTablePrefixCreated) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
-		if( this.recorder.system.equals("sparkdatabricks") ) {
+		if( extTablePrefixCreated != null ) {
 			builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
-			builder.append("LOCATION 'dbfs:/mnt/tpcdswarehousebucket1GB/" + tableName + "' \n");
+			builder.append("LOCATION '" + extTablePrefixCreated + "/" + tableName + "' \n");
+			//builder.append("LOCATION 'dbfs:/mnt/tpcdswarehousebucket1GB/" + tableName + "' \n");
 		}
 		else
 			builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
