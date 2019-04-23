@@ -213,7 +213,6 @@ public class CreateDatabaseSpark {
 		if( extTablePrefixCreated != null ) {
 			builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
 			builder.append("LOCATION '" + extTablePrefixCreated + "/" + tableName + "' \n");
-			//builder.append("LOCATION 'dbfs:/mnt/tpcdswarehousebucket1GB/" + tableName + "' \n");
 		}
 		else
 			builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
