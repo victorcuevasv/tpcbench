@@ -11,13 +11,25 @@
 		-->
 		<!--  
 		<File name="AnalyticsLogFile" fileName="/data/logs/analytics.log" immediateFlush="true" append="false">
-			<PatternLayout pattern="%-5level: %d{HH:mm:ss.SSS} %C{1} %t %logger{2} - %msg%n" />
+			<PatternLayout pattern="%msg%n" />
 		</File>
 		-->
 		<RollingFile
+    		name="AnalyticsLogRollingFile"
+    		fileName="/data/logs/analytics.log"
+    		filePattern="/data/logs/analytics_%d{yyyy-MM-dd_HH:mm}.log">
+    		<PatternLayout>
+        		<Pattern>%msg%n</Pattern>
+    		</PatternLayout>
+    		<Policies>
+            	<OnStartupTriggeringPolicy />
+        	</Policies>
+    		<DefaultRolloverStrategy max="1" />
+		</RollingFile>
+		<RollingFile
     		name="LogRollingFile"
-    		fileName="/data/logs/all.log"
-    		filePattern="/data/logs/all_%d{yyyy-MM-dd_HH:mm}.log"> 
+    		fileName="/dbfs/data/logs/all.log"
+    		filePattern="/dbfs/data/logs/all_%d{yyyy-MM-dd_HH:mm}.log">
     		<PatternLayout>
         		<Pattern>%-5level: %d{HH:mm:ss.SSS} %C{1} %t %logger{2} - %msg%n</Pattern>
     		</PatternLayout>
@@ -34,7 +46,7 @@
 			<AppenderRef ref="LogRollingFile" />
 		</Root>
 		<Logger name="AnalyticsLog" level="info" additivity="false">
-    		<!-- <AppenderRef ref="AnalyticsLogFile" /> -->
+    		<AppenderRef ref="AnalyticsLogRollingFile" />
 		</Logger>
 		<Logger name="AllLog" level="info" additivity="false">
     		<!-- <AppenderRef ref="LogFile" /> -->
