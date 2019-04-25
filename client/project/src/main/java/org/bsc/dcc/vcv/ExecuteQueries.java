@@ -226,23 +226,21 @@ public class ExecuteQueries {
 	}
 
 	private void saveResults(String resFileName, ResultSet rs, boolean append) 
-		throws Exception {
-		try {
-			File tmp = new File(resFileName);
-			tmp.getParentFile().mkdirs();
-			FileWriter fileWriter = new FileWriter(resFileName, append);
-			PrintWriter printWriter = new PrintWriter(fileWriter);
-			ResultSetMetaData metadata = rs.getMetaData();
-			int nCols = metadata.getColumnCount();
-			while (rs.next()) {
-				StringBuilder rowBuilder = new StringBuilder();
-				for (int i = 1; i <= nCols; i++) {
-					rowBuilder.append(rs.getString(i) + ", ");
-				}
-				printWriter.println(rowBuilder.toString());
+			throws Exception {
+		File tmp = new File(resFileName);
+		tmp.getParentFile().mkdirs();
+		FileWriter fileWriter = new FileWriter(resFileName, append);
+		PrintWriter printWriter = new PrintWriter(fileWriter);
+		ResultSetMetaData metadata = rs.getMetaData();
+		int nCols = metadata.getColumnCount();
+		while (rs.next()) {
+			StringBuilder rowBuilder = new StringBuilder();
+			for (int i = 1; i <= nCols; i++) {
+				rowBuilder.append(rs.getString(i) + ", ");
 			}
-			printWriter.close();
+			printWriter.println(rowBuilder.toString());
 		}
+		printWriter.close();
 	}
 
 	public String readFileContents(String filename) {
