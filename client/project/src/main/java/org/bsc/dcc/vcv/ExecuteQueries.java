@@ -171,7 +171,7 @@ public class ExecuteQueries {
 	// Execute a query from the provided file.
 	private void executeQuerySingleCall(String workDir, String resultsDir, String plansDir, 
 			String fileName, String sqlStr, QueryRecord queryRecord)
-			throws SQLException {
+			throws Exception {
 		// Remove the last semicolon.
 		sqlStr = sqlStr.trim();
 		sqlStr = sqlStr.substring(0, sqlStr.length() - 1);
@@ -191,7 +191,7 @@ public class ExecuteQueries {
 	
 	// Execute the queries from the provided file.
 	private void executeQueryMultipleCalls(String workDir, String resultsDir, String plansDir,
-			String fileName, String sqlStrFull, QueryRecord queryRecord) throws SQLException {
+			String fileName, String sqlStrFull, QueryRecord queryRecord) throws Exception {
 		// Split the various queries and execute each.
 		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
 		boolean firstQuery = true;
