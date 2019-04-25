@@ -157,6 +157,11 @@ public class ExecuteQueries {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
 		finally {
 			queryRecord.setEndTime(System.currentTimeMillis());
 			this.recorder.record(queryRecord);
@@ -220,7 +225,8 @@ public class ExecuteQueries {
 		}
 	}
 
-	private void saveResults(String resFileName, ResultSet rs, boolean append) {
+	private void saveResults(String resFileName, ResultSet rs, boolean append) 
+		throws Exception {
 		try {
 			File tmp = new File(resFileName);
 			tmp.getParentFile().mkdirs();
@@ -236,16 +242,6 @@ public class ExecuteQueries {
 				printWriter.println(rowBuilder.toString());
 			}
 			printWriter.close();
-		}
-		catch (SQLException e) {
-			e.printStackTrace();
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-		}
-		catch (IOException ioe) {
-			ioe.printStackTrace();
-			this.logger.error(ioe);
-			this.logger.error(AppUtil.stringifyStackTrace(ioe));
 		}
 	}
 
