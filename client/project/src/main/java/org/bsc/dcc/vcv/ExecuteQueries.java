@@ -240,10 +240,12 @@ public class ExecuteQueries {
 		catch (SQLException e) {
 			e.printStackTrace();
 			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
 			this.logger.error(ioe);
+			this.logger.error(AppUtil.stringifyStackTrace(ioe));
 		}
 	}
 
