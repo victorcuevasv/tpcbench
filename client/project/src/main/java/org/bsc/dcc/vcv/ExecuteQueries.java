@@ -140,7 +140,7 @@ public class ExecuteQueries {
 			int nQuery = Integer.parseInt(nQueryStr);
 			queryRecord = new QueryRecord(nQuery);
 			String sqlStr = readFileContents(sqlFile.getAbsolutePath());
-			this.logger.info("\nExecuting query: " + sqlFile.getName() + "\n" + sqlStr);
+			this.logger.info("\nExecuting query: " + sqlFile.getName() + "\n");
 			//Execute the query or queries.
 			if( singleCall )
 				this.executeQuerySingleCall(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
@@ -155,6 +155,7 @@ public class ExecuteQueries {
 		catch (SQLException e) {
 			e.printStackTrace();
 			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		finally {
 			queryRecord.setEndTime(System.currentTimeMillis());

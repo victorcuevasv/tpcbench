@@ -158,6 +158,12 @@ export YARN_OPTS="$YARN_OPTS -XX:OnOutOfMemoryError='kill -9 %p'"
 
 
 
+ERROR: 02:44:17.684 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLExcep
+tion: Query failed (#20190425_024326_00016_2k4m2): Query exceeded distributed user memory limit of 
+30GB
+
+
+
 
 
 
