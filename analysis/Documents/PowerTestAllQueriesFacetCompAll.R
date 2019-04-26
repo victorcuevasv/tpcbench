@@ -52,7 +52,7 @@ while( TRUE ) {
   theme(axis.text=element_text(size=6), axis.title=element_text(size=12)) +
   #The str_wrap function makes the name of the column appear on multiple lines instead of just one
   scale_x_discrete(labels = function(x) str_wrap(x, width = 8)) +
-  scale_y_continuous(limits=c(0, 400)) +
+  scale_y_continuous(limits=c(0, 3000)) +
   #scale_fill_manual(name="", values=c("#585574", "#DDD4B3"), labels=c("1 TB", "10 TB")) + 
   #This line adds the exact values on top of the bars
   #geom_text(aes(label=TPTSQL), position=position_dodge(width=0.9), vjust=-0.25)

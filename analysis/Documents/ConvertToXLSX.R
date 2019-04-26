@@ -1,8 +1,8 @@
 library("rio")
 
-workDir <- "./Documents/RESULTS/load"
+#workDir <- "./Documents/RESULTS/load"
 #workDir <- "./Documents/RESULTS/power"
-#workDir <- "./Documents/RESULTS/tput"
+workDir <- "./Documents/RESULTS/tput"
 systemDirs <- list.files(path=workDir)
 
 convertLog <- function(inFile, outFile) {
