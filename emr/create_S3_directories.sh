@@ -14,7 +14,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 if [ $# -lt 2 ]; then
     echo "${yel}Usage: bash create_S3_directories.sh <table names file> <S3 bucket name>${end}"
-    echo "${yel}Example: bash create_S3_directories.sh tableNames.txt tpcds-warehouse-emr-1gb${end}"
+    echo "${yel}Example: bash create_S3_directories.sh tableNames.txt tpcds-warehouse-emr-presto-1gb${end}"
     exit 0
 fi
 
