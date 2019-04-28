@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#Use EOF within quotes in the here doc due to the curly braces in the sed commands.
+
 PRESTO_CONFIG_SCRIPT=$(cat <<'EOF'
 #while [ ! -f /var/run/presto/presto-server.pid ]; do
 while [ ! -f /etc/presto/conf/catalog/hive.properties ]; do
