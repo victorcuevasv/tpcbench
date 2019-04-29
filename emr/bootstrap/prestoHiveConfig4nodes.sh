@@ -21,10 +21,10 @@ done
 sleep 15
 replaceString1=120GB
 sed -i "s/\(query\.max-memory=\).*\$/\1${replaceString1}/" /etc/presto/conf/config.properties
-replaceString2=45752623907B
-sed -i "s/\(query\.max-memory-per-node=\).*\$/\1${replaceString2}/" /etc/presto/conf/config.properties
-replaceString3=50903148689B
-sed -i "s/\(query\.max-total-memory-per-node=\).*\$/\1${replaceString3}/" /etc/presto/conf/config.properties
+#replaceString2=45752623907B
+#sed -i "s/\(query\.max-memory-per-node=\).*\$/\1${replaceString2}/" /etc/presto/conf/config.properties
+#replaceString3=50903148689B
+#sed -i "s/\(query\.max-total-memory-per-node=\).*\$/\1${replaceString3}/" /etc/presto/conf/config.properties
 echo "Configuring Presto." > /tmp/outPrestoConfig.txt
 cat /etc/presto/conf/config.properties >> /tmp/outPrestoConfig.txt
 sudo stop presto-server

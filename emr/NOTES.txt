@@ -164,6 +164,23 @@ tion: Query failed (#20190425_024326_00016_2k4m2): Query exceeded distributed us
 
 
 
+ERROR: 17:54:41.138 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: Quer
+y failed (#20190428_175223_00248_ixv7e): Query exceeded per-node user memory limit of 23.98GB
+
+
+ERROR: 18:51:50.229 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: Quer
+y failed (#20190428_185046_00273_ixv7e): Error opening Hive split s3a://tpcds-warehouse-emr-presto-1000gb/web
+_sales/20190428_165620_00237_ixv7e_06387097-b169-4753-9266-ad3f976c25ae (offset=0, length=33554432): Unable t
+o execute HTTP request: Timeout waiting for connection from pool
+
+
+
+
+
+
+
+
+
 
 
 
