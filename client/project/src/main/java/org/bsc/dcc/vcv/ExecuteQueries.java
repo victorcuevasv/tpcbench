@@ -50,6 +50,7 @@ public class ExecuteQueries {
 				con = DriverManager.getConnection("jdbc:presto://" + 
 						hostname + ":8889/hive/default", "hive", "");
 				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
+				((PrestoConnection)con).setSessionProperty("join_reordering_strategy", "AUTOMATIC");
 			}
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);

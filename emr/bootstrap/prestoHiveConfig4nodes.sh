@@ -19,8 +19,8 @@ while ! grep -q query.max-memory /etc/presto/conf/config.properties ; do
 	sleep 1
 done
 sleep 15
-replaceString1=120GB
-sed -i "s/\(query\.max-memory=\).*\$/\1${replaceString1}/" /etc/presto/conf/config.properties
+#replaceString1=120GB
+#sed -i "s/\(query\.max-memory=\).*\$/\1${replaceString1}/" /etc/presto/conf/config.properties
 #replaceString2=45752623907B
 #sed -i "s/\(query\.max-memory-per-node=\).*\$/\1${replaceString2}/" /etc/presto/conf/config.properties
 #replaceString3=50903148689B
