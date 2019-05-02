@@ -62,8 +62,13 @@ order by count(distinct ws_order_number)
 limit 100;
  
  
- 
- 
+Query 5
+SET SESSION join_distribution_type = 'PARTITIONED';
+SET SESSION join_distribution_type = 'AUTOMATIC';
+
+Queries 78 and 85 
+SET SESSION join_reordering_strategy = 'NONE';
+SET SESSION join_reordering_strategy = 'AUTOMATIC';
  
  
  
