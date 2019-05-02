@@ -203,6 +203,12 @@ public class ExecuteQueries {
 			String sqlStr = tokenizer.nextToken().trim();
 			if( sqlStr.length() == 0 )
 				continue;
+			if( sqlStr.contains("SET SESSION") ) {
+				Statement sessionStmt = con.createStatement();
+				sessionStmt.executeUpdate(sqlStr);
+				sessionStmt.close();
+				continue;
+			}
 			// Obtain the plan for the query.
 			Statement stmt = con.createStatement();
 			ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
