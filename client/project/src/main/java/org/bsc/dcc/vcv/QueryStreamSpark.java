@@ -84,6 +84,8 @@ public class QueryStreamSpark implements Callable<Void> {
 		//this.shuffle(queries);
 		int[] queries = StreamsTable.matrix[this.nStream];
 		for(int i = 0; i < nQueries; i++) {
+			if( queries[i] == 72 )
+				continue;
 			String sqlStr = this.queriesHT.get(queries[i]);
 			this.executeQuery(this.nStream, this.workDir, queries[i], sqlStr,
 					this.resultsDir, this.plansDir, this.singleCall, i);
