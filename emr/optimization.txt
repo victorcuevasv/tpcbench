@@ -62,7 +62,7 @@ order by count(distinct ws_order_number)
 limit 100;
  
  
-Query 5
+Query 5, 75, 78
 SET SESSION join_distribution_type = 'PARTITIONED';
 SET SESSION join_distribution_type = 'AUTOMATIC';
 
@@ -70,7 +70,12 @@ Queries 78 and 85
 SET SESSION join_reordering_strategy = 'NONE';
 SET SESSION join_reordering_strategy = 'AUTOMATIC';
  
- 
+Query 67
+SET SESSION task_concurrency = 16;
+ET SESSION task_concurrency = 8;
+
+
+Note that 78 uses two settings
  
  
  
