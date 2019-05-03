@@ -31,7 +31,7 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 --volume $DIR/../client/project:/project \
 --entrypoint mvn clientbuilder:dev \
 	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ExecuteQueriesConcurrent" \
-	-Dexec.args="/data QueriesPresto results plans prestoemr $(hostname) $1 1954 false true true" \
+	-Dexec.args="/data QueriesPresto results plans prestoemr $(hostname) $1 1954 true true true" \
 	-f /project/pom.xml   
 
 

@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.facebook.presto.jdbc.PrestoConnection;
 
 public class QueryStream implements Callable<Void> {
 
@@ -53,6 +54,13 @@ public class QueryStream implements Callable<Void> {
 		this.savePlans = savePlans;
 		this.saveResults = saveResults;
 	}
+	
+	private void setPrestoDefaultSessionOpts() {
+		((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
+		((PrestoConnection)con).setSessionProperty("join_reordering_strategy", "AUTOMATIC");
+		((PrestoConnection)con).setSessionProperty("join_distribution_type", "AUTOMATIC");
+		((PrestoConnection)con).setSessionProperty("task_concurrency", "8");
+	}
 
 	@Override
 	public Void call() {
@@ -74,6 +82,9 @@ public class QueryStream implements Callable<Void> {
 		QueryRecordConcurrent queryRecord = null;
 		String fileName = "query" + nQuery;
 		try {
+			if( this.system.equals("prestoemr") ) {
+				this.setPrestoDefaultSessionOpts();
+			}
 			queryRecord = new QueryRecordConcurrent(nStream, nQuery);
 			// Execute the query or queries.
 			if (singleCall)
@@ -135,6 +146,12 @@ public class QueryStream implements Callable<Void> {
 			String sqlStr = tokenizer.nextToken().trim();
 			if (sqlStr.length() == 0)
 				continue;
+			if( sqlStr.contains("SET SESSION") ) {
+				Statement sessionStmt = con.createStatement();
+				sessionStmt.executeUpdate(sqlStr);
+				sessionStmt.close();
+				continue;
+			}
 			// Obtain the plan for the query.
 			Statement stmt = con.createStatement();
 			ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);

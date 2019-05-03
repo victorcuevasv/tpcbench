@@ -75,7 +75,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 				Class.forName(prestoDriverName);
 				con = DriverManager.getConnection("jdbc:presto://" + 
 						hostname + ":8889/hive/default", "hive", "");
-				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
+				setPrestoDefaultSessionOpts();
 			}
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
@@ -107,6 +107,13 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			System.exit(1);
 		}
 		return con;
+	}
+	
+	private void setPrestoDefaultSessionOpts() {
+		((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
+		((PrestoConnection)con).setSessionProperty("join_reordering_strategy", "AUTOMATIC");
+		((PrestoConnection)con).setSessionProperty("join_distribution_type", "AUTOMATIC");
+		((PrestoConnection)con).setSessionProperty("task_concurrency", "8");
 	}
 
 	/**
