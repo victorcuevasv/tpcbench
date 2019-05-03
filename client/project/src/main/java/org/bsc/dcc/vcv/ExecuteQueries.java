@@ -49,10 +49,7 @@ public class ExecuteQueries {
 				Class.forName(prestoDriverName);
 				con = DriverManager.getConnection("jdbc:presto://" + 
 						hostname + ":8889/hive/default", "hive", "");
-				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
-				((PrestoConnection)con).setSessionProperty("join_reordering_strategy", "AUTOMATIC");
-				((PrestoConnection)con).setSessionProperty("join_distribution_type", "AUTOMATIC");
-				((PrestoConnection)con).setSessionProperty("task_concurrency", "8");
+				setPrestoDefaultSessionOpts();
 			}
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
@@ -81,6 +78,13 @@ public class ExecuteQueries {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+	}
+	
+	private void setPrestoDefaultSessionOpts() {
+		((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
+		((PrestoConnection)con).setSessionProperty("join_reordering_strategy", "AUTOMATIC");
+		((PrestoConnection)con).setSessionProperty("join_distribution_type", "AUTOMATIC");
+		((PrestoConnection)con).setSessionProperty("task_concurrency", "8");
 	}
 
 	/**
@@ -144,6 +148,9 @@ public class ExecuteQueries {
 			queryRecord = new QueryRecord(nQuery);
 			String sqlStr = readFileContents(sqlFile.getAbsolutePath());
 			this.logger.info("\nExecuting query: " + sqlFile.getName() + "\n");
+			if( this.recorder.system.equals("prestoemr") ) {
+				this.setPrestoDefaultSessionOpts();
+			}
 			//Execute the query or queries.
 			if( singleCall )
 				this.executeQuerySingleCall(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
@@ -202,7 +209,7 @@ public class ExecuteQueries {
 		while (tokenizer.hasMoreTokens()) {
 			String sqlStr = tokenizer.nextToken().trim();
 			if( sqlStr.length() == 0 )
-				continue;
+				continue;	
 			if( sqlStr.contains("SET SESSION") ) {
 				Statement sessionStmt = con.createStatement();
 				sessionStmt.executeUpdate(sqlStr);
