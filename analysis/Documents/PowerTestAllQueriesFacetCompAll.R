@@ -5,15 +5,19 @@ library(gridExtra)
 #Use the stringr package to use the str_wrap function below
 library(stringr)
 
-inFile <- "./Documents/RESULTS/power/mergedPower.xlsx"
-outDir <- "./Documents/RESULTS/power"
+inFile <- "./Documents/RESULTS/load/mergedLoad.xlsx"
+outDir <- "./Documents/RESULTS/load"
+
+#inFile <- "./Documents/RESULTS/power/mergedPower.xlsx"
+#outDir <- "./Documents/RESULTS/power"
+
 #List that represents all of the queries.
 queriesAll <- seq(1, 99)
 #List of queries to filter.
 #queriesRemove <- seq(31, 99)
 queriesRemove <- c()
 #Number of queries to include in each graph.
-nQueries <- 25
+nQueries <- 13
 
 #Read the data.
 datafAll = import(inFile)
@@ -49,14 +53,15 @@ while( TRUE ) {
   #geom_hline(aes(yintercept=SYSTEM_AVERAGE), data=dataf) +
   ylab("Exec. time (sec.)") +
   theme(axis.title.x=element_blank()) + 
-  theme(axis.text=element_text(size=6), axis.title=element_text(size=12)) +
+  theme(axis.text=element_text(size=8), axis.title=element_text(size=12)) +
   #The str_wrap function makes the name of the column appear on multiple lines instead of just one
   scale_x_discrete(labels = function(x) str_wrap(x, width = 8)) +
-  scale_y_continuous(limits=c(0, 3000)) +
+  scale_y_continuous(limits=c(0, 4000)) +
   #scale_fill_manual(name="", values=c("#585574", "#DDD4B3"), labels=c("1 TB", "10 TB")) + 
   #This line adds the exact values on top of the bars
   #geom_text(aes(label=TPTSQL), position=position_dodge(width=0.9), vjust=-0.25)
   theme(legend.position = c(0.90, 0.85)) +
+  theme(strip.text.x=element_text(size=14)) +
   theme(legend.text=element_text(size=12))
   plots[[nPlot]] <- p
   names(plots)[nPlot] <- paste(queriesPlot[1], "-", queriesPlot[length(queriesPlot)])

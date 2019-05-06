@@ -83,7 +83,6 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<excludes>
-						<exclude>org/bsc/dcc/vcv/AnalyzeTables.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesConcurrentSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesSpark.java</exclude>

@@ -1,0 +1,217 @@
+presto:default> show stats for store_sales;
+      column_name      | data_size | distinct_values_count | nulls_fraction | row_count | low_value | high_value 
+-----------------------+-----------+-----------------------+----------------+-----------+-----------+------------
+ ss_sold_date_sk       | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_sold_time_sk       | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_item_sk            | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_customer_sk        | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_cdemo_sk           | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_hdemo_sk           | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_addr_sk            | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_store_sk           | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_promo_sk           | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_ticket_number      | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_quantity           | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_wholesale_cost     | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_list_price         | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_sales_price        | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_ext_discount_amt   | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_ext_sales_price    | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_ext_wholesale_cost | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_ext_list_price     | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_ext_tax            | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_coupon_amt         | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_net_paid           | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_net_paid_inc_tax   | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ ss_net_profit         | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ NULL                  | NULL      | NULL                  | NULL           | 2880404.0 | NULL      | NULL       
+(24 rows)
+
+
+
+
+0: jdbc:hive2://namenodecontainer:10000/defau> describe extended inventory;
++-----------------------------+----------------------------------------------------+----------+
+|          col_name           |                     data_type                      | comment  |
++-----------------------------+----------------------------------------------------+----------+
+| inv_date_sk                 | int                                                |          |
+| inv_item_sk                 | int                                                |          |
+| inv_warehouse_sk            | int                                                |          |
+| inv_quantity_on_hand        | int                                                |          |
+|                             | NULL                                               | NULL     |
+| Detailed Table Information  | Table(tableName:inventory, dbName:default, owner:hive, createTime:1557145956, lastAccessTime:0, retention:0, sd:StorageDescriptor(cols:[FieldSchema(name:inv_date_sk, type:int, comment:null), FieldSchema(name:inv_item_sk, type:int, comment:null), FieldSchema(name:inv_warehouse_sk, type:int, comment:null), FieldSchema(name:inv_quantity_on_hand, type:int, comment:null)], location:hdfs://namenodecontainer:9000/user/hive/warehouse/inventory, inputFormat:org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat, outputFormat:org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat, compressed:false, numBuckets:0, serdeInfo:SerDeInfo(name:inventory, serializationLib:org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe, parameters:{}), bucketCols:[], sortCols:[], parameters:{}, skewedInfo:SkewedInfo(skewedColNames:[], skewedColValues:[], skewedColValueLocationMaps:{}), storedAsSubDirectories:false), partitionKeys:[], parameters:{presto_query_id=20190506_123236_00173_i46t8, totalSize=25688033, rawDataSize=234900000, numRows=11745000, numFiles=1, transient_lastDdlTime=1557145956, presto_version=0.215}, viewOriginalText:null, viewExpandedText:null, tableType:MANAGED_TABLE, rewriteEnabled:false) |          |
++-----------------------------+----------------------------------------------------+----------+
+
+Table(
+	tableName:inventory, 
+	dbName:default, 
+	owner:hive, 
+	createTime:1557145956, 
+	lastAccessTime:0, 
+	retention:0, 
+	sd:StorageDescriptor(
+		cols:[
+			FieldSchema(
+				name:inv_date_sk, 
+				type:int, 
+				comment:null
+			), 
+			FieldSchema(
+				name:inv_item_sk, 
+				type:int, 
+				comment:null
+			), 
+			FieldSchema(
+				name:inv_warehouse_sk, 
+				type:int, 
+				comment:null
+			), 
+			FieldSchema(
+				name:inv_quantity_on_hand, 
+				type:int, 
+				comment:null
+			)
+		], 
+		location:hdfs://namenodecontainer:9000/user/hive/warehouse/inventory, 
+		inputFormat:org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat, 
+		outputFormat:org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat, 
+		compressed:false, 
+		numBuckets:0, 
+		serdeInfo:SerDeInfo(
+			name:inventory, 
+			serializationLib:org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe, 
+			parameters:{}
+		), 
+		bucketCols:[], 
+		sortCols:[], 
+		parameters:{}, 
+		skewedInfo:SkewedInfo(
+			skewedColNames:[], 
+			skewedColValues:[], 
+			skewedColValueLocationMaps:{}
+		), 
+		storedAsSubDirectories:false
+	), 
+	partitionKeys:[], 
+	parameters:{
+		presto_query_id=20190506_123236_00173_i46t8, 
+		totalSize=25688033, 
+		rawDataSize=234900000, 
+		numRows=11745000, 
+		numFiles=1, 
+		transient_lastDdlTime=1557145956, 
+		presto_version=0.215
+	}, 
+	viewOriginalText:null, 
+	viewExpandedText:null, 
+	tableType:MANAGED_TABLE, 
+	rewriteEnabled:false
+)
+
+
+
+
+
+0: jdbc:hive2://namenodecontainer:10000/defau> describe extended inventory;
++-----------------------------+----------------------------------------------------+----------+
+|          col_name           |                     data_type                      | comment  |
++-----------------------------+----------------------------------------------------+----------+
+| inv_date_sk                 | int                                                |          |
+| inv_item_sk                 | int                                                |          |
+| inv_warehouse_sk            | int                                                |          |
+| inv_quantity_on_hand        | int                                                |          |
+|                             | NULL                                               | NULL     |
+| Detailed Table Information  | Table(tableName:inventory, dbName:default, owner:hive, createTime:1557145956, lastAccessTime:0, retention:0, sd:StorageDescriptor(cols:[FieldSchema(name:inv_date_sk, type:int, comment:null), FieldSchema(name:inv_item_sk, type:int, comment:null), FieldSchema(name:inv_warehouse_sk, type:int, comment:null), FieldSchema(name:inv_quantity_on_hand, type:int, comment:null)], location:hdfs://namenodecontainer:9000/user/hive/warehouse/inventory, inputFormat:org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat, outputFormat:org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat, compressed:false, numBuckets:0, serdeInfo:SerDeInfo(name:inventory, serializationLib:org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe, parameters:{}), bucketCols:[], sortCols:[], parameters:{}, skewedInfo:SkewedInfo(skewedColNames:[], skewedColValues:[], skewedColValueLocationMaps:{}), storedAsSubDirectories:false), partitionKeys:[], parameters:{presto_query_id=20190506_123236_00173_i46t8, totalSize=25688033, numRows=11745000, rawDataSize=37482340, COLUMN_STATS_ACCURATE={"BASIC_STATS":"true"}, numFiles=1, transient_lastDdlTime=1557147890, presto_version=0.215}, viewOriginalText:null, viewExpandedText:null, tableType:MANAGED_TABLE, rewriteEnabled:false) |          |
++-----------------------------+----------------------------------------------------+----------+
+
+Table(
+	tableName:inventory, 
+	dbName:default, 
+	owner:hive, 
+	createTime:1557145956, 
+	lastAccessTime:0, 
+	retention:0, 
+	sd:StorageDescriptor(
+		cols:[
+			FieldSchema(
+				name:inv_date_sk, 
+				type:int, 
+				comment:null
+			), 
+			FieldSchema(
+				name:inv_item_sk, 
+				type:int, 
+				comment:null
+			), 
+			FieldSchema(
+				name:inv_warehouse_sk, 
+				type:int, 
+				comment:null
+			), 
+			FieldSchema(
+				name:inv_quantity_on_hand, 
+				type:int, 
+				comment:null
+			)
+		], 
+		location:hdfs://namenodecontainer:9000/user/hive/warehouse/inventory, 
+		inputFormat:org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat, 
+		outputFormat:org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat, 
+		compressed:false, 
+		numBuckets:0, 
+		serdeInfo:SerDeInfo(
+			name:inventory, 
+			serializationLib:org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe, 
+			parameters:{}
+		), 
+		bucketCols:[], 
+		sortCols:[], 
+		parameters:{}, 
+		skewedInfo:SkewedInfo(
+			skewedColNames:[], 
+			skewedColValues:[], 
+			skewedColValueLocationMaps:{}
+		), 
+		storedAsSubDirectories:false
+	), 
+	partitionKeys:[], 
+	parameters:{
+		presto_query_id=20190506_123236_00173_i46t8, 
+		totalSize=25688033, 
+		numRows=11745000, 
+		rawDataSize=37482340, 
+		COLUMN_STATS_ACCURATE={"BASIC_STATS":"true"}, 
+		numFiles=1, 
+		transient_lastDdlTime=1557147890, 
+		presto_version=0.215
+	}, 
+	viewOriginalText:null, 
+	viewExpandedText:null, 
+	tableType:MANAGED_TABLE, 
+	rewriteEnabled:false
+)
+
+
+
+presto:default> show stats for inventory;
+     column_name      | data_size | distinct_values_count | nulls_fraction | row_count | low_value | high_value 
+----------------------+-----------+-----------------------+----------------+-----------+-----------+------------
+ inv_date_sk          | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ inv_item_sk          | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ inv_warehouse_sk     | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ inv_quantity_on_hand | NULL      | NULL                  | NULL           | NULL      | NULL      | NULL       
+ NULL                 | NULL      | NULL                  | NULL           |  1.1745E7 | NULL      | NULL       
+(5 rows)
+
+
+
+
+
+
+
+
+
+
+
+
+

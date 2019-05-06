@@ -2,8 +2,18 @@
 
 #Execute the Java project with Maven on the buildhiveclient container running in docker-compose. 
 
-docker exec -ti  clientbuildercontainer  /bin/bash -c \
+#Get the user id of the user executing this script.
+USER_ID=$(id -u)
+#Get the user id of the user executing this script.
+GROUP_ID=$(id -g)
+
+docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.AnalyzeTables\" \
-	-Dexec.args=\"hive namenodecontainer\" \
-	-f /project/pom.xml"      
+	-Dexec.args=\"spark namenodecontainer true\" \
+	-f /project/pomSparkJDBC.xml"    
+	
+#docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
+#	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.AnalyzeTables\" \
+#	-Dexec.args=\"hive namenodecontainer true\" \
+#	-f /project/pomSparkJDBC.xml"      
 

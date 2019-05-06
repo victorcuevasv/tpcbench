@@ -3,20 +3,20 @@ library(ggplot2)
 #Use the stringr package to use the str_wrap function below
 library(stringr)
 
-inFile <- "./Documents/RESULTS/tput/summaryTput.xlsx"
-outFile <- "./Documents/RESULTS/tput/TputTestTimeBarChart.pdf"
+#inFile <- "./Documents/RESULTS/tput/summaryTput.xlsx"
+#outFile <- "./Documents/RESULTS/tput/TputTestTimeBarChart.pdf"
 
 #inFile <- "./Documents/RESULTS/power/summaryPower.xlsx"
 #outFile <- "./Documents/RESULTS/power/PowerTestTimeBarChart.pdf"
 
-#inFile <- "./Documents/RESULTS/load/summaryLoad.xlsx"
-#outFile <- "./Documents/RESULTS/load/LoadTestTimeBarChart.pdf"
+inFile <- "./Documents/RESULTS/load/summaryLoad.xlsx"
+outFile <- "./Documents/RESULTS/load/LoadTestTimeBarChart.pdf"
 
 dataf = read.xlsx(inFile, sheet="Sheet 1", rows=seq(1,3), cols=seq(1,4))
 
 # Map DisplayNames to pseudonyms
 pseudonyms<-new.env()
-#pseudonyms[["prestoemr"]]<-"Presto"
+pseudonyms[["prestoemr"]]<-"Presto"
 pseudonyms[["sparkdatabricks"]]<-"Spark"
 i <- 1
 for(name in dataf$SYSTEM) {
@@ -38,7 +38,7 @@ theme(axis.title.x=element_blank()) +
 theme(axis.text=element_text(size=16), axis.title=element_text(size=18)) +
 #The str_wrap function makes the name of the column appear on multiple lines instead of just one
 scale_x_discrete(labels = function(x) str_wrap(x, width = 7)) + 
-scale_y_continuous("Time (sec.)", limits=c(0,60000)) + 
+scale_y_continuous("Time (sec.)", limits=c(0,10000)) + 
 scale_fill_manual(name="", values=c("#585574")) + 
 theme(legend.position = "bottom") + 
 theme(legend.text=element_text(size=16)) 

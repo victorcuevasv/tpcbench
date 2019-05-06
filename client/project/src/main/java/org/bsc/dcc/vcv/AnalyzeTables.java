@@ -15,10 +15,12 @@ public class AnalyzeTables {
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private AnalyticsRecorder recorder;
+	private final boolean computeForCols;
 
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public AnalyzeTables(String system, String hostname) {
+	public AnalyzeTables(String system, String hostname, boolean computeForCols) {
+		this.computeForCols = computeForCols;
 		try {
 			system = system.toLowerCase();
 			String driverName = "";
@@ -42,7 +44,7 @@ public class AnalyzeTables {
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10015/default", "", "");
+						hostname + ":10015/default", "hive", "");
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
@@ -74,16 +76,18 @@ public class AnalyzeTables {
 	 * 
 	 * args[0] system to evaluate the queries (hive/presto)
 	 * args[1] hostname of the server
+	 * args[2] compute statistics for columns (true/false)
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length < 2 ) {
+		if( args.length < 3 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
 		}
-		AnalyzeTables prog = new AnalyzeTables(args[0], args[1]);
+		boolean computeForCols = Boolean.parseBoolean(args[2]);
+		AnalyzeTables prog = new AnalyzeTables(args[0], args[1], computeForCols);
 		String[] tables = {"call_center", "catalog_page", "catalog_returns", "catalog_sales",
 							"customer", "customer_address", "customer_demographics", "date_dim",
 							"household_demographics", "income_band", "inventory", "item",
@@ -105,6 +109,10 @@ public class AnalyzeTables {
 			Statement stmt = con.createStatement();
 			String sqlStr = "ANALYZE TABLE " + table + " COMPUTE STATISTICS";
 			stmt.executeUpdate(sqlStr);
+			if( this.computeForCols ) {
+				String sqlStrCols = "ANALYZE TABLE " + table + " COMPUTE STATISTICS FOR COLUMNS";
+				stmt.executeUpdate(sqlStrCols);
+			}
 			queryRecord.setSuccessful(true);
 			stmt.close();
 		}
