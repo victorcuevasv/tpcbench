@@ -22,6 +22,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 printf "\n\n%s\n\n" "${mag}Analyzing the tables in the database.${end}"
 
 docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
+--volume $DIR/../vols/data:/data \
 --volume $DIR/../client/project:/project \
 --entrypoint mvn clientbuilder:dev \
 	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.AnalyzeTables" \
