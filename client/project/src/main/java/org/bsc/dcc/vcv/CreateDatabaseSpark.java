@@ -59,7 +59,7 @@ public class CreateDatabaseSpark {
 	 * args[2] directory for generated data raw files
 	 * args[3] hostname of the server (unused)
 	 * args[4] system running the data loading queries
-	 * args[5] whether to run queries to count the tuples generated
+	 * args[5] whether to run queries to count the tuples generated (true/false)
 	 * args[6] subdirectory within the jar that contains the create table files
 	 * args[7] prefix of external location for raw data tables (e.g. S3 bucket), null for none
 	 * args[8] prefix of external location for created tables (e.g. S3 bucket), null for none
