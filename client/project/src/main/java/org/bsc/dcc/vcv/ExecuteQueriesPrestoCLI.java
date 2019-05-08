@@ -15,17 +15,17 @@ public class ExecuteQueriesPrestoCLI {
 	private AnalyticsRecorder recorder;
 	boolean savePlans;
 	boolean saveResults;
-	String hostname;
+	String hostnameAndPort;
 
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public ExecuteQueriesPrestoCLI(String system, String hostname, boolean savePlans, boolean saveResults) {
+	public ExecuteQueriesPrestoCLI(String system, String hostnameAndPort, boolean savePlans, boolean saveResults) {
 		try {
 			this.savePlans = savePlans;
 			this.saveResults = saveResults;
 			system = system.toLowerCase();
 			this.recorder = new AnalyticsRecorder("power", system);
-			this.hostname = hostname;
+			this.hostnameAndPort = hostnameAndPort;
 		}
 		catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -49,7 +49,7 @@ public class ExecuteQueriesPrestoCLI {
 	 * args[2] subdirectory of work directory to store the results
 	 * args[3] subdirectory of work directory to store the execution plans
 	 * args[4] system to evaluate the queries (hive/presto)
-	 * args[5] hostname of the server
+	 * args[5] hostname and port of the server (e.g. namenodecontainer:8080)
 	 * args[6] save plans (boolean)
 	 * args[7] save results (boolean)
 	 * args[8] OPTIONAL: query file
@@ -99,7 +99,6 @@ public class ExecuteQueriesPrestoCLI {
 			int nQuery = Integer.parseInt(nQueryStr);
 			queryRecord = new QueryRecord(nQuery);
 			String sqlStr = readFileContents(sqlFile.getAbsolutePath());
-			System.out.println("\nExecuting query: " + sqlFile.getName() + "\n");
 			this.logger.info("\nExecuting query: " + sqlFile.getName() + "\n");
 			this.executeQuerySingleCall(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
 			//Record the results file size.
@@ -138,7 +137,7 @@ public class ExecuteQueriesPrestoCLI {
 		try {
 			ProcessBuilder pb = new ProcessBuilder();
 			String cmd = "export PRESTO_PAGER= ; " + 
-			"/opt/presto --server " + this.hostname + ":8080" + 
+			"/opt/presto --server " + this.hostnameAndPort + 
 			" --catalog hive --schema default --execute \"" + sql +"\"";
 			pb.command("bash", "-c", cmd);
 			// pb.environment().put("FOO", "BAR");
