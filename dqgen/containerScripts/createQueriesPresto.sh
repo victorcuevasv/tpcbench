@@ -37,7 +37,6 @@ cp ../query_templates_presto/* ../query_templates_temp
 
 #Copy the query variant templates for Presto
 #cp ../query_variants_presto/* ../query_templates_temp
-cp ../query_variants_presto/query109.tpl ../query_templates_temp
 
 printf "\n\n%s\n\n" "${blu}Generating Presto queries.${end}"
 
@@ -48,4 +47,11 @@ for f in ../query_templates_temp/query*.tpl ; do
    ./dsqgen -template $(basename "$f") -OUTPUT_DIR ../output/QueriesPresto -directory ../query_templates_temp -dialect netezza -scale $1
    mv ../output/QueriesPresto/query_0.sql ../output/QueriesPresto/$(basename "$f" .tpl).sql  ; #.tpl is removed with this invocation of basename
 done
+
+#Add SET SESSION statements to selected queries.
+printf "%s\n%s\n" "SET SESSION join_distribution_type = 'PARTITIONED';" "$(cat ../output/QueriesPresto/query5.sql )" > ../output/QueriesPresto/query5.sql     
+printf "%s\n" "SET SESSION join_distribution_type = 'AUTOMATIC';" >> ../output/QueriesPresto/query5.sql
+
+
+
 
