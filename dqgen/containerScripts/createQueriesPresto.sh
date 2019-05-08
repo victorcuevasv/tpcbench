@@ -52,6 +52,22 @@ done
 printf "%s\n%s\n" "SET SESSION join_distribution_type = 'PARTITIONED';" "$(cat ../output/QueriesPresto/query5.sql )" > ../output/QueriesPresto/query5.sql     
 printf "%s\n" "SET SESSION join_distribution_type = 'AUTOMATIC';" >> ../output/QueriesPresto/query5.sql
 
+printf "%s\n%s\n" "SET SESSION task_concurrency = 32;" "$(cat ../output/QueriesPresto/query67.sql )" > ../output/QueriesPresto/query67.sql     
+printf "%s\n" "SET SESSION task_concurrency = 8;" >> ../output/QueriesPresto/query67.sql
+
+printf "%s\n%s\n" "SET SESSION join_distribution_type = 'PARTITIONED';" "$(cat ../output/QueriesPresto/query75.sql )" > ../output/QueriesPresto/query75.sql     
+printf "%s\n" "SET SESSION join_distribution_type = 'AUTOMATIC';" >> ../output/QueriesPresto/query75.sql
+
+printf "%s\n%s\n" "SET SESSION join_distribution_type = 'PARTITIONED';" "$(cat ../output/QueriesPresto/query78.sql )" > ../output/QueriesPresto/query78.sql     
+printf "%s\n%s\n" "SET SESSION join_reordering_strategy = 'NONE';" "$(cat ../output/QueriesPresto/query78.sql )" > ../output/QueriesPresto/query78.sql 
+printf "%s\n" "SET SESSION join_distribution_type = 'AUTOMATIC';" >> ../output/QueriesPresto/query78.sql
+printf "%s\n" "SET SESSION join_reordering_strategy = 'AUTOMATIC';" >> ../output/QueriesPresto/query78.sql
+
+printf "%s\n%s\n" "SET SESSION join_distribution_type = 'PARTITIONED';" "$(cat ../output/QueriesPresto/query80.sql )" > ../output/QueriesPresto/query80.sql     
+printf "%s\n" "SET SESSION join_distribution_type = 'AUTOMATIC';" >> ../output/QueriesPresto/query80.sql
+     
+printf "%s\n%s\n" "SET SESSION join_reordering_strategy = 'NONE';" "$(cat ../output/QueriesPresto/query85.sql )" > ../output/QueriesPresto/query85.sql 
+printf "%s\n" "SET SESSION join_reordering_strategy = 'AUTOMATIC';" >> ../output/QueriesPresto/query85.sql
 
 
 
