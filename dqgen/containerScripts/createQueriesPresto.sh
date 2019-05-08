@@ -37,6 +37,7 @@ cp ../query_templates_presto/* ../query_templates_temp
 
 #Copy the query variant templates for Presto
 #cp ../query_variants_presto/* ../query_templates_temp
+cp ../query_variants_presto/query109.tpl ../query_templates_temp
 
 printf "\n\n%s\n\n" "${blu}Generating Presto queries.${end}"
 
