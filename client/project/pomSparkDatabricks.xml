@@ -89,10 +89,13 @@
 						<exclude>org/bsc/dcc/vcv/CreateDatabase.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueries.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesConcurrent.java</exclude>
+						<exclude>org/bsc/dcc/vcv/ExecuteQueriesConcurrentPrestoCLI.java</exclude>
+						<exclude>org/bsc/dcc/vcv/ExecuteQueriesPrestoCLI.java</exclude>
 						<exclude>org/bsc/dcc/vcv/HiveJdbcClient.java</exclude>
 						<exclude>org/bsc/dcc/vcv/JavaSparkPiExample.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ProcessCreateScript.java</exclude>
 						<exclude>org/bsc/dcc/vcv/QueryStream.java</exclude>
+						<exclude>org/bsc/dcc/vcv/QueryStreamPrestoCLI.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

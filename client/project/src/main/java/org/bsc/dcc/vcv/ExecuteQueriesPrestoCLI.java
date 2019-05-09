@@ -136,9 +136,12 @@ public class ExecuteQueriesPrestoCLI {
 		int retVal = 0;
 		try {
 			ProcessBuilder pb = new ProcessBuilder();
+			// "${QUERY//\"/\\\"}" Replace in the QUERY variable " with \" in bash
+			CharSequence quote = "\"";
+			CharSequence replacement = "\\\"";
 			String cmd = "export PRESTO_PAGER= ; " + 
 			"/opt/presto --server " + this.hostnameAndPort + 
-			" --catalog hive --schema default --execute \"" + sql +"\"";
+			" --catalog hive --schema  default --execute \"" + sql.replace(quote, replacement) + "\"";
 			pb.command("bash", "-c", cmd);
 			// pb.environment().put("FOO", "BAR");
 			// From the DOC: Initially, this property is false, meaning that the

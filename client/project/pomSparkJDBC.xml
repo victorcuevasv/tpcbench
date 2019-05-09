@@ -84,11 +84,14 @@
 				<configuration>
 					<excludes>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSpark.java</exclude>
+						<exclude>org/bsc/dcc/vcv/ExecuteQueriesConcurrentPrestoCLI.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesConcurrentSpark.java</exclude>
+						<exclude>org/bsc/dcc/vcv/ExecuteQueriesPrestoCLI.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/HDFSExample.java</exclude>
 						<exclude>org/bsc/dcc/vcv/JavaSparkHiveExample.java</exclude>
 						<exclude>org/bsc/dcc/vcv/JavaSparkPiExample.java</exclude>
+						<exclude>org/bsc/dcc/vcv/QueryStreamPrestoCLI.java</exclude>
 						<exclude>org/bsc/dcc/vcv/QueryStreamSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/SparkUtil.java</exclude>
 					</excludes>
