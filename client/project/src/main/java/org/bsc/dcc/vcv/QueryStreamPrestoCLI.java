@@ -31,12 +31,13 @@ public class QueryStreamPrestoCLI implements Callable<Void> {
 	boolean savePlans;
 	boolean saveResults;
 	private String hostnameAndPort;
+	private String dbName;
 
 	public QueryStreamPrestoCLI(int nStream, BlockingQueue<QueryRecordConcurrent> resultsQueue,
 			HashMap<Integer, String> queriesHT, int nQueries,
 			String workDir, String resultsDir, String plansDir, boolean singleCall, 
 			Random random, String system, boolean savePlans, boolean saveResults,
-			String hostnameAndPort) {
+			String hostnameAndPort, String dbName) {
 		this.nStream = nStream;
 		this.resultsQueue = resultsQueue;
 		this.queriesHT = queriesHT;
@@ -50,6 +51,7 @@ public class QueryStreamPrestoCLI implements Callable<Void> {
 		this.savePlans = savePlans;
 		this.saveResults = saveResults;
 		this.hostnameAndPort = hostnameAndPort;
+		this.dbName = dbName;
 	}
 	
 	private String getPrestoDefaultSessionOpts() {
@@ -110,7 +112,7 @@ public class QueryStreamPrestoCLI implements Callable<Void> {
 			nStream + "_" + item + "_" + fileName + ".txt");
 		// Execute the query.
 		queryRecord.setStartTime(System.currentTimeMillis());
-		System.out.println("Executing query " + fileName + ".");
+		System.out.println("Stream " + nStream + " item " + item + " " + fileName + ".");
 		this.executeQuery(this.getPrestoDefaultSessionOpts() + sqlStrFull, this.saveResults,
 			workDir + "/" + resultsDir + "/" + "tput" + "/" + this.system + "/" + 
 			nStream + "_" + item + "_" + fileName + ".txt");
@@ -119,13 +121,13 @@ public class QueryStreamPrestoCLI implements Callable<Void> {
 	private void executeQuery(String sql, boolean save, String outFile) throws Exception {
 		int retVal = 0;
 		try {
-				ProcessBuilder pb = new ProcessBuilder();
+			ProcessBuilder pb = new ProcessBuilder();
 			// "${QUERY//\"/\\\"}" Replace in the QUERY variable " with \" in bash
 			CharSequence quote = "\"";
 			CharSequence replacement = "\\\"";
 			String cmd = "export PRESTO_PAGER= ; " + 
 			"/opt/presto --server " + this.hostnameAndPort + 
-			" --catalog hive --schema  default --execute \"" + sql.replace(quote, replacement) + "\"";
+			" --catalog hive --schema " + this.dbName + " --execute \"" + sql.replace(quote, replacement) + "\"";
 			pb.command("bash", "-c", cmd);
 			// pb.environment().put("FOO", "BAR");
 			// From the DOC: Initially, this property is false, meaning that the

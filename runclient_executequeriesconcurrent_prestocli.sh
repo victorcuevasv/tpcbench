@@ -12,15 +12,13 @@ end=$'\e[0m'
 
 #Execute the Java project with Maven on the client builder container running in the docker-compose setup. 
 
-#$1 Required argument denoting the number of streams. 
-
-if [ $# -lt 1 ]; then
-    echo "${yel}Usage bash runclient_executequeriesconcurrent_prestocli.sh <number of streams>${end}"
+if [ $# -lt 2 ]; then
+    echo "${yel}Usage bash runclient_executequeriesconcurrent.sh <scale factor> <number of streams>${end}"
     exit 0
 fi
 
 docker exec -ti  clientbuildercontainer  /bin/bash -c \
 	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueriesConcurrentPrestoCLI\" \
-	-Dexec.args=\"/data QueriesPresto results plans presto namenodecontainer:8080 $1 1954 false true true\" \
+	-Dexec.args=\"/data QueriesPresto results plans presto namenodecontainer:8080 $2 1954 false true true tpcdsdb$1gb\" \
 	-f /project/pom.xml"       
 

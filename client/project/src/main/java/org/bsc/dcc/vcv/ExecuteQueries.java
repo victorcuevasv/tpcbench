@@ -28,7 +28,8 @@ public class ExecuteQueries {
 
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public ExecuteQueries(String system, String hostname, boolean savePlans, boolean saveResults) {
+	public ExecuteQueries(String system, String hostname, boolean savePlans, boolean saveResults,
+			String dbName) {
 		try {
 			this.savePlans = savePlans;
 			this.saveResults = saveResults;
@@ -37,24 +38,24 @@ public class ExecuteQueries {
 			if( system.equals("hive") ) {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10000/default", "hive", "");
+						hostname + ":10000/" + dbName, "hive", "");
 			}
 			else if( system.equals("presto") ) {
 				Class.forName(prestoDriverName);
 				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8080/hive/default", "hive", "");
+						hostname + ":8080/hive/" + dbName, "hive", "");
 				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
 			else if( system.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
 				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8889/hive/default", "hive", "");
+						hostname + ":8889/hive/" + dbName, "hive", "");
 				setPrestoDefaultSessionOpts();
 			}
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10015/default", "", "");
+						hostname + ":10015/" + dbName, "", "");
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
@@ -99,19 +100,20 @@ public class ExecuteQueries {
 	 * args[5] hostname of the server
 	 * args[6] save plans (boolean)
 	 * args[7] save results (boolean)
-	 * args[8] OPTIONAL: query file
+	 * args[8] database name
+	 * args[9] "all" or query file
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length < 8 ) {
+		if( args.length < 10 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
 		}
 		boolean savePlans = Boolean.parseBoolean(args[6]);
 		boolean saveResults = Boolean.parseBoolean(args[7]);
-		ExecuteQueries prog = new ExecuteQueries(args[4], args[5], savePlans, saveResults);
+		ExecuteQueries prog = new ExecuteQueries(args[4], args[5], savePlans, saveResults, args[8]);
 		File directory = new File(args[0] + "/" + args[1]);
 		// Process each .sql file found in the directory.
 		// The preprocessing steps are necessary to obtain the right order, i.e.,
@@ -124,7 +126,7 @@ public class ExecuteQueries {
 				map(s -> new File(args[0] + "/" + args[1] + "/" + s)).
 				toArray(File[]::new);
 		prog.recorder.header();
-		String queryFile = args.length >= 9 ? args[8] : null;
+		String queryFile = args[args.length-1].equalsIgnoreCase("all") ? null : args[args.length-1];
 		for (final File fileEntry : files) {
 			if (!fileEntry.isDirectory()) {
 				if( queryFile != null ) {

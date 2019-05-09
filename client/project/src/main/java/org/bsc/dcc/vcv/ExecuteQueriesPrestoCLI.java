@@ -16,16 +16,19 @@ public class ExecuteQueriesPrestoCLI {
 	boolean savePlans;
 	boolean saveResults;
 	String hostnameAndPort;
+	String dbName;
 
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public ExecuteQueriesPrestoCLI(String system, String hostnameAndPort, boolean savePlans, boolean saveResults) {
+	public ExecuteQueriesPrestoCLI(String system, String hostnameAndPort, boolean savePlans,
+			boolean saveResults, String dbName) {
 		try {
 			this.savePlans = savePlans;
 			this.saveResults = saveResults;
 			system = system.toLowerCase();
 			this.recorder = new AnalyticsRecorder("power", system);
 			this.hostnameAndPort = hostnameAndPort;
+			this.dbName = dbName;
 		}
 		catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -52,19 +55,21 @@ public class ExecuteQueriesPrestoCLI {
 	 * args[5] hostname and port of the server (e.g. namenodecontainer:8080)
 	 * args[6] save plans (boolean)
 	 * args[7] save results (boolean)
-	 * args[8] OPTIONAL: query file
+	 * args[8] database name
+	 * args[9] "all" or query file
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) throws Exception {
-		if( args.length < 8 ) {
+		if( args.length < 10 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
 		}
 		boolean savePlans = Boolean.parseBoolean(args[6]);
 		boolean saveResults = Boolean.parseBoolean(args[7]);
-		ExecuteQueriesPrestoCLI prog = new ExecuteQueriesPrestoCLI(args[4], args[5], savePlans, saveResults);
+		ExecuteQueriesPrestoCLI prog = new ExecuteQueriesPrestoCLI(args[4], args[5], savePlans, saveResults,
+				args[8]);
 		File directory = new File(args[0] + "/" + args[1]);
 		// Process each .sql file found in the directory.
 		// The preprocessing steps are necessary to obtain the right order, i.e.,
@@ -77,7 +82,7 @@ public class ExecuteQueriesPrestoCLI {
 				map(s -> new File(args[0] + "/" + args[1] + "/" + s)).
 				toArray(File[]::new);
 		prog.recorder.header();
-		String queryFile = args.length >= 9 ? args[8] : null;
+		String queryFile = args[args.length-1].equalsIgnoreCase("all") ? null : args[args.length-1];
 		for (final File fileEntry : files) {
 			if (!fileEntry.isDirectory()) {
 				if( queryFile != null ) {
@@ -141,7 +146,7 @@ public class ExecuteQueriesPrestoCLI {
 			CharSequence replacement = "\\\"";
 			String cmd = "export PRESTO_PAGER= ; " + 
 			"/opt/presto --server " + this.hostnameAndPort + 
-			" --catalog hive --schema  default --execute \"" + sql.replace(quote, replacement) + "\"";
+			" --catalog hive --schema " + this.dbName + " --execute \"" + sql.replace(quote, replacement) + "\"";
 			pb.command("bash", "-c", cmd);
 			// pb.environment().put("FOO", "BAR");
 			// From the DOC: Initially, this property is false, meaning that the

@@ -39,16 +39,18 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private boolean multiple = false;
 	boolean savePlans;
 	boolean saveResults;
+	private String dbName;
 
 	public ExecuteQueriesConcurrent(String system, String hostname, boolean multiple,
-			boolean savePlans, boolean saveResults) {
+			boolean savePlans, boolean saveResults, String dbName) {
 		this.savePlans = savePlans;
 		this.saveResults = saveResults;
 		this.system = system;
 		this.hostname = hostname;
+		this.dbName = dbName;
 		this.multiple = multiple;
 		if( ! this.multiple )
-			this.con = this.createConnection(system, hostname);
+			this.con = this.createConnection(system, hostname, dbName);
 		this.recorder = new AnalyticsRecorderConcurrent("tput", this.system);
 		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
 		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
@@ -56,31 +58,31 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public Connection createConnection(String system, String hostname) {
+	public Connection createConnection(String system, String hostname, String dbName) {
 		try {
 			system = system.toLowerCase();
 			String driverName = "";
 			if( system.equals("hive") ) {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10000/default", "hive", "");
+						hostname + ":10000/" + dbName, "hive", "");
 			}
 			else if( system.equals("presto") ) {
 				Class.forName(prestoDriverName);
 				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8080/hive/default", "hive", "");
+						hostname + ":8080/hive/" + dbName, "hive", "");
 				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
 			else if( system.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
 				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8889/hive/default", "hive", "");
+						hostname + ":8889/hive/" + dbName, "hive", "");
 				setPrestoDefaultSessionOpts();
 			}
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10015/default", "", "");
+						hostname + ":10015/" + dbName, "", "");
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
@@ -131,11 +133,12 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	 * args[8] use multiple connections (true|false)
 	 * args[9] save plans (true|false)
 	 * args[10] save results (true|false)
+	 * args[11] database name
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 11 ) {
+		if( args.length != 12 ) {
 			System.out.println("Insufficient arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
@@ -144,7 +147,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		boolean savePlans = Boolean.parseBoolean(args[9]);
 		boolean saveResults = Boolean.parseBoolean(args[10]);
 		ExecuteQueriesConcurrent prog = new ExecuteQueriesConcurrent(args[4], args[5], multiple,
-				savePlans, saveResults);
+				savePlans, saveResults, args[11]);
 		File directory = new File(args[0] + "/" + args[1]);
 		// Process each .sql file found in the directory.
 		// The preprocessing steps are necessary to obtain the right order, i.e.,
@@ -182,7 +185,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 					this.savePlans, this.saveResults);
 			}
 			else {
-				Connection con = this.createConnection(this.system, this.hostname);
+				Connection con = this.createConnection(this.system, this.hostname, this.dbName);
 				stream = new QueryStream(i, this.resultsQueue, con, queriesHT, nQueries,
 						workDir, resultsDir, plansDir, singleCall, random, this.recorder.system,
 						this.savePlans, this.saveResults);

@@ -28,13 +28,15 @@ public class ExecuteQueriesConcurrentPrestoCLI implements ConcurrentExecutor {
 	private String hostnameAndPort;
 	boolean savePlans;
 	boolean saveResults;
+	private String dbName;
 
 	public ExecuteQueriesConcurrentPrestoCLI(String system, String hostnameAndPort,
-			boolean savePlans, boolean saveResults) {
+			boolean savePlans, boolean saveResults, String dbName) {
 		this.savePlans = savePlans;
 		this.saveResults = saveResults;
 		this.system = system;
 		this.hostnameAndPort = hostnameAndPort;
+		this.dbName = dbName;
 		this.recorder = new AnalyticsRecorderConcurrent("tput", this.system);
 		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
 		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
@@ -42,7 +44,6 @@ public class ExecuteQueriesConcurrentPrestoCLI implements ConcurrentExecutor {
 
 	/**
 	 * @param args
-	 * @throws SQLException
 	 * 
 	 * args[0] main work directory
 	 * args[1] subdirectory of work directory that contains the queries
@@ -55,11 +56,12 @@ public class ExecuteQueriesConcurrentPrestoCLI implements ConcurrentExecutor {
 	 * args[8] use multiple connections (true|false)
 	 * args[9] save plans (true|false)
 	 * args[10] save results (true|false)
+	 * args[11] database name
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) {
-		if( args.length != 11 ) {
+		if( args.length != 12 ) {
 			System.out.println("Insufficient arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
@@ -68,7 +70,7 @@ public class ExecuteQueriesConcurrentPrestoCLI implements ConcurrentExecutor {
 		boolean savePlans = Boolean.parseBoolean(args[9]);
 		boolean saveResults = Boolean.parseBoolean(args[10]);
 		ExecuteQueriesConcurrentPrestoCLI prog = new ExecuteQueriesConcurrentPrestoCLI(args[4], args[5],
-				savePlans, saveResults);
+				savePlans, saveResults, args[11]);
 		File directory = new File(args[0] + "/" + args[1]);
 		// Process each .sql file found in the directory.
 		// The preprocessing steps are necessary to obtain the right order, i.e.,
@@ -101,7 +103,7 @@ public class ExecuteQueriesConcurrentPrestoCLI implements ConcurrentExecutor {
 		for(int i = 0; i < nStreams; i++) {
 			QueryStreamPrestoCLI stream = new QueryStreamPrestoCLI(i, this.resultsQueue, queriesHT, nQueries,
 						workDir, resultsDir, plansDir, singleCall, random, this.recorder.system,
-						this.savePlans, this.saveResults, this.hostnameAndPort);
+						this.savePlans, this.saveResults, this.hostnameAndPort, this.dbName);
 			this.executor.submit(stream);
 		}
 		this.executor.shutdown();
