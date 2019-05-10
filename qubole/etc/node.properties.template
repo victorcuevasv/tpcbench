@@ -1,0 +1,3 @@
+node.environment=production
+node.id=$INSTANCE_ID
+node.data-dir=/media/ephemeral0/presto

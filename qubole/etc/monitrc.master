@@ -1,0 +1,11 @@
+set daemon 30
+set logfile /var/log/monit.log
+
+set httpd port 2812 and
+    use address localhost  # only accept connection from localhost
+    allow localhost        # allow localhost to connect to the server and
+
+check process presto with pidfile /media/ephemeral0/presto/var/run/launcher.pid                                                                 
+   start program = "/bin/bash -c 'export HOME=/root && /usr/lib/presto/bin/presto server start'"
+   stop program = "/bin/bash -c 'export HOME=/root && /usr/lib/presto/bin/presto server stop'"
+   if 5 restarts within 5 cycles then timeout

@@ -1,0 +1,15 @@
+connector.name=hive-hadoop2
+hive.metastore.uri=thrift://$COORD_IP:10000
+hive.allow-drop-table=true
+hive.metastore-timeout=3m
+hive.metastore-cache-ttl=20m
+hive.metastore-refresh-interval=100m
+hive.max-outstanding-splits=30000
+hive.max-initial-splits=2000
+hive.max-initial-split-size=256MB
+hive.max-split-size=256MB
+hadoop.cache.data.split.size=128MB
+hive.parquet-optimized-reader.enabled=true
+hive.parquet-predicate-pushdown.enabled=true
+${PRESTO_HIVE_PROPERTIES}
+
