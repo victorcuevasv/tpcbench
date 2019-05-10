@@ -26,10 +26,12 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Creating the schema (database).${end}"
 
-docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
-	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateSchema\" \
-	-Dexec.args=\"$(hostname) $1 tpcdsdb$2gb\" \
-	-f /project/pom.xml"  
-  
-
+docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
+--volume $DIR/../vols/data:/data \
+--volume $DIR/../client/project:/project \
+--entrypoint mvn clientbuilder:dev \
+	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.CreateSchema" \
+	-Dexec.args="$(hostname) $1 tpcdsdb$2gb" \
+	-f /project/pom.xml  
+   
 
