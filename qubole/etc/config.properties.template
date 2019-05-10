@@ -1,0 +1,13 @@
+coordinator=$IS_COORD
+datasources=jmx,hive
+http-server.http.port=8081
+discovery-server.enabled=true
+discovery.uri=http://$COORD_IP:8411
+node-scheduler.include-coordinator=false
+task.cpu-timer-enabled=true
+ascm.enabled=true
+ascm.upscaling.enabled=true
+config-reloader.refresh.time=10s
+config-reloader.paths=/usr/lib/presto/etc/config.properties
+query.max-memory=100TB
+${PRESTO_CONFIG_PROPERTIES}

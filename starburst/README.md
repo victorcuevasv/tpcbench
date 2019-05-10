@@ -1,0 +1,1 @@
+Configuration files for presto-server-302-e.8 on HDI (Azure) for a D4v2 VM (28GB RAM)
