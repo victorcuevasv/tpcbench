@@ -29,8 +29,8 @@ USER_ID=$(id -u)
 #Get the user id of the user executing this script.
 GROUP_ID=$(id -g)
 
-if [ $# -lt 1 ]; then
-    echo "${yel}Usage bash runclient_executequeriesconcurrentspark.sh <number of streams>${end}"
+if [ $# -lt 2 ]; then
+    echo "${yel}Usage bash runclient_executequeriesconcurrentspark.sh <scale factor> <number of streams>${end}"
     exit 0
 fi
 
@@ -43,7 +43,7 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.ExecuteQueriesConcurrentSpark \
 --master spark://namenodecontainer:7077 --deploy-mode client \
 /project/targetspark/client-1.0-SNAPSHOT.jar \
-/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar spark $1 1954 true true" 
+/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar spark $2 1954 true true tpcdsdb$1gb" 
 
 
                      

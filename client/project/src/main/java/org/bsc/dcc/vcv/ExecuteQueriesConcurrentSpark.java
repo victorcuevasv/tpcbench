@@ -65,11 +65,12 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	 * args[6] random seed
 	 * args[7] save plans (boolean)
 	 * args[8] save results (boolean)
+	 * args[9] database name
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 9 ) {
+		if( args.length != 10 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
@@ -86,11 +87,24 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 		prog.random = new Random(seed);
 		int nQueries = files.size();
 		prog.executeStreams(nQueries, nStreams, prog.random, queriesHT,
-				args[0], args[1], args[2], false);
+				args[0], args[1], args[2], false, args[9]);
+	}
+	
+	private void useDatabase(String dbName) {
+		try {
+			this.spark.sql("USE " + dbName);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in QueryStreamSpark useDatabase.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
 	}
 	
 	public void executeStreams(int nQueries, int nStreams, Random random, HashMap<Integer, String> queriesHT,
-			String workDir, String resultsDir, String plansDir, boolean singleCall) {
+			String workDir, String resultsDir, String plansDir, boolean singleCall, String dbName) {
+		this.useDatabase(dbName);
 		int totalQueries = nQueries * nStreams;
 		QueryResultsCollector resultsCollector = new QueryResultsCollector(totalQueries, 
 				this.resultsQueue, this.recorder, this);
