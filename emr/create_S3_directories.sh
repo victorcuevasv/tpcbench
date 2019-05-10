@@ -29,7 +29,7 @@ IFS=''
 while read -r line || [[ -n "$line" ]]; do
 	IFS=' '
 	for word in $line; do
-		aws s3api put-object --bucket $2 --key $word/ 
+		aws s3api put-object --bucket $2 --key $word/empty 
 	done
 	IFS=''
 done < "$1"
