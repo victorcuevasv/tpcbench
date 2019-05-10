@@ -24,29 +24,29 @@ public class CreateDatabase {
 
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public CreateDatabase(String hostname, String system) {
+	public CreateDatabase(String hostname, String system, String dbName) {
 		try {
 			if( system.equals("hive") ) {
 				Class.forName(driverName);
 				con = DriverManager.getConnection("jdbc:hive2://" + hostname + 
-					":10000/default", "hive", "");
+					":10000/" + dbName, "hive", "");
 			}
 			else if( system.equals("presto") ) {
 				Class.forName(prestoDriverName);
 				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8080/hive/default", "hive", "");
+						hostname + ":8080/hive/" + dbName, "hive", "");
 				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
 			else if( system.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
 				//Should use hadoop to drop a table created by spark.
 				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8889/hive/default", "hadoop", "");
+						hostname + ":8889/hive/" + dbName, "hadoop", "");
 			}
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10015/default", "hive", "");
+						hostname + ":10015/" + dbName, "hive", "");
 			}
 			else {
 				throw new java.lang.RuntimeException("Unsupported system: " + system);
@@ -82,14 +82,15 @@ public class CreateDatabase {
 	 * args[5] count (boolean) whether to run queries to count the tuples generated
 	 * args[6] prefix of external location for raw data tables (e.g. S3 bucket), null for none
 	 * args[7] prefix of external location for created tables (e.g. S3 bucket), null for none
+	 * args[8] database name
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 8 ) {
+		if( args.length != 9 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(0);
 		}
-		CreateDatabase prog = new CreateDatabase(args[3], args[4]);
+		CreateDatabase prog = new CreateDatabase(args[3], args[4], args[8]);
 		boolean doCount = Boolean.parseBoolean(args[5]);
 		File directory = new File(args[0]);
 		prog.recorder.header();

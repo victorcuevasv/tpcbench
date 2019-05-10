@@ -1,14 +1,8 @@
 package org.bsc.dcc.vcv;
 
-import java.sql.SQLException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.sql.DriverManager;
 import java.io.*;
 import java.util.HashMap;
 import java.util.stream.Stream;
@@ -20,13 +14,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.facebook.presto.jdbc.PrestoConnection;
 
-public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
+public class ExecuteQueriesConcurrentPrestoCLI implements ConcurrentExecutor {
 
-	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
-	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
-	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private AnalyticsRecorderConcurrent recorder;
 	private ExecutorService executor;
@@ -35,92 +25,25 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private long seed;
 	private Random random;
 	private String system;
-	private String hostname;
-	private boolean multiple = false;
+	private String hostnameAndPort;
 	boolean savePlans;
 	boolean saveResults;
 	private String dbName;
 
-	public ExecuteQueriesConcurrent(String system, String hostname, boolean multiple,
+	public ExecuteQueriesConcurrentPrestoCLI(String system, String hostnameAndPort,
 			boolean savePlans, boolean saveResults, String dbName) {
 		this.savePlans = savePlans;
 		this.saveResults = saveResults;
 		this.system = system;
-		this.hostname = hostname;
+		this.hostnameAndPort = hostnameAndPort;
 		this.dbName = dbName;
-		this.multiple = multiple;
-		if( ! this.multiple )
-			this.con = this.createConnection(system, hostname, dbName);
 		this.recorder = new AnalyticsRecorderConcurrent("tput", this.system);
 		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
 		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 	}
-	
-	// Open the connection (the server address depends on whether the program is
-	// running locally or under docker-compose).
-	public Connection createConnection(String system, String hostname, String dbName) {
-		try {
-			system = system.toLowerCase();
-			String driverName = "";
-			if( system.equals("hive") ) {
-				Class.forName(hiveDriverName);
-				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10000/" + dbName, "hive", "");
-			}
-			else if( system.equals("presto") ) {
-				Class.forName(prestoDriverName);
-				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8080/hive/" + dbName, "hive", "");
-				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
-			}
-			else if( system.equals("prestoemr") ) {
-				Class.forName(prestoDriverName);
-				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8889/hive/" + dbName, "hive", "");
-				setPrestoDefaultSessionOpts();
-			}
-			else if( system.startsWith("spark") ) {
-				Class.forName(hiveDriverName);
-				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10015/" + dbName, "", "");
-			}
-			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
-			// "hive", "");
-		}
-		catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-			System.exit(1);
-		}
-		catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-			System.exit(1);
-		}
-		catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-			System.exit(1);
-		}
-		return con;
-	}
-	
-	private void setPrestoDefaultSessionOpts() {
-		((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
-		((PrestoConnection)con).setSessionProperty("join_reordering_strategy", "AUTOMATIC");
-		((PrestoConnection)con).setSessionProperty("join_distribution_type", "AUTOMATIC");
-		((PrestoConnection)con).setSessionProperty("task_concurrency", "8");
-	}
 
 	/**
 	 * @param args
-	 * @throws SQLException
 	 * 
 	 * args[0] main work directory
 	 * args[1] subdirectory of work directory that contains the queries
@@ -137,16 +60,16 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	 * 
 	 * all directories without slash
 	 */
-	public static void main(String[] args) throws SQLException {
+	public static void main(String[] args) {
 		if( args.length != 12 ) {
 			System.out.println("Insufficient arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
 		}
-		boolean multiple = Boolean.parseBoolean(args[8]);
+		boolean multipleUnused = Boolean.parseBoolean(args[8]);
 		boolean savePlans = Boolean.parseBoolean(args[9]);
 		boolean saveResults = Boolean.parseBoolean(args[10]);
-		ExecuteQueriesConcurrent prog = new ExecuteQueriesConcurrent(args[4], args[5], multiple,
+		ExecuteQueriesConcurrentPrestoCLI prog = new ExecuteQueriesConcurrentPrestoCLI(args[4], args[5],
 				savePlans, saveResults, args[11]);
 		File directory = new File(args[0] + "/" + args[1]);
 		// Process each .sql file found in the directory.
@@ -178,18 +101,9 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
 		for(int i = 0; i < nStreams; i++) {
-			QueryStream stream = null;
-			if( !this.multiple ) {
-				stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT, nQueries,
-					workDir, resultsDir, plansDir, singleCall, random, this.recorder.system,
-					this.savePlans, this.saveResults);
-			}
-			else {
-				Connection con = this.createConnection(this.system, this.hostname, this.dbName);
-				stream = new QueryStream(i, this.resultsQueue, con, queriesHT, nQueries,
+			QueryStreamPrestoCLI stream = new QueryStreamPrestoCLI(i, this.resultsQueue, queriesHT, nQueries,
 						workDir, resultsDir, plansDir, singleCall, random, this.recorder.system,
-						this.savePlans, this.saveResults);
-			}
+						this.savePlans, this.saveResults, this.hostnameAndPort, this.dbName);
 			this.executor.submit(stream);
 		}
 		this.executor.shutdown();
@@ -225,13 +139,10 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 	
 	public void closeConnection() {
-		try {
-			this.con.close();
-		}
-		catch(SQLException e) {
-			e.printStackTrace();
-			this.logger.error(e);
-		}
+		//do nothing
+		;
 	}
 
 }
+
+

@@ -1,10 +1,24 @@
 #!/bin/bash
+ 
+#Variables for console output with colors.
+
+red=$'\e[1;31m'
+grn=$'\e[1;32m'
+yel=$'\e[1;33m'
+blu=$'\e[1;34m'
+mag=$'\e[1;35m'
+cyn=$'\e[1;36m'
+end=$'\e[0m'
 
 #Execute the Java project with Maven on the buildhiveclient container running in docker-compose. 
-#$1 Optional argument denoting a single query to execute (e.g. query2.sql).
+
+if [ $# -lt 2 ]; then
+    echo "${yel}Usage: bash runclient_createdb.sh <scale factor> <all | query filename>${end}"
+    exit 0
+fi
 
 docker exec -ti  clientbuildercontainer  /bin/bash -c \
 	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueriesPrestoCLI\" \
-	-Dexec.args=\"/data QueriesPresto results plans presto namenodecontainer:8080 true true $1\" \
+	-Dexec.args=\"/data QueriesPresto results plans presto namenodecontainer:8080 true true tpcdsdb$1gb $2\" \
 	-f /project/pom.xml"      
 

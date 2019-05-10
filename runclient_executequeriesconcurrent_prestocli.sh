@@ -18,7 +18,7 @@ if [ $# -lt 2 ]; then
 fi
 
 docker exec -ti  clientbuildercontainer  /bin/bash -c \
-	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueriesConcurrent\" \
-	-Dexec.args=\"/data QueriesPresto results plans presto namenodecontainer $2 1954 false true true tpcdsdb$1gb\" \
+	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueriesConcurrentPrestoCLI\" \
+	-Dexec.args=\"/data QueriesPresto results plans presto namenodecontainer:8080 $2 1954 false true true tpcdsdb$1gb\" \
 	-f /project/pom.xml"       
 
