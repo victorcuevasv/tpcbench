@@ -50,11 +50,12 @@ public class QueryStreamSpark implements Callable<Void> {
 	private final String system;
 	boolean savePlans;
 	boolean saveResults;
+	private final String dbName;
 
 	public QueryStreamSpark(int nStream, BlockingQueue<QueryRecordConcurrent> resultsQueue,
 			SparkSession spark, HashMap<Integer, String> queriesHT, int nQueries,
 			String workDir, String resultsDir, String plansDir, boolean singleCall, 
-			Random random, String system, boolean savePlans, boolean saveResults) {
+			Random random, String system, boolean savePlans, boolean saveResults, String dbName) {
 		this.nStream = nStream;
 		this.resultsQueue = resultsQueue;
 		//this.spark = spark;
@@ -73,11 +74,25 @@ public class QueryStreamSpark implements Callable<Void> {
 		this.system = system;
 		this.savePlans = savePlans;
 		this.saveResults = saveResults;
+		this.dbName = dbName;
+	}
+	
+	private void useDatabase(String dbName) {
+		try {
+			this.spark.sql("USE " + dbName);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in QueryStreamSpark useDatabase.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
 	}
 
 	@Override
 	public Void call() {
-		this.logger.info("\n\n\n\n\nStarting query stream: " + this.nStream);
+		this.logger.info("\n\n\n\n\nStarting query stream: " + this.nStream + " using " + this.dbName);
+		this.useDatabase(this.dbName);
 		//this.logger.info(AppUtil.stringifySparkConfiguration(this.spark));
 		//Integer[] queries = this.queriesHT.keySet().toArray(new Integer[] {});
 		//Arrays.sort(queries);
