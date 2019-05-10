@@ -17,14 +17,16 @@ USER_ID=$(id -u)
 #Get the user id of the user executing this script.
 GROUP_ID=$(id -g)
 
-#Execute the Java project with Maven by running it on the client builder container. 
-#$1 Optional argument denoting a single query to execute (e.g. query2.sql).
+if [ $# -lt 2 ]; then
+    echo "${yel}Usage: bash runclient_executequeries.sh <scale factor> <all | query filename>${end}"
+    exit 0
+fi
 
 docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
 --volume $DIR/../vols/data:/data \
 --volume $DIR/../client/project:/project \
 --entrypoint mvn clientbuilder:dev \
 	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ExecuteQueries" \
-	-Dexec.args="/data QueriesPresto results plans prestoemr $(hostname) true true $1" \
+	-Dexec.args="/data QueriesPresto results plans prestoemr $(hostname) true true tpcdsdb$1gb $2" \
 	-f /project/pom.xml      
 
