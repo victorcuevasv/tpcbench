@@ -63,25 +63,27 @@ public class CreateDatabaseSpark {
 	 * args[6] subdirectory within the jar that contains the create table files
 	 * args[7] prefix of external location for raw data tables (e.g. S3 bucket), null for none
 	 * args[8] prefix of external location for created tables (e.g. S3 bucket), null for none
-	 * args[9] jar file
+	 * args[9] schema (database) name
+	 * args[10] jar file
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 10 ) {
+		if( args.length != 11 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
 		}
-		CreateDatabaseSpark prog = new CreateDatabaseSpark(args[9], args[6], args[4]);
+		CreateDatabaseSpark prog = new CreateDatabaseSpark(args[10], args[6], args[4]);
 		boolean doCount = Boolean.parseBoolean(args[5]);
 		String extTablePrefixRaw = args[7].equalsIgnoreCase("null") ? null : args[7];
 		String extTablePrefixCreated = args[8].equalsIgnoreCase("null") ? null : args[8];
-		prog.createTables(args[0], args[1], args[2], doCount, extTablePrefixRaw, extTablePrefixCreated);
+		prog.createTables(args[0], args[1], args[2], doCount, extTablePrefixRaw, extTablePrefixCreated, args[9]);
 		prog.closeConnection();
 	}
 	
 	private void createTables(String workDir, String suffix, String genDataDir, boolean doCount,
-			String extTablePrefixRaw, String extTablePrefixCreated) {
+			String extTablePrefixRaw, String extTablePrefixCreated, String dbName) {
 		// Process each .sql create table file found in the jar file.
+		this.useDatabase(dbName);
 		this.recorder.header();
 		List<String> unorderedList = this.createTableReader.getFiles();
 		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
@@ -94,6 +96,18 @@ public class CreateDatabaseSpark {
 		}
 	}
 
+	private void useDatabase(String dbName) {
+		try {
+			this.spark.sql("USE " + dbName);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in CreateDatabaseSpark useDatabase.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+	}
+	
 	// To create each table from the .dat file, an external table is first created.
 	// Then a parquet table is created and data is inserted into it from the
 	// external table.
@@ -134,7 +148,9 @@ public class CreateDatabaseSpark {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			this.logger.error("Error in CreateDatabaseSpark createTable.");
 			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		finally {
 			if( queryRecord != null ) {

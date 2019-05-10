@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash   
 
 #Variables for console output with colors.
 
@@ -17,8 +17,10 @@ USER_ID=$(id -u)
 #Get the user id of the user executing this script.
 GROUP_ID=$(id -g)
 
-if [ $# -lt 2 ]; then
-    echo "${yel}Usage: bash runclient_executequeriesspark.sh <scale factor> <all | query filename>${end}"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
+if [ $# -lt 1 ]; then
+    echo "${yel}Usage: bash runclient_create_schema_spark.sh <scale factor>${end}"
     exit 0
 fi
 
@@ -28,8 +30,9 @@ docker exec --user $USER_ID:$GROUP_ID -ti  namenodecontainer  /bin/bash -c \
 org.apache.zookeeper:zookeeper:3.4.6 \
 --conf spark.local.dir=/home/$USER_NAME/tmp \
 --conf spark.eventLog.dir=/home/$USER_NAME/tmp \
---class org.bsc.dcc.vcv.ExecuteQueriesSpark \
+--class org.bsc.dcc.vcv.CreateSchemaSpark \
 --master spark://namenodecontainer:7077 --deploy-mode client \
 /project/targetspark/client-1.0-SNAPSHOT.jar \
-/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar spark true true tpcdsdb$1gb $2"                
-	
+spark tpcdsdb$1gb"
+
+

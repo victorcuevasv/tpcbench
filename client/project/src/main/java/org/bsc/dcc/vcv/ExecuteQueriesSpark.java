@@ -62,12 +62,13 @@ public class ExecuteQueriesSpark {
 	 * args[4] system (directory name used to store logs)
 	 * args[5] save plans (boolean)
 	 * args[6] save results (boolean)
-	 * args[7] OPTIONAL: query file
+	 * args[7] database name
+	 * args[8] "all" or query file
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) {
-		if( args.length < 7 ) {
+		if( args.length != 9 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
@@ -75,12 +76,13 @@ public class ExecuteQueriesSpark {
 		boolean savePlans = Boolean.parseBoolean(args[5]);
 		boolean saveResults = Boolean.parseBoolean(args[6]);
 		ExecuteQueriesSpark prog = new ExecuteQueriesSpark(args[3], args[4], savePlans, saveResults);
-		String queryFile = args.length >= 8 ? args[7] : null;
-		prog.executeQueries(args[0], args[1], args[2], queryFile);
+		String queryFile = args[args.length-1].equalsIgnoreCase("all") ? null : args[args.length-1];
+		prog.executeQueries(args[0], args[1], args[2], queryFile, args[7]);
 	}
 	
 	public void executeQueries(String workDir, String resultsDir, String plansDir,
-			String queryFile) {
+			String queryFile, String dbName) {
+		this.spark.sql("USE " + dbName);
 		this.recorder.header();
 		for (final String fileName : this.queriesReader.getFilesOrdered()) {
 			String sqlStr = this.queriesReader.getFile(fileName);

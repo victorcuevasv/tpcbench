@@ -13,7 +13,7 @@ end=$'\e[0m'
 #Execute the Java project with Maven on the buildhiveclient container running in docker-compose. 
 
 if [ $# -lt 2 ]; then
-    echo "${yel}Usage: bash runclient_createdb.sh <scale factor> <all | query filename>${end}"
+    echo "${yel}Usage: bash runclient_executequeries.sh <scale factor> <all | query filename>${end}"
     exit 0
 fi
 

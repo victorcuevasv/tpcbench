@@ -69,6 +69,7 @@
 				<configuration>
 					<excludes>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSpark.java</exclude>
+						<exclude>org/bsc/dcc/vcv/CreateSchemaSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesConcurrentSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/HDFSExample.java</exclude>
