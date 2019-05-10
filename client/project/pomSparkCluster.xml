@@ -105,6 +105,7 @@
 					<excludes>
 						<exclude>org/bsc/dcc/vcv/AnalyzeTables.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabase.java</exclude>
+						<exclude>org/bsc/dcc/vcv/CreateSchema.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueries.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesConcurrent.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesConcurrentPrestoCLI.java</exclude>

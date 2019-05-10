@@ -88,7 +88,7 @@ public class CreateDatabase {
 		if( args.length != 9 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
-			System.exit(0);
+			System.exit(1);
 		}
 		CreateDatabase prog = new CreateDatabase(args[3], args[4], args[8]);
 		boolean doCount = Boolean.parseBoolean(args[5]);
