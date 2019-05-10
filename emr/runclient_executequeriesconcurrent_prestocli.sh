@@ -19,11 +19,9 @@ GROUP_ID=$(id -g)
 
 #Execute the Java project with Maven on the client builder container running in the docker-compose setup. 
 
-#$1 Required argument denoting the number of streams. 
-
-if [ $# -lt 1 ]; then
-    echo "${yel}Usage bash runclient_executequeriesconcurrent_prestocli.sh <number of streams>${end}"
-    exit 1
+if [ $# -lt 2 ]; then
+    echo "${yel}Usage bash runclient_executequeriesconcurrent.sh <scale factor> <number of streams>${end}"
+    exit 0
 fi
 
 docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
@@ -31,7 +29,7 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 --volume $DIR/../client/project:/project \
 --entrypoint mvn clientbuilder:dev \
 	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ExecuteQueriesConcurrentPrestoCLI" \
-	-Dexec.args="/data QueriesPresto results plans prestoemr $(hostname):8889 $1 1954 true true true" \
+	-Dexec.args="/data QueriesPresto results plans prestoemr $(hostname):8889 $2 1954 true true true tpcdsdb$1gb" \
 	-f /project/pom.xml   
 
 
