@@ -1,7 +1,14 @@
 #!/bin/bash
 
-#Test query execution with Spark.
-#$1 Optional argument denoting a single query to execute (e.g. query5.sql).
+#Variables for console output with colors.
+
+red=$'\e[1;31m'
+grn=$'\e[1;32m'
+yel=$'\e[1;33m'
+blu=$'\e[1;34m'
+mag=$'\e[1;35m'
+cyn=$'\e[1;36m'
+end=$'\e[0m'
 
 #Get the user name of the user executing this script.
 USER_NAME=$(whoami)
@@ -9,6 +16,11 @@ USER_NAME=$(whoami)
 USER_ID=$(id -u)
 #Get the user id of the user executing this script.
 GROUP_ID=$(id -g)
+
+if [ $# -lt 2 ]; then
+    echo "${yel}Usage: bash runclient_executequeriessparkyarn.sh <scale factor> <all | query filename>${end}"
+    exit 0
+fi
 
 docker exec --user $USER_ID:$GROUP_ID -ti  namenodecontainer  /bin/bash -c \
 "/opt/spark-2.4.0-bin-hadoop2.7/bin/spark-submit --conf spark.eventLog.enabled=true  \
@@ -18,7 +30,7 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --conf spark.eventLog.dir=/home/$USER_NAME/tmp \
 --class org.bsc.dcc.vcv.ExecuteQueriesSpark --master yarn --deploy-mode client \
 /project/targetspark/client-1.0-SNAPSHOT.jar \
-/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar sparkyarn true true $1"             
+/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar sparkyarn true true tpcdsdb$1gb $2"             
 	   
 
  
