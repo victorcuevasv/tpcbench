@@ -2,6 +2,12 @@ library("rio")
 
 #######################################################
 testsToDo <- c("load", "power", "tput")
+numNodes<-new.env()
+numNodes[["prestoemr"]]<-9
+numNodes[["sparkdatabricks"]]<-9
+nodeCostPerHour<-new.env()
+nodeCostPerHour[["prestoemr"]]<-9
+nodeCostPerHour[["sparkdatabricks"]]<-9
 #######################################################
 
 for(testDone in testsToDo) {
