@@ -7,9 +7,9 @@ library(stringr)
 #testDone <- "load"
 testDone <- "power"
 #testDone <- "tput"
-#metric <- "TOTAL_DURATION"
+metric <- "TOTAL_DURATION"
 #metric <- "AVG_QUERY_DURATION"
-metric <- "GEOM_MEAN_QUERY_DURATION"
+#metric <- "GEOM_MEAN_QUERY_DURATION"
 topLimit <- 30000 #Only used if line 51 is modified
 #######################################################
 

@@ -1,8 +1,12 @@
 library("rio")
 
-workDir <- "./Documents/RESULTS/load"
-#workDir <- "./Documents/RESULTS/power"
-#workDir <- "./Documents/RESULTS/tput"
+#######################################################
+#testDone <- "load"
+testDone <- "power"
+#testDone <- "tput"
+#######################################################
+
+workDir <- paste0("./Documents/RESULTS/", testDone)
 systemDirs <- list.files(path=workDir)
 
 convertLog <- function(inFile, outFile) {
@@ -21,6 +25,10 @@ convertLog <- function(inFile, outFile) {
 
 #It is assumed that there is a single .log file with the run data.
 for(system in systemDirs) {
+  #Skip files and only process directories
+  if( file_test("-f", paste0(workDir, "/", system)) ) {
+    next
+  }
   systemDir <- paste(workDir, "/", system, sep="")
   files <- list.files(path=systemDir, pattern = "\\.log$")
   inFile <- paste(workDir, "/", system, "/", files[1], sep="")

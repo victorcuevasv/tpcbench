@@ -28,7 +28,7 @@ summarizeLog <- function(inFile, outFile, scaleFactor, testDone) {
                          SCALE_FACTOR=integer(),
                          TOTAL_DURATION=double(),
                          AVG_QUERY_DURATION=double(),
-                         GEOM_MEAN_DURATION=double(),
+                         GEOM_MEAN_QUERY_DURATION=double(),
                          stringsAsFactors=FALSE)
   outputDF[nrow(outputDF) + 1,] = list(loggedSystem, testDone, scaleFactor, totalDurationSEC, avgDurationSEC, geoMeanDurationSEC)
   export(outputDF, outFile)

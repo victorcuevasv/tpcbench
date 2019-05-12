@@ -175,7 +175,13 @@ o execute HTTP request: Timeout waiting for connection from pool
 
 
 
+Throughs in 1000GB throughput test with 4 streams.
 
+May 11, 10:56 am.
+May 11, 6:27 pm.
+May 11, 9:43 pm.
+May 11, 11:42 pm.
+May 12, 7:17 am.
 
 
 
