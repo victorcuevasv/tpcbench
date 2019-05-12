@@ -5,11 +5,11 @@ library(stringr)
 
 #######################################################
 #testDone <- "load"
-testDone <- "power"
-#testDone <- "tput"
+#testDone <- "power"
+testDone <- "tput"
 #metric <- "TOTAL_DURATION_SEC"
-#metric <- "TOTAL_DURATION_HOUR"
-metric <- "AVG_QUERY_DURATION_SEC"
+metric <- "TOTAL_DURATION_HOUR"
+#metric <- "AVG_QUERY_DURATION_SEC"
 #metric <- "GEOM_MEAN_QUERY_DURATION_SEC"
 topLimit <- 30000 #Only used if line 51 is modified
 #######################################################
@@ -74,7 +74,7 @@ scale_y_continuous(paste0(metricsLabel[[metric]], " ", "time (", metricsUnit[[me
 scale_fill_manual(name="", values=c("#585574")) + 
 theme(legend.position = "bottom") + 
 theme(legend.text=element_text(size=16)) +
-theme(plot.margin=margin(t = 5, r = 5, b = 5, l = 5, unit = "pt"))
+theme(plot.margin=margin(t = 7, r = 5, b = 5, l = 5, unit = "pt"))
 dev.off()
 
 
