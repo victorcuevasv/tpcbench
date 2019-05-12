@@ -3,16 +3,20 @@ library(ggplot2)
 #Use the stringr package to use the str_wrap function below
 library(stringr)
 
-#inFile <- "./Documents/RESULTS/tput/summaryTput.xlsx"
-#outFile <- "./Documents/RESULTS/tput/TputTestTimeBarChart.pdf"
+#######################################################
+#testDone <- "load"
+testDone <- "power"
+#testDone <- "tput"
+#metric <- "TOTAL_DURATION"
+#metric <- "AVG_QUERY_DURATION"
+metric <- "GEOM_MEAN_QUERY_DURATION"
+topLimit <- 30000 #Only used if line 51 is modified
+#######################################################
 
-#inFile <- "./Documents/RESULTS/power/summaryPower.xlsx"
-#outFile <- "./Documents/RESULTS/power/PowerTestTimeBarChart.pdf"
+inFile <- paste0("./Documents/RESULTS/", testDone, "/summary_", testDone, ".xlsx")
+outFile <- paste0("./Documents/RESULTS/", testDone, "/", testDone, "_", "TimeBarChart.pdf")
 
-inFile <- "./Documents/RESULTS/load/summaryLoad.xlsx"
-outFile <- "./Documents/RESULTS/load/LoadTestTimeBarChart.pdf"
-
-dataf = read.xlsx(inFile, sheet="Sheet 1", rows=seq(1,3), cols=seq(1,4))
+dataf = read.xlsx(inFile, sheet="Sheet 1", rows=seq(1,3), cols=seq(1,6))
 
 # Map DisplayNames to pseudonyms
 pseudonyms<-new.env()
@@ -24,12 +28,18 @@ for(name in dataf$SYSTEM) {
   i <- i + 1
 }
 
+# Map metrics to descriptions for the y-axis.
+metricsLabel<-new.env()
+metricsLabel[["TOTAL_DURATION"]]<-"Total"
+metricsLabel[["AVG_QUERY_DURATION"]]<-"Average query"
+metricsLabel[["GEOM_MEAN_QUERY_DURATION"]]<-"Geom. mean query"
+
 print(dataf)
 
 #Change SYSTEM to a factor to present the bars in the order in which they appear in the file
 dataf$SYSTEM <- factor(dataf$SYSTEM, levels=dataf$SYSTEM)
 pdf(file=outFile, width=7, height=4)
-ggplot(data=dataf, aes(x=SYSTEM, y=TOTAL_DURATION, label=round(TOTAL_DURATION, digits=0))) + 
+ggplot(data=dataf, aes(x=SYSTEM, y=get(metric), label=round(get(metric), digits=0))) + 
 #The dodge position makes the bars appear side by side
 geom_bar(stat="identity", position=position_dodge()) + 
 #This line adds the exact values on top of the bars
@@ -38,10 +48,13 @@ theme(axis.title.x=element_blank()) +
 theme(axis.text=element_text(size=16), axis.title=element_text(size=18)) +
 #The str_wrap function makes the name of the column appear on multiple lines instead of just one
 scale_x_discrete(labels = function(x) str_wrap(x, width = 7)) + 
-scale_y_continuous("Time (sec.)", limits=c(0,10000)) + 
+scale_y_continuous(paste0(metricsLabel[[metric]], " ", "time (sec.)")) + 
+#Use the line below to specify the limit for the y axis
+#scale_y_continuous(paste0(metricsLabel[[metric]], " ", "time (sec.)"), limits=c(0,topLimit)) + 
 scale_fill_manual(name="", values=c("#585574")) + 
 theme(legend.position = "bottom") + 
-theme(legend.text=element_text(size=16)) 
+theme(legend.text=element_text(size=16)) +
+theme(plot.margin=margin(t = 5, r = 5, b = 5, l = 5, unit = "pt"))
 dev.off()
 
 
