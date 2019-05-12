@@ -6,8 +6,10 @@ numNodes<-new.env()
 numNodes[["prestoemr"]]<-9
 numNodes[["sparkdatabricks"]]<-9
 nodeCostPerHour<-new.env()
-nodeCostPerHour[["prestoemr"]]<-9
-nodeCostPerHour[["sparkdatabricks"]]<-9
+#EC2 cost + EMR cost (https://aws.amazon.com/emr/pricing/)
+nodeCostPerHour[["prestoemr"]]<-sum(0.624, 0.156)
+#2 DBUs
+nodeCostPerHour[["sparkdatabricks"]]<-1.1
 #######################################################
 
 for(testDone in testsToDo) {
@@ -36,6 +38,8 @@ mergeXLSXFiles <- function(workDir, searchedFile, outFile) {
     }
     firstFile <- FALSE
   }
+  outputDF$COST[outputDF$SYSTEM == "prestoemr"] <- numNodes[["prestoemr"]] * nodeCostPerHour[["prestoemr"]] * outputDF$TOTAL_DURATION_HOUR[outputDF$SYSTEM == "prestoemr"]
+  outputDF$COST[outputDF$SYSTEM == "sparkdatabricks"] <- numNodes[["sparkdatabricks"]] * nodeCostPerHour[["sparkdatabricks"]] * outputDF$TOTAL_DURATION_HOUR[outputDF$SYSTEM == "sparkdatabricks"]         
   print(outputDF)
   export(outputDF, outFile)
 }
