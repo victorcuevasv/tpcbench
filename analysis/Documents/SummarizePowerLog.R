@@ -1,6 +1,13 @@
 library("rio")
 
-summarizeLog <- function(inFile, outFile, scaleFactor) {
+#######################################################
+#testDone <- "load"
+testDone <- "power"
+#testDone <- "tput"
+scaleFactor <- 1000
+#######################################################
+
+summarizeLog <- function(inFile, outFile, scaleFactor, testDone) {
   #Add colClasses="character" to read the file as characters.
   #Otherwise, long numbers will not be read correctly.
   analytics <- import(inFile, format="psv", colClasses="character")
@@ -15,17 +22,16 @@ summarizeLog <- function(inFile, outFile, scaleFactor) {
   loggedSystem <- analytics$SYSTEM[1]
   #Create a new dataframe to hold the aggregate results.
   outputDF <- data.frame(SYSTEM=character(),
+                         TEST=character(),
                          SCALE_FACTOR=integer(),
                          TOTAL_DURATION=double(),
                          AVG_QUERY_DURATION=double(),
                          stringsAsFactors=FALSE)
-  outputDF[nrow(outputDF) + 1,] = list(loggedSystem, scaleFactor, totalDurationSEC, avgDurationSEC)
+  outputDF[nrow(outputDF) + 1,] = list(loggedSystem, testDone, scaleFactor, totalDurationSEC, avgDurationSEC)
   export(outputDF, outFile)
 }
 
-#workDir <- "./Documents/RESULTS/tput"
-#workDir <- "./Documents/RESULTS/power"
-workDir <- "./Documents/RESULTS/load"
+workDir <- paste0("./Documents/RESULTS/", testDone)
 systemDirs <- list.files(path=workDir)
 
 for(system in systemDirs) {
@@ -38,7 +44,7 @@ for(system in systemDirs) {
   inFile <- paste(workDir, "/", system, "/", files[1], sep="")
   outFileName <- "summary.xlsx"
   outFile <- paste(workDir, "/", system, "/", outFileName, sep="")
-  summarizeLog(inFile, outFile, 0)
+  summarizeLog(inFile, outFile, scaleFactor, testDone)
 }
 
 
