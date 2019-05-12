@@ -1,16 +1,12 @@
 library("rio")
 
 #######################################################
-#testDone <- "load"
-testDone <- "power"
-#testDone <- "tput"
+testsToDo <- c("load", "power", "tput")
 #######################################################
 
-destDir <- paste0("./Documents/RESULTS/", testDone)
-outFileName <- paste0("merged_", testDone, ".xlsx")
-outFile <- paste(destDir, "/", outFileName, sep="")
-workDir <- paste0("./Documents/RESULTS/", testDone)
-searchedFile <- "analytics.xlsx"
+for(testDone in testsToDo) {
+  doTest(testDone)
+}
 
 #Merge the instances of the searchedFile (must be .xlsx files) found in the
 #workDir, and generate an output xlsx file as specified by outFile. 
@@ -39,7 +35,15 @@ mergeXLSXFiles <- function(workDir, searchedFile, outFile) {
   export(outputDF, outFile)
 }
 
-mergeXLSXFiles(workDir, searchedFile, outFile)
+doTest <- function(testDone) {
+  print(paste0("Processing files for the ", testDone, " test."))
+  destDir <- paste0("./Documents/RESULTS/", testDone)
+  outFileName <- paste0("merged_", testDone, ".xlsx")
+  outFile <- paste(destDir, "/", outFileName, sep="")
+  workDir <- paste0("./Documents/RESULTS/", testDone)
+  searchedFile <- "analytics.xlsx"
+  mergeXLSXFiles(workDir, searchedFile, outFile)
+}
 
 
 

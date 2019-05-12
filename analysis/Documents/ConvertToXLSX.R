@@ -1,13 +1,12 @@
 library("rio")
 
 #######################################################
-#testDone <- "load"
-testDone <- "power"
-#testDone <- "tput"
+testsToDo <- c("load", "power", "tput")
 #######################################################
 
-workDir <- paste0("./Documents/RESULTS/", testDone)
-systemDirs <- list.files(path=workDir)
+for(testDone in testsToDo) {
+  doTest(testDone)
+}
 
 convertLog <- function(inFile, outFile) {
   #Add colClasses="character" to read the file as characters.
@@ -23,18 +22,23 @@ convertLog <- function(inFile, outFile) {
   export(analytics, outFile)
 }
 
-#It is assumed that there is a single .log file with the run data.
-for(system in systemDirs) {
-  #Skip files and only process directories
-  if( file_test("-f", paste0(workDir, "/", system)) ) {
-    next
+doTest <- function(testDone) {
+  print(paste0("Processing files for the ", testDone, " test."))
+  workDir <- paste0("./Documents/RESULTS/", testDone)
+  systemDirs <- list.files(path=workDir)
+  #It is assumed that there is a single .log file with the run data.
+  for(system in systemDirs) {
+    #Skip files and only process directories
+    if( file_test("-f", paste0(workDir, "/", system)) ) {
+      next
+    }
+    systemDir <- paste(workDir, "/", system, sep="")
+    files <- list.files(path=systemDir, pattern = "\\.log$")
+    inFile <- paste(workDir, "/", system, "/", files[1], sep="")
+    outFileName <- paste(tools::file_path_sans_ext(files[1]), ".xlsx", sep="")
+    outFile <- paste(workDir, "/", system, "/", outFileName, sep="")
+    convertLog(inFile, outFile)
   }
-  systemDir <- paste(workDir, "/", system, sep="")
-  files <- list.files(path=systemDir, pattern = "\\.log$")
-  inFile <- paste(workDir, "/", system, "/", files[1], sep="")
-  outFileName <- paste(tools::file_path_sans_ext(files[1]), ".xlsx", sep="")
-  outFile <- paste(workDir, "/", system, "/", outFileName, sep="")
-  convertLog(inFile, outFile)
 }
 
 

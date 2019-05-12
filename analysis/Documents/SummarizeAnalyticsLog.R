@@ -1,11 +1,13 @@
 library("rio")
 
 #######################################################
-#testDone <- "load"
-testDone <- "power"
-#testDone <- "tput"
+testsToDo <- c("load", "power", "tput")
 scaleFactor <- 1000
 #######################################################
+
+for(testDone in testsToDo) {
+  doTest(testDone)
+}
 
 summarizeLog <- function(inFile, outFile, scaleFactor, testDone) {
   #Add colClasses="character" to read the file as characters.
@@ -34,22 +36,23 @@ summarizeLog <- function(inFile, outFile, scaleFactor, testDone) {
   export(outputDF, outFile)
 }
 
-workDir <- paste0("./Documents/RESULTS/", testDone)
-systemDirs <- list.files(path=workDir)
-
-for(system in systemDirs) {
-  #Skip files and only process directories
-  if( file_test("-f", paste0(workDir, "/", system)) ) {
-    next
+doTest <- function(testDone) {
+  print(paste0("Processing files for the ", testDone, " test."))
+  workDir <- paste0("./Documents/RESULTS/", testDone)
+  systemDirs <- list.files(path=workDir)
+  for(system in systemDirs) {
+    #Skip files and only process directories
+    if( file_test("-f", paste0(workDir, "/", system)) ) {
+      next
+    }
+    systemDir <- paste(workDir, "/", system, sep="")
+    files <- list.files(path=systemDir, pattern = "\\.log$")
+    inFile <- paste(workDir, "/", system, "/", files[1], sep="")
+    outFileName <- "summary.xlsx"
+    outFile <- paste(workDir, "/", system, "/", outFileName, sep="")
+    summarizeLog(inFile, outFile, scaleFactor, testDone)
   }
-  systemDir <- paste(workDir, "/", system, sep="")
-  files <- list.files(path=systemDir, pattern = "\\.log$")
-  inFile <- paste(workDir, "/", system, "/", files[1], sep="")
-  outFileName <- "summary.xlsx"
-  outFile <- paste(workDir, "/", system, "/", outFileName, sep="")
-  summarizeLog(inFile, outFile, scaleFactor, testDone)
 }
-
 
 
 
