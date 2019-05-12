@@ -1,21 +1,15 @@
 library("rio")
 
-#destDir <- "./Documents/RESULTS/tput"
-#outFileName <- "summaryTput.xlsx"
-#outFile <- paste(destDir, "/", outFileName, sep="")
-#workDir <- "./Documents/RESULTS/tput"
-#searchedFile <- "summary.xlsx"
+#######################################################
+#testDone <- "load"
+testDone <- "power"
+#testDone <- "tput"
+#######################################################
 
-#destDir <- "./Documents/RESULTS/power"
-#outFileName <- "summaryPower.xlsx"
-#outFile <- paste(destDir, "/", outFileName, sep="")
-#workDir <- "./Documents/RESULTS/power"
-#searchedFile <- "summary.xlsx"
-
-destDir <- "./Documents/RESULTS/load"
-outFileName <- "summaryLoad.xlsx"
-outFile <- paste(destDir, "/", outFileName, sep="")
-workDir <- "./Documents/RESULTS/load"
+destDir <- paste0("./Documents/RESULTS/", testDone)
+outFileName <- paste0("summary_", testDone, ".xlsx")
+outFile <- paste0(destDir, "/", outFileName, sep="")
+workDir <- paste0("./Documents/RESULTS/", testDone)
 searchedFile <- "summary.xlsx"
 
 #Merge the instances of the searchedFile (must be .xlsx files) found in the
