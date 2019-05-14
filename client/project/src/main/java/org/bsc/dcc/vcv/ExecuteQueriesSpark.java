@@ -125,7 +125,9 @@ public class ExecuteQueriesSpark {
 			this.copyLog("/data/logs/analytics.log",
 					"/dbfs/data/logs/power/sparkdatabricks/analyticsDuplicate.log");
 		}
-		this.spark.stop();
+		if( ! this.recorder.system.equals("sparkdatabricks") ) {
+			this.spark.stop();
+		}
 	}
 	
 	// Execute a query from the provided file.
