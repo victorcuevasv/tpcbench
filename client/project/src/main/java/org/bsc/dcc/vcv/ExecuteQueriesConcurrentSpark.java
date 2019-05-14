@@ -18,6 +18,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.functions;
 import org.apache.logging.log4j.LogManager;
@@ -69,7 +70,7 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	 * 
 	 * all directories without slash
 	 */
-	public static void main(String[] args) throws SQLException {
+	public static void main(String[] args) {
 		if( args.length != 10 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
@@ -96,7 +97,29 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in QueryStreamSpark useDatabase.");
+			this.logger.error("Error in ExecuteQueriesConcurrentSpark copyLog.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+	}
+	
+	private void copyLog(String logFile, String duplicateFile) {
+		try {
+			BufferedReader inBR = new BufferedReader(new InputStreamReader(new FileInputStream(logFile)));
+			File tmp = new File(duplicateFile);
+			tmp.getParentFile().mkdirs();
+			FileWriter fileWriter = new FileWriter(duplicateFile);
+			PrintWriter printWriter = new PrintWriter(fileWriter);
+			String line = null;
+			while ((line = inBR.readLine()) != null) {
+				printWriter.println(line);
+			}
+			inBR.close();
+			printWriter.close();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueriesConcurrentSpark copyLog.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -118,6 +141,22 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 			this.executor.submit(stream);
 		}
 		this.executor.shutdown();
+		try {
+			this.executor.awaitTermination(7L, TimeUnit.DAYS);
+		}
+		catch(InterruptedException ie) {
+			ie.printStackTrace();
+			this.logger.error("Error in ExecuteQueriesConcurrentSpark executeStreams.");
+			this.logger.error(ie);
+			this.logger.error(AppUtil.stringifyStackTrace(ie));
+		}
+		//In the case of Spark on Databricks, copy the /data/logs/analytics.log file to
+		// /dbfs/data/logs/tput/sparkdatabricks/analyticsDuplicate.log, in case the application is
+		//running on a job cluster that will be shutdown automatically after completion.
+		if( this.recorder.system.equals("sparkdatabricks") ) {
+			this.copyLog("/data/logs/analytics.log",
+				"/dbfs/data/logs/tput/sparkdatabricks/analyticsDuplicate.log");
+		}
 	}
 	
 	public HashMap<Integer, String> createQueriesHT(List<String> files, JarQueriesReaderAsZipFile queriesReader) {
