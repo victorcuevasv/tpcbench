@@ -108,7 +108,7 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 			BufferedReader inBR = new BufferedReader(new InputStreamReader(new FileInputStream(logFile)));
 			File tmp = new File(duplicateFile);
 			tmp.getParentFile().mkdirs();
-			FileWriter fileWriter = new FileWriter(duplicateFile);
+			FileWriter fileWriter = new FileWriter(duplicateFile, false);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			String line = null;
 			while ((line = inBR.readLine()) != null) {

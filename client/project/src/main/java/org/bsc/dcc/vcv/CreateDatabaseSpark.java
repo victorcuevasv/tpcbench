@@ -77,7 +77,9 @@ public class CreateDatabaseSpark {
 		String extTablePrefixRaw = args[7].equalsIgnoreCase("null") ? null : args[7];
 		String extTablePrefixCreated = args[8].equalsIgnoreCase("null") ? null : args[8];
 		prog.createTables(args[0], args[1], args[2], doCount, extTablePrefixRaw, extTablePrefixCreated, args[9]);
-		prog.closeConnection();
+		if( ! args[4].equals("sparkdatabricks") ) {
+			prog.closeConnection();
+		}	
 	}
 	
 	private void createTables(String workDir, String suffix, String genDataDir, boolean doCount,
