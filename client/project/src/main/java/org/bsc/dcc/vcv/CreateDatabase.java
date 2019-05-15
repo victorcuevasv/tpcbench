@@ -82,15 +82,16 @@ public class CreateDatabase {
 	 * args[5] count (boolean) whether to run queries to count the tuples generated
 	 * args[6] prefix of external location for raw data tables (e.g. S3 bucket), null for none
 	 * args[7] prefix of external location for created tables (e.g. S3 bucket), null for none
-	 * args[8] database name
+	 * args[8] format for column-storage tables (ORC, Parquet)
+	 * args[9] database name
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 9 ) {
+		if( args.length != 10 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
 		}
-		CreateDatabase prog = new CreateDatabase(args[3], args[4], args[8]);
+		CreateDatabase prog = new CreateDatabase(args[3], args[4], args[9]);
 		boolean doCount = Boolean.parseBoolean(args[5]);
 		File directory = new File(args[0]);
 		prog.recorder.header();
@@ -103,7 +104,7 @@ public class CreateDatabase {
 		for (final File fileEntry : filesList) {
 			if (!fileEntry.isDirectory()) {
 				prog.createTable(args[0], fileEntry, args[1], args[2], doCount, extTablePrefixRaw,
-						extTablePrefixCreated, i);
+						extTablePrefixCreated, args[8].toLowerCase(), i);
 				i++;
 			}
 		}
@@ -116,7 +117,8 @@ public class CreateDatabase {
 	// The SQL create table statement found in the file has to be modified for
 	// creating these tables.
 	private void createTable(String workDir, File tableSQLfile, String suffix, String genDataDir,
-			boolean doCount, String extTablePrefixRaw, String extTablePrefixCreated, int index) {
+			boolean doCount, String extTablePrefixRaw, String extTablePrefixCreated, String format,
+			int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = tableSQLfile.getName().substring(0, tableSQLfile.getName().indexOf('.'));
@@ -150,10 +152,10 @@ public class CreateDatabase {
 			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "");
 			String intSqlCreate = null;
 			if( this.recorder.system.equals("hive") || this.recorder.system.equals("spark") )
-				intSqlCreate = internalCreateTableHive(incIntSqlCreate, tableName, extTablePrefixCreated);
+				intSqlCreate = internalCreateTableHive(incIntSqlCreate, tableName, extTablePrefixCreated, format);
 			else if( this.recorder.system.startsWith("presto") )
-				intSqlCreate = internalCreateTablePresto(incIntSqlCreate, tableName, extTablePrefixCreated);
-			saveCreateTableFile(workDir, "parquet", tableName, intSqlCreate);
+				intSqlCreate = internalCreateTablePresto(incIntSqlCreate, tableName, extTablePrefixCreated, format);
+			saveCreateTableFile(workDir, format, tableName, intSqlCreate);
 			stmt.execute("drop table if exists " + tableName);
 			stmt.execute(intSqlCreate);
 			if( this.recorder.system.equals("hive") || this.recorder.system.equals("spark") )
@@ -244,15 +246,25 @@ public class CreateDatabase {
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an internal parquet table in Hive.
 	private String internalCreateTableHive(String incompleteSqlCreate, String tableName,
-			String extTablePrefixCreated) {
+			String extTablePrefixCreated, String format) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
-		if( extTablePrefixCreated == null )
-			builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
+		if( extTablePrefixCreated == null ) {
+			if( format.equals("parquet") )
+				builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
+			else if( format.equals("orc") )
+				builder.append("STORED AS ORC TBLPROPERTIES (\"orc.compress\"=\"SNAPPY\") \n");
+		}
 		else {
-			builder.append("STORED AS PARQUET \n");
+			if( format.equals("parquet") )
+				builder.append("STORED AS PARQUET \n");
+			else if( format.equals("orc") )
+				builder.append("STORED AS ORC \n");
 			builder.append("LOCATION '" + extTablePrefixCreated + "/" + tableName + "' \n");
-			builder.append("TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
+			if( format.equals("parquet") )
+				builder.append("TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
+			else if( format.equals("orc") )
+				builder.append("TBLPROPERTIES (\"orc.compress\"=\"SNAPPY\") \n");
 		}
 		return builder.toString();
 	}
@@ -260,13 +272,20 @@ public class CreateDatabase {
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an internal parquet table in Presto.
 	private String internalCreateTablePresto(String incompleteSqlCreate, String tableName,
-			String extTablePrefixCreated) {
+			String extTablePrefixCreated, String format) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
-		if( extTablePrefixCreated == null )
-			builder.append("WITH ( format = 'PARQUET' ) \n");
+		if( extTablePrefixCreated == null ) {
+			if( format.equals("parquet") )
+				builder.append("WITH ( format = 'PARQUET' ) \n");
+			else if( format.equals("orc") )
+				builder.append("WITH ( format = 'ORC' ) \n");
+		}
 		else {
-			builder.append("WITH ( format = 'PARQUET', ");
+			if( format.equals("parquet") )
+				builder.append("WITH ( format = 'PARQUET', ");
+			else if( format.equals("orc") )
+				builder.append("WITH ( format = 'ORC', ");
 			builder.append("external_location = '" + extTablePrefixCreated + "/" + tableName + "' ) \n");
 		}
 		return builder.toString();
