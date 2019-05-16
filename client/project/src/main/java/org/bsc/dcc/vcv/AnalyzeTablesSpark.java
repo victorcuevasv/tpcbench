@@ -37,7 +37,7 @@ public class AnalyzeTablesSpark {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
-		this.recorder = new AnalyticsRecorder("load", system);
+		this.recorder = new AnalyticsRecorder("analyze", system);
 	}
 
 	/**
