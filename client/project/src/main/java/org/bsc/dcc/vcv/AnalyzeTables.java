@@ -19,7 +19,8 @@ public class AnalyzeTables {
 
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public AnalyzeTables(String system, String hostname, boolean computeForCols) {
+	public AnalyzeTables(String system, String hostname, boolean computeForCols,
+			String dbName) {
 		this.computeForCols = computeForCols;
 		try {
 			system = system.toLowerCase();
@@ -27,24 +28,24 @@ public class AnalyzeTables {
 			if( system.equals("hive") ) {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10000/default", "hive", "");
+						hostname + ":10000/" + dbName, "hive", "");
 			}
 			else if( system.equals("presto") ) {
 				Class.forName(prestoDriverName);
 				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8080/hive/default", "hive", "");
+						hostname + ":8080/hive/" + dbName, "hive", "");
 				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
 			else if( system.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
 				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8889/hive/default", "hive", "");
+						hostname + ":8889/hive/" + dbName, "hive", "");
 				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10015/default", "hive", "");
+						hostname + ":10015/" + dbName, "hive", "");
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
@@ -77,17 +78,18 @@ public class AnalyzeTables {
 	 * args[0] system to evaluate the queries (hive/presto)
 	 * args[1] hostname of the server
 	 * args[2] compute statistics for columns (true/false)
+	 * args[3] database name
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length < 3 ) {
+		if( args.length < 4 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
 		}
 		boolean computeForCols = Boolean.parseBoolean(args[2]);
-		AnalyzeTables prog = new AnalyzeTables(args[0], args[1], computeForCols);
+		AnalyzeTables prog = new AnalyzeTables(args[0], args[1], computeForCols, args[3]);
 		String[] tables = {"call_center", "catalog_page", "catalog_returns", "catalog_sales",
 							"customer", "customer_address", "customer_demographics", "date_dim",
 							"household_demographics", "income_band", "inventory", "item",
