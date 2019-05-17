@@ -8,8 +8,8 @@ numNodes[["sparkdatabricks"]]<-9
 nodeCostPerHour<-new.env()
 #EC2 cost + EMR cost (https://aws.amazon.com/emr/pricing/)
 nodeCostPerHour[["prestoemr"]]<-sum(0.624, 0.156)
-#2 DBUs
-nodeCostPerHour[["sparkdatabricks"]]<-1.1
+#EC2 cost + Databricks cost (https://databricks.com/product/aws-pricing)
+nodeCostPerHour[["sparkdatabricks"]]<-sum(0.624, 0.3)
 #######################################################
 
 for(testDone in testsToDo) {
