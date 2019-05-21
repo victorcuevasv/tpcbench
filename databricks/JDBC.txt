@@ -1,0 +1,38 @@
+
+#Install Maven.
+
+sudo wget -P /opt http://archive.apache.org/dist/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz
+sudo tar xzf /opt/apache-maven-3.6.0-bin.tar.gz -C /opt
+sudo rm -f /opt/apache-maven-3.6.0-bin.tar.gz
+
+#Add Maven binary to the path.
+
+export PATH="${PATH}:/opt/apache-maven-3.6.0/bin" 
+
+#Copy the JDBC driver jar.
+
+scp -i id_rsa -P 2200 jdbcdriver/SparkJDBC41.jar ubuntu@ec2-34-216-198-245.us-west-2.compute.amazonaws.com:/home/ubuntu/tpcdsbench/databricks    
+
+#Copy the Spark queries (the data folder should be already created on the cluster).
+
+scp -r -i id_rsa -P 2200 ../vols/data/QueriesSpark ubuntu@ec2-34-216-198-245.us-west-2.compute.amazonaws.com:/home/ubuntu/tpcdsbench/databricks/data         
+
+#Compile the client.
+
+mvn clean package -f ./../client/project/pom.xml
+
+#Add JDBC jar to local repository.
+
+mvn install:install-file -Dfile=SparkJDBC41.jar  -DgroupId=Spark -DartifactId=SparkJDBC41 -Dversion=2.6.3.1003 -Dpackaging=jar    
+
+#Enable fast access to the code.
+
+export CODE_DIR=/home/ubuntu/tpcdsbench/client/project/src/main/java/org/bsc/dcc/vcv
+
+#Create data directory for logs.
+sudo mkdir /data; sudo chmod -R 777 /data
+
+
+
+
+
