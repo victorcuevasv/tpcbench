@@ -18,6 +18,6 @@ if [ $# -lt 2 ]; then
 fi
 
 mvn exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ExecuteQueries" \
-	-Dexec.args="/data QueriesSpark results plans sparkdatabricksjdbc $(hostname) true true tpcdsdb$1gb $2" \
+	-Dexec.args="data QueriesSpark results plans sparkdatabricksjdbc $(hostname) true true tpcdsdb$1gb $2" \
 	-f $DIR/../client/project/pom.xml      
 
