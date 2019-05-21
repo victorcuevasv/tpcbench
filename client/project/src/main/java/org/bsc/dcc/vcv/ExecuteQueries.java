@@ -20,6 +20,7 @@ public class ExecuteQueries {
 
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
+	private static final String databricksDriverName = "com.simba.spark.jdbc41.Driver";
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private AnalyticsRecorder recorder;
@@ -51,6 +52,10 @@ public class ExecuteQueries {
 				con = DriverManager.getConnection("jdbc:presto://" + 
 						hostname + ":8889/hive/" + dbName, "hive", "");
 				setPrestoDefaultSessionOpts();
+			}
+			else if( system.equals("sparkdatabricksjdbc") ) {
+				Class.forName(databricksDriverName);
+				con = DriverManager.getConnection("jdbc:hive2://hostname:443/" + dbName);
 			}
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
