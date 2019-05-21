@@ -80,8 +80,8 @@ public class CreateDatabaseSpark {
 		//In the case of Spark on Databricks, copy the /data/logs/analytics.log file to
 		// /dbfs/data/logs/tput/sparkdatabricks/analyticsDuplicate.log, in case the application is
 		//running on a job cluster that will be shutdown automatically after completion.
-		if( this.recorder.system.equals("sparkdatabricks") ) {
-			this.copyLog("/data/logs/analytics.log",
+		if( args[4].equals("sparkdatabricks") ) {
+			prog.copyLog("/data/logs/analytics.log",
 				"/dbfs/data/logs/power/sparkdatabricks/analyticsDuplicate.log");
 		}
 		if( ! args[4].equals("sparkdatabricks") ) {
@@ -303,7 +303,7 @@ public class CreateDatabaseSpark {
 		}
 	}
 	
-	private void copyLog(String logFile, String duplicateFile) {
+	public void copyLog(String logFile, String duplicateFile) {
 		try {
 			BufferedReader inBR = new BufferedReader(new InputStreamReader(new FileInputStream(logFile)));
 			File tmp = new File(duplicateFile);
