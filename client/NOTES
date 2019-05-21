@@ -8,3 +8,16 @@ mvn archetype:generate -DgroupId=org.bsc.dcc.vcv -DartifactId=client -Darchetype
 mvn exec:java -Dexec.mainClass="org.bsc.dcc.vcv.CreateDatabase" -Dexec.args="../data/tables" -f project/pom.xml
 
 
+
+Add Maven binary to the path.
+
+export MAVEN_VERSION=3.6.0
+export PATH="${PATH}:/opt/apache-maven-$MAVEN_VERSION/bin"
+
+Compile the client.
+
+mvn clean package -f ./../client/project/pom.xml
+
+Add JDBC jar to local repository.
+
+mvn install:install-file -Dfile=SparkJDBC41.jar  -DgroupId=Spark -DartifactId=SparkJDBC41 -Dversion=2.6.3.1003 -Dpackaging=jar
