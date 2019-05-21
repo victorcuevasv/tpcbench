@@ -9,3 +9,6 @@
 /RESULTS_1000GBcomplete/
 /RESULTS_PrestoParquetVsORC/
 /RESULTSreference/
+/RESULTSdbrlight/
+/RESULTSnocache/
+/RESULTSstats/

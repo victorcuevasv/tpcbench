@@ -77,6 +77,13 @@ public class CreateDatabaseSpark {
 		String extTablePrefixRaw = args[7].equalsIgnoreCase("null") ? null : args[7];
 		String extTablePrefixCreated = args[8].equalsIgnoreCase("null") ? null : args[8];
 		prog.createTables(args[0], args[1], args[2], doCount, extTablePrefixRaw, extTablePrefixCreated, args[9]);
+		//In the case of Spark on Databricks, copy the /data/logs/analytics.log file to
+		// /dbfs/data/logs/tput/sparkdatabricks/analyticsDuplicate.log, in case the application is
+		//running on a job cluster that will be shutdown automatically after completion.
+		if( this.recorder.system.equals("sparkdatabricks") ) {
+			this.copyLog("/data/logs/analytics.log",
+				"/dbfs/data/logs/power/sparkdatabricks/analyticsDuplicate.log");
+		}
 		if( ! args[4].equals("sparkdatabricks") ) {
 			prog.closeConnection();
 		}	
@@ -293,6 +300,28 @@ public class CreateDatabaseSpark {
 		catch (Exception e) {
 			e.printStackTrace();
 			this.logger.error(e);
+		}
+	}
+	
+	private void copyLog(String logFile, String duplicateFile) {
+		try {
+			BufferedReader inBR = new BufferedReader(new InputStreamReader(new FileInputStream(logFile)));
+			File tmp = new File(duplicateFile);
+			tmp.getParentFile().mkdirs();
+			FileWriter fileWriter = new FileWriter(duplicateFile, false);
+			PrintWriter printWriter = new PrintWriter(fileWriter);
+			String line = null;
+			while ((line = inBR.readLine()) != null) {
+				printWriter.println(line);
+			}
+			inBR.close();
+			printWriter.close();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueriesConcurrentSpark copyLog.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
 

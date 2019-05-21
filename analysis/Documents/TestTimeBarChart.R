@@ -4,12 +4,12 @@ library(ggplot2)
 library(stringr)
 
 #######################################################
-#testDone <- "load"
-testDone <- "power"
+testDone <- "load"
+#testDone <- "power"
 #testDone <- "tput"
 #metric <- "TOTAL_DURATION_SEC"
-#metric <- "TOTAL_DURATION_HOUR"
-metric <- "AVG_QUERY_DURATION_SEC"
+metric <- "TOTAL_DURATION_HOUR"
+#metric <- "AVG_QUERY_DURATION_SEC"
 #metric <- "GEOM_MEAN_QUERY_DURATION_SEC"
 topLimit <- 30000 #Only used if line 71 is modified
 #######################################################
