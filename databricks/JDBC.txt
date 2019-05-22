@@ -36,5 +36,12 @@ sudo mkdir /data; sudo chmod -R 777 /data
 
 ssh -o "ServerAliveInterval 60" -o "ServerAliveCountMax 120" ubuntu@ec2-54-214-63-88.us-west-2.compute.amazonaws.com -p 2200 -i id_rsa                        
 
+#Install AWS CLI.
+
+sudo apt-get install python3-pip -y
+pip3 install awscli --upgrade --user
+aws configure
+
+
 
 

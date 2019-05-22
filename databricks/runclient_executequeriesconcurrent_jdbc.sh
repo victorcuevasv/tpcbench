@@ -20,6 +20,6 @@ if [ $# -lt 2 ]; then
 fi
 
 mvn exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ExecuteQueriesConcurrent" \
-	-Dexec.args="data QueriesPresto results plans presto namenodecontainer $2 1954 false true true tpcdsdb$1gb" \
+	-Dexec.args="data QueriesSpark results plans presto namenodecontainer $2 1954 false true true tpcdsdb$1gb" \
 	-f $DIR/../client/project/pom.xml   
 
