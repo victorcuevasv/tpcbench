@@ -69,6 +69,9 @@ public class QueryStream implements Callable<Void> {
 		//this.shuffle(queries);
 		int[] queries = StreamsTable.matrix[this.nStream];
 		for(int i = 0; i < queries.length; i++) {
+			//if( queries[i] == 6 || queries[i] == 9 || queries[i] == 10 || queries[i] == 35 || 
+			//		queries[i] == 41 || queries[i] == 66 || queries[i] == 69 || queries[i] == 87 )
+			//continue;
 			String sqlStr = this.queriesHT.get(queries[i]);
 			this.executeQuery(this.nStream, this.workDir, queries[i], sqlStr,
 					this.resultsDir, this.plansDir, this.singleCall, i);
