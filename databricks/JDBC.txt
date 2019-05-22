@@ -32,7 +32,9 @@ export CODE_DIR=/home/ubuntu/tpcdsbench/client/project/src/main/java/org/bsc/dcc
 #Create data directory for logs.
 sudo mkdir /data; sudo chmod -R 777 /data
 
+#SSH connection.
 
+ssh -o "ServerAliveInterval 60" -o "ServerAliveCountMax 120" ubuntu@ec2-54-214-63-88.us-west-2.compute.amazonaws.com -p 2200 -i id_rsa                        
 
 
 
