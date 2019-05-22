@@ -15,7 +15,7 @@ scp -i id_rsa -P 2200 jdbcdriver/SparkJDBC41.jar ubuntu@ec2-34-216-198-245.us-we
 
 #Copy the Spark queries (the data folder should be already created on the cluster).
 
-scp -r -i id_rsa -P 2200 ../vols/data/QueriesSpark ubuntu@ec2-34-216-198-245.us-west-2.compute.amazonaws.com:/home/ubuntu/tpcdsbench/databricks/data         
+scp -r -i id_rsa -P 2200 ../vols/data/QueriesSpark ubuntu@ec2-34-216-198-245.us-west-2.compute.amazonaws.com:/home/ubuntu/tpcdsbench/databricks/data/         
 
 #Compile the client.
 
