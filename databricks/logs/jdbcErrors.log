@@ -1,0 +1,807 @@
+INFO : 13:33:26.230 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query1.sql
+
+INFO : 13:33:56.538 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query2.sql
+
+INFO : 13:34:06.578 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query3.sql
+
+INFO : 13:34:10.432 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query4.sql
+
+INFO : 13:34:28.249 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query5.sql
+
+INFO : 13:34:33.853 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query6.sql
+
+ERROR: 13:34:36.664 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEValueSubQuery is not supported.
+ERROR: 13:34:36.665 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEValueSubQuery is not supported.
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.defaultVisit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.defaultVisit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.AEDefaultVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.value.AEValueSubQuery.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.value.AEMultiply.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.value.AEValueExprList.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.bool.AEComparison.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.bool.AEAnd.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AESelect.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AEAggregate.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AESelect.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visitProject(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AESort.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AETop.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visitChildren(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.statement.AEQuery.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQueryTranslator.translate(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQueryTranslator.translate(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCDSIExtQueryExecutor.translateQuery(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCDSIExtQueryExecutor.execute(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeQuery(Unknown Source)
+	at com.simba.spark.hivecommon.jdbc41.Hive41Statement.executeQuery(Unknown Source)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryMultipleCalls(ExecuteQueries.java:240)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryFile(ExecuteQueries.java:167)
+	at org.bsc.dcc.vcv.ExecuteQueries.main(ExecuteQueries.java:143)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:282)
+Caused by: com.simba.spark.support.exceptions.GeneralException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEValueSubQuery is not supported.
+	... 52 more
+
+INFO : 13:34:36.666 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query7.sql
+
+INFO : 13:34:40.441 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query8.sql
+
+INFO : 13:34:43.512 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query9.sql
+
+ERROR: 13:34:49.479 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEValueSubQuery is not supported.
+ERROR: 13:34:49.480 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEValueSubQuery is not supported.
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.defaultVisit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.defaultVisit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.AEDefaultVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.value.AEValueSubQuery.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.value.AEValueExprList.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.bool.AEComparison.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.value.AESearchedWhenClause.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.value.AESearchedCase.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.value.AERename.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.value.AEValueExprList.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AEProject.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visitChildren(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.statement.AEQuery.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQueryTranslator.translate(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQueryTranslator.translate(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCDSIExtQueryExecutor.translateQuery(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCDSIExtQueryExecutor.execute(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeQuery(Unknown Source)
+	at com.simba.spark.hivecommon.jdbc41.Hive41Statement.executeQuery(Unknown Source)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryMultipleCalls(ExecuteQueries.java:240)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryFile(ExecuteQueries.java:167)
+	at org.bsc.dcc.vcv.ExecuteQueries.main(ExecuteQueries.java:143)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:282)
+Caused by: com.simba.spark.support.exceptions.GeneralException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEValueSubQuery is not supported.
+	... 46 more
+
+INFO : 13:34:49.481 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query10.sql
+
+ERROR: 13:34:51.781 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEExistsPredicate is not supported.
+ERROR: 13:34:51.781 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEExistsPredicate is not supported.
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.defaultVisit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.defaultVisit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.AEDefaultVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.bool.AEExistsPredicate.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.bool.AEOr.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.bool.AEAnd.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AESelect.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AEAggregate.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visitProject(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AESort.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AETop.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visitChildren(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.statement.AEQuery.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQueryTranslator.translate(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQueryTranslator.translate(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCDSIExtQueryExecutor.translateQuery(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCDSIExtQueryExecutor.execute(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeQuery(Unknown Source)
+	at com.simba.spark.hivecommon.jdbc41.Hive41Statement.executeQuery(Unknown Source)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryMultipleCalls(ExecuteQueries.java:240)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryFile(ExecuteQueries.java:167)
+	at org.bsc.dcc.vcv.ExecuteQueries.main(ExecuteQueries.java:143)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:282)
+Caused by: com.simba.spark.support.exceptions.GeneralException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEExistsPredicate is not supported.
+	... 43 more
+
+INFO : 13:34:51.782 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query11.sql
+
+INFO : 13:34:56.780 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query12.sql
+
+INFO : 13:34:58.527 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query13.sql
+
+INFO : 13:35:11.515 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query14.sql
+
+INFO : 13:35:26.794 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query15.sql
+
+INFO : 13:35:29.148 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query16.sql
+
+INFO : 13:35:32.246 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query17.sql
+
+INFO : 13:35:36.769 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query18.sql
+
+INFO : 13:35:40.603 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query19.sql
+
+INFO : 13:35:52.461 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query20.sql
+
+INFO : 13:35:54.124 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query21.sql
+
+INFO : 13:35:57.011 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query22.sql
+
+INFO : 13:36:01.181 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query23.sql
+
+INFO : 13:36:11.258 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query24.sql
+
+INFO : 13:36:18.874 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query25.sql
+
+INFO : 13:36:37.988 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query26.sql
+
+INFO : 13:36:40.869 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query27.sql
+
+INFO : 13:36:45.719 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query28.sql
+
+INFO : 13:36:50.422 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query29.sql
+
+INFO : 13:36:55.785 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query30.sql
+
+INFO : 13:36:58.516 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query31.sql
+
+INFO : 13:37:02.629 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query32.sql
+
+INFO : 13:37:03.959 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query33.sql
+
+INFO : 13:37:06.412 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query34.sql
+
+INFO : 13:37:09.508 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query35.sql
+
+ERROR: 13:37:11.758 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEExistsPredicate is not supported.
+ERROR: 13:37:11.758 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEExistsPredicate is not supported.
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.defaultVisit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.defaultVisit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.AEDefaultVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.bool.AEExistsPredicate.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.bool.AEOr.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.bool.AEAnd.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AESelect.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AEAggregate.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visitProject(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AESort.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AETop.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visitChildren(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.statement.AEQuery.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQueryTranslator.translate(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQueryTranslator.translate(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCDSIExtQueryExecutor.translateQuery(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCDSIExtQueryExecutor.execute(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeQuery(Unknown Source)
+	at com.simba.spark.hivecommon.jdbc41.Hive41Statement.executeQuery(Unknown Source)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryMultipleCalls(ExecuteQueries.java:240)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryFile(ExecuteQueries.java:167)
+	at org.bsc.dcc.vcv.ExecuteQueries.main(ExecuteQueries.java:143)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:282)
+Caused by: com.simba.spark.support.exceptions.GeneralException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEExistsPredicate is not supported.
+	... 43 more
+
+INFO : 13:37:11.759 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query36.sql
+
+INFO : 13:37:13.267 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query37.sql
+
+INFO : 13:37:22.558 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query38.sql
+
+INFO : 13:37:26.366 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query39.sql
+
+INFO : 13:37:32.089 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query40.sql
+
+INFO : 13:37:33.975 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query41.sql
+
+ERROR: 13:37:34.784 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEValueSubQuery is not supported.
+ERROR: 13:37:34.784 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEValueSubQuery is not supported.
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.defaultVisit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.defaultVisit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.AEDefaultVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.value.AEValueSubQuery.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.value.AEValueExprList.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.bool.AEComparison.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.bool.AEAnd.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AESelect.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visitProject(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AESort.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AEDistinct.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AETop.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visitChildren(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.statement.AEQuery.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQueryTranslator.translate(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQueryTranslator.translate(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCDSIExtQueryExecutor.translateQuery(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCDSIExtQueryExecutor.execute(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeQuery(Unknown Source)
+	at com.simba.spark.hivecommon.jdbc41.Hive41Statement.executeQuery(Unknown Source)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryMultipleCalls(ExecuteQueries.java:240)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryFile(ExecuteQueries.java:167)
+	at org.bsc.dcc.vcv.ExecuteQueries.main(ExecuteQueries.java:143)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:282)
+Caused by: com.simba.spark.support.exceptions.GeneralException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEValueSubQuery is not supported.
+	... 46 more
+
+INFO : 13:37:34.785 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query42.sql
+
+INFO : 13:37:36.608 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query43.sql
+
+INFO : 13:37:38.595 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query44.sql
+
+INFO : 13:37:40.331 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query45.sql
+
+INFO : 13:37:42.957 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query46.sql
+
+INFO : 13:37:46.259 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query47.sql
+
+INFO : 13:37:50.414 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query48.sql
+
+INFO : 13:37:53.797 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query49.sql
+
+INFO : 13:37:57.138 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query50.sql
+
+INFO : 13:37:59.757 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query51.sql
+
+INFO : 13:38:04.736 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query52.sql
+
+INFO : 13:38:06.510 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query53.sql
+
+INFO : 13:38:08.116 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query54.sql
+
+INFO : 13:38:10.839 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query55.sql
+
+INFO : 13:38:12.514 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query56.sql
+
+INFO : 13:38:15.183 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query57.sql
+
+INFO : 13:38:19.022 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query58.sql
+
+INFO : 13:38:21.714 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query59.sql
+
+INFO : 13:38:23.785 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query60.sql
+
+INFO : 13:38:26.234 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query61.sql
+
+INFO : 13:38:36.531 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query62.sql
+
+INFO : 13:38:40.106 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query63.sql
+
+INFO : 13:38:41.703 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query64.sql
+
+INFO : 13:38:54.079 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query65.sql
+
+INFO : 13:38:57.331 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query66.sql
+
+ERROR: 13:39:01.261 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 0, SQL state: org.apache.spark.sql.AnalysisException: cannot resolve '`x.xw_warehouse_sq_ft`' given input columns: [x.aug_sales, x.aug_net, x.jun_net, x.mar_net, x.apr_sales, x.mar_sales, x.nov_sales, x.oct_net, x.w_city, x.jan_net, x.feb_sales, x.w_county, x.year, x.w_warehouse_sq_ft, x.sep_sales, x.jan_sales, x.jun_sales, x.apr_net, x.may_sales, x.ship_carriers, x.dec_net, x.w_country, x.jul_sales, x.nov_net, x.oct_sales, x.dec_sales, x.may_net, x.w_warehouse_name, x.feb_net, x.w_state, x.jul_net, x.sep_net]; line 1 pos 694;
+'GlobalLimit 100
++- 'LocalLimit 100
+   +- 'Sort ['xw_warehouse_name ASC NULLS FIRST], true
+      +- 'Aggregate [w_warehouse_name#17453, w_warehouse_sq_ft#17454, w_city#17459, w_county#17460, w_state#17461, w_country#17463, ship_carriers#71800, year#71801], [w_warehouse_name#17453 AS xw_warehouse_name#71852, w_warehouse_sq_ft#17454 AS xw_warehouse_sq_ft#71853, w_city#17459 AS xw_city#71854, w_county#17460 AS xw_county#71855, w_state#17461 AS xw_state#71856, w_country#17463 AS xw_country#71857, ship_carriers#71800 AS xship_carriers#71858, year#71801 AS xyear#71859, sum(jan_sales#71802) AS jan_sales#71860, sum(feb_sales#71803) AS feb_sales#71861, sum(mar_sales#71804) AS mar_sales#71862, sum(apr_sales#71805) AS apr_sales#71863, sum(may_sales#71806) AS may_sales#71864, sum(jun_sales#71807) AS jun_sales#71865, sum(jul_sales#71808) AS jul_sales#71866, sum(aug_sales#71809) AS aug_sales#71867, sum(sep_sales#71810) AS sep_sales#71868, sum(oct_sales#71811) AS oct_sales#71869, sum(nov_sales#71812) AS nov_sales#71870, sum(dec_sales#71813) AS dec_sales#71871, 'SUM((jan_sales#71802 / 'x.xw_warehouse_sq_ft)) AS jan_sales_per_sq_foot#71872, 'SUM((feb_sales#71803 / 'x.xw_warehouse_sq_ft)) AS feb_sales_per_sq_foot#71873, 'SUM((mar_sales#71804 / 'x.xw_warehouse_sq_ft)) AS mar_sales_per_sq_foot#71874, 'SUM((apr_sales#71805 / 'x.xw_warehouse_sq_ft)) AS apr_sales_per_sq_foot#71875, ... 20 more fields]
+         +- SubqueryAlias `x`
+            +- Union
+               :- Aggregate [w_warehouse_name#17453, w_warehouse_sq_ft#17454, w_city#17459, w_county#17460, w_state#17461, w_country#17463, d_year#38], [w_warehouse_name#17453, w_warehouse_sq_ft#17454, w_city#17459, w_county#17460, w_state#17461, w_country#17463, concat(DIAMOND, ,, AIRBORNE) AS ship_carriers#71800, d_year#38 AS year#71801, sum(CASE WHEN (d_moy#40 = 1) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jan_sales#71802, sum(CASE WHEN (d_moy#40 = 2) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS feb_sales#71803, sum(CASE WHEN (d_moy#40 = 3) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS mar_sales#71804, sum(CASE WHEN (d_moy#40 = 4) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS apr_sales#71805, sum(CASE WHEN (d_moy#40 = 5) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS may_sales#71806, sum(CASE WHEN (d_moy#40 = 6) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jun_sales#71807, sum(CASE WHEN (d_moy#40 = 7) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jul_sales#71808, sum(CASE WHEN (d_moy#40 = 8) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS aug_sales#71809, sum(CASE WHEN (d_moy#40 = 9) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS sep_sales#71810, sum(CASE WHEN (d_moy#40 = 10) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS oct_sales#71811, sum(CASE WHEN (d_moy#40 = 11) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS nov_sales#71812, sum(CASE WHEN (d_moy#40 = 12) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS dec_sales#71813, sum(CASE WHEN (d_moy#40 = 1) THEN CheckOverflow((promote_precision(cast(ws_net_paid_inc_tax#557 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jan_net#71814, sum(CASE WHEN (d_moy#40 = 2) THEN CheckOverflow((promote_precision(cast(ws_net_paid_inc_tax#557 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS feb_net#71815, sum(CASE WHEN (d_moy#40 = 3) THEN CheckOverflow((promote_precision(cast(ws_net_paid_inc_tax#557 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS mar_net#71816, sum(CASE WHEN (d_moy#40 = 4) THEN CheckOverflow((promote_precision(cast(ws_net_paid_inc_tax#557 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS apr_net#71817, ... 8 more fields]
+               :  +- Filter (sm_carrier#51172 IN (DIAMOND,AIRBORNE) && (((t_time#70856 >= 49530) && (t_time#70856 <= (49530 + 28800))) && ((d_year#38 = 2002) && ((ws_ship_mode_sk#541 = sm_ship_mode_sk#51168) && ((ws_sold_time_sk#528 = t_time_sk#70854) && ((ws_warehouse_sk#542 = w_warehouse_sk#17451) && (ws_sold_date_sk#527 = d_date_sk#32)))))))
+               :     +- Join Cross
+               :        :- Join Cross
+               :        :  :- Join Cross
+               :        :  :  :- Join Cross
+               :        :  :  :  :- SubqueryAlias `tpcdsdb1gb_web_sales`
+               :        :  :  :  :  +- SubqueryAlias `tpcdsdb1gb`.`web_sales`
+               :        :  :  :  :     +- Relation[ws_sold_date_sk#527,ws_sold_time_sk#528,ws_ship_date_sk#529,ws_item_sk#530,ws_bill_customer_sk#531,ws_bill_cdemo_sk#532,ws_bill_hdemo_sk#533,ws_bill_addr_sk#534,ws_ship_customer_sk#535,ws_ship_cdemo_sk#536,ws_ship_hdemo_sk#537,ws_ship_addr_sk#538,ws_web_page_sk#539,ws_web_site_sk#540,ws_ship_mode_sk#541,ws_warehouse_sk#542,ws_promo_sk#543,ws_order_number#544,ws_quantity#545,ws_wholesale_cost#546,ws_list_price#547,ws_sales_price#548,ws_ext_discount_amt#549,ws_ext_sales_price#550,... 10 more fields] parquet
+               :        :  :  :  +- SubqueryAlias `tpcdsdb1gb_warehouse`
+               :        :  :  :     +- SubqueryAlias `tpcdsdb1gb`.`warehouse`
+               :        :  :  :        +- Relation[w_warehouse_sk#17451,w_warehouse_id#17452,w_warehouse_name#17453,w_warehouse_sq_ft#17454,w_street_number#17455,w_street_name#17456,w_street_type#17457,w_suite_number#17458,w_city#17459,w_county#17460,w_state#17461,w_zip#17462,w_country#17463,w_gmt_offset#17464] parquet
+               :        :  :  +- SubqueryAlias `tpcdsdb1gb_date_dim`
+               :        :  :     +- SubqueryAlias `tpcdsdb1gb`.`date_dim`
+               :        :  :        +- Relation[d_date_sk#32,d_date_id#33,d_date#34,d_month_seq#35,d_week_seq#36,d_quarter_seq#37,d_year#38,d_dow#39,d_moy#40,d_dom#41,d_qoy#42,d_fy_year#43,d_fy_quarter_seq#44,d_fy_week_seq#45,d_day_name#46,d_quarter_name#47,d_holiday#48,d_weekend#49,d_following_holiday#50,d_first_dom#51,d_last_dom#52,d_same_day_ly#53,d_same_day_lq#54,d_current_day#55,... 4 more fields] parquet
+               :        :  +- SubqueryAlias `tpcdsdb1gb_time_dim`
+               :        :     +- SubqueryAlias `tpcdsdb1gb`.`time_dim`
+               :        :        +- Relation[t_time_sk#70854,t_time_id#70855,t_time#70856,t_hour#70857,t_minute#70858,t_second#70859,t_am_pm#70860,t_shift#70861,t_sub_shift#70862,t_meal_time#70863] parquet
+               :        +- SubqueryAlias `tpcdsdb1gb_ship_mode`
+               :           +- SubqueryAlias `tpcdsdb1gb`.`ship_mode`
+               :              +- Relation[sm_ship_mode_sk#51168,sm_ship_mode_id#51169,sm_type#51170,sm_code#51171,sm_carrier#51172,sm_contract#51173] parquet
+               +- Aggregate [w_warehouse_name#17453, w_warehouse_sq_ft#17454, w_city#17459, w_county#17460, w_state#17461, w_country#17463, d_year#38], [w_warehouse_name#17453, w_warehouse_sq_ft#17454, w_city#17459, w_county#17460, w_state#17461, w_country#17463, concat(DIAMOND, ,, AIRBORNE) AS ship_carriers#71826, d_year#38 AS year#71827, sum(CASE WHEN (d_moy#40 = 1) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jan_sales#71828, sum(CASE WHEN (d_moy#40 = 2) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS feb_sales#71829, sum(CASE WHEN (d_moy#40 = 3) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS mar_sales#71830, sum(CASE WHEN (d_moy#40 = 4) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS apr_sales#71831, sum(CASE WHEN (d_moy#40 = 5) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS may_sales#71832, sum(CASE WHEN (d_moy#40 = 6) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jun_sales#71833, sum(CASE WHEN (d_moy#40 = 7) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jul_sales#71834, sum(CASE WHEN (d_moy#40 = 8) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS aug_sales#71835, sum(CASE WHEN (d_moy#40 = 9) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS sep_sales#71836, sum(CASE WHEN (d_moy#40 = 10) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS oct_sales#71837, sum(CASE WHEN (d_moy#40 = 11) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS nov_sales#71838, sum(CASE WHEN (d_moy#40 = 12) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS dec_sales#71839, sum(CASE WHEN (d_moy#40 = 1) THEN CheckOverflow((promote_precision(cast(cs_net_paid_inc_ship_tax#593 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jan_net#71840, sum(CASE WHEN (d_moy#40 = 2) THEN CheckOverflow((promote_precision(cast(cs_net_paid_inc_ship_tax#593 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS feb_net#71841, sum(CASE WHEN (d_moy#40 = 3) THEN CheckOverflow((promote_precision(cast(cs_net_paid_inc_ship_tax#593 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS mar_net#71842, sum(CASE WHEN (d_moy#40 = 4) THEN CheckOverflow((promote_precision(cast(cs_net_paid_inc_ship_tax#593 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS apr_net#71843, ... 8 more fields]
+                  +- Filter (sm_carrier#51172 IN (DIAMOND,AIRBORNE) && (((t_time#70856 >= 49530) && (t_time#70856 <= (49530 + 28800))) && ((d_year#38 = 2002) && ((cs_ship_mode_sk#574 = sm_ship_mode_sk#51168) && ((cs_sold_time_sk#562 = t_time_sk#70854) && ((cs_warehouse_sk#575 = w_warehouse_sk#17451) && (cs_sold_date_sk#561 = d_date_sk#32)))))))
+                     +- Join Cross
+                        :- Join Cross
+                        :  :- Join Cross
+                        :  :  :- Join Cross
+                        :  :  :  :- SubqueryAlias `tpcdsdb1gb_catalog_sales`
+                        :  :  :  :  +- SubqueryAlias `tpcdsdb1gb`.`catalog_sales`
+                        :  :  :  :     +- Relation[cs_sold_date_sk#561,cs_sold_time_sk#562,cs_ship_date_sk#563,cs_bill_customer_sk#564,cs_bill_cdemo_sk#565,cs_bill_hdemo_sk#566,cs_bill_addr_sk#567,cs_ship_customer_sk#568,cs_ship_cdemo_sk#569,cs_ship_hdemo_sk#570,cs_ship_addr_sk#571,cs_call_center_sk#572,cs_catalog_page_sk#573,cs_ship_mode_sk#574,cs_warehouse_sk#575,cs_item_sk#576,cs_promo_sk#577,cs_order_number#578,cs_quantity#579,cs_wholesale_cost#580,cs_list_price#581,cs_sales_price#582,cs_ext_discount_amt#583,cs_ext_sales_price#584,... 10 more fields] parquet
+                        :  :  :  +- SubqueryAlias `tpcdsdb1gb_warehouse`
+                        :  :  :     +- SubqueryAlias `tpcdsdb1gb`.`warehouse`
+                        :  :  :        +- Relation[w_warehouse_sk#17451,w_warehouse_id#17452,w_warehouse_name#17453,w_warehouse_sq_ft#17454,w_street_number#17455,w_street_name#17456,w_street_type#17457,w_suite_number#17458,w_city#17459,w_county#17460,w_state#17461,w_zip#17462,w_country#17463,w_gmt_offset#17464] parquet
+                        :  :  +- SubqueryAlias `tpcdsdb1gb_date_dim`
+                        :  :     +- SubqueryAlias `tpcdsdb1gb`.`date_dim`
+                        :  :        +- Relation[d_date_sk#32,d_date_id#33,d_date#34,d_month_seq#35,d_week_seq#36,d_quarter_seq#37,d_year#38,d_dow#39,d_moy#40,d_dom#41,d_qoy#42,d_fy_year#43,d_fy_quarter_seq#44,d_fy_week_seq#45,d_day_name#46,d_quarter_name#47,d_holiday#48,d_weekend#49,d_following_holiday#50,d_first_dom#51,d_last_dom#52,d_same_day_ly#53,d_same_day_lq#54,d_current_day#55,... 4 more fields] parquet
+                        :  +- SubqueryAlias `tpcdsdb1gb_time_dim`
+                        :     +- SubqueryAlias `tpcdsdb1gb`.`time_dim`
+                        :        +- Relation[t_time_sk#70854,t_time_id#70855,t_time#70856,t_hour#70857,t_minute#70858,t_second#70859,t_am_pm#70860,t_shift#70861,t_sub_shift#70862,t_meal_time#70863] parquet
+                        +- SubqueryAlias `tpcdsdb1gb_ship_mode`
+                           +- SubqueryAlias `tpcdsdb1gb`.`ship_mode`
+                              +- Relation[sm_ship_mode_sk#51168,sm_ship_mode_id#51169,sm_type#51170,sm_code#51171,sm_carrier#51172,sm_contract#51173] parquet
+, Query: SELECT `x`.`w_warehouse_name` `xw_warehouse_name`, `x`.`w_warehouse_sq_ft` `xw_warehouse_sq_ft`, `x`.`w_city` `xw_city`, `x`.`w_county` `xw_county`, `x`.`w_state` `xw_state`, `x`.`w_country` `xw_country`, `x`.`ship_carriers` `xship_carriers`, `x`.`year` `xyear`, SUM(`x`.`jan_sales`) `jan_sales`, SUM(`x`.`feb_sales`) `feb_sales`, SUM(`x`.`mar_sales`) `mar_sales`, SUM(`x`.`apr_sales`) `apr_sales`, SUM(`x`.`may_sales`) `may_sales`, SUM(`x`.`jun_sales`) `jun_sales`, SUM(`x`.`jul_sales`) `jul_sales`, SUM(`x`.`aug_sales`) `aug_sales`, SUM(`x`.`sep_sales`) `sep_sales`, SUM(`x`.`oct_sales`) `oct_sales`, SUM(`x`.`nov_sales`) `nov_sales`, SUM(`x`.`dec_sales`) `dec_sales`, SUM((`x`.`jan_sales` / `x`.`xw_warehouse_sq_ft`)) `jan_sales_per_sq_foot`, SUM((`x`.`feb_sales` / `x`.`xw_warehouse_sq_ft`)) `feb_sales_per_sq_foot`, SUM((`x`.`mar_sales` / `x`.`xw_warehouse_sq_ft`)) `mar_sales_per_sq_foot`, SUM((`x`.`apr_sales` / `x`.`xw_warehouse_sq_ft`)) `apr_sales_per_sq_foot`, SUM((`x`.`may_sales` / `x`.`xw_warehouse_sq_ft`)) `may_sales_per_sq_foot`, SUM((`x`.`jun_sales` / `x`.`xw_warehouse_sq_ft`)) `jun_sales_per_sq_foot`, SUM((`x`.`jul_sales` / `x`.`xw_warehouse_sq_ft`)) `jul_sales_per_sq_foot`, SUM((`x`.`aug_sales` / `x`.`xw_warehouse_sq_ft`)) `aug_sales_per_sq_foot`, SUM((`x`.`sep_sales` / `x`.`xw_warehouse_sq_ft`)) `sep_sales_per_sq_foot`, SUM((`x`.`oct_sales` / `x`.`xw_warehouse_sq_ft`)) `oct_sales_per_sq_foot`, SUM((`x`.`nov_sales` / `x`.`xw_warehouse_sq_ft`)) `nov_sales_per_sq_foot`, SUM((`x`.`dec_sales` / `x`.`xw_warehouse_sq_ft`)) `dec_sales_per_sq_foot`, SUM(`x`.`jan_net`) `jan_net`, SUM(`x`.`feb_net`) `feb_net`, SUM(`x`.`mar_net`) `mar_net`, SUM(`x`.`apr_net`) `apr_net`, SUM(`x`.`may_net`) `may_net`, SUM(`x`.`jun_net`) `jun_net`, SUM(`x`.`jul_net`) `jul_net`, SUM(`x`.`aug_net`) `aug_net`, SUM(`x`.`sep_net`) `sep_net`, SUM(`x`.`oct_net`) `oct_net`, SUM(`x`.`nov_net`) `nov_net`, SUM(`x`.`dec_net`) `dec_net` FROM (SELECT `tpcdsdb1gb_warehouse`.`w_warehouse_name`, `tpcdsdb1gb_warehouse`.`w_warehouse_sq_ft`, `tpcdsdb1gb_warehouse`.`w_city`, `tpcdsdb1gb_warehouse`.`w_county`, `tpcdsdb1gb_warehouse`.`w_state`, `tpcdsdb1gb_warehouse`.`w_country`, CONCAT('DIAMOND', ',', 'AIRBORNE') `ship_carriers`, `tpcdsdb1gb_date_dim`.`d_year` `year`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=1 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jan_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=2 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `feb_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=3 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `mar_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=4 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `apr_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=5 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `may_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=6 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jun_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=7 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jul_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=8 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `aug_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=9 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `sep_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=10 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `oct_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=11 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `nov_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=12 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `dec_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=1 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jan_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=2 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `feb_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=3 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `mar_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=4 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `apr_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=5 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `may_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=6 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jun_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=7 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jul_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=8 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `aug_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=9 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `sep_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=10 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `oct_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=11 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `nov_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=12 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `dec_net` FROM `tpcdsdb1gb`.`web_sales` `tpcdsdb1gb_web_sales` CROSS JOIN `tpcdsdb1gb`.`warehouse` `tpcdsdb1gb_warehouse` CROSS JOIN `tpcdsdb1gb`.`date_dim` `tpcdsdb1gb_date_dim` CROSS JOIN `tpcdsdb1gb`.`time_dim` `tpcdsdb1gb_time_dim` CROSS JOIN `tpcdsdb1gb`.`ship_mode` `tpcdsdb1gb_ship_mode` WHERE ( (`tpcdsdb1gb_ship_mode`.`sm_carrier` IN ('DIAMOND', 'AIRBORNE')) AND ( ( `tpcdsdb1gb_time_dim`.`t_time`>=49530 AND `tpcdsdb1gb_time_dim`.`t_time`<=(49530 + 28800) ) AND ( `tpcdsdb1gb_date_dim`.`d_year`=2002 AND ( `tpcdsdb1gb_web_sales`.`ws_ship_mode_sk`=`tpcdsdb1gb_ship_mode`.`sm_ship_mode_sk` AND ( `tpcdsdb1gb_web_sales`.`ws_sold_time_sk`=`tpcdsdb1gb_time_dim`.`t_time_sk` AND ( `tpcdsdb1gb_web_sales`.`ws_warehouse_sk`=`tpcdsdb1gb_warehouse`.`w_warehouse_sk` AND `tpcdsdb1gb_web_sales`.`ws_sold_date_sk`=`tpcdsdb1gb_date_dim`.`d_date_sk` ) ) ) ) ) ) GROUP BY `tpcdsdb1gb_warehouse`.`w_warehouse_name`, `tpcdsdb1gb_warehouse`.`w_warehouse_sq_ft`, `tpcdsdb1gb_warehouse`.`w_city`, `tpcdsdb1gb_warehouse`.`w_county`, `tpcdsdb1gb_warehouse`.`w_state`, `tpcdsdb1gb_warehouse`.`w_country`, `tpcdsdb1gb_date_dim`.`d_year` UNION ALL SELECT `tpcdsdb1gb_warehouse`.`w_warehouse_name`, `tpcdsdb1gb_warehouse`.`w_warehouse_sq_ft`, `tpcdsdb1gb_warehouse`.`w_city`, `tpcdsdb1gb_warehouse`.`w_county`, `tpcdsdb1gb_warehouse`.`w_state`, `tpcdsdb1gb_warehouse`.`w_country`, CONCAT('DIAMOND', ',', 'AIRBORNE') `ship_carriers`, `tpcdsdb1gb_date_dim`.`d_year` `year`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=1 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jan_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=2 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `feb_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=3 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `mar_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=4 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `apr_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=5 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `may_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=6 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jun_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=7 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jul_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=8 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `aug_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=9 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `sep_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=10 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `oct_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=11 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `nov_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=12 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `dec_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=1 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jan_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=2 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `feb_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=3 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `mar_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=4 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `apr_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=5 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `may_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=6 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jun_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=7 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jul_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=8 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `aug_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=9 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `sep_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=10 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `oct_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=11 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `nov_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=12 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `dec_net` FROM `tpcdsdb1gb`.`catalog_sales` `tpcdsdb1gb_catalog_sales` CROSS JOIN `tpcdsdb1gb`.`warehouse` `tpcdsdb1gb_warehouse` CROSS JOIN `tpcdsdb1gb`.`date_dim` `tpcdsdb1gb_date_dim` CROSS JOIN `tpcdsdb1gb`.`time_dim` `tpcdsdb1gb_time_dim` CROSS JOIN `tpcdsdb1gb`.`ship_mode` `tpcdsdb1gb_ship_mode` WHERE ( (`tpcdsdb1gb_ship_mode`.`sm_carrier` IN ('DIAMOND', 'AIRBORNE')) AND ( ( `tpcdsdb1gb_time_dim`.`t_time`>=49530 AND `tpcdsdb1gb_time_dim`.`t_time`<=(49530 + 28800) ) AND ( `tpcdsdb1gb_date_dim`.`d_year`=2002 AND ( `tpcdsdb1gb_catalog_sales`.`cs_ship_mode_sk`=`tpcdsdb1gb_ship_mode`.`sm_ship_mode_sk` AND ( `tpcdsdb1gb_catalog_sales`.`cs_sold_time_sk`=`tpcdsdb1gb_time_dim`.`t_time_sk` AND ( `tpcdsdb1gb_catalog_sales`.`cs_warehouse_sk`=`tpcdsdb1gb_warehouse`.`w_warehouse_sk` AND `tpcdsdb1gb_catalog_sales`.`cs_sold_date_sk`=`tpcdsdb1gb_date_dim`.`d_date_sk` ) ) ) ) ) ) GROUP BY `tpcdsdb1gb_warehouse`.`w_warehouse_name`, `tpcdsdb1gb_warehouse`.`w_warehouse_sq_ft`, `tpcdsdb1gb_warehouse`.`w_city`, `tpcdsdb1gb_warehouse`.`w_county`, `tpcdsdb1gb_warehouse`.`w_state`, `tpcdsdb1gb_warehouse`.`w_country`, `tpcdsdb1gb_date_dim`.`d_year`) `x` GROUP BY `x`.`w_warehouse_name`, `x`.`w_warehouse_sq_ft`, `x`.`w_city`, `x`.`w_county`, `x`.`w_state`, `x`.`w_country`, `x`.`ship_carriers`, `x`.`year` ORDER BY  `xw_warehouse_name`  ASC LIMIT 100.
+ERROR: 13:39:01.262 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 0, SQL state: org.apache.spark.sql.AnalysisException: cannot resolve '`x.xw_warehouse_sq_ft`' given input columns: [x.aug_sales, x.aug_net, x.jun_net, x.mar_net, x.apr_sales, x.mar_sales, x.nov_sales, x.oct_net, x.w_city, x.jan_net, x.feb_sales, x.w_county, x.year, x.w_warehouse_sq_ft, x.sep_sales, x.jan_sales, x.jun_sales, x.apr_net, x.may_sales, x.ship_carriers, x.dec_net, x.w_country, x.jul_sales, x.nov_net, x.oct_sales, x.dec_sales, x.may_net, x.w_warehouse_name, x.feb_net, x.w_state, x.jul_net, x.sep_net]; line 1 pos 694;
+'GlobalLimit 100
++- 'LocalLimit 100
+   +- 'Sort ['xw_warehouse_name ASC NULLS FIRST], true
+      +- 'Aggregate [w_warehouse_name#17453, w_warehouse_sq_ft#17454, w_city#17459, w_county#17460, w_state#17461, w_country#17463, ship_carriers#71800, year#71801], [w_warehouse_name#17453 AS xw_warehouse_name#71852, w_warehouse_sq_ft#17454 AS xw_warehouse_sq_ft#71853, w_city#17459 AS xw_city#71854, w_county#17460 AS xw_county#71855, w_state#17461 AS xw_state#71856, w_country#17463 AS xw_country#71857, ship_carriers#71800 AS xship_carriers#71858, year#71801 AS xyear#71859, sum(jan_sales#71802) AS jan_sales#71860, sum(feb_sales#71803) AS feb_sales#71861, sum(mar_sales#71804) AS mar_sales#71862, sum(apr_sales#71805) AS apr_sales#71863, sum(may_sales#71806) AS may_sales#71864, sum(jun_sales#71807) AS jun_sales#71865, sum(jul_sales#71808) AS jul_sales#71866, sum(aug_sales#71809) AS aug_sales#71867, sum(sep_sales#71810) AS sep_sales#71868, sum(oct_sales#71811) AS oct_sales#71869, sum(nov_sales#71812) AS nov_sales#71870, sum(dec_sales#71813) AS dec_sales#71871, 'SUM((jan_sales#71802 / 'x.xw_warehouse_sq_ft)) AS jan_sales_per_sq_foot#71872, 'SUM((feb_sales#71803 / 'x.xw_warehouse_sq_ft)) AS feb_sales_per_sq_foot#71873, 'SUM((mar_sales#71804 / 'x.xw_warehouse_sq_ft)) AS mar_sales_per_sq_foot#71874, 'SUM((apr_sales#71805 / 'x.xw_warehouse_sq_ft)) AS apr_sales_per_sq_foot#71875, ... 20 more fields]
+         +- SubqueryAlias `x`
+            +- Union
+               :- Aggregate [w_warehouse_name#17453, w_warehouse_sq_ft#17454, w_city#17459, w_county#17460, w_state#17461, w_country#17463, d_year#38], [w_warehouse_name#17453, w_warehouse_sq_ft#17454, w_city#17459, w_county#17460, w_state#17461, w_country#17463, concat(DIAMOND, ,, AIRBORNE) AS ship_carriers#71800, d_year#38 AS year#71801, sum(CASE WHEN (d_moy#40 = 1) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jan_sales#71802, sum(CASE WHEN (d_moy#40 = 2) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS feb_sales#71803, sum(CASE WHEN (d_moy#40 = 3) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS mar_sales#71804, sum(CASE WHEN (d_moy#40 = 4) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS apr_sales#71805, sum(CASE WHEN (d_moy#40 = 5) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS may_sales#71806, sum(CASE WHEN (d_moy#40 = 6) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jun_sales#71807, sum(CASE WHEN (d_moy#40 = 7) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jul_sales#71808, sum(CASE WHEN (d_moy#40 = 8) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS aug_sales#71809, sum(CASE WHEN (d_moy#40 = 9) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS sep_sales#71810, sum(CASE WHEN (d_moy#40 = 10) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS oct_sales#71811, sum(CASE WHEN (d_moy#40 = 11) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS nov_sales#71812, sum(CASE WHEN (d_moy#40 = 12) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS dec_sales#71813, sum(CASE WHEN (d_moy#40 = 1) THEN CheckOverflow((promote_precision(cast(ws_net_paid_inc_tax#557 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jan_net#71814, sum(CASE WHEN (d_moy#40 = 2) THEN CheckOverflow((promote_precision(cast(ws_net_paid_inc_tax#557 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS feb_net#71815, sum(CASE WHEN (d_moy#40 = 3) THEN CheckOverflow((promote_precision(cast(ws_net_paid_inc_tax#557 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS mar_net#71816, sum(CASE WHEN (d_moy#40 = 4) THEN CheckOverflow((promote_precision(cast(ws_net_paid_inc_tax#557 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS apr_net#71817, ... 8 more fields]
+               :  +- Filter (sm_carrier#51172 IN (DIAMOND,AIRBORNE) && (((t_time#70856 >= 49530) && (t_time#70856 <= (49530 + 28800))) && ((d_year#38 = 2002) && ((ws_ship_mode_sk#541 = sm_ship_mode_sk#51168) && ((ws_sold_time_sk#528 = t_time_sk#70854) && ((ws_warehouse_sk#542 = w_warehouse_sk#17451) && (ws_sold_date_sk#527 = d_date_sk#32)))))))
+               :     +- Join Cross
+               :        :- Join Cross
+               :        :  :- Join Cross
+               :        :  :  :- Join Cross
+               :        :  :  :  :- SubqueryAlias `tpcdsdb1gb_web_sales`
+               :        :  :  :  :  +- SubqueryAlias `tpcdsdb1gb`.`web_sales`
+               :        :  :  :  :     +- Relation[ws_sold_date_sk#527,ws_sold_time_sk#528,ws_ship_date_sk#529,ws_item_sk#530,ws_bill_customer_sk#531,ws_bill_cdemo_sk#532,ws_bill_hdemo_sk#533,ws_bill_addr_sk#534,ws_ship_customer_sk#535,ws_ship_cdemo_sk#536,ws_ship_hdemo_sk#537,ws_ship_addr_sk#538,ws_web_page_sk#539,ws_web_site_sk#540,ws_ship_mode_sk#541,ws_warehouse_sk#542,ws_promo_sk#543,ws_order_number#544,ws_quantity#545,ws_wholesale_cost#546,ws_list_price#547,ws_sales_price#548,ws_ext_discount_amt#549,ws_ext_sales_price#550,... 10 more fields] parquet
+               :        :  :  :  +- SubqueryAlias `tpcdsdb1gb_warehouse`
+               :        :  :  :     +- SubqueryAlias `tpcdsdb1gb`.`warehouse`
+               :        :  :  :        +- Relation[w_warehouse_sk#17451,w_warehouse_id#17452,w_warehouse_name#17453,w_warehouse_sq_ft#17454,w_street_number#17455,w_street_name#17456,w_street_type#17457,w_suite_number#17458,w_city#17459,w_county#17460,w_state#17461,w_zip#17462,w_country#17463,w_gmt_offset#17464] parquet
+               :        :  :  +- SubqueryAlias `tpcdsdb1gb_date_dim`
+               :        :  :     +- SubqueryAlias `tpcdsdb1gb`.`date_dim`
+               :        :  :        +- Relation[d_date_sk#32,d_date_id#33,d_date#34,d_month_seq#35,d_week_seq#36,d_quarter_seq#37,d_year#38,d_dow#39,d_moy#40,d_dom#41,d_qoy#42,d_fy_year#43,d_fy_quarter_seq#44,d_fy_week_seq#45,d_day_name#46,d_quarter_name#47,d_holiday#48,d_weekend#49,d_following_holiday#50,d_first_dom#51,d_last_dom#52,d_same_day_ly#53,d_same_day_lq#54,d_current_day#55,... 4 more fields] parquet
+               :        :  +- SubqueryAlias `tpcdsdb1gb_time_dim`
+               :        :     +- SubqueryAlias `tpcdsdb1gb`.`time_dim`
+               :        :        +- Relation[t_time_sk#70854,t_time_id#70855,t_time#70856,t_hour#70857,t_minute#70858,t_second#70859,t_am_pm#70860,t_shift#70861,t_sub_shift#70862,t_meal_time#70863] parquet
+               :        +- SubqueryAlias `tpcdsdb1gb_ship_mode`
+               :           +- SubqueryAlias `tpcdsdb1gb`.`ship_mode`
+               :              +- Relation[sm_ship_mode_sk#51168,sm_ship_mode_id#51169,sm_type#51170,sm_code#51171,sm_carrier#51172,sm_contract#51173] parquet
+               +- Aggregate [w_warehouse_name#17453, w_warehouse_sq_ft#17454, w_city#17459, w_county#17460, w_state#17461, w_country#17463, d_year#38], [w_warehouse_name#17453, w_warehouse_sq_ft#17454, w_city#17459, w_county#17460, w_state#17461, w_country#17463, concat(DIAMOND, ,, AIRBORNE) AS ship_carriers#71826, d_year#38 AS year#71827, sum(CASE WHEN (d_moy#40 = 1) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jan_sales#71828, sum(CASE WHEN (d_moy#40 = 2) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS feb_sales#71829, sum(CASE WHEN (d_moy#40 = 3) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS mar_sales#71830, sum(CASE WHEN (d_moy#40 = 4) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS apr_sales#71831, sum(CASE WHEN (d_moy#40 = 5) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS may_sales#71832, sum(CASE WHEN (d_moy#40 = 6) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jun_sales#71833, sum(CASE WHEN (d_moy#40 = 7) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jul_sales#71834, sum(CASE WHEN (d_moy#40 = 8) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS aug_sales#71835, sum(CASE WHEN (d_moy#40 = 9) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS sep_sales#71836, sum(CASE WHEN (d_moy#40 = 10) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS oct_sales#71837, sum(CASE WHEN (d_moy#40 = 11) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS nov_sales#71838, sum(CASE WHEN (d_moy#40 = 12) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS dec_sales#71839, sum(CASE WHEN (d_moy#40 = 1) THEN CheckOverflow((promote_precision(cast(cs_net_paid_inc_ship_tax#593 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jan_net#71840, sum(CASE WHEN (d_moy#40 = 2) THEN CheckOverflow((promote_precision(cast(cs_net_paid_inc_ship_tax#593 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS feb_net#71841, sum(CASE WHEN (d_moy#40 = 3) THEN CheckOverflow((promote_precision(cast(cs_net_paid_inc_ship_tax#593 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS mar_net#71842, sum(CASE WHEN (d_moy#40 = 4) THEN CheckOverflow((promote_precision(cast(cs_net_paid_inc_ship_tax#593 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS apr_net#71843, ... 8 more fields]
+                  +- Filter (sm_carrier#51172 IN (DIAMOND,AIRBORNE) && (((t_time#70856 >= 49530) && (t_time#70856 <= (49530 + 28800))) && ((d_year#38 = 2002) && ((cs_ship_mode_sk#574 = sm_ship_mode_sk#51168) && ((cs_sold_time_sk#562 = t_time_sk#70854) && ((cs_warehouse_sk#575 = w_warehouse_sk#17451) && (cs_sold_date_sk#561 = d_date_sk#32)))))))
+                     +- Join Cross
+                        :- Join Cross
+                        :  :- Join Cross
+                        :  :  :- Join Cross
+                        :  :  :  :- SubqueryAlias `tpcdsdb1gb_catalog_sales`
+                        :  :  :  :  +- SubqueryAlias `tpcdsdb1gb`.`catalog_sales`
+                        :  :  :  :     +- Relation[cs_sold_date_sk#561,cs_sold_time_sk#562,cs_ship_date_sk#563,cs_bill_customer_sk#564,cs_bill_cdemo_sk#565,cs_bill_hdemo_sk#566,cs_bill_addr_sk#567,cs_ship_customer_sk#568,cs_ship_cdemo_sk#569,cs_ship_hdemo_sk#570,cs_ship_addr_sk#571,cs_call_center_sk#572,cs_catalog_page_sk#573,cs_ship_mode_sk#574,cs_warehouse_sk#575,cs_item_sk#576,cs_promo_sk#577,cs_order_number#578,cs_quantity#579,cs_wholesale_cost#580,cs_list_price#581,cs_sales_price#582,cs_ext_discount_amt#583,cs_ext_sales_price#584,... 10 more fields] parquet
+                        :  :  :  +- SubqueryAlias `tpcdsdb1gb_warehouse`
+                        :  :  :     +- SubqueryAlias `tpcdsdb1gb`.`warehouse`
+                        :  :  :        +- Relation[w_warehouse_sk#17451,w_warehouse_id#17452,w_warehouse_name#17453,w_warehouse_sq_ft#17454,w_street_number#17455,w_street_name#17456,w_street_type#17457,w_suite_number#17458,w_city#17459,w_county#17460,w_state#17461,w_zip#17462,w_country#17463,w_gmt_offset#17464] parquet
+                        :  :  +- SubqueryAlias `tpcdsdb1gb_date_dim`
+                        :  :     +- SubqueryAlias `tpcdsdb1gb`.`date_dim`
+                        :  :        +- Relation[d_date_sk#32,d_date_id#33,d_date#34,d_month_seq#35,d_week_seq#36,d_quarter_seq#37,d_year#38,d_dow#39,d_moy#40,d_dom#41,d_qoy#42,d_fy_year#43,d_fy_quarter_seq#44,d_fy_week_seq#45,d_day_name#46,d_quarter_name#47,d_holiday#48,d_weekend#49,d_following_holiday#50,d_first_dom#51,d_last_dom#52,d_same_day_ly#53,d_same_day_lq#54,d_current_day#55,... 4 more fields] parquet
+                        :  +- SubqueryAlias `tpcdsdb1gb_time_dim`
+                        :     +- SubqueryAlias `tpcdsdb1gb`.`time_dim`
+                        :        +- Relation[t_time_sk#70854,t_time_id#70855,t_time#70856,t_hour#70857,t_minute#70858,t_second#70859,t_am_pm#70860,t_shift#70861,t_sub_shift#70862,t_meal_time#70863] parquet
+                        +- SubqueryAlias `tpcdsdb1gb_ship_mode`
+                           +- SubqueryAlias `tpcdsdb1gb`.`ship_mode`
+                              +- Relation[sm_ship_mode_sk#51168,sm_ship_mode_id#51169,sm_type#51170,sm_code#51171,sm_carrier#51172,sm_contract#51173] parquet
+, Query: SELECT `x`.`w_warehouse_name` `xw_warehouse_name`, `x`.`w_warehouse_sq_ft` `xw_warehouse_sq_ft`, `x`.`w_city` `xw_city`, `x`.`w_county` `xw_county`, `x`.`w_state` `xw_state`, `x`.`w_country` `xw_country`, `x`.`ship_carriers` `xship_carriers`, `x`.`year` `xyear`, SUM(`x`.`jan_sales`) `jan_sales`, SUM(`x`.`feb_sales`) `feb_sales`, SUM(`x`.`mar_sales`) `mar_sales`, SUM(`x`.`apr_sales`) `apr_sales`, SUM(`x`.`may_sales`) `may_sales`, SUM(`x`.`jun_sales`) `jun_sales`, SUM(`x`.`jul_sales`) `jul_sales`, SUM(`x`.`aug_sales`) `aug_sales`, SUM(`x`.`sep_sales`) `sep_sales`, SUM(`x`.`oct_sales`) `oct_sales`, SUM(`x`.`nov_sales`) `nov_sales`, SUM(`x`.`dec_sales`) `dec_sales`, SUM((`x`.`jan_sales` / `x`.`xw_warehouse_sq_ft`)) `jan_sales_per_sq_foot`, SUM((`x`.`feb_sales` / `x`.`xw_warehouse_sq_ft`)) `feb_sales_per_sq_foot`, SUM((`x`.`mar_sales` / `x`.`xw_warehouse_sq_ft`)) `mar_sales_per_sq_foot`, SUM((`x`.`apr_sales` / `x`.`xw_warehouse_sq_ft`)) `apr_sales_per_sq_foot`, SUM((`x`.`may_sales` / `x`.`xw_warehouse_sq_ft`)) `may_sales_per_sq_foot`, SUM((`x`.`jun_sales` / `x`.`xw_warehouse_sq_ft`)) `jun_sales_per_sq_foot`, SUM((`x`.`jul_sales` / `x`.`xw_warehouse_sq_ft`)) `jul_sales_per_sq_foot`, SUM((`x`.`aug_sales` / `x`.`xw_warehouse_sq_ft`)) `aug_sales_per_sq_foot`, SUM((`x`.`sep_sales` / `x`.`xw_warehouse_sq_ft`)) `sep_sales_per_sq_foot`, SUM((`x`.`oct_sales` / `x`.`xw_warehouse_sq_ft`)) `oct_sales_per_sq_foot`, SUM((`x`.`nov_sales` / `x`.`xw_warehouse_sq_ft`)) `nov_sales_per_sq_foot`, SUM((`x`.`dec_sales` / `x`.`xw_warehouse_sq_ft`)) `dec_sales_per_sq_foot`, SUM(`x`.`jan_net`) `jan_net`, SUM(`x`.`feb_net`) `feb_net`, SUM(`x`.`mar_net`) `mar_net`, SUM(`x`.`apr_net`) `apr_net`, SUM(`x`.`may_net`) `may_net`, SUM(`x`.`jun_net`) `jun_net`, SUM(`x`.`jul_net`) `jul_net`, SUM(`x`.`aug_net`) `aug_net`, SUM(`x`.`sep_net`) `sep_net`, SUM(`x`.`oct_net`) `oct_net`, SUM(`x`.`nov_net`) `nov_net`, SUM(`x`.`dec_net`) `dec_net` FROM (SELECT `tpcdsdb1gb_warehouse`.`w_warehouse_name`, `tpcdsdb1gb_warehouse`.`w_warehouse_sq_ft`, `tpcdsdb1gb_warehouse`.`w_city`, `tpcdsdb1gb_warehouse`.`w_county`, `tpcdsdb1gb_warehouse`.`w_state`, `tpcdsdb1gb_warehouse`.`w_country`, CONCAT('DIAMOND', ',', 'AIRBORNE') `ship_carriers`, `tpcdsdb1gb_date_dim`.`d_year` `year`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=1 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jan_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=2 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `feb_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=3 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `mar_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=4 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `apr_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=5 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `may_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=6 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jun_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=7 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jul_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=8 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `aug_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=9 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `sep_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=10 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `oct_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=11 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `nov_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=12 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `dec_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=1 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jan_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=2 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `feb_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=3 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `mar_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=4 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `apr_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=5 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `may_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=6 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jun_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=7 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jul_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=8 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `aug_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=9 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `sep_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=10 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `oct_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=11 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `nov_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=12 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `dec_net` FROM `tpcdsdb1gb`.`web_sales` `tpcdsdb1gb_web_sales` CROSS JOIN `tpcdsdb1gb`.`warehouse` `tpcdsdb1gb_warehouse` CROSS JOIN `tpcdsdb1gb`.`date_dim` `tpcdsdb1gb_date_dim` CROSS JOIN `tpcdsdb1gb`.`time_dim` `tpcdsdb1gb_time_dim` CROSS JOIN `tpcdsdb1gb`.`ship_mode` `tpcdsdb1gb_ship_mode` WHERE ( (`tpcdsdb1gb_ship_mode`.`sm_carrier` IN ('DIAMOND', 'AIRBORNE')) AND ( ( `tpcdsdb1gb_time_dim`.`t_time`>=49530 AND `tpcdsdb1gb_time_dim`.`t_time`<=(49530 + 28800) ) AND ( `tpcdsdb1gb_date_dim`.`d_year`=2002 AND ( `tpcdsdb1gb_web_sales`.`ws_ship_mode_sk`=`tpcdsdb1gb_ship_mode`.`sm_ship_mode_sk` AND ( `tpcdsdb1gb_web_sales`.`ws_sold_time_sk`=`tpcdsdb1gb_time_dim`.`t_time_sk` AND ( `tpcdsdb1gb_web_sales`.`ws_warehouse_sk`=`tpcdsdb1gb_warehouse`.`w_warehouse_sk` AND `tpcdsdb1gb_web_sales`.`ws_sold_date_sk`=`tpcdsdb1gb_date_dim`.`d_date_sk` ) ) ) ) ) ) GROUP BY `tpcdsdb1gb_warehouse`.`w_warehouse_name`, `tpcdsdb1gb_warehouse`.`w_warehouse_sq_ft`, `tpcdsdb1gb_warehouse`.`w_city`, `tpcdsdb1gb_warehouse`.`w_county`, `tpcdsdb1gb_warehouse`.`w_state`, `tpcdsdb1gb_warehouse`.`w_country`, `tpcdsdb1gb_date_dim`.`d_year` UNION ALL SELECT `tpcdsdb1gb_warehouse`.`w_warehouse_name`, `tpcdsdb1gb_warehouse`.`w_warehouse_sq_ft`, `tpcdsdb1gb_warehouse`.`w_city`, `tpcdsdb1gb_warehouse`.`w_county`, `tpcdsdb1gb_warehouse`.`w_state`, `tpcdsdb1gb_warehouse`.`w_country`, CONCAT('DIAMOND', ',', 'AIRBORNE') `ship_carriers`, `tpcdsdb1gb_date_dim`.`d_year` `year`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=1 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jan_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=2 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `feb_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=3 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `mar_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=4 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `apr_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=5 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `may_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=6 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jun_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=7 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jul_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=8 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `aug_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=9 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `sep_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=10 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `oct_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=11 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `nov_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=12 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `dec_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=1 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jan_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=2 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `feb_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=3 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `mar_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=4 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `apr_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=5 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `may_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=6 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jun_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=7 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jul_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=8 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `aug_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=9 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `sep_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=10 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `oct_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=11 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `nov_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=12 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `dec_net` FROM `tpcdsdb1gb`.`catalog_sales` `tpcdsdb1gb_catalog_sales` CROSS JOIN `tpcdsdb1gb`.`warehouse` `tpcdsdb1gb_warehouse` CROSS JOIN `tpcdsdb1gb`.`date_dim` `tpcdsdb1gb_date_dim` CROSS JOIN `tpcdsdb1gb`.`time_dim` `tpcdsdb1gb_time_dim` CROSS JOIN `tpcdsdb1gb`.`ship_mode` `tpcdsdb1gb_ship_mode` WHERE ( (`tpcdsdb1gb_ship_mode`.`sm_carrier` IN ('DIAMOND', 'AIRBORNE')) AND ( ( `tpcdsdb1gb_time_dim`.`t_time`>=49530 AND `tpcdsdb1gb_time_dim`.`t_time`<=(49530 + 28800) ) AND ( `tpcdsdb1gb_date_dim`.`d_year`=2002 AND ( `tpcdsdb1gb_catalog_sales`.`cs_ship_mode_sk`=`tpcdsdb1gb_ship_mode`.`sm_ship_mode_sk` AND ( `tpcdsdb1gb_catalog_sales`.`cs_sold_time_sk`=`tpcdsdb1gb_time_dim`.`t_time_sk` AND ( `tpcdsdb1gb_catalog_sales`.`cs_warehouse_sk`=`tpcdsdb1gb_warehouse`.`w_warehouse_sk` AND `tpcdsdb1gb_catalog_sales`.`cs_sold_date_sk`=`tpcdsdb1gb_date_dim`.`d_date_sk` ) ) ) ) ) ) GROUP BY `tpcdsdb1gb_warehouse`.`w_warehouse_name`, `tpcdsdb1gb_warehouse`.`w_warehouse_sq_ft`, `tpcdsdb1gb_warehouse`.`w_city`, `tpcdsdb1gb_warehouse`.`w_county`, `tpcdsdb1gb_warehouse`.`w_state`, `tpcdsdb1gb_warehouse`.`w_country`, `tpcdsdb1gb_date_dim`.`d_year`) `x` GROUP BY `x`.`w_warehouse_name`, `x`.`w_warehouse_sq_ft`, `x`.`w_city`, `x`.`w_county`, `x`.`w_state`, `x`.`w_country`, `x`.`ship_carriers`, `x`.`year` ORDER BY  `xw_warehouse_name`  ASC LIMIT 100.
+	at com.simba.spark.hivecommon.api.HS2Client.pollForOperationCompletion(Unknown Source)
+	at com.simba.spark.hivecommon.api.HS2Client.executeStatementInternal(Unknown Source)
+	at com.simba.spark.hivecommon.api.HS2Client.executeStatement(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCNativeQueryExecutor.executeQuery(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCDSIExtQueryExecutor.execute(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeQuery(Unknown Source)
+	at com.simba.spark.hivecommon.jdbc41.Hive41Statement.executeQuery(Unknown Source)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryMultipleCalls(ExecuteQueries.java:240)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryFile(ExecuteQueries.java:167)
+	at org.bsc.dcc.vcv.ExecuteQueries.main(ExecuteQueries.java:143)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:282)
+Caused by: com.simba.spark.support.exceptions.GeneralException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 0, SQL state: org.apache.spark.sql.AnalysisException: cannot resolve '`x.xw_warehouse_sq_ft`' given input columns: [x.aug_sales, x.aug_net, x.jun_net, x.mar_net, x.apr_sales, x.mar_sales, x.nov_sales, x.oct_net, x.w_city, x.jan_net, x.feb_sales, x.w_county, x.year, x.w_warehouse_sq_ft, x.sep_sales, x.jan_sales, x.jun_sales, x.apr_net, x.may_sales, x.ship_carriers, x.dec_net, x.w_country, x.jul_sales, x.nov_net, x.oct_sales, x.dec_sales, x.may_net, x.w_warehouse_name, x.feb_net, x.w_state, x.jul_net, x.sep_net]; line 1 pos 694;
+'GlobalLimit 100
++- 'LocalLimit 100
+   +- 'Sort ['xw_warehouse_name ASC NULLS FIRST], true
+      +- 'Aggregate [w_warehouse_name#17453, w_warehouse_sq_ft#17454, w_city#17459, w_county#17460, w_state#17461, w_country#17463, ship_carriers#71800, year#71801], [w_warehouse_name#17453 AS xw_warehouse_name#71852, w_warehouse_sq_ft#17454 AS xw_warehouse_sq_ft#71853, w_city#17459 AS xw_city#71854, w_county#17460 AS xw_county#71855, w_state#17461 AS xw_state#71856, w_country#17463 AS xw_country#71857, ship_carriers#71800 AS xship_carriers#71858, year#71801 AS xyear#71859, sum(jan_sales#71802) AS jan_sales#71860, sum(feb_sales#71803) AS feb_sales#71861, sum(mar_sales#71804) AS mar_sales#71862, sum(apr_sales#71805) AS apr_sales#71863, sum(may_sales#71806) AS may_sales#71864, sum(jun_sales#71807) AS jun_sales#71865, sum(jul_sales#71808) AS jul_sales#71866, sum(aug_sales#71809) AS aug_sales#71867, sum(sep_sales#71810) AS sep_sales#71868, sum(oct_sales#71811) AS oct_sales#71869, sum(nov_sales#71812) AS nov_sales#71870, sum(dec_sales#71813) AS dec_sales#71871, 'SUM((jan_sales#71802 / 'x.xw_warehouse_sq_ft)) AS jan_sales_per_sq_foot#71872, 'SUM((feb_sales#71803 / 'x.xw_warehouse_sq_ft)) AS feb_sales_per_sq_foot#71873, 'SUM((mar_sales#71804 / 'x.xw_warehouse_sq_ft)) AS mar_sales_per_sq_foot#71874, 'SUM((apr_sales#71805 / 'x.xw_warehouse_sq_ft)) AS apr_sales_per_sq_foot#71875, ... 20 more fields]
+         +- SubqueryAlias `x`
+            +- Union
+               :- Aggregate [w_warehouse_name#17453, w_warehouse_sq_ft#17454, w_city#17459, w_county#17460, w_state#17461, w_country#17463, d_year#38], [w_warehouse_name#17453, w_warehouse_sq_ft#17454, w_city#17459, w_county#17460, w_state#17461, w_country#17463, concat(DIAMOND, ,, AIRBORNE) AS ship_carriers#71800, d_year#38 AS year#71801, sum(CASE WHEN (d_moy#40 = 1) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jan_sales#71802, sum(CASE WHEN (d_moy#40 = 2) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS feb_sales#71803, sum(CASE WHEN (d_moy#40 = 3) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS mar_sales#71804, sum(CASE WHEN (d_moy#40 = 4) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS apr_sales#71805, sum(CASE WHEN (d_moy#40 = 5) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS may_sales#71806, sum(CASE WHEN (d_moy#40 = 6) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jun_sales#71807, sum(CASE WHEN (d_moy#40 = 7) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jul_sales#71808, sum(CASE WHEN (d_moy#40 = 8) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS aug_sales#71809, sum(CASE WHEN (d_moy#40 = 9) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS sep_sales#71810, sum(CASE WHEN (d_moy#40 = 10) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS oct_sales#71811, sum(CASE WHEN (d_moy#40 = 11) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS nov_sales#71812, sum(CASE WHEN (d_moy#40 = 12) THEN CheckOverflow((promote_precision(cast(ws_sales_price#548 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS dec_sales#71813, sum(CASE WHEN (d_moy#40 = 1) THEN CheckOverflow((promote_precision(cast(ws_net_paid_inc_tax#557 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jan_net#71814, sum(CASE WHEN (d_moy#40 = 2) THEN CheckOverflow((promote_precision(cast(ws_net_paid_inc_tax#557 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS feb_net#71815, sum(CASE WHEN (d_moy#40 = 3) THEN CheckOverflow((promote_precision(cast(ws_net_paid_inc_tax#557 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS mar_net#71816, sum(CASE WHEN (d_moy#40 = 4) THEN CheckOverflow((promote_precision(cast(ws_net_paid_inc_tax#557 as decimal(12,2))) * promote_precision(cast(cast(ws_quantity#545 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS apr_net#71817, ... 8 more fields]
+               :  +- Filter (sm_carrier#51172 IN (DIAMOND,AIRBORNE) && (((t_time#70856 >= 49530) && (t_time#70856 <= (49530 + 28800))) && ((d_year#38 = 2002) && ((ws_ship_mode_sk#541 = sm_ship_mode_sk#51168) && ((ws_sold_time_sk#528 = t_time_sk#70854) && ((ws_warehouse_sk#542 = w_warehouse_sk#17451) && (ws_sold_date_sk#527 = d_date_sk#32)))))))
+               :     +- Join Cross
+               :        :- Join Cross
+               :        :  :- Join Cross
+               :        :  :  :- Join Cross
+               :        :  :  :  :- SubqueryAlias `tpcdsdb1gb_web_sales`
+               :        :  :  :  :  +- SubqueryAlias `tpcdsdb1gb`.`web_sales`
+               :        :  :  :  :     +- Relation[ws_sold_date_sk#527,ws_sold_time_sk#528,ws_ship_date_sk#529,ws_item_sk#530,ws_bill_customer_sk#531,ws_bill_cdemo_sk#532,ws_bill_hdemo_sk#533,ws_bill_addr_sk#534,ws_ship_customer_sk#535,ws_ship_cdemo_sk#536,ws_ship_hdemo_sk#537,ws_ship_addr_sk#538,ws_web_page_sk#539,ws_web_site_sk#540,ws_ship_mode_sk#541,ws_warehouse_sk#542,ws_promo_sk#543,ws_order_number#544,ws_quantity#545,ws_wholesale_cost#546,ws_list_price#547,ws_sales_price#548,ws_ext_discount_amt#549,ws_ext_sales_price#550,... 10 more fields] parquet
+               :        :  :  :  +- SubqueryAlias `tpcdsdb1gb_warehouse`
+               :        :  :  :     +- SubqueryAlias `tpcdsdb1gb`.`warehouse`
+               :        :  :  :        +- Relation[w_warehouse_sk#17451,w_warehouse_id#17452,w_warehouse_name#17453,w_warehouse_sq_ft#17454,w_street_number#17455,w_street_name#17456,w_street_type#17457,w_suite_number#17458,w_city#17459,w_county#17460,w_state#17461,w_zip#17462,w_country#17463,w_gmt_offset#17464] parquet
+               :        :  :  +- SubqueryAlias `tpcdsdb1gb_date_dim`
+               :        :  :     +- SubqueryAlias `tpcdsdb1gb`.`date_dim`
+               :        :  :        +- Relation[d_date_sk#32,d_date_id#33,d_date#34,d_month_seq#35,d_week_seq#36,d_quarter_seq#37,d_year#38,d_dow#39,d_moy#40,d_dom#41,d_qoy#42,d_fy_year#43,d_fy_quarter_seq#44,d_fy_week_seq#45,d_day_name#46,d_quarter_name#47,d_holiday#48,d_weekend#49,d_following_holiday#50,d_first_dom#51,d_last_dom#52,d_same_day_ly#53,d_same_day_lq#54,d_current_day#55,... 4 more fields] parquet
+               :        :  +- SubqueryAlias `tpcdsdb1gb_time_dim`
+               :        :     +- SubqueryAlias `tpcdsdb1gb`.`time_dim`
+               :        :        +- Relation[t_time_sk#70854,t_time_id#70855,t_time#70856,t_hour#70857,t_minute#70858,t_second#70859,t_am_pm#70860,t_shift#70861,t_sub_shift#70862,t_meal_time#70863] parquet
+               :        +- SubqueryAlias `tpcdsdb1gb_ship_mode`
+               :           +- SubqueryAlias `tpcdsdb1gb`.`ship_mode`
+               :              +- Relation[sm_ship_mode_sk#51168,sm_ship_mode_id#51169,sm_type#51170,sm_code#51171,sm_carrier#51172,sm_contract#51173] parquet
+               +- Aggregate [w_warehouse_name#17453, w_warehouse_sq_ft#17454, w_city#17459, w_county#17460, w_state#17461, w_country#17463, d_year#38], [w_warehouse_name#17453, w_warehouse_sq_ft#17454, w_city#17459, w_county#17460, w_state#17461, w_country#17463, concat(DIAMOND, ,, AIRBORNE) AS ship_carriers#71826, d_year#38 AS year#71827, sum(CASE WHEN (d_moy#40 = 1) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jan_sales#71828, sum(CASE WHEN (d_moy#40 = 2) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS feb_sales#71829, sum(CASE WHEN (d_moy#40 = 3) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS mar_sales#71830, sum(CASE WHEN (d_moy#40 = 4) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS apr_sales#71831, sum(CASE WHEN (d_moy#40 = 5) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS may_sales#71832, sum(CASE WHEN (d_moy#40 = 6) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jun_sales#71833, sum(CASE WHEN (d_moy#40 = 7) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jul_sales#71834, sum(CASE WHEN (d_moy#40 = 8) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS aug_sales#71835, sum(CASE WHEN (d_moy#40 = 9) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS sep_sales#71836, sum(CASE WHEN (d_moy#40 = 10) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS oct_sales#71837, sum(CASE WHEN (d_moy#40 = 11) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS nov_sales#71838, sum(CASE WHEN (d_moy#40 = 12) THEN CheckOverflow((promote_precision(cast(cs_ext_sales_price#584 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS dec_sales#71839, sum(CASE WHEN (d_moy#40 = 1) THEN CheckOverflow((promote_precision(cast(cs_net_paid_inc_ship_tax#593 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS jan_net#71840, sum(CASE WHEN (d_moy#40 = 2) THEN CheckOverflow((promote_precision(cast(cs_net_paid_inc_ship_tax#593 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS feb_net#71841, sum(CASE WHEN (d_moy#40 = 3) THEN CheckOverflow((promote_precision(cast(cs_net_paid_inc_ship_tax#593 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS mar_net#71842, sum(CASE WHEN (d_moy#40 = 4) THEN CheckOverflow((promote_precision(cast(cs_net_paid_inc_ship_tax#593 as decimal(12,2))) * promote_precision(cast(cast(cs_quantity#579 as decimal(10,0)) as decimal(12,2)))), DecimalType(18,2)) ELSE cast(0 as decimal(18,2)) END) AS apr_net#71843, ... 8 more fields]
+                  +- Filter (sm_carrier#51172 IN (DIAMOND,AIRBORNE) && (((t_time#70856 >= 49530) && (t_time#70856 <= (49530 + 28800))) && ((d_year#38 = 2002) && ((cs_ship_mode_sk#574 = sm_ship_mode_sk#51168) && ((cs_sold_time_sk#562 = t_time_sk#70854) && ((cs_warehouse_sk#575 = w_warehouse_sk#17451) && (cs_sold_date_sk#561 = d_date_sk#32)))))))
+                     +- Join Cross
+                        :- Join Cross
+                        :  :- Join Cross
+                        :  :  :- Join Cross
+                        :  :  :  :- SubqueryAlias `tpcdsdb1gb_catalog_sales`
+                        :  :  :  :  +- SubqueryAlias `tpcdsdb1gb`.`catalog_sales`
+                        :  :  :  :     +- Relation[cs_sold_date_sk#561,cs_sold_time_sk#562,cs_ship_date_sk#563,cs_bill_customer_sk#564,cs_bill_cdemo_sk#565,cs_bill_hdemo_sk#566,cs_bill_addr_sk#567,cs_ship_customer_sk#568,cs_ship_cdemo_sk#569,cs_ship_hdemo_sk#570,cs_ship_addr_sk#571,cs_call_center_sk#572,cs_catalog_page_sk#573,cs_ship_mode_sk#574,cs_warehouse_sk#575,cs_item_sk#576,cs_promo_sk#577,cs_order_number#578,cs_quantity#579,cs_wholesale_cost#580,cs_list_price#581,cs_sales_price#582,cs_ext_discount_amt#583,cs_ext_sales_price#584,... 10 more fields] parquet
+                        :  :  :  +- SubqueryAlias `tpcdsdb1gb_warehouse`
+                        :  :  :     +- SubqueryAlias `tpcdsdb1gb`.`warehouse`
+                        :  :  :        +- Relation[w_warehouse_sk#17451,w_warehouse_id#17452,w_warehouse_name#17453,w_warehouse_sq_ft#17454,w_street_number#17455,w_street_name#17456,w_street_type#17457,w_suite_number#17458,w_city#17459,w_county#17460,w_state#17461,w_zip#17462,w_country#17463,w_gmt_offset#17464] parquet
+                        :  :  +- SubqueryAlias `tpcdsdb1gb_date_dim`
+                        :  :     +- SubqueryAlias `tpcdsdb1gb`.`date_dim`
+                        :  :        +- Relation[d_date_sk#32,d_date_id#33,d_date#34,d_month_seq#35,d_week_seq#36,d_quarter_seq#37,d_year#38,d_dow#39,d_moy#40,d_dom#41,d_qoy#42,d_fy_year#43,d_fy_quarter_seq#44,d_fy_week_seq#45,d_day_name#46,d_quarter_name#47,d_holiday#48,d_weekend#49,d_following_holiday#50,d_first_dom#51,d_last_dom#52,d_same_day_ly#53,d_same_day_lq#54,d_current_day#55,... 4 more fields] parquet
+                        :  +- SubqueryAlias `tpcdsdb1gb_time_dim`
+                        :     +- SubqueryAlias `tpcdsdb1gb`.`time_dim`
+                        :        +- Relation[t_time_sk#70854,t_time_id#70855,t_time#70856,t_hour#70857,t_minute#70858,t_second#70859,t_am_pm#70860,t_shift#70861,t_sub_shift#70862,t_meal_time#70863] parquet
+                        +- SubqueryAlias `tpcdsdb1gb_ship_mode`
+                           +- SubqueryAlias `tpcdsdb1gb`.`ship_mode`
+                              +- Relation[sm_ship_mode_sk#51168,sm_ship_mode_id#51169,sm_type#51170,sm_code#51171,sm_carrier#51172,sm_contract#51173] parquet
+, Query: SELECT `x`.`w_warehouse_name` `xw_warehouse_name`, `x`.`w_warehouse_sq_ft` `xw_warehouse_sq_ft`, `x`.`w_city` `xw_city`, `x`.`w_county` `xw_county`, `x`.`w_state` `xw_state`, `x`.`w_country` `xw_country`, `x`.`ship_carriers` `xship_carriers`, `x`.`year` `xyear`, SUM(`x`.`jan_sales`) `jan_sales`, SUM(`x`.`feb_sales`) `feb_sales`, SUM(`x`.`mar_sales`) `mar_sales`, SUM(`x`.`apr_sales`) `apr_sales`, SUM(`x`.`may_sales`) `may_sales`, SUM(`x`.`jun_sales`) `jun_sales`, SUM(`x`.`jul_sales`) `jul_sales`, SUM(`x`.`aug_sales`) `aug_sales`, SUM(`x`.`sep_sales`) `sep_sales`, SUM(`x`.`oct_sales`) `oct_sales`, SUM(`x`.`nov_sales`) `nov_sales`, SUM(`x`.`dec_sales`) `dec_sales`, SUM((`x`.`jan_sales` / `x`.`xw_warehouse_sq_ft`)) `jan_sales_per_sq_foot`, SUM((`x`.`feb_sales` / `x`.`xw_warehouse_sq_ft`)) `feb_sales_per_sq_foot`, SUM((`x`.`mar_sales` / `x`.`xw_warehouse_sq_ft`)) `mar_sales_per_sq_foot`, SUM((`x`.`apr_sales` / `x`.`xw_warehouse_sq_ft`)) `apr_sales_per_sq_foot`, SUM((`x`.`may_sales` / `x`.`xw_warehouse_sq_ft`)) `may_sales_per_sq_foot`, SUM((`x`.`jun_sales` / `x`.`xw_warehouse_sq_ft`)) `jun_sales_per_sq_foot`, SUM((`x`.`jul_sales` / `x`.`xw_warehouse_sq_ft`)) `jul_sales_per_sq_foot`, SUM((`x`.`aug_sales` / `x`.`xw_warehouse_sq_ft`)) `aug_sales_per_sq_foot`, SUM((`x`.`sep_sales` / `x`.`xw_warehouse_sq_ft`)) `sep_sales_per_sq_foot`, SUM((`x`.`oct_sales` / `x`.`xw_warehouse_sq_ft`)) `oct_sales_per_sq_foot`, SUM((`x`.`nov_sales` / `x`.`xw_warehouse_sq_ft`)) `nov_sales_per_sq_foot`, SUM((`x`.`dec_sales` / `x`.`xw_warehouse_sq_ft`)) `dec_sales_per_sq_foot`, SUM(`x`.`jan_net`) `jan_net`, SUM(`x`.`feb_net`) `feb_net`, SUM(`x`.`mar_net`) `mar_net`, SUM(`x`.`apr_net`) `apr_net`, SUM(`x`.`may_net`) `may_net`, SUM(`x`.`jun_net`) `jun_net`, SUM(`x`.`jul_net`) `jul_net`, SUM(`x`.`aug_net`) `aug_net`, SUM(`x`.`sep_net`) `sep_net`, SUM(`x`.`oct_net`) `oct_net`, SUM(`x`.`nov_net`) `nov_net`, SUM(`x`.`dec_net`) `dec_net` FROM (SELECT `tpcdsdb1gb_warehouse`.`w_warehouse_name`, `tpcdsdb1gb_warehouse`.`w_warehouse_sq_ft`, `tpcdsdb1gb_warehouse`.`w_city`, `tpcdsdb1gb_warehouse`.`w_county`, `tpcdsdb1gb_warehouse`.`w_state`, `tpcdsdb1gb_warehouse`.`w_country`, CONCAT('DIAMOND', ',', 'AIRBORNE') `ship_carriers`, `tpcdsdb1gb_date_dim`.`d_year` `year`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=1 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jan_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=2 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `feb_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=3 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `mar_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=4 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `apr_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=5 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `may_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=6 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jun_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=7 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jul_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=8 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `aug_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=9 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `sep_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=10 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `oct_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=11 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `nov_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=12 THEN (`tpcdsdb1gb_web_sales`.`ws_sales_price` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `dec_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=1 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jan_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=2 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `feb_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=3 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `mar_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=4 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `apr_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=5 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `may_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=6 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jun_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=7 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `jul_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=8 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `aug_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=9 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `sep_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=10 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `oct_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=11 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `nov_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=12 THEN (`tpcdsdb1gb_web_sales`.`ws_net_paid_inc_tax` * `tpcdsdb1gb_web_sales`.`ws_quantity`) ELSE 0 END)) `dec_net` FROM `tpcdsdb1gb`.`web_sales` `tpcdsdb1gb_web_sales` CROSS JOIN `tpcdsdb1gb`.`warehouse` `tpcdsdb1gb_warehouse` CROSS JOIN `tpcdsdb1gb`.`date_dim` `tpcdsdb1gb_date_dim` CROSS JOIN `tpcdsdb1gb`.`time_dim` `tpcdsdb1gb_time_dim` CROSS JOIN `tpcdsdb1gb`.`ship_mode` `tpcdsdb1gb_ship_mode` WHERE ( (`tpcdsdb1gb_ship_mode`.`sm_carrier` IN ('DIAMOND', 'AIRBORNE')) AND ( ( `tpcdsdb1gb_time_dim`.`t_time`>=49530 AND `tpcdsdb1gb_time_dim`.`t_time`<=(49530 + 28800) ) AND ( `tpcdsdb1gb_date_dim`.`d_year`=2002 AND ( `tpcdsdb1gb_web_sales`.`ws_ship_mode_sk`=`tpcdsdb1gb_ship_mode`.`sm_ship_mode_sk` AND ( `tpcdsdb1gb_web_sales`.`ws_sold_time_sk`=`tpcdsdb1gb_time_dim`.`t_time_sk` AND ( `tpcdsdb1gb_web_sales`.`ws_warehouse_sk`=`tpcdsdb1gb_warehouse`.`w_warehouse_sk` AND `tpcdsdb1gb_web_sales`.`ws_sold_date_sk`=`tpcdsdb1gb_date_dim`.`d_date_sk` ) ) ) ) ) ) GROUP BY `tpcdsdb1gb_warehouse`.`w_warehouse_name`, `tpcdsdb1gb_warehouse`.`w_warehouse_sq_ft`, `tpcdsdb1gb_warehouse`.`w_city`, `tpcdsdb1gb_warehouse`.`w_county`, `tpcdsdb1gb_warehouse`.`w_state`, `tpcdsdb1gb_warehouse`.`w_country`, `tpcdsdb1gb_date_dim`.`d_year` UNION ALL SELECT `tpcdsdb1gb_warehouse`.`w_warehouse_name`, `tpcdsdb1gb_warehouse`.`w_warehouse_sq_ft`, `tpcdsdb1gb_warehouse`.`w_city`, `tpcdsdb1gb_warehouse`.`w_county`, `tpcdsdb1gb_warehouse`.`w_state`, `tpcdsdb1gb_warehouse`.`w_country`, CONCAT('DIAMOND', ',', 'AIRBORNE') `ship_carriers`, `tpcdsdb1gb_date_dim`.`d_year` `year`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=1 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jan_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=2 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `feb_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=3 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `mar_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=4 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `apr_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=5 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `may_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=6 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jun_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=7 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jul_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=8 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `aug_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=9 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `sep_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=10 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `oct_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=11 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `nov_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=12 THEN (`tpcdsdb1gb_catalog_sales`.`cs_ext_sales_price` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `dec_sales`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=1 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jan_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=2 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `feb_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=3 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `mar_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=4 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `apr_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=5 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `may_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=6 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jun_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=7 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `jul_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=8 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `aug_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=9 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `sep_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=10 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `oct_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=11 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `nov_net`, SUM((CASE WHEN `tpcdsdb1gb_date_dim`.`d_moy`=12 THEN (`tpcdsdb1gb_catalog_sales`.`cs_net_paid_inc_ship_tax` * `tpcdsdb1gb_catalog_sales`.`cs_quantity`) ELSE 0 END)) `dec_net` FROM `tpcdsdb1gb`.`catalog_sales` `tpcdsdb1gb_catalog_sales` CROSS JOIN `tpcdsdb1gb`.`warehouse` `tpcdsdb1gb_warehouse` CROSS JOIN `tpcdsdb1gb`.`date_dim` `tpcdsdb1gb_date_dim` CROSS JOIN `tpcdsdb1gb`.`time_dim` `tpcdsdb1gb_time_dim` CROSS JOIN `tpcdsdb1gb`.`ship_mode` `tpcdsdb1gb_ship_mode` WHERE ( (`tpcdsdb1gb_ship_mode`.`sm_carrier` IN ('DIAMOND', 'AIRBORNE')) AND ( ( `tpcdsdb1gb_time_dim`.`t_time`>=49530 AND `tpcdsdb1gb_time_dim`.`t_time`<=(49530 + 28800) ) AND ( `tpcdsdb1gb_date_dim`.`d_year`=2002 AND ( `tpcdsdb1gb_catalog_sales`.`cs_ship_mode_sk`=`tpcdsdb1gb_ship_mode`.`sm_ship_mode_sk` AND ( `tpcdsdb1gb_catalog_sales`.`cs_sold_time_sk`=`tpcdsdb1gb_time_dim`.`t_time_sk` AND ( `tpcdsdb1gb_catalog_sales`.`cs_warehouse_sk`=`tpcdsdb1gb_warehouse`.`w_warehouse_sk` AND `tpcdsdb1gb_catalog_sales`.`cs_sold_date_sk`=`tpcdsdb1gb_date_dim`.`d_date_sk` ) ) ) ) ) ) GROUP BY `tpcdsdb1gb_warehouse`.`w_warehouse_name`, `tpcdsdb1gb_warehouse`.`w_warehouse_sq_ft`, `tpcdsdb1gb_warehouse`.`w_city`, `tpcdsdb1gb_warehouse`.`w_county`, `tpcdsdb1gb_warehouse`.`w_state`, `tpcdsdb1gb_warehouse`.`w_country`, `tpcdsdb1gb_date_dim`.`d_year`) `x` GROUP BY `x`.`w_warehouse_name`, `x`.`w_warehouse_sq_ft`, `x`.`w_city`, `x`.`w_county`, `x`.`w_state`, `x`.`w_country`, `x`.`ship_carriers`, `x`.`year` ORDER BY  `xw_warehouse_name`  ASC LIMIT 100.
+	... 17 more
+
+INFO : 13:39:01.264 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query67.sql
+
+INFO : 13:39:07.915 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query68.sql
+
+INFO : 13:39:11.675 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query69.sql
+
+ERROR: 13:39:14.721 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEExistsPredicate is not supported.
+ERROR: 13:39:14.721 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEExistsPredicate is not supported.
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.defaultVisit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.defaultVisit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.AEDefaultVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.bool.AEExistsPredicate.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.bool.AEAnd.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.bool.AEAnd.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AESelect.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AEAggregate.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visitProject(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AESort.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AETop.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visitChildren(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.statement.AEQuery.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQueryTranslator.translate(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQueryTranslator.translate(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCDSIExtQueryExecutor.translateQuery(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCDSIExtQueryExecutor.execute(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeQuery(Unknown Source)
+	at com.simba.spark.hivecommon.jdbc41.Hive41Statement.executeQuery(Unknown Source)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryMultipleCalls(ExecuteQueries.java:240)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryFile(ExecuteQueries.java:167)
+	at org.bsc.dcc.vcv.ExecuteQueries.main(ExecuteQueries.java:143)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:282)
+Caused by: com.simba.spark.support.exceptions.GeneralException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEExistsPredicate is not supported.
+	... 43 more
+
+INFO : 13:39:14.722 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query70.sql
+
+INFO : 13:39:17.099 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query71.sql
+
+INFO : 13:39:21.112 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query72.sql
+
+INFO : 13:39:27.086 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query73.sql
+
+INFO : 13:39:39.338 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query74.sql
+
+INFO : 13:39:43.374 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query75.sql
+
+INFO : 13:39:48.972 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query76.sql
+
+INFO : 13:39:52.760 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query77.sql
+
+INFO : 13:39:56.251 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query78.sql
+
+INFO : 13:39:59.920 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query79.sql
+
+INFO : 13:40:02.568 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query80.sql
+
+INFO : 13:40:06.425 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query81.sql
+
+INFO : 13:40:08.777 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query82.sql
+
+INFO : 13:40:10.085 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query83.sql
+
+INFO : 13:40:12.226 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query84.sql
+
+INFO : 13:40:15.369 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query85.sql
+
+INFO : 13:40:31.411 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query86.sql
+
+INFO : 13:40:32.726 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query87.sql
+
+ERROR: 13:40:34.939 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEExcept is not supported.
+ERROR: 13:40:34.940 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - java.sql.SQLException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEExcept is not supported.
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.defaultVisit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.defaultVisit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.AEDefaultVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AEExcept.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AESubQuery.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AEAggregate.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.relation.AEProject.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visitChildren(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQLAENodeVisitor.visit(Unknown Source)
+	at com.simba.spark.sqlengine.aeprocessor.aetree.statement.AEQuery.acceptVisitor(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQueryTranslator.translate(Unknown Source)
+	at com.simba.spark.hivecommon.querytranslation.hql.HiveQueryTranslator.translate(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCDSIExtQueryExecutor.translateQuery(Unknown Source)
+	at com.simba.spark.hivecommon.dataengine.HiveJDBCDSIExtQueryExecutor.execute(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeNoParams(Unknown Source)
+	at com.simba.spark.jdbc.common.SStatement.executeQuery(Unknown Source)
+	at com.simba.spark.hivecommon.jdbc41.Hive41Statement.executeQuery(Unknown Source)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryMultipleCalls(ExecuteQueries.java:240)
+	at org.bsc.dcc.vcv.ExecuteQueries.executeQueryFile(ExecuteQueries.java:167)
+	at org.bsc.dcc.vcv.ExecuteQueries.main(ExecuteQueries.java:143)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:282)
+Caused by: com.simba.spark.support.exceptions.GeneralException: [Simba][SparkJDBCDriver](500051) ERROR processing query/statement. Error Code: 42000, SQL state: Syntax error or access violation, Query: AEExcept is not supported.
+	... 33 more
+
+INFO : 13:40:34.940 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query88.sql
+
+INFO : 13:40:44.076 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query89.sql
+
+INFO : 13:40:51.840 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query90.sql
+
+INFO : 13:40:55.758 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query91.sql
+
+INFO : 13:40:59.771 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query92.sql
+
+INFO : 13:41:01.426 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query93.sql
+
+INFO : 13:41:03.653 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query94.sql
+
+INFO : 13:41:05.775 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query95.sql
+
+INFO : 13:41:08.010 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query96.sql
+
+INFO : 13:41:09.558 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query97.sql
+
+INFO : 13:41:11.299 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query98.sql
+
+INFO : 13:41:12.909 ExecuteQueries org.bsc.dcc.vcv.ExecuteQueries.main() AllLog - 
+Executing query: query99.sql
+
