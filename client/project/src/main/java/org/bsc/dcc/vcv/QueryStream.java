@@ -68,14 +68,14 @@ public class QueryStream implements Callable<Void> {
 		//Arrays.sort(queries);
 		//this.shuffle(queries);
 		int[] queries = StreamsTable.matrix[this.nStream];
-		int[] impalaKit = {19, 27, 3, 34, 42, 43, 46, 52, 53, 55, 59, 63, 65, 68, 7, 73, 79, 8,  82,  89, 98};
-		Arrays.sort(impalaKit);
+		//int[] impalaKit = {19, 27, 3, 34, 42, 43, 46, 52, 53, 55, 59, 63, 65, 68, 7, 73, 79, 8,  82,  89, 98};
+		//Arrays.sort(impalaKit);
 		for(int i = 0; i < queries.length; i++) {
 			//if( queries[i] == 6 || queries[i] == 9 || queries[i] == 10 || queries[i] == 35 || 
 			//		queries[i] == 41 || queries[i] == 66 || queries[i] == 69 || queries[i] == 87 )
 			//continue;
-			if( Arrays.binarySearch(impalaKit, queries[i]) < 0 )
-				continue;
+			//if( Arrays.binarySearch(impalaKit, queries[i]) < 0 )
+			//	continue;
 			String sqlStr = this.queriesHT.get(queries[i]);
 			this.executeQuery(this.nStream, this.workDir, queries[i], sqlStr,
 					this.resultsDir, this.plansDir, this.singleCall, i);
