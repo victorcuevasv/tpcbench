@@ -39,7 +39,7 @@ printf "\n\n%s\n\n" "${mag}Creating and populating the database.${end}"
 docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateDatabase\" \
 -Dexec.args=\"/data/tables _ext temporal/$1GB $CONTAINER spark false \
-hdfs://namenodecontainer:9000 hdfs://namenodecontainer:9000/user/hive/warehouse tpcdsdb$1gb\" \
+hdfs://namenodecontainer:9000 hdfs://namenodecontainer:9000/user/hive/warehouse parquet tpcdsdb$1gb\" \
 -f /project/pomSparkJDBC.xml"       
   
 
