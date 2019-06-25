@@ -54,6 +54,7 @@ if [[ $RUN_THRIFT_SERVER -eq 1 ]]; then
 		--master spark://namenodecontainer:7077  \
 		--hiveconf hive.server2.thrift.port=10015 \
 		--conf spark.eventLog.dir=/home/$USER_NAME_DC/tmp \
+		--conf spark.sql.crossJoin.enabled=true \
 		--packages org.apache.zookeeper:zookeeper:3.4.6     
 	wait_for_server localhost 10015 72       
 fi
