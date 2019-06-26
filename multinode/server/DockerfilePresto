@@ -13,11 +13,12 @@ RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
 RUN apt-get update && apt-get install -y \
     sudo
 
-ARG APACHE_MIRROR=apache.rediris.es
+ARG APACHE_MIRROR=archive.apache.org
 ARG POSTGRES_DRIVER_MIRROR=jdbc.postgresql.org
 ARG PRESTO_MIRROR=repo1.maven.org
 ARG HADOOP_VERSION=2.7.7
 ARG HIVE_VERSION=2.3.4
+ARG PRESTO_VERSION=0.215
 
 #Add the generated key to the authorized set.
 #The ssh server has been installed in the ubuntujavahadoop image.
@@ -79,13 +80,13 @@ RUN wget --no-check-certificate -q -P /opt/apache-hive-$HIVE_VERSION-bin/lib \
 #Download and decompress Presto.
 
 RUN wget --no-check-certificate -q -P /opt \
-    https://$PRESTO_MIRROR/maven2/com/facebook/presto/presto-server/0.215/presto-server-0.215.tar.gz && \
-    tar xzf /opt/presto-server-0.215.tar.gz -C /opt && \
-    rm -f /opt/presto-server-0.215.tar.gz
+    https://$PRESTO_MIRROR/maven2/com/facebook/presto/presto-server/$PRESTO_VERSION/presto-server-$PRESTO_VERSION.tar.gz && \
+    tar xzf /opt/presto-server-$PRESTO_VERSION.tar.gz -C /opt && \
+    rm -f /opt/presto-server-$PRESTO_VERSION.tar.gz
     
 #Copy the Presto configuration files (should be previously generated).
 
-COPY presto_etc_coordinator/etc/ /opt/presto-server-0.215/etc/
+COPY presto_etc_coordinator/etc/ /opt/presto-server-$PRESTO_VERSION/etc/
 
 #Copy the initialization script for Hadoop, Hive, Presto and make it executable.
 

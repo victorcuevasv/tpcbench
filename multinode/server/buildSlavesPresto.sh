@@ -31,15 +31,18 @@ cat $DIR/presto_etc_worker/node.properties.base > $DIR/presto_etc_worker/etc/nod
 #Add to the previously generated file the node.id line using the first line in the node.id.list file.
 echo "node.id="$(sed '1q;d' $DIR/presto_etc_worker/node.id.list)"" >> $DIR/presto_etc_worker/etc/node.properties
 
-#Use the default mirrors.
-#docker build -t prestoslave1mult:dev $DIR -f $DIR/DockerfileSlavePresto 
-
-#Use the nginx mirror server.
-docker build --network="host" -t prestoslave1mult:dev $DIR -f $DIR/DockerfileSlavePresto \
+#Check if the local mirror can be used.
+nc -z localhost 8888 && nc -z localhost 443
+mirror=$?
+if [[ $mirror -eq 0 ]]; then
+	docker build --network="host" --force-rm -t prestoslave1mult:dev $DIR -f $DIR/DockerfileSlavePresto \
 	--build-arg APACHE_MIRROR=localhost:8888 \
 	--build-arg POSTGRES_DRIVER_MIRROR=localhost:443 \
 	--build-arg PRESTO_MIRROR=localhost:443
-	
+else
+	docker build --force-rm -t prestoslave1mult:dev $DIR -f $DIR/DockerfileSlavePresto
+fi
+
 if [[ $? -eq 1 ]]; then
 	exitCode=1;
 fi
@@ -50,15 +53,18 @@ cat $DIR/presto_etc_worker/node.properties.base > $DIR/presto_etc_worker/etc/nod
 #Add to the previously generated file the node.id line using the second line in the node.id.list file.
 echo "node.id="$(sed '2q;d' $DIR/presto_etc_worker/node.id.list)"" >> $DIR/presto_etc_worker/etc/node.properties
 
-#Use the default mirrors.
-#docker build -t prestoslave2mult:dev $DIR -f $DIR/DockerfileSlavePresto 
-
-#Use the nginx mirror server.
-docker build --network="host" -t prestoslave2mult:dev $DIR -f $DIR/DockerfileSlavePresto \
+#Check if the local mirror can be used.
+nc -z localhost 8888 && nc -z localhost 443
+mirror=$?
+if [[ $mirror -eq 0 ]]; then
+	docker build --network="host" --force-rm -t prestoslave2mult:dev $DIR -f $DIR/DockerfileSlavePresto \
 	--build-arg APACHE_MIRROR=localhost:8888 \
 	--build-arg POSTGRES_DRIVER_MIRROR=localhost:443 \
 	--build-arg PRESTO_MIRROR=localhost:443
-	
+else
+	docker build --force-rm -t prestoslave2mult:dev $DIR -f $DIR/DockerfileSlavePresto
+fi
+
 if [[ $? -ne 0 ]]; then
 	exitCode=1;
 fi
