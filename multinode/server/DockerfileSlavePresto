@@ -41,6 +41,8 @@ RUN wget --no-check-certificate -q -P /opt \
     https://$PRESTO_MIRROR/maven2/com/facebook/presto/presto-server/$PRESTO_VERSION/presto-server-$PRESTO_VERSION.tar.gz && \
     tar xzf /opt/presto-server-$PRESTO_VERSION.tar.gz -C /opt && \
     rm -f /opt/presto-server-$PRESTO_VERSION.tar.gz
+
+ENV PRESTO_HOME /opt/presto-server-$PRESTO_VERSION
     
 #Copy the Presto configuration files.
 

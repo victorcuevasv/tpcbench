@@ -23,7 +23,7 @@ wait_for_server() {
 }
 
 wait_for_server namenodecontainer 8080 24
-/opt/presto-server-0.214/bin/launcher run
+$PRESTO_HOME/bin/launcher run
 
 #sleep infinity
 
