@@ -45,7 +45,7 @@ hive --service metastore &
 wait_for_server localhost 9083 24
 hive --service hiveserver2 &
 wait_for_server localhost 10000 24
-/opt/presto-server-0.214/bin/launcher run
+$PRESTO_HOME/bin/launcher run
 
 #sleep infinity
 

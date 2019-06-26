@@ -84,6 +84,8 @@ RUN wget --no-check-certificate -q -P /opt \
     tar xzf /opt/presto-server-$PRESTO_VERSION.tar.gz -C /opt && \
     rm -f /opt/presto-server-$PRESTO_VERSION.tar.gz
     
+ENV PRESTO_HOME /opt/presto-server-$PRESTO_VERSION
+    
 #Copy the Presto configuration files (should be previously generated).
 
 COPY presto_etc_coordinator/etc/ /opt/presto-server-$PRESTO_VERSION/etc/
