@@ -37,7 +37,7 @@ fi
 printf "\n\n%s\n\n" "${mag}Creating and populating the database.${end}"
 
 #First create the warehouse directory in hdfs, which is strictly necessary for presto.
-docker exec -ti namenodecontainer  /bin/bash -c "hadoop fs -mkdir -p /user/hive/warehouse" 
+docker exec -ti namenodecontainer  /bin/bash -c "hadoop fs -mkdir -p /user/hive/warehouse/tpcdsdb$1gb.db" 
 
 docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateDatabase\" \
