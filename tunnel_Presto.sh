@@ -16,7 +16,7 @@ printf "\n\n%s\n\n" "${cyn}Tunneling the ports for Presto (8088, 19888, 8080).${
 ssh -l vcuevas -N -L 8088:localhost:8088 bscdc07 & #Hadoop applications
 ssh -l vcuevas -N -L 19888:localhost:19888 bscdc07 & #Hadoop job history
 ssh -l vcuevas -N -L 8080:localhost:8080 bscdc07 & #Presto GUI
-ssh -l vcuevas -N -L 8080:localhost:8080 bscdc07 & #Hadoop logs
+ssh -l vcuevas -N -L 8042:localhost:8042 bscdc07 & #Hadoop logs
 
 #The trap will kill the background processed started above when the script
 #execution is terminated (ctrl+c).
