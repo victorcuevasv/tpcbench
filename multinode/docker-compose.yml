@@ -8,6 +8,7 @@ services:
             - 8088:8088 #Hadoop/Yarn job UI
             - 19888:19888 #Hadoop job history
             - 8080:8080 #Presto web ui
+            - 8042:8042 #Hadoop logs
         volumes:
             #Only used for reading .dat files for database creation (use parent folder).
             - ./../vols/hive:/temporal
