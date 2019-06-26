@@ -53,7 +53,7 @@ RUN hdfs namenode -format
 
 #Download and decompress Hive.
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz && \
+RUN wget -q -P /opt http://$APACHE_MIRROR/dist/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz && \
     tar xzf /opt/apache-hive-$HIVE_VERSION-bin.tar.gz -C /opt && \
     rm -f /opt/apache-hive-$HIVE_VERSION-bin.tar.gz
     

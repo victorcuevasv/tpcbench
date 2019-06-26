@@ -52,7 +52,7 @@ RUN hdfs namenode -format
 
 #Download and decompress Hive.
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz && \
+RUN wget -q -P /opt http://$APACHE_MIRROR/dist/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz && \
     tar xzf /opt/apache-hive-$HIVE_VERSION-bin.tar.gz -C /opt && \
     rm -f /opt/apache-hive-$HIVE_VERSION-bin.tar.gz
     
@@ -73,7 +73,7 @@ RUN wget --no-check-certificate -q -P /opt/apache-hive-$HIVE_VERSION-bin/lib \
 #Download and decompress Spark.
 #Use the version prebuilt for Hadoop, spark-sql does not work in the version without Hadoop.
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop2.7.tgz && \
+RUN wget -q -P /opt http://$APACHE_MIRROR/dist/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop2.7.tgz && \
     tar xzf /opt/spark-$SPARK_VERSION-bin-hadoop2.7.tgz -C /opt && \
     rm -f /opt/spark-$SPARK_VERSION-bin-hadoop2.7.tgz
     

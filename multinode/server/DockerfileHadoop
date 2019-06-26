@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
 
 #Download and decompress Hadoop
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz && \
+RUN wget -q -P /opt http://$APACHE_MIRROR/dist/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz && \
     tar xzf /opt/hadoop-$HADOOP_VERSION.tar.gz -C /opt && \
     rm -f /opt/hadoop-$HADOOP_VERSION.tar.gz
 

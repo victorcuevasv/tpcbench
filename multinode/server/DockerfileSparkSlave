@@ -36,7 +36,7 @@ RUN chown -R hadoop:hadoop /opt/hadoop-$HADOOP_VERSION/etc/hadoop/
 #Download and decompress Spark.
 #Use the version prebuilt for Hadoop, spark-sql does not work in the version without Hadoop.
 
-RUN wget -q -P /opt http://$APACHE_MIRROR/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop2.7.tgz && \
+RUN wget -q -P /opt http://$APACHE_MIRROR/dist/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop2.7.tgz && \
     tar xzf /opt/spark-$SPARK_VERSION-bin-hadoop2.7.tgz -C /opt && \
     rm -f /opt/spark-$SPARK_VERSION-bin-hadoop2.7.tgz
     
