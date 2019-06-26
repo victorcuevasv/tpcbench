@@ -19,7 +19,7 @@ if [[ $mirror -eq 0 ]]; then
 	--build-arg POSTGRES_DRIVER_MIRROR=localhost:443 \
 	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3
 else
-	docker build --network="host" --force-rm -t sparkhiveservermult:dev $DIR -f $DIR/DockerfileSparkMaster  \
+	docker build --force-rm -t sparkhiveservermult:dev $DIR -f $DIR/DockerfileSparkMaster  \
 	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3
 fi
 
