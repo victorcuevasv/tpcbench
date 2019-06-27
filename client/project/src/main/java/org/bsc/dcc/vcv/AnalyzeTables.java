@@ -29,6 +29,7 @@ public class AnalyzeTables {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
 						hostname + ":10000/" + dbName, "hive", "");
+				
 			}
 			else if( system.equals("presto") ) {
 				Class.forName(prestoDriverName);
@@ -90,6 +91,7 @@ public class AnalyzeTables {
 		}
 		boolean computeForCols = Boolean.parseBoolean(args[2]);
 		AnalyzeTables prog = new AnalyzeTables(args[0], args[1], computeForCols, args[3]);
+		prog.configureMapreduce();
 		String[] tables = {"call_center", "catalog_page", "catalog_returns", "catalog_sales",
 							"customer", "customer_address", "customer_demographics", "date_dim",
 							"household_demographics", "income_band", "inventory", "item",
@@ -102,6 +104,30 @@ public class AnalyzeTables {
 		prog.closeConnection();
 	}
 
+	private void configureMapreduce() {
+		String[] stmtStrs = {"set mapreduce.map.memory.mb=4096;",
+						  "set mapreduce.map.java.opts=-Xmx3686m;",
+						  "set mapreduce.reduce.memory.mb=4096;",
+						  "set mapreduce.reduce.java.opts=-Xmx3686m;"
+						  };
+		try {
+			Statement stmt = con.createStatement();
+			for(String stmtStr: stmtStrs)
+				stmt.executeUpdate(stmtStr);
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			logger.error(e);
+			logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			logger.error(AppUtil.stringifyStackTrace(e));
+		}
+	}
+	
 	private void executeAnalyzeTable(String table, int index) {
 		QueryRecord queryRecord = null;
 		try {
