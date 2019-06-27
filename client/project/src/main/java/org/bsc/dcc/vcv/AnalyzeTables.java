@@ -105,10 +105,10 @@ public class AnalyzeTables {
 	}
 
 	private void configureMapreduce() {
-		String[] stmtStrs = {"set mapreduce.map.memory.mb=4096;",
-						  "set mapreduce.map.java.opts=-Xmx3686m;",
-						  "set mapreduce.reduce.memory.mb=4096;",
-						  "set mapreduce.reduce.java.opts=-Xmx3686m;"
+		String[] stmtStrs = {"set mapreduce.map.memory.mb=4096",
+						  "set mapreduce.map.java.opts=-Xmx3686m",
+						  "set mapreduce.reduce.memory.mb=4096",
+						  "set mapreduce.reduce.java.opts=-Xmx3686m"
 						  };
 		try {
 			Statement stmt = con.createStatement();
