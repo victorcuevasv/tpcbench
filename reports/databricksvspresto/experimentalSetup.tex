@@ -1,0 +1,20 @@
+\section{Experimental setup}\label{experimentalSetup}
+
+We now provide the main hardware and software specifications of the experimental setup used in our TPC-DS benchmark runs.
+
+\subsection{Hardware configuration}
+
+Both, AWS EMR and Databricks UAP (concerning its AWS-based platform) run on the Amazon Elastic Compute Cloud (EC2). In order to best match the needs of particular customers and applications, EC2 offers a variety of instance types that optimize specific computational resources; concretely, memory, storage, or processing power (through vCPUs and GPUs). These in addition to general-purpose instances. Given the IO caching capabilities of Databricks, we opt for storage-optimized instances that incorporate an NVMe SSD, the i3.2xlarge type specifically. We use these instances for both systems and all of the experiments we present in this report. Furthermore, we fix the size of the clusters used in our experiments at 8 worker nodes and 1 master node. Table \ref{table:hardwareConf} summarizes the hardware configuration of the nodes we employ.
+
+\begin{table}
+  \centering
+	\begin{tabular}{|l|l|l|l|}
+	  \hline
+		Model & vCPUs & Memory & Local storage \\ \hline
+		i3.2xlarge & \makecell{8 (2.3 GHz Intel \\ Xeon E5 2686 v4)} & 61 GiB & \makecell{1 x 1,900 \\ GB NVMe SSD} \\ \hline
+	\end{tabular}
+	\caption{Hardware configuration.}
+	\label{table:hardwareConf}
+\end{table}
+
+\subsection{Preliminary experiments}\label{preliminaryExperiments}
