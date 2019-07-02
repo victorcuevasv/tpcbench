@@ -43,7 +43,7 @@ spark-submit --conf spark.eventLog.enabled=true  \
 --packages org.apache.logging.log4j:log4j-api:2.11.2,org.apache.logging.log4j:log4j-core:2.11.2,\
 org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.CreateDatabaseSpark \
---master yarn --deploy-mode client \
+--master yarn --deploy-mode cluster \
 $DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar \
 /data/tables _ext /temporal/$1GB UNUSED spark false tables s3a://tpcds-datasets/$1GB s3a://tpcds-warehouse-emr-spark-$1gb tpcdsdb$1gb $DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar     
 
