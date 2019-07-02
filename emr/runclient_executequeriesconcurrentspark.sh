@@ -10,9 +10,7 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m' 
 
-#$1 Required argument denoting the number of streams. 
-
-#Test query execution with Spark.
+#Test concurrent query execution with Spark.
 
 #Get the user name of the user executing this script.
 USER_NAME=$(whoami)
@@ -23,8 +21,8 @@ GROUP_ID=$(id -g)
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-if [ $# -lt 1 ]; then
-    echo "${yel}Usage bash runclient_executequeriesconcurrentspark.sh <number of streams>${end}"
+if [ $# -lt 2 ]; then
+    echo "${yel}Usage bash runclient_executequeriesconcurrent.sh <scale factor> <number of streams>${end}"
     exit 0
 fi
 
@@ -34,7 +32,7 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.ExecuteQueriesConcurrentSpark \
 --master yarn --deploy-mode client \
 $DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar \
-/data results plans $DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar spark $1 1954 true true
+/data results plans $DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar spark $2 1954 true true tpcdsdb$1gb
 
 
                      
