@@ -13,7 +13,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #Copying the database to hdfs.
 printf "\n\n%s\n\n" "${blu}Copying to hdfs.${end}"
 hadoop fs -mkdir -p /project/targetspark && \
-	hadoop fs -put -f $DIR/../client/project/targetspark/client-1.0-SNAPSHOT-jar-with-dependencies.jar \
+	hadoop fs -put -f $DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar  \
 	/project/targetspark
  
 
