@@ -45,7 +45,7 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.CreateDatabaseSpark \
 --master yarn --deploy-mode client \
 $DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar \
-/data/tables _ext /temporal/$1GB UNUSED spark true tables s3a://tpcds-datasets/$1GB s3a://tpcds-warehouse-emr-$1gb tpcdsdb$1gb $DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar     
+/data/tables _ext /temporal/$1GB UNUSED spark true tables s3a://tpcds-datasets/$1GB s3a://tpcds-warehouse-emr-spark-$1gb tpcdsdb$1gb $DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar     
 
 
  
