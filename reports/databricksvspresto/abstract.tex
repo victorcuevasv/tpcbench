@@ -1,0 +1,11 @@
+We present a performance evaluation of Databricks and EMR Presto. For this purpose, we adopt the TPC-DS Benchmark, running it on both systems at the 1 TB scale factor. Additional experiments enable us to evaluate specific features of Databricks, namely the cost-based optimizer and the io cache. We also analyze the efficiency of the Databricks Light runtime. The main findings our study in this regard are as follows.
+
+\begin{itemize}
+\item Databricks shows a much better performance than EMR Presto. Completing the benchmark in about 25\% of the time EMR Presto needs.
+\item	Significantly more effort was required in tuning and configuration to run the full benchmark on EMR Presto, while we were able to run it on Databricks with minimal configuration and initially half the number of working nodes.
+\item	The total monetary costs of running the benchmark in Databricks are about 30\% of the costs incurred by EMR Presto.
+\item	The experiments verify that the cost-based optimizer and the io cache offer significant performance improvements.
+\item	The performance of the Databricks Light runtime is slightly better to that of EMR Presto.
+\end{itemize}
+In addition, we present an evaluation of the usability and developer productivity characteristics of both systems. Our main conclusions on the subject are that both systems have similar capabilities with no major omissions in functionality. Databricks does offer, however, a more integrated platform and interface, as well as features that facilitate application development.
+
