@@ -21,9 +21,9 @@ if [ $# -lt 2 ]; then
 fi
 
 #Tunnel the ports for Spark web GUIs.
-printf "\n\n%s\n\n" "${cyn}Tunneling the ports for Spark data node (4042).${end}"
+printf "\n\n%s\n\n" "${cyn}Tunneling the ports for Spark data node (8042).${end}"
 
-ssh -i id_rsa -l ec2-user -N -L 4042:localhost:4042 $1 & #Application logs
+ssh -i id_rsa -l ec2-user -N -L 8042:localhost:8042 $1 & #Application logs
 
 
 #The trap will kill the background processed started above when the script
