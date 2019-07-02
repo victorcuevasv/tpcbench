@@ -16,7 +16,7 @@ end=$'\e[0m'
 #$2 Master node Private DNS name.
 
 if [ $# -lt 2 ]; then
-    echo "Usage bash tunnel_Spark.sh <Public DNS name> <Private DNS name>."
+    echo "${yel}Usage bash tunnel_Spark.sh <Public DNS name> <Private DNS name>.${end}"
     exit 0
 fi
 
@@ -26,7 +26,7 @@ printf "\n\n%s\n\n" "${cyn}Tunneling the ports for Spark (18080, 19888, 20888).$
 ssh -i id_rsa -l ec2-user -N -L 18080:localhost:18080 $1 &
 ssh -i id_rsa -l ec2-user -N -L 20888:$2:20888 $1  &
 ssh -i id_rsa -l ec2-user -N -L 19888:$2:19888 $1  &
-	
+
 #History server web gui url.
 #http://localhost:18080/
 	
