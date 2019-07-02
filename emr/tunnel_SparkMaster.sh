@@ -21,11 +21,11 @@ if [ $# -lt 2 ]; then
 fi
 
 #Tunnel the ports for Spark web GUIs.
-printf "\n\n%s\n\n" "${cyn}Tunneling the ports for Spark (18080, 19888, 20888).${end}"
+printf "\n\n%s\n\n" "${cyn}Tunneling the ports for Spark (18080, 19888, 8088).${end}"
 
-ssh -i id_rsa -l ec2-user -N -L 18080:localhost:18080 $1 &
-ssh -i id_rsa -l ec2-user -N -L 20888:$2:20888 $1  &
-ssh -i id_rsa -l ec2-user -N -L 19888:$2:19888 $1  &
+ssh -i id_rsa -l ec2-user -N -L 18080:localhost:18080 $1 & #Spark history server
+ssh -i id_rsa -l ec2-user -N -L 19888:$2:19888 $1  & #Hadoop job history
+ssh -i id_rsa -l ec2-user -N -L 8088:$2:8088 $1  & #Hadoop applications
 
 #History server web gui url.
 #http://localhost:18080/
