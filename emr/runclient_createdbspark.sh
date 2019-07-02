@@ -30,10 +30,10 @@ fi
 
 #Create the folder for the logs and results.
 
-if [ ! -d /data ]; then
-	sudo mkdir /data
-	sudo chown hadoop:hadoop /data
-fi
+#if [ ! -d /data ]; then
+#	sudo mkdir /data
+#	sudo chown hadoop:hadoop /data
+#fi
 
 #Execute the Java project with Maven on the client builder container running in the docker-compose setup. 
 
@@ -44,8 +44,8 @@ spark-submit --conf spark.eventLog.enabled=true  \
 org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.CreateDatabaseSpark \
 --master yarn --deploy-mode cluster \
-hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT-jar-with-dependencies.jar \
-/data/tables _ext /temporal/$1GB UNUSED spark false tables s3a://tpcds-datasets/$1GB s3a://tpcds-warehouse-emr-spark-$1gb tpcdsdb$1gb hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT-jar-with-dependencies.jar     
+hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar \
+/data/tables _ext /temporal/$1GB UNUSED spark false tables s3a://tpcds-datasets/$1GB s3a://tpcds-warehouse-emr-spark-$1gb tpcdsdb$1gb hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar     
 
 
  
