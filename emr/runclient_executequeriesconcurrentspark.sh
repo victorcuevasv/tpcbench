@@ -22,7 +22,7 @@ GROUP_ID=$(id -g)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 if [ $# -lt 2 ]; then
-    echo "${yel}Usage bash runclient_executequeriesconcurrent.sh <scale factor> <number of streams>${end}"
+    echo "${yel}Usage: bash runclient_executequeriesconcurrent.sh <scale factor> <number of streams>${end}"
     exit 0
 fi
 
@@ -30,9 +30,9 @@ spark-submit --conf spark.eventLog.enabled=true  \
 --packages org.apache.logging.log4j:log4j-api:2.11.2,org.apache.logging.log4j:log4j-core:2.11.2,\
 org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.ExecuteQueriesConcurrentSpark \
---master yarn --deploy-mode client \
-$DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar \
-/data results plans $DIR/../client/project/targetspark/client-1.0-SNAPSHOT.jar spark $2 1954 true true tpcdsdb$1gb
+--master yarn --deploy-mode cluster \
+hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar \
+/data results plans hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar spark $2 1954 true true tpcdsdb$1gb
 
 
                      
