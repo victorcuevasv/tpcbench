@@ -1,0 +1,24 @@
+[
+  {
+    "classification": "presto-connector-hive",
+    "properties": {
+      "hive.allow-drop-table": "true",
+      "hive.compression-codec": "SNAPPY",
+      "hive.s3-file-system-type": "PRESTO"
+    }
+  },
+  {
+    "classification": "presto-config",
+    "properties": {
+      "query.max-memory": "240GB"
+    }
+  },
+  {
+    "classification": "spark-defaults",
+    "properties": {
+      "spark.sql.broadcastTimeout": "7200",
+      "spark.driver.memory": "5692M"
+    }
+  }
+]
+
