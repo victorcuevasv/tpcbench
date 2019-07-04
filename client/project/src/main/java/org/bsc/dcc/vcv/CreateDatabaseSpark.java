@@ -30,7 +30,7 @@ public class CreateDatabaseSpark {
 			if( system.equals("sparkdatabricks") ) {
 				this.createTableReader = new JarCreateTableReaderAsZipFile(jarFile, subDir);
 				this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
-						//	.enableHiveSupport()
+						//.enableHiveSupport()
 						.getOrCreate();
 				//this.logger.info(SparkUtil.stringifySparkConfiguration(this.spark));
 			}
