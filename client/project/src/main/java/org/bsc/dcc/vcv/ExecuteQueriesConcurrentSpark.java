@@ -46,7 +46,7 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 		this.queriesReader = new JarQueriesReaderAsZipFile(jarFile, "QueriesSpark");
 		this.spark = SparkSession.builder().appName("TPC-DS Throughput Test")
 				.config("spark.sql.crossJoin.enabled", "true")
-				.enableHiveSupport()
+				//.enableHiveSupport()
 				.getOrCreate();
 		this.recorder = new AnalyticsRecorderConcurrent("tput", system);
 		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);

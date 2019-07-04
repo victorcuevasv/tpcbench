@@ -43,7 +43,7 @@ public class ExecuteQueriesSpark {
 			this.queriesReader = new JarQueriesReaderAsZipFile(jarFile, "QueriesSpark");
 			this.spark = SparkSession.builder().appName("TPC-DS Sequential Query Execution")
 				.config("spark.sql.crossJoin.enabled", "true")
-				.enableHiveSupport()
+				//.enableHiveSupport()
 				.getOrCreate();
 			this.recorder = new AnalyticsRecorder("power", system);
 		}
