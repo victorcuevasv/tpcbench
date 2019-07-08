@@ -24,3 +24,54 @@ The behavior of the systems in regards to the data loading process as described 
 
 \subsection{Individual query execution (Power Test)}\label{referenceResultsPowerTest}
 
+The data loading process takes about one hour on EMR Presto, whereas on Databricks it takes around 45 minutes. Although the difference is not major, it is significant. We also point out that Presto generates one file for each worker node, thus 8 files are generated in our setup. On the other hand, Databricks generates one file for each task, yielding over 300 files for some tables. Additional experiments would be required to determine if consolidating the files would result in performance improvements.
+
+The TPC-DS schema includes 7 fact tables, one for the product inventory and 2 for each sales channel sales and returns, the channels being stores, catalog, and the web. A total of 17 dimension tables complete the schema. The fact tables have by far the largest data size, which we can confirm by looking at the individual table creation times, shown in Figure 19 and Figure 20. The corresponding table names are given in Table \ref{table:tpcdsTableNames}. We note that the dbgen\_version table was not created since it is not used in queries and it employs data types with no direct equivalent in the SUTs.
+
+\begin{table}
+  \centering
+	\begin{tabular}{|l|l|l|}
+	  \hline
+		\makecell[l]{1) call\_center \\
+		2) catalog\_page \\
+		3) catalog\_returns \\
+		4) catalog\_sales \\
+		5) customer \\
+		6) customer\_address \\
+		7) customer\_demographics \\
+		8) date\_dim}
+		&
+		\makecell[l]{
+		9) dbgen\_version (skipped) \\
+		10) household\_demographics \\
+		11) income\_band \\
+		12) inventory \\
+		13) item \\
+		14) promotion \\
+		15) reason \\
+		16) ship\_mode}
+		& 
+		\makecell[l]{
+		17) store \\
+		18) store\_returns \\
+		19) store\_sales \\
+		20) time\_dim \\
+		21) warehouse \\
+		22) web\_page \\
+		23) web\_returns \\
+		24) web\_sales \\
+		25) web\_site}
+		\\ 
+		\hline
+	\end{tabular}
+	\caption{TPC-DS table names.}
+	\label{table:tpcdsTableNames}
+\end{table}
+
+
+
+
+
+
+
+
