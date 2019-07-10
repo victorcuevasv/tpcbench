@@ -132,7 +132,7 @@ Using the cost-based optimizer with only table statistics at its disposal result
 
 \begin{figure}
    \begin{center}
-   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/statsResultsGraphs/1_PDFsam_PowerTestCompAll.pdf}}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/basicstatsResultsGraphs/1_PDFsam_PowerTestCompAll.pdf}}
    \end{center}
    \caption{Databricks Power Test indivicual query execution times with and without basic statistics (1).}
    \label{fig:additionalResultsDatabricksWithBasicStatsPowerTestIndividualQueries1}
@@ -140,7 +140,7 @@ Using the cost-based optimizer with only table statistics at its disposal result
 
 \begin{figure}
    \begin{center}
-   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/statsResultsGraphs/2_PDFsam_PowerTestCompAll.pdf}}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/basicstatsResultsGraphs/2_PDFsam_PowerTestCompAll.pdf}}
    \end{center}
    \caption{Databricks Power Test indivicual query execution times with and without basic statistics (2).}
    \label{fig:additionalResultsDatabricksWithBasicStatsPowerTestIndividualQueries2}
@@ -148,7 +148,7 @@ Using the cost-based optimizer with only table statistics at its disposal result
 
 \begin{figure}
    \begin{center}
-   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/statsResultsGraphs/3_PDFsam_PowerTestCompAll.pdf}}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/basicstatsResultsGraphs/3_PDFsam_PowerTestCompAll.pdf}}
    \end{center}
    \caption{Databricks Power Test indivicual query execution times with and without basic statistics (3).}
    \label{fig:additionalResultsDatabricksWithBasicStatsPowerTestIndividualQueries3}
@@ -156,7 +156,7 @@ Using the cost-based optimizer with only table statistics at its disposal result
 
 \begin{figure}
    \begin{center}
-   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/statsResultsGraphs/4_PDFsam_PowerTestCompAll.pdf}}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/basicstatsResultsGraphs/4_PDFsam_PowerTestCompAll.pdf}}
    \end{center}
    \caption{Databricks Power Test indivicual query execution times with and without basic statistics (4).}
    \label{fig:additionalResultsDatabricksWithBasicStatsPowerTestIndividualQueries4}
@@ -164,11 +164,153 @@ Using the cost-based optimizer with only table statistics at its disposal result
 
 \begin{figure}
    \begin{center}
-   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/statsResultsGraphs/5_PDFsam_PowerTestCompAll.pdf}}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/basicstatsResultsGraphs/5_PDFsam_PowerTestCompAll.pdf}}
    \end{center}
    \caption{Databricks Power Test indivicual query execution times with and without basic statistics (5).}
    \label{fig:additionalResultsDatabricksWithBasicStatsPowerTestIndividualQueries5}
 \end{figure}
 
 We find severely worse performance for queries 19, 24, 50, and 58. On the other hand, queries 74 to 99 show dramatic better performance. Consequently, although basic table-level statistics do bring advantages in performance, there is a risk that they may backfire due to their limited ability to characterize a dataset. Since the generation of column-level statistics is not expensive, even when computed for all columns of all tables as we did for the TPC-DS dataset, we recommend their use.
+
+\subsection{Databricks with cache disabled}
+
+Databricks has an io caching feature that keeps local copies of remote files to speed up their subsequent access. The cache uses a custom format and operates automatically. The choice of i3 EC2 instances optimized for storage and equipped with NVMe SSDs responds to facilitating the use of this caching capability. It is important to point out, however, that the io cache works only with Parquet files. Thus, ORC files, which we have found to be the best choice for EMR Presto, or CSV files cannot benefit from this feature.
+
+The io cache is enabled by default and configured to use up to half of the space available in the SSDs of the worker nodes. Since the i3.2xlarge instances we use have a 1,900 GB NVMe SSD, the available cache space is more than enough to hold the entire database, even more so in compressed form.
+
+In our experiments for this section, we disable the io cache to analyze its effects on query processing performance. The io cache can be disabled by setting the spark.databricks.io.cache.enabled configuration property to false at the creation of the cluster. We show the effects of disabling the cache on the Power Test on Figure \ref{fig:additionalResultsDatabricksNoCachePowerTestTotalTime} to Figure \ref{fig:additionalResultsDatabricksNoCachePowerTestArithmeticMean}.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/nocacheResultsGraphs/power_totalHrTimeBarChart.pdf}}
+   \end{center}
+   \caption{Databricks Power Test total time with and without cache.}
+   \label{fig:additionalResultsDatabricksNoCachePowerTestTotalTime}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/nocacheResultsGraphs/power_geomeanTimeBarChart.pdf}}
+   \end{center}
+   \caption{Databricks Power Test query execution time geometric mean with and without cache.}
+   \label{fig:additionalResultsDatabricksNoCachePowerTestGeomean}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/nocacheResultsGraphs/power_avgTimeBarChart.pdf}}
+   \end{center}
+   \caption{Databricks Power Test query execution time geometric mean with and without cache.}
+   \label{fig:additionalResultsDatabricksNoCachePowerTestArithmeticMean}
+\end{figure}
+
+Disabling the io cache results in a 28\% percent decline in performance, so the total time for the Power Test increases from 2 hours to about 2 and a half hours. We present the comparison for individual queries in Figure \ref{fig:additionalResultsDatabricksNoCachePowerTestIndividualQueries1} to Figure 66.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/nocacheResultsGraphs/1_PDFsam_PowerTestCompAll.pdf}}
+   \end{center}
+   \caption{Databricks Power Test individual query times with and without cache (1).}
+   \label{fig:additionalResultsDatabricksNoCachePowerTestIndividualQueries1}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/nocacheResultsGraphs/2_PDFsam_PowerTestCompAll.pdf}}
+   \end{center}
+   \caption{Databricks Power Test individual query times with and without cache (2).}
+   \label{fig:additionalResultsDatabricksNoCachePowerTestIndividualQueries2}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/nocacheResultsGraphs/3_PDFsam_PowerTestCompAll.pdf}}
+   \end{center}
+   \caption{Databricks Power Test individual query times with and without cache (3).}
+   \label{fig:additionalResultsDatabricksNoCachePowerTestIndividualQueries3}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/nocacheResultsGraphs/4_PDFsam_PowerTestCompAll.pdf}}
+   \end{center}
+   \caption{Databricks Power Test individual query times with and without cache (4).}
+   \label{fig:additionalResultsDatabricksNoCachePowerTestIndividualQueries4}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/nocacheResultsGraphs/5_PDFsam_PowerTestCompAll.pdf}}
+   \end{center}
+   \caption{Databricks Power Test individual query times with and without cache (5).}
+   \label{fig:additionalResultsDatabricksNoCachePowerTestIndividualQueries5}
+\end{figure}
+
+A total of 53 queries show a decrease in performance of at least 50\% when the cache is disabled, 42 of them take twice as long to complete. Queries 32, 42, and 56 take more than 4 times as long. Only in two cases we saw a drop in performance larger than 10\% when using the cache, namely for queries 21 and 62. Cache misses or overhead in caching files for successive queries could explain that. Overall, the results show that the io cache offers a significant improvement for Databricks. When comparing with EMR Presto in our reference results, it is clear that although it represents an advantage, it is by no means the deciding factor. The Power Test takes almost 3 times as much time in EMR Presto as in Databricks without io cache.
+
+In the Throughput Test we also witness significant performance degradation when the io cache is disabled, as depicted in Figure \ref{fig:additionalResultsDatabricksNoCacheTputTest}. Predictably, the performance degradation is larger in the Throughput Test when compared with the Power Test, 35\% vs. 28\%, due to multiple instances of the same queries being able to take advantage of the cache.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/nocacheResultsGraphs/tput_totalHrTimeBarChart.pdf}}
+   \end{center}
+   \caption{Databricks Throughput Test total time with and without cache.}
+   \label{fig:additionalResultsDatabricksNoCacheTputTest}
+\end{figure}
+
+\subsection{Parquet vs. ORC format in EMR Presto}
+
+Our reference results use the ORC format for EMR Presto, which we found to be a better alternative than Parquet from a performance standpoint. Nevertheless, it is interesting to analyze the behavior of EMR Presto with the Parquet format to determine the effect a different column-based storage format can have.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/orcvsparquetResultsGraphs/load_totalHrTimeBarChart.pdf}}
+   \end{center}
+   \caption{EMR Presto Data Loading Test total time with ORC vs. Parquet.}
+   \label{fig:additionalResultsPrestoORCvsParquetDataLoading}
+\end{figure}
+
+Figure \ref{fig:additionalResultsPrestoORCvsParquetDataLoading} provides the data loading times for EMR Presto using ORC and alternatively using Parquet, again using the 1 TB dataset. The use of Parquet more than doubles the required time when compared to using the ORC format (our reference result). This is likely due to a more mature and optimized implementation for ORC in Presto, since as we saw on Section \ref{referenceResultsDataLoading}, even better results can be achieved for Parquet using Databricks. Hence, it is not due to the drawbacks of the format itself.
+
+The total execution time for the Power Test using both formats is shown in Figure \ref{fig:additionalResultsPrestoORCvsParquetPowerTestTotalTime}, followed by the geometric mean and the arithmetic mean of query completion times in Figure \ref{fig:additionalResultsPrestoORCvsParquetPowerTestGeomean} and Figure \ref{fig:additionalResultsPrestoORCvsParquetPowerTestArithmeticMean}, respectively.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/orcvsparquetResultsGraphs/power_totalHrTimeBarChart.pdf}}
+   \end{center}
+   \caption{EMR Presto Power Test total time with ORC vs. Parquet}
+   \label{fig:additionalResultsPrestoORCvsParquetPowerTestTotalTime}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/orcvsparquetResultsGraphs/power_geomeanTimeBarChart.pdf}}
+   \end{center}
+   \caption{EMR Presto Power Test query execution time geometric mean with ORC vs. Parquet.}
+   \label{fig:additionalResultsPrestoORCvsParquetPowerTestGeomean}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/orcvsparquetResultsGraphs/power_avgTimeBarChart.pdf}}
+   \end{center}
+   \caption{EMR Presto Power Test query execution time arithmetic mean with ORC vs. Parquet.}
+   \label{fig:additionalResultsPrestoORCvsParquetPowerTestArithmeticMean}
+\end{figure}
+
+We observe a relatively small decrease in performance with the use of the Parquet format of about 10\%. We omit the detailed comparison for each query since for the most part we observe a regular behavior repeated across all queries. Only 10 queries showed a better performance with Parquet, with only query 51 showing an improvement beyond 10\%, 19\% to be exact.
+
+In regards to the Throughput Test, we present the results in Figure \ref{fig:additionalResultsPrestoORCvsParquetTputTest}. We can see that with 4 concurrent streams running, the degradation of performance when using Parquet increases to about 13\%.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/orcvsparquetResultsGraphs/tput_totalHrTimeBarChart.pdf}}
+   \end{center}
+   \caption{EMR Presto Throughput Test total time with ORC vs. Parquet}
+   \label{fig:additionalResultsPrestoORCvsParquetTputTest}
+\end{figure}
+
+From the previous results, we can conclude that ORC is a better option for EMR Presto than Parquet, with a major improvement in loading times and a small but valuable improvement for query processing. In cases when a database already exists in the Parquet format, converting to ORC is probably not worth it. The large differences in performance between EMR Presto and Databricks are also not the result of using different column-storage data formats.
+
+\subsection{S3 vs. HDFS storage in EMR Presto}
 
