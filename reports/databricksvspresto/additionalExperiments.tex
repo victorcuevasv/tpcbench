@@ -98,5 +98,77 @@ Conversely, among the 51 queries that saw improvement with the use of statistics
    \label{fig:additionalResultsDatabricksWithStatsTputTest}
 \end{figure}
 
+\subsection{Databricks with table statistics only}
 
+Recalling the results in Figure \ref{fig:additionalResultsDatabricksWithStatsDataLoading} showing the total data loading time with and without table and column statistics generation, the question may arise of what optimization results can be achieved with only table statistics, and how much time will be saved that way in the data loading process. We carried out the experiments in question arriving at two main conclusions. First, although generating table and column statistics is not a very time consuming process, the time becomes negligible when only table statistics are produced. Concretely, it takes about 2 minutes, thus mostly launching and scheduling tasks and no significant amount of data processing.
+
+Second, it can be very counterproductive to employ the cost-based optimizer when only table statistics are available. Figure \ref{fig:additionalResultsDatabricksWithBasicStatsPowerTestTotalTime} shows the results of the Power Test employing only table statistics.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/statsResultsGraphs/power_totalHrTimeBarChart.pdf}}
+   \end{center}
+   \caption{Databricks Power Test total time with and without basic statistics.}
+   \label{fig:additionalResultsDatabricksWithBasicStatsPowerTestTotalTime}
+\end{figure}
+
+Using the cost-based optimizer with only table statistics at its disposal results in a total execution time more than 3 times greater. However, this large difference is for the most part due to the fact that query 72 takes about 4.6 hours to complete when the optimizer has only table statistics to derive a plan. The difference between the arithmetic and geometric means, shown in Figure \ref{fig:additionalResultsDatabricksWithBasicStatsPowerTestArithmeticMean} and Figure \ref{fig:additionalResultsDatabricksWithBasicStatsPowerTestGeomean}, respectively, captures this anomaly. Figure \ref{fig:additionalResultsDatabricksWithBasicStatsPowerTestIndividualQueries1} to Figure \ref{fig:additionalResultsDatabricksWithBasicStatsPowerTestIndividualQueries5} present a comparison for the individual queries (we exclude query 72 for clarity).
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/statsResultsGraphs/power_avgTimeBarChart.pdf}}
+   \end{center}
+   \caption{Databricks Power Test query execution time arithmetic mean with and without basic statistics.}
+   \label{fig:additionalResultsDatabricksWithBasicStatsPowerTestArithmeticMean}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/statsResultsGraphs/power_geomeanTimeBarChart.pdf}}
+   \end{center}
+   \caption{Databricks Power Test query execution time geometric mean with and without basic statistics.}
+   \label{fig:additionalResultsDatabricksWithBasicStatsPowerTestGeomean}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/statsResultsGraphs/1_PDFsam_PowerTestCompAll.pdf}}
+   \end{center}
+   \caption{Databricks Power Test indivicual query execution times with and without basic statistics (1).}
+   \label{fig:additionalResultsDatabricksWithBasicStatsPowerTestIndividualQueries1}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/statsResultsGraphs/2_PDFsam_PowerTestCompAll.pdf}}
+   \end{center}
+   \caption{Databricks Power Test indivicual query execution times with and without basic statistics (2).}
+   \label{fig:additionalResultsDatabricksWithBasicStatsPowerTestIndividualQueries2}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/statsResultsGraphs/3_PDFsam_PowerTestCompAll.pdf}}
+   \end{center}
+   \caption{Databricks Power Test indivicual query execution times with and without basic statistics (3).}
+   \label{fig:additionalResultsDatabricksWithBasicStatsPowerTestIndividualQueries3}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/statsResultsGraphs/4_PDFsam_PowerTestCompAll.pdf}}
+   \end{center}
+   \caption{Databricks Power Test indivicual query execution times with and without basic statistics (4).}
+   \label{fig:additionalResultsDatabricksWithBasicStatsPowerTestIndividualQueries4}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/statsResultsGraphs/5_PDFsam_PowerTestCompAll.pdf}}
+   \end{center}
+   \caption{Databricks Power Test indivicual query execution times with and without basic statistics (5).}
+   \label{fig:additionalResultsDatabricksWithBasicStatsPowerTestIndividualQueries5}
+\end{figure}
+
+We find severely worse performance for queries 19, 24, 50, and 58. On the other hand, queries 74 to 99 show dramatic better performance. Consequently, although basic table-level statistics do bring advantages in performance, there is a risk that they may backfire due to their limited ability to characterize a dataset. Since the generation of column-level statistics is not expensive, even when computed for all columns of all tables as we did for the TPC-DS dataset, we recommend their use.
 
