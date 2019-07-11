@@ -306,7 +306,7 @@ In regards to the Throughput Test, we present the results in Figure \ref{fig:add
    \begin{center}
    \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/orcvsparquetResultsGraphs/tput_totalHrTimeBarChart.pdf}}
    \end{center}
-   \caption{EMR Presto Throughput Test total time with ORC vs. Parquet}
+   \caption{EMR Presto Throughput Test total time with ORC vs. Parquet.}
    \label{fig:additionalResultsPrestoORCvsParquetTputTest}
 \end{figure}
 
@@ -314,3 +314,36 @@ From the previous results, we can conclude that ORC is a better option for EMR P
 
 \subsection{S3 vs. HDFS storage in EMR Presto}
 
+So far, in our EMR Presto experiments we have used AWS S3 for table storage, which has the advantage of being persistent and independent of the cluster. It is relevant to quantify the possible performance losses associated with gaining these advantages; in principle, storage local to the cluster nodes should be more efficient. Thus, we present a benchmark run in which we use the HDFS cluster storage for the database tables and analyze its effects.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/prestoemrhdfsResultsGraphs/load_totalHrTimeBarChart.pdf}}
+   \end{center}
+   \caption{EMR Presto Data Loading Test with S3 vs HDFS.}
+   \label{fig:additionalResultsPrestoHDFSvsS3DataLoading}
+\end{figure}
+
+First, we present in Figure \ref{fig:additionalResultsPrestoHDFSvsS3DataLoading} the total time for the Data Loading Test. We can see that using HDFS we obtain a performance improvement of about 20\% when compared to using S3, in both cases using the ORC column-storage file format.
+
+In relation to query execution, we provide the total time for the Power Test in Figure \ref{fig:additionalResultsPrestoHDFSvsS3PowerTestTotalTime}. In this case, using HDFS resulted in a small performance improvement of about 6\%. No significant performance benefit can be obtained by copying data from S3 into HDFS for querying instead of querying it directly on S3.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/prestoemrhdfsResultsGraphs/power_totalHrTimeBarChart.pdf}}
+   \end{center}
+   \caption{EMR Presto Power Test with S3 vs HDFS.}
+   \label{fig:additionalResultsPrestoHDFSvsS3PowerTestTotalTime}
+\end{figure}
+
+When it comes to the Throughput Test, the result is again a small improvement of about 5\%, depicted in Figure \ref{fig:additionalResultsPrestoHDFSvsS3TputTestTotalTime}. Such a small improvement may seem counterintuitive, since it is common knowledge that for fast query processing it is essential to have the code and data close together, and that permanent storage latency times dominate. However, by monitoring the benchmark execution we can observe that the workload is for the most part memory and CPU-bound. Furthermore, EMR Presto has the capability to buffer data in memory to pass on for downstream operators, and in many cases, even with slow data access, there is more than sufficient time to buffer the data before it is processed.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/additionalExperiments/prestoemrhdfsResultsGraphs/tput_totalHrTimeBarChart.pdf}}
+   \end{center}
+   \caption{EMR Presto Throughput Test with S3 vs HDFS.}
+   \label{fig:additionalResultsPrestoHDFSvsS3TputTestTotalTime}
+\end{figure}
+
+\subsection{Validation of HDFS usage in EMR}
