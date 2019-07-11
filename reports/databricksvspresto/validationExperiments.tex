@@ -1,5 +1,13 @@
 \section{Validation experiments}\label{validationExperiments}
 
+In addition to the experiments presented in Sections \ref{referenceResults} to \ref{additionalExperiments}, we present a new series of experiments in this section with the aim of validating particular properties of a system. These correspond firstly to experiments to validate correct operation under heavy concurrency. Secondly, we test whether the particular interface employed to execute queries on a system has some effect on performance or reliability.
+
+\subsection{Concurrent execution with 32 streams}\label{concurrent32streams}
+
+We test the ability of the systems to handle a high level of concurrency by running the TPC-DS Throughput Test with 32 streams, which adds up to 3,168 queries. Given the large number of total and concurrent queries, we employ the 10 GB scale factor, whereas, as noted earlier, our previous experiments employ the 1 TB scale factor.
+
+We present in Figure 76 the result of this experiment. Databricks completes the test almost exactly 5 times faster. It is necessary to point out that in this case EMR Presto used a database in Parquet. Aiming for an accurate comparison, we can take the 34.67 hour time for EMR Presto using Parquet for the 1 TB 4 stream test in Section \ref{additionalExperimentsParquetVsORCPresto} and its analogous time of 6.85 hours of our reference results, Databricks turns out to be again almost exactly 5 times faster.
+
 \subsection{EMR Presto using JDBC vs. the CLI}\label{prestoJDBvsCLI}
 
 \subsection{Databricks JDBC interface with Simba driver}\label{databricksJDBC}

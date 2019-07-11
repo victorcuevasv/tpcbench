@@ -156,23 +156,17 @@ The total execution time for the Power Test is roughly 2 hours for Databricks wh
    \label{fig:referenceResultsDataLoadingIndTimes5}
 \end{figure}
 
-We must clarify that in the case of EMR Presto additional configuration parameters were specified through the benchmark execution code as session parameters applied to all queries unless they were overridden. We list these parameters in Table \ref{table:prestoConfigurationParameters}.
+We must clarify that in the case of EMR Presto additional configuration parameters were specified through the benchmark execution code as session parameters applied to all queries unless they were overridden. We list these parameters in Listing \ref{listing:prestoConfigurationParameters}.
 
-\begin{table}
-  \centering
-	\begin{tabular}{|l|}
-	  \hline
-		\makecell[l]{query\_max\_stage\_count: 102 \\
-		join\_reordering\_strategy: AUTOMATIC \\
-		join\_distribution\_type: AUTOMATIC \\
-		task\_concurrency: 8
-		}
-		\\
-		\hline
-	\end{tabular}
-	\caption{Reference results EMR Presto configuration parameters.}
-	\label{table:prestoConfigurationParameters}
-\end{table}
+\vspace{0.5cm}
+
+\begin{lstlisting}[caption={Reference results EMR Presto configuration parameters.},label=listing:prestoConfigurationParameters,captionpos=b,frame=single]
+query_max_stage_count: 102
+join_reordering_strategy: AUTOMATIC
+join_distribution_type: AUTOMATIC
+task_concurrency: 8
+
+\end{lstlisting}
 
 The maximum number of stages is set to 102 since that is the maximum generated among the 99 TPC-DS queries. The join reordering strategy and distribution type is set to automatic to enable the optimizer to select the best alternative. The task concurrency is set to 8, lower than the default 16, aiming to reduce global memory use. Some of these configuration parameters have to be overridden to enable the correct and efficient completion of some queries, Table \ref{table:prestoQueryConfigurationParameters} lists the queries involved and their settings.
 

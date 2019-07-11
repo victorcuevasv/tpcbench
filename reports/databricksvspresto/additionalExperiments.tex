@@ -258,7 +258,7 @@ In the Throughput Test we also witness significant performance degradation when 
    \label{fig:additionalResultsDatabricksNoCacheTputTest}
 \end{figure}
 
-\subsection{Parquet vs. ORC format in EMR Presto}
+\subsection{Parquet vs. ORC format in EMR Presto}\label{additionalExperimentsParquetVsORCPresto}
 
 Our reference results use the ORC format for EMR Presto, which we found to be a better alternative than Parquet from a performance standpoint. Nevertheless, it is interesting to analyze the behavior of EMR Presto with the Parquet format to determine the effect a different column-based storage format can have.
 
@@ -347,3 +347,32 @@ When it comes to the Throughput Test, the result is again a small improvement of
 \end{figure}
 
 \subsection{Validation of HDFS usage in EMR}
+
+We conclude this subsection by showing how we validated that EMR Presto was indeed using HDFS when configured to do so. The AWS Glue catalog reported that the tables were created with a hdfs:// protocol prefix. Further validating the use of the local NVMe drives, the file system of the worker nodes and the HDFS Hive warehouse was inspected as shown in Listing \ref{listing:prestoHDFSvalidation}.
+
+The commands were executed on one of the data nodes of the cluster. The first command, lsblk, lists all block devices, as its name suggests. We see that an NVMe drive is listed, which has most of its capacity dedicated to the /mnt partition. Then we verify the disk utilization of that partition and find that most of it is employed by hdfs. Finally, we measure the disk utilization of the database through its default location, and find that it matches the expected size for a compressed database of the 1 TB scale factor. In addition, if the data is evenly spread across the data nodes, 8 (the number of  data nodes) times the data size measured for this node (63 GB) would yield about twice the size of the total database. This is consistent to the expected replication factor of 2 for an EMR cluster of this size.
+
+\vspace{0.5cm}
+
+\begin{lstlisting}[caption={Validation of HDFS use for EMR Presto.},label=listing:prestoHDFSvalidation,captionpos=b,frame=single]
+[root@ip-172-31-29-233 mnt]# lsblk
+NAME    	MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+nvme0n1 	259:0	0  1.7T  0 disk
+  nvme0n1p1 259:1	0	5G  0 part /emr
+  (*\bfseries nvme0n1p2 259:2	0  1.7T  0 part /mnt *)
+
+[root@ip-172-31-29-233 mnt]# du -sh /mnt/*
+(*\bfseries 63G    hdfs *)
+0    mapred
+0    s3
+1.1M    tmp
+861M    var
+0    yarn
+
+[root@ip-172-31-29-233 mnt]# hdfs dfs -du -s -h 
+'/user/hive/warehouse/'
+(*\bfseries 246.1 G  /user/hive/warehouse *)
+
+\end{lstlisting}
+
+
