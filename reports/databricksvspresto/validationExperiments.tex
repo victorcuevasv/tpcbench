@@ -74,5 +74,20 @@ Since previous experiments by other parties have been carried out to evaluate th
 
 \subsubsection{Databricks Runtime 3.0 vs. EMR Presto}
 
+The Databricks Engineering Blog published in July 2017 a performance study \cite{starburstReport} based on the TPC-DS Benchmark. We review their results covering Databricks and EMR Presto and compare them to our own. First, we state their hardware configuration alongside the one we adopt for this report in Table \ref{table:comparisonStudiesConfigurations}.
+
+\begin{table}
+  \centering
+	\begin{tabular}{|l|l|l|l|l|l|}
+	  \hline
+		\textbf{Study} & \makecell[l]{\bf Number \\ \bf of nodes} & \makecell[l]{\bf EC2 \\ \bf instance \\ \bf types} & \textbf{vCPUs} & \textbf{Memory} & \textbf{Storage} \\ \hline
+		\makecell[l]{Databricks \\ 2017} & 11 & r3.xlarge & 4 × 11 = 44 & \makecell[l]{30.5 × 11 = \\ 335.5 GB} & \makecell[l]{80 × 11 = \\ 880 GB \\ (EBS)} \\ \hline
+		\makecell[l]{Present \\ report} & 8 & i3.2xlarge & 8 × 8 = 64 & \makecell[l]{61 × 8 = \\ 488 GB} & \makecell[l]{1900 × 8 = \\ 15200 GB \\ (SSD)} \\ \hline
+	\end{tabular}
+	\caption{Comparison of hardware configurations between studies.}
+	\label{table:comparisonStudiesConfigurations}
+\end{table}
+
+
 
 
