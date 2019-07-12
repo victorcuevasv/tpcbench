@@ -6,8 +6,73 @@ In addition to the experiments presented in Sections \ref{referenceResults} to \
 
 We test the ability of the systems to handle a high level of concurrency by running the TPC-DS Throughput Test with 32 streams, which adds up to 3,168 queries. Given the large number of total and concurrent queries, we employ the 10 GB scale factor, whereas, as noted earlier, our previous experiments employ the 1 TB scale factor.
 
-We present in Figure 76 the result of this experiment. Databricks completes the test almost exactly 5 times faster. It is necessary to point out that in this case EMR Presto used a database in Parquet. Aiming for an accurate comparison, we can take the 34.67 hour time for EMR Presto using Parquet for the 1 TB 4 stream test in Section \ref{additionalExperimentsParquetVsORCPresto} and its analogous time of 6.85 hours of our reference results, Databricks turns out to be again almost exactly 5 times faster.
+We present in Figure \ref{fig:validationExperimentsStreams32TputTest} the result of this experiment. Databricks completes the test almost exactly 5 times faster. It is necessary to point out that in this case EMR Presto used a database in Parquet. Aiming for an accurate comparison, we can take the 34.67 hour time for EMR Presto using Parquet for the 1 TB 4 stream test in Section \ref{additionalExperimentsParquetVsORCPresto} and its analogous time of 6.85 hours of our reference results, Databricks turns out to be again almost exactly 5 times faster.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/validationExperiments/streams32/tput_totalHrTimeBarChart.pdf}}
+   \end{center}
+   \caption{EMR Presto vs. Databricks 32-stream 10 GB scale factor Throughput Test.}
+   \label{fig:validationExperimentsStreams32TputTest}
+\end{figure}
+
+We can establish then that a much higher level of concurrency, 32 instead of 4 queries, did not fundamentally change the relative efficiency of both systems to deal with concurrency with respect to one another. It is also important to point out that no queries failed for either system, showing that both are capable of correctly scheduling them whilst appropriately allocating the available resources.
+
+The relative efficiency of the two systems certainly can change if we move from the full TPC-DS Benchmark into a more specialized workload. In particular, it is interesting to consider a workload consisting of a high number of fast queries. In this case, no single query should hold resources for a long time. We defined such a workload by selecting 21 queries from TPC-DS and running a Throughput Test with 32 streams using them. Concretely, the queries are 3, 7, 8, 19, 27, 34, 42, 43, 46, 52, 53, 55, 59, 63, 65, 68, 73, 79, 82, 89, and 98.
+
+The results can be seen in Figure \ref{fig:validationExperimentsImpalaKitTputTest}. EMR Presto now takes about double the time to complete this variant of the Throughput Test. Although the difference is significantly reduced, it still favors Databricks by a large margin. This difference cannot be attributed to an outlier query (or query instance) that turned out to be excessively slow among the query set. For Databricks completion times ranged from 5.9 seconds to 64.4 seconds, while for EMR Presto the range is from 3.3 seconds to 97.4 seconds.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/validationExperiments/impalakit/tput_totalHrTimeBarChartReference.pdf}}
+   \end{center}
+   \caption{EMR Presto vs. Databricks 32-stream 10 GB scale factor Throughput Test selected queries.}
+   \label{fig:validationExperimentsImpalaKitTputTest}
+\end{figure}
 
 \subsection{EMR Presto using JDBC vs. the CLI}\label{prestoJDBvsCLI}
 
+Besides the JDBC interface supported by its associated driver, EMR Presto offers a command line interface (CLI) based on REST that also enables to submit queries and retrieve their results. We tested how the JDBC interface used in our reference results compares to the CLI in terms of performance and reliability.
+
+For this purpose, we executed the 32-stream Throughput Test at the 10 GB scale factor with the CLI. Running this test resulted in a high number of failures, which traced back to the establishment of connections with the Presto server. These errors diminished when using 16 streams but only disappeared when restricting the test to 12 streams. This can be explained by the fact that when we use JDBC, we establish a single connection for each query stream, which runs as a separate thread. On the other hand, invoking the CLI requires issuing calls that translate to HTTP requests, in this case a new connection needs to be established for each query.
+
+We believe that the need to establish new connections creates an overhead that is the main factor in reducing the efficiency of EMR Presto by around 20\%, as we can see in Figure \ref{fig:validationExperimentsPrestoCLITputTest}. This makes JDBC the preferred method to interact with EMR Presto.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/validationExperiments/12streamsprestoResultsGraphs/tput_totalHrTimeBarChart.pdf}}
+   \end{center}
+   \caption{EMR Presto, JDBC vs. CLI, 12-stream 10 GB scale factor Throughput Test.}
+   \label{fig:validationExperimentsPrestoCLITputTest}
+\end{figure}
+
 \subsection{Databricks JDBC interface with Simba driver}\label{databricksJDBC}
+
+For the reference results, we executed SQL statements and queries via the SparkSession object, which is the single entry point for Spark in a programming environment. However, Databricks also offers a JDBC interface through a Spark Thrift Server, by means of a driver developed by Simba. The objective of the experiments in this subsection is to determine whether the JDBC interface offers comparable efficiency and reliability for Databricks users.
+
+We can see from the results in Figure \ref{fig:validationExperimentsDatabricksJDBCPowerTest} and Figure \ref{fig:validationExperimentsDatabricksJDBCTputTest}, covering the 1 TB Power Test and Throughput Test, respectively, that no noticeable difference arises in performance. All the queries completed successfully as well. Importantly, the JDBC driver should be configured by including in the url the parameter UseNativeQuery=1. Otherwise, many queries fail due to SQL syntax incompatibility. Thus, JDBC is an efficient and reliable alternative to build applications that rely on Databricks.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/validationExperiments/databricksjdbcResultsGraphs/power_totalHrTimeBarChart.pdf}}
+   \end{center}
+   \caption{Databricks, Job vs. JDBC, Power Test total time.}
+   \label{fig:validationExperimentsDatabricksJDBCPowerTest}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/validationExperiments/databricksjdbcResultsGraphs/tput_totalHrTimeBarChart.pdf}}
+   \end{center}
+   \caption{Databricks, Job vs. JDBC, Throughput Test total time.}
+   \label{fig:validationExperimentsDatabricksJDBCTputTest}
+\end{figure}
+
+\subsection{Validation of previous results}
+
+Since previous experiments by other parties have been carried out to evaluate the performance of EMR Presto and Databricks, it is of interest to look at their results, and, if possible, determining whether they are reasonably congruent with our own.
+
+\subsubsection{Databricks Runtime 3.0 vs. EMR Presto}
+
+
+
