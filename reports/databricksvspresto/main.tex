@@ -5,6 +5,10 @@
 \documentclass[12pt]{article}
 \usepackage{graphicx}
 \usepackage{makecell}
+\usepackage{listings}
+\lstset{
+    escapeinside={(*}{*)}
+}
 
 \begin{document}
 \maketitle
@@ -23,7 +27,8 @@
 \input{resultsSummary}
 \input{conclusions}
 
-%\bibliographystyle{abbrv}
+\bibliographystyle{abbrv}
 %\bibliography{main}
+\bibliography{bibliography}
 
 \end{document}

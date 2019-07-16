@@ -60,7 +60,7 @@ Since Presto relies on a Hive metastore accessed through a Hive connector, the f
 
 It is important to note that additional Presto configuration parameters were required for the successful completion of some queries, which did not occur in the analogous case for Databricks. We discuss these additional configuration parameters in Section \ref{referenceResults} dealing with the reference results.
 
-\subsection{System pricing}
+\subsection{System pricing}\label{systemPricing}
 
 For both of the SUTs, pricing is based on the time the clusters are used and consists of the EC2 instances costs plus the software costs.
 
@@ -90,6 +90,23 @@ The pricing model for AWS EMR is simpler, consisting again of the EC2 instances 
 We performed a series of initial experiments to determine the computational resources needed to evaluate the TPC-DS Benchmark effectively and in a reasonable time. For this purpose, we ran the full benchmark on a cluster consisting of 4 worker nodes and one master node, using the hardware configuration specified in Section \ref{hardwareConfiguration} (Table \ref{table:hardwareConf}), thus half the number of worker nodes as the experiments in the rest of this report. We will explain shortly the reason for doubling the number of worker nodes. We also used the default configuration for both Databricks and EMR Presto, and the original TPC-DS queries except for minor modifications for compatibility (in later experiments we modified two queries for EMR Presto as we describe in Section \ref{referenceResultsPowerTest}). Finally, the tables were stored in Databricks File System (DBFS), which is supported by S3, thus potentially similar to our S3 storage setup for our other experiments.
 
 This initial experiment proved successful for Databricks, and we present a summary of the results in Figure 17. The total execution time adds up to 21.91 hours, which incidentally is about 2.28 times as much as the time required to evaluate the benchmark in our reference configuration detailed in Section \ref{referenceResults}, which as noted used 8 worker nodes instead of 4. Therefore, although two queries were different as noted above, we observe a good elasticity in the use of resources for Databricks.
+
+\begin{figure*}
+		\centering
+		\begin{tabular}{|l|l|l|}
+		\hline 
+				\scalebox{0.25}{\includegraphics[width=7.0in]{imgs/experimentalSetup/load_totalHrTimeBarChart.pdf}}
+				&
+				\scalebox{0.25}{\includegraphics[width=7.0in]{imgs/experimentalSetup/power_totalHrTimeBarChart.pdf}}
+        &
+        \scalebox{0.25}{\includegraphics[width=7.0in]{imgs/experimentalSetup/tput_totalHrTimeBarChart.pdf}} \\
+				\hline
+		\end{tabular}
+		\caption{Preliminary experimental results with Databricks.}
+		\label{fig:preliminaryResults}
+\end{figure*}
+
+In the case of EMR Presto, many queries failed due to memory related errors, either the memory available within a particular node was insufficient or the memory allocated in total to a query across the cluster was insufficient. For this reason, we doubled the number of worker nodes to 8, aiming to avoid at least the first type of memory error. This, however, proved to be insufficient, so we needed to introduce the configuration modifications and query rewritings detailed in Section \ref{referenceResultsPowerTest}.
 
 
 
