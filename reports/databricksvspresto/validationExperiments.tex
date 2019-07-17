@@ -88,6 +88,55 @@ The Databricks Engineering Blog published in July 2017 a performance study \cite
 	\label{table:comparisonStudiesConfigurations}
 \end{table}
 
+In terms of number of CPU cores (independent of their type) and memory, the study in \cite{databricksReport} had at disposal about 70\% of the resources that we have in this report. The storage total capacity is far larger in our study, but since it is significantly under-utilized the main advantage it offers is speed, however, it is still not the dominant factor. We remark that an analysis of the configurations for Databricks and EMR Presto for both studies it out of the scope of our work.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.75}{\includegraphics[width=7.0in]{imgs/validationExperiments/previousResults/databricksBlogGraph.png}}
+   \end{center}
+   \caption{Experimental results of Databricks Engineering Blog study.}
+   \label{fig:validationExperimentsDatabricksBlogGraph}
+\end{figure}
+
+Figure \ref{fig:validationExperimentsDatabricksBlogGraph} shows the resulting total time obtained by the experiment in \cite{databricksReport} we focus on, which like our reference results used a 1 TB scale factor with the tables stored on S3. As it is pointed out in the figure, only 62 queries were evaluated in the experiment (as a Power Test), this is because the rest failed on EMR Presto. The total execution time for Databricks was about 2.3 hours, while it is about 7.7 for Presto, thus Databricks is about 3.3 times faster. Recalling our reference results presented in Section 4.2, which involve all 99 queries, the Databricks total time was about 2 hours in contrast to about 7.1 hours for EMR Presto, making Databricks around 3.6 times faster.
+
+The proportions of the total execution times are very similar. Assessing the specific total execution times is complicated by the fact that the number of queries is different. However, given that the experiment in \cite{databricksReport} evaluated fewer queries but also had fewer hardware resources, these times seem congruent. Therefore, we do not find a major discrepancy between the two experiments.
+
+\subsubsection{Starburst Presto Benchmarks}
+
+Starburst offers several services based on Presto, notably cloud-computing clusters running Presto, either on AWS or Azure, and employing a proprietary cost-based optimizer (CBO) for queries. A white paper \cite{starburstReport} provides a description and benchmarking experiments.
+
+Figure \ref{fig:validationExperimentsStarburstGraph1} and Figure \ref{fig:validationExperimentsStarburstGraph2} from \cite{starburstReport} present their results, again based on the TPC-DS Benchmark. It is noted as TPCH-DS in the figure most likely due to an error, with a second error being the key in Figure 83 that should use the key in Figure 82 instead\footnote{An excerpt of the white paper presented in https://www.starburstdata.com/technical-blog/starburst-presto-on-aws-18x-faster-than-emr/ does not show these errors.} . They provide results for 47 queries since the rest failed on the default Presto configuration. It is likely the 1 TB scale factor was used for these queries but that is not entirely clear from \cite{starburstReport}. The version of EMR Presto used in \cite{starburstReport} is 0.194, while we used 0.215.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/validationExperiments/previousResults/starburstReport1.png}}
+   \end{center}
+   \caption{Starburst Presto experimental results (1).}
+   \label{fig:validationExperimentsStarburstGraph1}
+\end{figure}
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.65}{\includegraphics[width=7.0in]{imgs/validationExperiments/previousResults/starburstReport2.png}}
+   \end{center}
+   \caption{Starburst Presto experimental results (2).}
+   \label{fig:validationExperimentsStarburstGraph2}
+\end{figure}
+
+The results clearly show significant timesavings when using Starburst Presto in comparison to EMR Presto. In almost all instances, its cost-based optimizer (CBO) can further reduce those execution times.
+
+It is important to consider that the CBO requires column statistics for better results, whether we are speaking of the conventional Presto optimizer (that we assume available on EMR) or the optimizer offered by Starburst. In our experiments, we do not employ column statistics since the AWS Glue metastore does not support them.
+
+These results raise the question of whether we would have obtained significantly better results if we used Starburst Presto instead of EMR Presto. A confident answer would require performing the actual experiments. We did compare the default Presto session configuration of the EMR Presto clusters we used with its analogous from a current Starbust Presto test cluster, and did not find, in our view, any major differences we had not addressed in our tuning efforts. Due to that reason, we are surprised of the large difference reported between Starburst Presto (without CBO) and EMR Presto. A concrete comparison of Starburst Presto with our current or new results for Databricks and EMR Presto is an alternative for future work.
+
+
+
+
+
+
+
+
 
 
 
