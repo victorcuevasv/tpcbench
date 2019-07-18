@@ -47,3 +47,55 @@ We next estimate the costs of employing spot instances instead of on-demand inst
 The costs are reduced by more or less about half. Since the Databricks Data Engineering software costs now dominate the node cost per hour, the Databricks reference costs compared to the EMR Presto ORC costs now are about 2.8 times cheaper instead of 3.4 times cheaper, still a difference of great magnitude.
 
 \subsection{TPC-DS performance metric}\label{resultsSummaryPerformanceMetric}
+
+The TPC-DS Benchmark defines a performance metric that combines the number of queries and the execution times of the different tests, while also taking the scale factor into consideration. We provide in Equation \ref{eq:TPCDSperfMetric} the formula used to calculate this metric.
+
+\begin{equation}\label{eq:TPCDSperfMetric}
+  QphDS@SF = \left\lfloor\frac{SF \cdot Q}{\sqrt[4]{T_{PT} \cdot T_{TT} \cdot T_{DM} \cdot T_{LD}}}\right\rfloor
+\end{equation}
+
+Where the components of the QphDS@SF metric are:
+\begin{itemize}
+\item	$SF$: the scale factor, 1000 for 1 TB in our case.
+\item	$Q$: the total number of weighted queries, 99 (number of queries in the benchmark) times the number of streams in the Throughput Test, which is 4 in our experiments.
+\item	$T_PT$: the total time to compute the Power Test multiplied by the number of streams.
+\item	$T_TT$: total time for the two phases of the Throughput Test, we perform only one phase.
+\item	$T_DM$: total time for the two Maintenance Tests, which we do not perform.
+\item	$T_LD$: the total time of the Data Loading Test, multiplied by the number of streams and an adjustment factor of 0.01.
+\end{itemize}
+
+We do not perform the Data Maintenance Tests and consequently do a single Throughput Test because we address the scenario in which a distributed file system works on an append-only mode. Therefore, we have to adjust the performance metric to the form it takes in Equation \ref{eq:modifiedTPCDSperfMetric}.
+
+\begin{equation}\label{eq:modifiedTPCDSperfMetric}
+  QphDS@SF = \left\lfloor\frac{SF \cdot Q}{\sqrt[3]{T_{PT} \cdot T_{TT} \cdot T_{LD}}}\right\rfloor
+\end{equation}
+
+Using that equation, we derive the results we present in Figure \ref{fig:performanceMetricResults}.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.75}{\includegraphics[width=7.0in]{imgs/resultsSummary/performanceMetricResults.pdf}}
+   \end{center}
+   \caption{TPC-DS Benchmark performance metric for various configurations.}
+   \label{fig:performanceMetricResults}
+\end{figure}
+
+In this case, a larger number is better, and Databricks with statistics obtains the best score, followed by the reference configuration that does not employ them. Interestingly, Databricks Light obtains a slightly lower score than EMR Presto using ORC, despite having obtained a lower total execution time. This is because EMR Presto using the ORC format was about 50\% more efficient in loading the data. The geometric mean component of the formula makes the corresponding factor more relevant.
+
+From the TPC-DS Benchmark performance metric and the total monetary costs data, we can derive a price-performance metric. In fact, TPC-DS already defines such a metric as simply the price to run the benchmark divided by the score. In our case, we consider the EC2 instances costs and the software costs. The AWS S3 storage costs are not included, but we do not expect them to vary significantly between the two systems. We do not give a monetary cost to the administrative and software development tasks required to create and run the benchmark applications, but we do comment on them in Section \ref{usability}.
+
+In Figure \ref{fig:pricePerformanceResults} we present the price-performance metric for the various system configurations.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.75}{\includegraphics[width=7.0in]{imgs/resultsSummary/pricePerformanceResults.pdf}}
+   \end{center}
+   \caption{TPC-DS Benchmark price-performance for various configurations.}
+   \label{fig:pricePerformanceResults}
+\end{figure}
+
+In this case, a higher value indicates that more money needs to be spent for each benchmark performance unit. Again, Databricks with statistics obtains the best result, closely followed by its alternative configurations. EMR Presto using the ORC format beats Databricks Light, due to the previously discussed higher benchmark score and similar operational costs. The advantages of the ORC format for EMR Presto are also highlighted in comparison to Parquet.
+
+
+
+
