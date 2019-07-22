@@ -1,0 +1,52 @@
+\section{Conclusions}\label{conclusions}
+
+\subsection{Discussion and recommendations}
+
+Our experiments clearly show that Databricks is much more efficient and cost-effective than EMR Presto. Concretely, our reference configuration for Databricks, which employs the cache but not table and column statistics with cost-based optimization, completed our implementation of the TPC-DS Benchmark in about 25\% of the time required for our reference configuration for EMR Presto (mainly characterized by using the ORC format). The majority of queries ran faster on Databricks, often by a large margin. On the other hand, some queries ran faster on EMR Presto but by a small margin. Databricks also showed to be better in dealing with concurrency. These advantages are reflected in a significantly higher score in our adapted TPC-DS metric.
+
+It is important to remark that, as opposed to Databricks, implementing the benchmark in EMR Presto required significantly more effort in terms of configuration and tuning. We recall that our preliminary experiments with four worker nodes, thus half the number of worker nodes as in the rest of the experiments we include in this report, succeeded for Databricks but failed for EMR Presto. Increasing the computational resources proved to be insufficient by itself in order to achieve a successful completion of the benchmark with EMR Presto.
+
+Regarding monetary costs, for the reference configurations the total for Databricks represents about 30\% of the total for EMR Presto. Thus, although the software makes the total cost per node per hour higher for Databricks, it is more than compensated by its efficiency. If EC2 spot instances are used, reducing the hardware costs in relation to the software, the proportion of total cost of Databricks in comparison to EMR Presto drops slightly to about 35\%, but the cost is essentially halved (according to AWS guidelines). In our computed price-performance metric, Databricks also wins by a large margin.
+
+Further experiments showed that some of the features of Databricks bring significant performance improvements. Particularly, using the cost-based optimizer reduces total execution time by about 20\%, already taking into consideration the time required for computing table and column statistics. Additionally, disabling the io cache results in a drop in performance of about 30\% in total execution time. We also corroborated that using the JDBC interface for Databricks is as effective and efficient as using jobs. For EMR Presto, we established that using the Parquet file format instead of ORC results in a loss of performance of about 16\%.
+
+The above statements refer to the 5.3 version of the Databricks Data Engineering Runtime. Our experiments also covered the Databricks Light 2.4 runtime. In this case, the results are much closer to those of EMR Presto. In fact, the total execution time is only about 5\% lower, while the total costs are about 7\% cheaper. In view of these results, there appears to be little reason to use the Databricks Light runtime instead of the Databricks Data Engineering runtime, at least with the current price structure.
+
+In relation to usability and developer productivity, we summarize in Table \ref{table:comparisonFeatures} the various features of Databricks and EMR Presto.
+
+\begin{table}
+  \centering
+	\begin{tabular}{|l|l|l|}
+	  \hline
+		\textbf{Feature} & \textbf{EMR Presto} & \textbf{Databricks} \\ \hline
+		Easy and flexible cluster creation & \cmark & \cmark \\ \hline
+		\makecell[l]{Framework configuration at \\ cluster creation time} & \cmark & \cmark \\ \hline
+		Direct distributed file system support & \xmark & \cmark \\ \hline
+		Independent data catalog (metastore) & \cmark & \cmark \\ \hline
+		Support for notebooks & \cmark & \cmark \\ \hline
+		Integrated web GUI & \xmark & \cmark \\ \hline
+		JDBC access & \cmark & \cmark \\ \hline
+		Programmatic interface & \xmark & \cmark \\ \hline
+		Job creation and management infrastructure & \xmark & \cmark \\ \hline
+		\makecell[l]{SQL customized visualization of query \\ plan execution} & \cmark & \cmark \\ \hline
+		\makecell[l]{Resource utilization monitoring with \\ Ganglia and CloudWatch} & \cmark & \cmark \\ \hline
+	\end{tabular}
+	\caption{EMR Presto vs. Databricks features.}
+	\label{table:comparisonFeatures}
+\end{table}
+
+Overall, the two systems have similar features. Considering the type of system each represents, we do not find any significant omissions. Due to the kind of applications that can be built on Databricks, its programmatic interface is an important distinction. Databricks also provides a more integrated platform and interface, which is a convenience that data scientists may find particularly appealing. We remark that the query execution visualization GUI of Databricks is a little more informative than its analogous for EMR Presto. Our experience in relation to application development left us with the impression that both systems are easy to develop for, although some issues do arise and need to be solved along the way. In this regard, we note that Databricks offers the additional option of the Jobs API that can be significantly useful. All of this is aside from tuning and addressing errors for heavy workloads, which we found to be far more prevalent for EMR Presto as noted previously.
+
+Based on our experience we can make the following recommendations regarding usability. We note that the integrated platform and interface that Databricks offers is indeed an important advantage. However, with some additional effort a moderately experienced developer can compensate the drawbacks of EMR Presto in this regard. For instance, by using Zeppelin for notebooks or setting up SSH tunnels for the query execution and resource utilization monitoring web interfaces. As for application development, it could also be convenient to have a series of guidelines for migrating applications from open source Apache Spark to Databricks. The problems we faced related to the metastore version and using the session object in a multi-threaded environment exemplify cases for which such guidelines could be helpful.
+
+\subsection{Perspectives for future work}
+
+Our study is limited in its scope; it aims to give a comparison of Databricks with EMR Presto for SQL-based data analytics, under the assumption that the user is willing to perform some degree of configuration management and system tuning. It cannot cover all of the features of these systems, and relies on the functionality available through its associated cloud service at a particular point in time. The cloud-based Big Data analytics landscape is constantly evolving, services get new features and new participants can emerge. Aiming to extend this study without departing from its initial objective, we can propose the following tasks as alternatives for future work.
+
+Determine the effectiveness of the Databricks Delta storage layer when compared to our reference configuration. Delta is an open-source storage system that enables ACID transactions in Apache Spark. It offers capabilities like data versioning, schema evolution, and data auditing. The data maintenance feature of the TPC-DS benchmark that we did not implement could be a starting point for experimentation.
+
+Evaluate the benchmark on EMR Presto using column statistics for its optimizer. This would require, first, using Hive to generate them, since the current EMR Presto version does not support their generation through its SQL syntax. Second, use an alternative system for the metastore, given that AWS Glue does not support column statistics.
+
+Test EMR Spark and see how it compares to Databricks Data Engineering and Databricks Light. In principle, the current Spark benchmarking application could be used for this purpose with minimal modification.
+
+Perform experiments on alternative services based on Presto. Concretely, the Presto implementation offered by Starburst Data, which is equipped with a proprietary cost-based optimizer. Qubole is a cloud-based big data platform that also provides a Presto-based service, focused on real-time analytics.

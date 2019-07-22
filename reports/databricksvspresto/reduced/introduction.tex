@@ -1,0 +1,35 @@
+\section{Introduction}\label{introduction}
+\subsection{Objectives and approach}
+The current business environment requires modern enterprises to adopt and continuously adapt big data analytics in a prompt and cost-effective manner. In this context, SQL-based data analytics is of foremost importance, due to its ability to generate concrete and clear results in a flexible and declarative way.
+
+In turn, such large-scale data analytics efforts require considerable computational resources, whose upfront acquisition is prohibitive for most small to medium businesses. Cloud computing services aim to provide an economical alternative, in which users are granted computational resources dynamically at will, paying only proportionally to the time of their use.
+
+Relying to a large extent on free and open-source software, sophisticated data analytics services have been built on top of these cloud-based computational infrastructures. In some cases, they are developed and supported by the same cloud provider company, while in others third parties manage the software and services. Amazon Web Services EMR Presto is an example of the former while Databricks Unified Analytics Platform represents the latter.
+
+The study we present in this report compares these two services with the aim of helping users to determine which will be more cost-effective for their needs, and which advantages and disadvantages they have to take into consideration. For this purpose, we implement, run and analyze the TPC-DS benchmark for these systems under various configurations.
+
+\subsection{Systems Under Test (SUTs)}
+We present a brief description of the two systems under consideration in our study.
+
+\subsubsection{Databricks Unified Analytics Platform Spark}
+Based on Apache Spark, the Databricks Unified Analytics Platform has the objective of facilitating the data analytics process in its entirety. Notebooks support collaboration and interactive development, while the specification and execution of complex data pipelines is handled by production jobs. In both cases with the advantage of the optimized Databricks Runtime. Although Apache Spark has multiple data processing capabilities, including machine learning, stream, and graph processing, we focus on its SQL processing functionality. The Databricks UAP is built on the Databricks Cloud Service, which is compatible and relies on two major cloud computing platforms, Amazon Web Services (AWS) and Microsoft Azure. The user has the option to choose which one to use.
+
+\subsubsection{Amazon Web Services EMR Presto}
+Amazon Web Services EMR provides a common platform for multiple data analytics frameworks, including Apache Hadoop, Apache Hive, Apache Spark, and Presto. In this study, we focus on Presto, which is a distributed SQL engine that can process data from multiple sources through pluggable connectors. Query processing is based on in-memory, pipelined parallel execution. EMR users can interact with Presto via a command line interface (CLI) or through JDBC.
+
+\subsection{TPC Benchmark DS}
+The Transaction Processing Performance Council (TPC) Benchmark DS \cite{tpcdsSpec} has the objective of evaluating decision support systems, which process large volumes of data in order to provide answers to real-world business questions. Based on a model of a retailer with several channels of distribution, it consists of SQL queries of the following types: reporting queries, ad-hoc queries, iterative queries, and data-mining queries. These queries, a total of 99, are posed on a snowflake schema over data produced by the accompanying data generator.
+
+Our implementation of this benchmark is based on the TPC-DS Toolkit v2.10.1rc3, and consists of data loading, i.e. the creation of relational tables from the generated raw text files (Data Loading Test); the sequential execution of queries (Power Test); and the concurrent execution of multiple independent streams of queries (Throughput Test). Due to the append-only character traditionally associated with distributed file systems and data processing frameworks, we exclude the data maintenance tasks defined in the benchmark.
+
+\subsection{Overview of the experiments}
+In our study, we assume that the user is not able or willing to spend significant amounts of time tuning a system to optimize the data analytics tasks at hand. Nevertheless, we expect that the completion of significantly complex data analytics tasks at a relatively large scale, as represented by the TPC-DS benchmark, will require some degree of tuning by modifying the queries or the system configuration.
+
+Thus, we define a query set and a system configuration for each of the Systems Under Test (SUTs), which comprises the minimal changes required from the benchmark specification queries and the default system configuration in order to result in the successful and reasonably efficient completion of the benchmark. The associated results are called reference results in this document.
+
+In addition to the experiments that yield the aforementioned reference results, we report and analyze additional experiments that deviate from the reference experiments in enabling or disabling a key system feature that can be relevant to performance. Altogether, these experiments allow to determine the performance in terms of time and monetary costs expected from each system without extraordinary efforts. Finally, we also present validation experiments that stress a system in a specific way, or prove or disprove a particular hypothesis regarding one of the systems.
+
+\subsection{Organization of the document}
+The remaining of this document is organized as follows. First, we discuss the usability and features of the systems and our experience implementing the benchmark in Section \ref{usability}. Next, Section \ref{experimentalSetup} details the experimental setup used in our experiments and its associated pricing. We present the reference results in Section \ref{referenceResults}, followed by analogous results using the alternative Databricks Light Runtime in Section \ref{databricksLight}. Subsequently, Section \ref{additionalExperiments} discusses additional experiments under tuning while Section \ref{validationExperiments} presents validation experiments. A summary of the various configurations and metric results is then given in Section \ref{resultsSummary}. Finally, we present our conclusions in Section \ref{conclusions}.
+
+
