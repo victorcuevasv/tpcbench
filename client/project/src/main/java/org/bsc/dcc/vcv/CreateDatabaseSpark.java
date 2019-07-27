@@ -63,26 +63,28 @@ public class CreateDatabaseSpark {
 	 * args[6] subdirectory within the jar that contains the create table files
 	 * args[7] prefix of external location for raw data tables (e.g. S3 bucket), null for none
 	 * args[8] prefix of external location for created tables (e.g. S3 bucket), null for none
-	 * args[9] schema (database) name
-	 * args[10] jar file
+	 * args[9] format for column-storage tables (PARQUET, DELTA)
+	 * args[10] schema (database) name
+	 * args[11] jar file
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 11 ) {
+		if( args.length != 12 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
 		}
-		CreateDatabaseSpark prog = new CreateDatabaseSpark(args[10], args[6], args[4]);
+		CreateDatabaseSpark prog = new CreateDatabaseSpark(args[11], args[6], args[4]);
 		boolean doCount = Boolean.parseBoolean(args[5]);
 		String extTablePrefixRaw = args[7].equalsIgnoreCase("null") ? null : args[7];
 		String extTablePrefixCreated = args[8].equalsIgnoreCase("null") ? null : args[8];
-		prog.createTables(args[0], args[1], args[2], doCount, extTablePrefixRaw, extTablePrefixCreated, args[9]);
+		prog.createTables(args[0], args[1], args[2], doCount, extTablePrefixRaw, extTablePrefixCreated, 
+				args[9], args[10]);
 		//In the case of Spark on Databricks, copy the /data/logs/analytics.log file to
 		// /dbfs/data/logs/tput/sparkdatabricks/analyticsDuplicate.log, in case the application is
 		//running on a job cluster that will be shutdown automatically after completion.
 		if( args[4].equals("sparkdatabricks") ) {
 			prog.copyLog("/data/logs/analytics.log",
-				"/dbfs/data/logs/power/sparkdatabricks/analyticsDuplicate.log");
+				"/dbfs/data/logs/load/sparkdatabricks/analyticsDuplicate.log");
 		}
 		if( ! args[4].equals("sparkdatabricks") ) {
 			prog.closeConnection();
@@ -90,7 +92,7 @@ public class CreateDatabaseSpark {
 	}
 	
 	private void createTables(String workDir, String suffix, String genDataDir, boolean doCount,
-			String extTablePrefixRaw, String extTablePrefixCreated, String dbName) {
+			String extTablePrefixRaw, String extTablePrefixCreated, String format, String dbName) {
 		// Process each .sql create table file found in the jar file.
 		this.useDatabase(dbName);
 		this.recorder.header();
@@ -100,7 +102,7 @@ public class CreateDatabaseSpark {
 		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
 			createTable(workDir, fileName, sqlCreate, suffix, genDataDir, doCount, 
-					extTablePrefixRaw, extTablePrefixCreated, i);
+					extTablePrefixRaw, extTablePrefixCreated, format, i);
 			i++;
 		}
 	}
@@ -124,7 +126,7 @@ public class CreateDatabaseSpark {
 	// creating these tables.
 	private void createTable(String workDir, String sqlCreateFilename, String sqlCreate, String suffix, 
 			String genDataDir, boolean doCount, String extTablePrefixRaw, String extTablePrefixCreated,
-			int index) {
+			String format, int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
@@ -146,7 +148,8 @@ public class CreateDatabaseSpark {
 			if( doCount )
 				countRowsQuery(tableName + suffix);
 			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "");
-			String intSqlCreate = internalCreateTable(incIntSqlCreate, tableName, extTablePrefixCreated);
+			String intSqlCreate = internalCreateTable(incIntSqlCreate, tableName, extTablePrefixCreated,
+					format);
 			saveCreateTableFile(workDir, "parquet", tableName, intSqlCreate);
 			this.dropTable("drop table if exists " + tableName);
 			this.spark.sql(intSqlCreate);
@@ -232,11 +235,14 @@ public class CreateDatabaseSpark {
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an internal parquet table in Hive.
 	private String internalCreateTable(String incompleteSqlCreate, String tableName,
-			String extTablePrefixCreated) {
+			String extTablePrefixCreated, String format) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
 		if( extTablePrefixCreated != null ) {
-			builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
+			if( format.equalsIgnoreCase("DELTA") )
+				builder.append("USING DELTA \n");
+			else
+				builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
 			builder.append("LOCATION '" + extTablePrefixCreated + "/" + tableName + "' \n");
 		}
 		else
