@@ -29,7 +29,8 @@ IFS=''
 while read -r line || [[ -n "$line" ]]; do
 	IFS=' '
 	for word in $line; do
-		aws s3api delete-object --bucket $2 --key $word/empty 
+		#aws s3api delete-object --bucket $2 --key $word/empty
+		aws s3 rm s3://$2/$word --recursive  
 	done
 	IFS=''
 done < "$1"

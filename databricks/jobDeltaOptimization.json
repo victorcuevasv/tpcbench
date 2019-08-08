@@ -1,0 +1,33 @@
+{
+  "name": "Databricks Delta optimization",
+  "new_cluster": {
+  	"spark_version": "5.5.x-scala2.11",
+  	"aws_attributes": {
+    	"zone_id": "us-west-2b",
+        "first_on_demand": 1,
+        "availability": "SPOT_WITH_FALLBACK"
+    },
+    "node_type_id": "i3.2xlarge",
+    "spark_env_vars": {
+    	"PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+    },
+    "spark_conf": {
+    	"spark.sql.crossJoin.enabled": true,
+		"spark.sql.broadcastTimeout": 7200
+    },
+    "ssh_public_keys": ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDjxM9WRCj8vI0aDAVhVi3DkibIaChqwjshgcPvXcth5l1cWxBZLkDdL1CCLSAbUGGL+HX79FL7L46wBCOHTJ2hhd7tjxxDG7IeH/G2Q1wPsTMt7Vpswc8Ijp6BKzbqAJS9HJAq9VPjh0x39gPd2x4vHiRpudKA+RFvTQ1jWRz0nTxI/eteZWB03jrPQxbZFo5v/29VDTwRlDBraC5q3hblfXAUk8cWQkhlFz2XagPNzsigVsY/zJvIJ/zW5ZpPI5El2VK3CEGjqbg5qt7QnIiRydly3N2eWHDIwZM3nfAMYdWig+65U8LOy9NC8J6dk8v/ZlstoOLNNm5+LSkmj9b7 pristine@al-1001"],     
+    "enable_elastic_disk": false,
+    "num_workers": 2
+  },
+  "timeout_seconds": 0,
+  "spark_jar_task": {
+  	"jar_uri": "project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar",
+    "main_class_name": "org.bsc.dcc.vcv.ExecuteQueriesSpark",
+    "parameters": 
+    	["/dbfs/data", "results", "plans",
+    	"/dbfs/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar",
+    	"sparkdatabricks", "false", "false", "tpcdsdb1gb", "zorder", "DatabricksDeltaZorder", "all"
+    	]
+  }
+}
+
