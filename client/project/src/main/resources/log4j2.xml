@@ -9,11 +9,6 @@
 			<PatternLayout pattern="%-5level: %d{HH:mm:ss.SSS} %C{1} %t %logger{2} - %msg%n" />
 		</File>
 		-->
-		<!--  
-		<File name="AnalyticsLogFile" fileName="/data/logs/analytics.log" immediateFlush="true" append="false">
-			<PatternLayout pattern="%-5level: %d{HH:mm:ss.SSS} %C{1} %t %logger{2} - %msg%n" />
-		</File>
-		-->
 		<RollingFile
     		name="LogRollingFile"
     		fileName="/data/logs/all.log"
@@ -33,9 +28,6 @@
 			<!-- <AppenderRef ref="LogFile" /> -->
 			<AppenderRef ref="LogRollingFile" />
 		</Root>
-		<Logger name="AnalyticsLog" level="info" additivity="false">
-    		<!-- <AppenderRef ref="AnalyticsLogFile" /> -->
-		</Logger>
 		<Logger name="AllLog" level="info" additivity="false">
     		<!-- <AppenderRef ref="LogFile" /> -->
     		<AppenderRef ref="LogRollingFile" />

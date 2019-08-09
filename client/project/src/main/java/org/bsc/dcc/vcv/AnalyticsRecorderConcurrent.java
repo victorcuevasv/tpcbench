@@ -16,7 +16,7 @@ public class AnalyticsRecorderConcurrent extends AnalyticsRecorder {
 		for(int i = 0; i < titles.length - 1; i++)
 			builder.append(String.format("%-25s|", titles[i]));
 		builder.append(String.format("%-25s", titles[titles.length-1]));
-		logger.info(builder.toString());
+		this.message(builder.toString());
 	}
 	
 	public void record(QueryRecordConcurrent queryRecord) {
@@ -40,7 +40,7 @@ public class AnalyticsRecorderConcurrent extends AnalyticsRecorder {
 		Date endDate = new Date(queryRecord.getEndTime());
 		String endDateFormatted = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(endDate);
 		builder.append(String.format("%-" + spaces + "s", endDateFormatted));
-		logger.info(builder.toString());
+		this.message(builder.toString());
 	}
 
 }
