@@ -26,7 +26,7 @@ public class AnalyticsRecorder {
 		this.system = system;
 		this.writer = null;
 		try {
-			File logFile = new File("/data/logs/" + folderName + "/" + 
+			File logFile = new File("/data/" + folderName + "/logs/" + 
 						experimentName + "/" + testName + "/" + instance + "/analytics.log");
 			logFile.getParentFile().mkdirs();
 			this.writer = new BufferedWriter(new FileWriter(logFile));
