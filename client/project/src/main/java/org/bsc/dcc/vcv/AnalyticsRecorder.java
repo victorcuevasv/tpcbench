@@ -2,30 +2,52 @@ package org.bsc.dcc.vcv;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.io.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.*;
-import org.apache.logging.log4j.core.appender.*;
-import org.apache.logging.log4j.core.config.*;
-import org.apache.logging.log4j.core.layout.*;
-import org.apache.logging.log4j.Level;
 
 public class AnalyticsRecorder {
 	
-	protected static final Logger logger = LogManager.getLogger("AnalyticsLog");
+	private static final Logger logger = LogManager.getLogger("AllLog");
 	
+	protected String folderName;
+	protected String experimentName;
 	protected String testName;
+	protected int instance;
 	protected String system;
+	private BufferedWriter writer;
 	
 	public AnalyticsRecorder(String testName, String system) {
+		this.folderName = "13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8";
+		this.experimentName = "spark";
 		this.testName = testName;
+		this.instance = 1;
 		this.system = system;
-		this.addAppender(testName, system);
+		this.writer = null;
+		try {
+			File logFile = new File("/data/logs/" + folderName + "/" + 
+						experimentName + "/" + testName + "/" + instance + "/analytics.log");
+			logFile.getParentFile().mkdirs();
+			this.writer = new BufferedWriter(new FileWriter(logFile));
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
 	}
 	
-	public void message(String msg) {
-		logger.info(msg);
+	protected void message(String msg) {
+		//logger.info(msg);
+		try {
+			this.writer.write(msg);
+			this.writer.newLine();
+			this.writer.flush();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
 	}
 	
 	public void header() {
@@ -35,7 +57,7 @@ public class AnalyticsRecorder {
 		for(int i = 0; i < titles.length - 1; i++)
 			builder.append(String.format("%-25s|", titles[i]));
 		builder.append(String.format("%-25s", titles[titles.length-1]));
-		logger.info(builder.toString());
+		this.message(builder.toString());
 	}
 	
 	public void record(QueryRecord queryRecord) {
@@ -58,48 +80,8 @@ public class AnalyticsRecorder {
 		Date endDate = new Date(queryRecord.getEndTime());
 		String endDateFormatted = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(endDate);
 		builder.append(String.format("%-" + spaces + "s", endDateFormatted));
-		logger.info(builder.toString());
+		this.message(builder.toString());
 	}
 	
-	public void addAppender(String testName, String system) {
-		LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-		Configuration config = ctx.getConfiguration();
-		PatternLayout layout = PatternLayout.newBuilder()
-	            .withConfiguration(ctx.getConfiguration())
-	            .withPattern("%msg%n").build();
-		String fileName = null;
-		if( this.system.equals("sparkdatabricks") )
-			fileName = "/dbfs/data/logs/" + testName + "/" + system + "/analytics.log";
-		else
-			fileName = "/data/logs/" + testName + "/" + system + "/analytics.log";
-		FileAppender appender = FileAppender.newBuilder()
-				.withLayout(layout)
-		        .withFileName(fileName)
-		        .withName("AnalyticsLogAppender")
-		        .withAppend(false)
-		        .withImmediateFlush(true)
-		        .build();
-		appender.start();
-		config.addAppender(appender);
-		updateLoggers(appender, config);
-	}
-	
-	
-	private void updateLoggers(final Appender appender, final Configuration config) {
-		LoggerConfig loggerConfig = config.getLoggerConfig("AnalyticsLog");
-		loggerConfig.addAppender(appender, null, null);
-	}
-	
-	
-	/*
-	private void updateLoggers(final Appender appender, final Configuration config) {
-	    final Level level = null;
-	    final Filter filter = null;
-	    for (final LoggerConfig loggerConfig : config.getLoggers().values()) {
-	        loggerConfig.addAppender(appender, level, filter);
-	    }
-	    config.getRootLogger().addAppender(appender, level, filter);
-	}
-	*/
 	
 }
