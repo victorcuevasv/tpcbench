@@ -11,23 +11,26 @@ public class AnalyticsRecorder {
 	
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	
+	protected String testName;
+	protected String system;
+	protected String workDir;
 	protected String folderName;
 	protected String experimentName;
-	protected String testName;
 	protected int instance;
-	protected String system;
 	private BufferedWriter writer;
 	
-	public AnalyticsRecorder(String testName, String system) {
-		this.folderName = "13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8";
-		this.experimentName = "spark";
+	public AnalyticsRecorder(String testName, String system, String workDir, String folderName,
+			String experimentName, int instance) {
 		this.testName = testName;
-		this.instance = 1;
 		this.system = system;
+		this.workDir = workDir;
+		this.folderName = folderName;
+		this.experimentName = experimentName;
+		this.instance = instance;
 		this.writer = null;
 		try {
-			File logFile = new File("/data/" + folderName + "/logs/" + 
-						experimentName + "/" + testName + "/" + instance + "/analytics.log");
+			File logFile = new File(this.workDir + "/" + this.folderName + "/logs/" + 
+						this.experimentName + "/" + this.testName + "/" + this.instance + "/analytics.log");
 			logFile.getParentFile().mkdirs();
 			this.writer = new BufferedWriter(new FileWriter(logFile));
 		}

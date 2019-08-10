@@ -19,8 +19,8 @@ public class AnalyzeTables {
 
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public AnalyzeTables(String system, String hostname, boolean computeForCols,
-			String dbName) {
+	public AnalyzeTables(String workDir, String system, String hostname, boolean computeForCols,
+			String dbName, String folderName, String experimentName, String instanceStr) {
 		this.computeForCols = computeForCols;
 		try {
 			system = system.toLowerCase();
@@ -50,7 +50,8 @@ public class AnalyzeTables {
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
-			this.recorder = new AnalyticsRecorder("analyze", system);
+			int instance = Integer.parseInt(instanceStr);
+			this.recorder = new AnalyticsRecorder("analyze", system, workDir, folderName, experimentName, instance);
 		}
 		catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -76,21 +77,26 @@ public class AnalyzeTables {
 	 * @param args
 	 * @throws SQLException
 	 * 
-	 * args[0] system to evaluate the queries (hive/presto)
-	 * args[1] hostname of the server
-	 * args[2] compute statistics for columns (true/false)
-	 * args[3] database name
+	 * args[0] main work directory
+	 * args[1] system to evaluate the queries (hive/presto)
+	 * args[2] hostname of the server
+	 * args[3] compute statistics for columns (true/false)
+	 * args[4] database name
+	 * args[5] results folder name (e.g. for Google Drive)
+	 * args[6] experiment name (name of subfolder within the results folder
+	 * args[7] experiment instance number
 	 * 
 	 * all directories without slash
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length < 4 ) {
+		if( args.length < 8 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
 		}
-		boolean computeForCols = Boolean.parseBoolean(args[2]);
-		AnalyzeTables prog = new AnalyzeTables(args[0], args[1], computeForCols, args[3]);
+		boolean computeForCols = Boolean.parseBoolean(args[3]);
+		AnalyzeTables prog = new AnalyzeTables(args[0], args[1], args[2], computeForCols, args[4],
+				args[5], args[6], args[7]);
 		prog.configureMapreduce();
 		String[] tables = {"call_center", "catalog_page", "catalog_returns", "catalog_sales",
 							"customer", "customer_address", "customer_demographics", "date_dim",

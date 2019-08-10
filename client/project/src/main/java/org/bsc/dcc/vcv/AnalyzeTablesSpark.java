@@ -17,7 +17,8 @@ public class AnalyzeTablesSpark {
 	private SparkSession spark;
 	private AnalyticsRecorder recorder;
 
-	public AnalyzeTablesSpark(String system) {
+	public AnalyzeTablesSpark(String workDir, String system, String folderName, 
+			String experimentName, String instanceStr) {
 		try {
 			if( system.equals("sparkdatabricks") ) {
 				this.spark = SparkSession.builder().appName("TPC-DS Database Table Analysis")
@@ -30,6 +31,8 @@ public class AnalyzeTablesSpark {
 						.enableHiveSupport()
 						.getOrCreate();
 			}
+			int instance = Integer.parseInt(instanceStr);
+			this.recorder = new AnalyticsRecorder("analyze", system, workDir, folderName, experimentName, instance);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -37,26 +40,29 @@ public class AnalyzeTablesSpark {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
-		this.recorder = new AnalyticsRecorder("analyze", system);
 	}
 
 	/**
 	 * @param args
 	 * 
-	 * args[0] system to evaluate the queries (spark/sparkdatabricks)
-	 * args[1] compute statistics for columns (true/false)
-	 * args[2] database name
+	 * args[0] main work dir
+	 * args[1] system to evaluate the queries (spark/sparkdatabricks)
+	 * args[2] compute statistics for columns (true/false)
+	 * args[3] database name
+	 * args[4] results folder name (e.g. for Google Drive)
+	 * args[5] experiment name (name of subfolder within the results folder
+	 * args[6] experiment instance number
 	 * 
 	 */
 	public static void main(String[] args) {
-		if( args.length < 2 ) {
+		if( args.length < 7 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
 		}
-		boolean computeForCols = Boolean.parseBoolean(args[1]);
-		AnalyzeTablesSpark prog = new AnalyzeTablesSpark(args[0]);
-		prog.analyzeTables(args[2], computeForCols);
+		boolean computeForCols = Boolean.parseBoolean(args[2]);
+		AnalyzeTablesSpark prog = new AnalyzeTablesSpark(args[0], args[1], args[4], args[5], args[6]);
+		prog.analyzeTables(args[3], computeForCols);
 		//prog.closeConnection();
 	}
 	

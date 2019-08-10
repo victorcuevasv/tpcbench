@@ -24,17 +24,57 @@ public class ExecuteQueries {
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private AnalyticsRecorder recorder;
-	boolean savePlans;
-	boolean saveResults;
-
+	private String workDir;
+	private String resultsDir;
+	private String plansDir;
+	private String system;
+	private boolean savePlans;
+	private boolean saveResults;
+	private String dbName;
+	private String test;
+	private String queriesDir;
+	private String folderName;
+	private String experimentName;
+	private int instance;
+	private String hostname;
+	
+	
+	/**
+	 * @param args
+	 * 
+	 * args[0] main work directory
+	 * args[1] subdirectory of work directory to store the results
+	 * args[2] subdirectory of work directory to store the execution plans
+	 * args[3] system (system name used within the logs)
+	 * args[4] save plans (boolean)
+	 * args[5] save results (boolean)
+	 * args[6] database name
+	 * args[7] test (e.g. power)
+	 * args[8] queries dir
+	 * args[9] results folder name (e.g. for Google Drive)
+	 * args[10] experiment name (name of subfolder within the results folder
+	 * args[11] experiment instance number
+	 * args[12] hostname of the server
+	 * args[13] "all" or query file
+	 * 
+	 */
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public ExecuteQueries(String system, String hostname, boolean savePlans, boolean saveResults,
-			String dbName) {
+	public ExecuteQueries(String[] args) {
 		try {
-			this.savePlans = savePlans;
-			this.saveResults = saveResults;
-			system = system.toLowerCase();
+			this.workDir = args[0];
+			this.resultsDir = args[1];
+			this.plansDir = args[2];
+			this.system = args[3];
+			this.savePlans = Boolean.parseBoolean(args[4]);
+			this.saveResults = Boolean.parseBoolean(args[5]);
+			this.dbName = args[6];
+			this.test = args[7];
+			this.queriesDir = args[8];
+			this.folderName = args[9];
+			this.experimentName = args[10];
+			this.instance = Integer.parseInt(args[11]);
+			this.hostname = args[12];
 			String driverName = "";
 			if( system.equals("hive") ) {
 				Class.forName(hiveDriverName);
@@ -64,23 +104,23 @@ public class ExecuteQueries {
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
-			this.recorder = new AnalyticsRecorder("power", system);
+			this.recorder = new AnalyticsRecorder(test, system, workDir, folderName, experimentName, instance);
 		}
 		catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueries constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueries constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueries constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -93,33 +133,21 @@ public class ExecuteQueries {
 		((PrestoConnection)con).setSessionProperty("task_concurrency", "8");
 	}
 
-	/**
-	 * @param args
-	 * @throws SQLException
-	 * 
-	 * args[0] main work directory
-	 * args[1] subdirectory of work directory that contains the queries
-	 * args[2] subdirectory of work directory to store the results
-	 * args[3] subdirectory of work directory to store the execution plans
-	 * args[4] system to evaluate the queries (hive/presto)
-	 * args[5] hostname of the server
-	 * args[6] save plans (boolean)
-	 * args[7] save results (boolean)
-	 * args[8] database name
-	 * args[9] "all" or query file
-	 * 
-	 * all directories without slash
-	 */
+
 	public static void main(String[] args) throws SQLException {
-		if( args.length < 10 ) {
-			System.out.println("Incorrect number of arguments.");
-			logger.error("Insufficient arguments.");
+		if( args.length != 14 ) {
+			System.out.println("Incorrect number of arguments: "  + args.length);
+			logger.error("Insufficient arguments: " + args.length);
 			System.exit(1);
 		}
-		boolean savePlans = Boolean.parseBoolean(args[6]);
-		boolean saveResults = Boolean.parseBoolean(args[7]);
-		ExecuteQueries prog = new ExecuteQueries(args[4], args[5], savePlans, saveResults, args[8]);
-		File directory = new File(args[0] + "/" + args[1]);
+		ExecuteQueries prog = new ExecuteQueries(args);
+		String querySingleOrAllByNull = args[args.length-1].equalsIgnoreCase("all") ? null : args[args.length-1];
+		prog.executeQueries(querySingleOrAllByNull);
+		prog.closeConnection();
+	}
+	
+	public void executeQueries(String querySingleOrAllByNull) {
+		File directory = new File(this.workDir + "/" + this.queriesDir);
 		// Process each .sql file found in the directory.
 		// The preprocessing steps are necessary to obtain the right order, i.e.,
 		// query1.sql, query2.sql, query3.sql, ..., query99.sql.
@@ -128,25 +156,22 @@ public class ExecuteQueries {
 				map(AppUtil::extractNumber).
 				sorted().
 				map(n -> "query" + n + ".sql").
-				map(s -> new File(args[0] + "/" + args[1] + "/" + s)).
+				map(s -> new File(this.workDir + "/" + this.queriesDir + "/" + s)).
 				toArray(File[]::new);
-		prog.recorder.header();
-		String queryFile = args[args.length-1].equalsIgnoreCase("all") ? null : args[args.length-1];
+		this.recorder.header();
 		for (final File fileEntry : files) {
 			if (!fileEntry.isDirectory()) {
-				if( queryFile != null ) {
-					if( ! fileEntry.getName().equals(queryFile) )
+				if( querySingleOrAllByNull != null ) {
+					if( ! fileEntry.getName().equals(querySingleOrAllByNull) )
 						continue;
 				}
-				prog.executeQueryFile(args[0], fileEntry, args[2], args[3], false);
+				this.executeQueryFile(fileEntry);
 			}
 		}
-		prog.closeConnection();
 	}
 
 	// Execute the query (or queries) from the provided file.
-	private void executeQueryFile(String workDir, File sqlFile, String resultsDir,
-			String plansDir, boolean singleCall) {
+	private void executeQueryFile(File sqlFile) {
 		QueryRecord queryRecord = null;
 		try {
 			String fileName = sqlFile.getName().substring(0, sqlFile.getName().indexOf('.'));
@@ -159,14 +184,15 @@ public class ExecuteQueries {
 				this.setPrestoDefaultSessionOpts();
 			}
 			//Execute the query or queries.
-			if( singleCall )
-				this.executeQuerySingleCall(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
-			else
-				this.executeQueryMultipleCalls(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord);
+			this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
 			//Record the results file size.
-			File resultsFile = new File(workDir + "/" + resultsDir + "/" + "power" + "/" + 
-					this.recorder.system + "/" + fileName + ".txt");
-			queryRecord.setResultsSize(resultsFile.length());
+			if( this.saveResults ) {
+				String queryResultsFileName = this.generateResultsFileName(fileName);
+				File resultsFile = new File(queryResultsFileName);
+				queryRecord.setResultsSize(resultsFile.length());
+			}
+			else
+				queryRecord.setResultsSize(0);
 			queryRecord.setSuccessful(true);
 		}
 		catch (SQLException e) {
@@ -185,30 +211,24 @@ public class ExecuteQueries {
 		}
 	}
 	
-	// Execute a query from the provided file.
-	private void executeQuerySingleCall(String workDir, String resultsDir, String plansDir, 
-			String fileName, String sqlStr, QueryRecord queryRecord)
-			throws Exception {
-		// Remove the last semicolon.
-		sqlStr = sqlStr.trim();
-		sqlStr = sqlStr.substring(0, sqlStr.length() - 1);
-		// Obtain the plan for the query.
-		Statement stmt = con.createStatement();
-		ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
-		this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs, false);
-		planrs.close();
-		// Execute the query.
-		queryRecord.setStartTime(System.currentTimeMillis());
-		ResultSet rs = stmt.executeQuery(sqlStr);
-		// Save the results.
-		this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, false);
-		stmt.close();
-		rs.close();
+	
+	private String generateResultsFileName(String queryFileName) {
+		String noExtFileName = queryFileName.substring(0, queryFileName.indexOf('.'));
+		return this.workDir + "/" + this.folderName + "/" + this.resultsDir + "/" + this.experimentName + 
+				"/" + this.test + "/" + this.instance + "/" + noExtFileName + ".txt";
 	}
 	
+	
+	private String generatePlansFileName(String queryFileName) {
+		String noExtFileName = queryFileName.substring(0, queryFileName.indexOf('.'));
+		return this.workDir + "/" + this.folderName + "/" + this.plansDir + "/" + this.experimentName + 
+				"/" + this.test + "/" + this.instance + "/" + noExtFileName + ".txt";
+	}
+	
+	
 	// Execute the queries from the provided file.
-	private void executeQueryMultipleCalls(String workDir, String resultsDir, String plansDir,
-			String fileName, String sqlStrFull, QueryRecord queryRecord) throws Exception {
+	private void executeQueryMultipleCalls(String queryFileName, String sqlStrFull, QueryRecord queryRecord) 
+			throws Exception {
 		// Split the various queries and execute each.
 		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
 		boolean firstQuery = true;
@@ -228,19 +248,17 @@ public class ExecuteQueries {
 			ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
 			//this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs, ! firstQuery);
 			if( this.savePlans )
-				this.saveResults(workDir + "/" + plansDir + "/" + "power" + "/" + this.recorder.system + "/" +
-					fileName + ".txt", planrs, ! firstQuery);
+				this.saveResults(this.generatePlansFileName(queryFileName), planrs, ! firstQuery);
 			planrs.close();
 			// Execute the query.
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
-			System.out.println("Executing iteration " + iteration + " of query " + fileName + ".");
+			System.out.println("Executing iteration " + iteration + " of query " + queryFileName + ".");
 			ResultSet rs = stmt.executeQuery(sqlStr);
 			// Save the results.
 			//this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, ! firstQuery);
 			if( this.saveResults )
-				this.saveResults(workDir + "/" + resultsDir + "/" + "power" + "/" + this.recorder.system + "/" + 
-					fileName + ".txt", rs, ! firstQuery);
+				this.saveResults(this.generateResultsFileName(queryFileName), rs, ! firstQuery);
 			stmt.close();
 			rs.close();
 			firstQuery = false;

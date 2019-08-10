@@ -21,11 +21,57 @@ public class CreateDatabase {
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private AnalyticsRecorder recorder;
-
+	private String workDir;
+	private String suffix;
+	private String genDataDir;
+	private String system;
+	private boolean doCount;
+	private String subDir;
+	private String extTablePrefixRaw;
+	private String extTablePrefixCreated;
+	private String format;
+	private String dbName;
+	private String folderName;
+	private String experimentName;
+	private int instance;
+	private String hostname;
+	
+	/**
+	 * @param args
+ 	 * args[0] main work directory
+	 * args[1] suffix used for intermediate table text files
+	 * args[2] directory for generated data raw files
+	 * args[3] system running the data loading queries
+	 * args[4] whether to run queries to count the tuples generated (true/false)
+	 * args[5] subdirectory that contains the create table files
+	 * args[6] prefix of external location for raw data tables (e.g. S3 bucket), null for none
+	 * args[7] prefix of external location for created tables (e.g. S3 bucket), null for none
+	 * args[8] format for column-storage tables (PARQUET, DELTA)
+	 * args[9] schema (database) name
+	 * args[10] results folder name (e.g. for Google Drive)
+	 * args[11] experiment name (name of subfolder within the results folder
+	 * args[12] experiment instance number
+	 * args[13] hostname of the server
+	 * 
+	 */
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public CreateDatabase(String hostname, String system, String dbName) {
+	public CreateDatabase(String[] args) {
 		try {
+			this.workDir = args[0];
+			this.suffix = args[1];
+			this.genDataDir = args[2];
+			this.system = args[3];
+			this.doCount = Boolean.parseBoolean(args[4]);
+			this.subDir = args[5];
+			this.extTablePrefixRaw = args[6].equalsIgnoreCase("null") ? null : args[6];
+			this.extTablePrefixCreated = args[7].equalsIgnoreCase("null") ? null : args[7];
+			this.format = args[8];
+			this.dbName = args[9];
+			this.folderName = args[10];
+			this.experimentName = args[11];
+			this.instance = Integer.parseInt(args[12]);
+			this.hostname = args[13];
 			if( system.equals("hive") ) {
 				Class.forName(driverName);
 				con = DriverManager.getConnection("jdbc:hive2://" + hostname + 
@@ -51,6 +97,7 @@ public class CreateDatabase {
 			else {
 				throw new java.lang.RuntimeException("Unsupported system: " + system);
 			}
+			this.recorder = new AnalyticsRecorder("load", system, workDir, folderName, experimentName, instance);
 		}
 		catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -67,48 +114,51 @@ public class CreateDatabase {
 			this.logger.error(e);
 			System.exit(1);
 		}
-		this.recorder = new AnalyticsRecorder("load", system);
 	}
 
 	/**
 	 * @param args
-	 * @throws SQLException
-	 * 
-	 * args[0] subdirectory within main work directory with the create table files
+ 	 * args[0] main work directory
 	 * args[1] suffix used for intermediate table text files
 	 * args[2] directory for generated data raw files
-	 * args[3] hostname of the server
-	 * args[4] system running the data loading queries
-	 * args[5] count (boolean) whether to run queries to count the tuples generated
+	 * args[3] system running the data loading queries
+	 * args[4] whether to run queries to count the tuples generated (true/false)
+	 * args[5] subdirectory that contains the create table files
 	 * args[6] prefix of external location for raw data tables (e.g. S3 bucket), null for none
 	 * args[7] prefix of external location for created tables (e.g. S3 bucket), null for none
-	 * args[8] format for column-storage tables (ORC, Parquet)
-	 * args[9] database name
+	 * args[8] format for column-storage tables (PARQUET, DELTA)
+	 * args[9] schema (database) name
+	 * args[10] results folder name (e.g. for Google Drive)
+	 * args[11] experiment name (name of subfolder within the results folder
+	 * args[12] experiment instance number
+	 * args[13] hostname of the server
+	 * 
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 10 ) {
+		if( args.length != 14 ) {
 			System.out.println("Incorrect number of arguments.");
 			logger.error("Insufficient arguments.");
 			System.exit(1);
 		}
-		CreateDatabase prog = new CreateDatabase(args[3], args[4], args[9]);
-		boolean doCount = Boolean.parseBoolean(args[5]);
-		File directory = new File(args[0]);
-		prog.recorder.header();
-		String extTablePrefixRaw = args[6].equalsIgnoreCase("null") ? null : args[6];
-		String extTablePrefixCreated = args[7].equalsIgnoreCase("null") ? null : args[7];
+		CreateDatabase prog = new CreateDatabase(args);
+		prog.createTables();
+		prog.closeConnection();
+	}
+	
+	
+	private void createTables() {
+		File directory = new File(workDir + "/" + subDir);
+		this.recorder.header();
 		// Process each .sql create table file found in the directory.
 		File[] filesArray = directory.listFiles();
 		List<File> filesList = Arrays.stream(filesArray).sorted().collect(Collectors.toList());
 		int i = 1;
 		for (final File fileEntry : filesList) {
 			if (!fileEntry.isDirectory()) {
-				prog.createTable(args[0], fileEntry, args[1], args[2], doCount, extTablePrefixRaw,
-						extTablePrefixCreated, args[8].toLowerCase(), i);
+				this.createTable(fileEntry, i);
 				i++;
 			}
 		}
-		prog.closeConnection();
 	}
 
 	// To create each table from the .dat file, an external table is first created.
@@ -116,9 +166,7 @@ public class CreateDatabase {
 	// external table.
 	// The SQL create table statement found in the file has to be modified for
 	// creating these tables.
-	private void createTable(String workDir, File tableSQLfile, String suffix, String genDataDir,
-			boolean doCount, String extTablePrefixRaw, String extTablePrefixCreated, String format,
-			int index) {
+	private void createTable(File tableSQLfile, int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = tableSQLfile.getName().substring(0, tableSQLfile.getName().indexOf('.'));
@@ -135,7 +183,7 @@ public class CreateDatabase {
 			else if( this.recorder.system.startsWith("presto") )
 				extSqlCreate = externalCreateTablePresto(incExtSqlCreate, tableName, genDataDir,
 						extTablePrefixRaw);
-			saveCreateTableFile(workDir, "textfile", tableName, extSqlCreate);
+			saveCreateTableFile(workDir, subDir, "textfile", tableName, extSqlCreate);
 			// Skip the dbgen_version table since its time attribute is not
 			// compatible with Hive.
 			if (tableName.equals("dbgen_version")) {
@@ -155,7 +203,7 @@ public class CreateDatabase {
 				intSqlCreate = internalCreateTableHive(incIntSqlCreate, tableName, extTablePrefixCreated, format);
 			else if( this.recorder.system.startsWith("presto") )
 				intSqlCreate = internalCreateTablePresto(incIntSqlCreate, tableName, extTablePrefixCreated, format);
-			saveCreateTableFile(workDir, format, tableName, intSqlCreate);
+			saveCreateTableFile(workDir, subDir, format, tableName, intSqlCreate);
 			stmt.execute("drop table if exists " + tableName);
 			stmt.execute(intSqlCreate);
 			if( this.recorder.system.equals("hive") || this.recorder.system.equals("spark") )
@@ -291,9 +339,10 @@ public class CreateDatabase {
 		return builder.toString();
 	}
 
-	public void saveCreateTableFile(String workDir, String suffix, String tableName, String sqlCreate) {
+	public void saveCreateTableFile(String workDir, String subDir, String suffix, String tableName,
+			String sqlCreate) {
 		try {
-			File temp = new File(workDir + suffix + "/" + tableName + ".sql");
+			File temp = new File(workDir + "/" + subDir + suffix + "/" + tableName + ".sql");
 			temp.getParentFile().mkdirs();
 			FileWriter fileWriter = new FileWriter(workDir + suffix + "/" + tableName + ".sql");
 			PrintWriter printWriter = new PrintWriter(fileWriter);

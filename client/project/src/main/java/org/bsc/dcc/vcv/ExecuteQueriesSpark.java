@@ -33,21 +33,59 @@ public class ExecuteQueriesSpark {
 	private SparkSession spark;
 	private AnalyticsRecorder recorder;
 	private JarQueriesReaderAsZipFile queriesReader;
-	boolean savePlans;
-	boolean saveResults;
+	private String workDir;
+	private String resultsDir;
+	private String plansDir;
+	private String system;
+	private boolean savePlans;
+	private boolean saveResults;
+	private String dbName;
+	private String test;
+	private String queriesDir;
+	private String folderName;
+	private String experimentName;
+	private int instance;
 
-	public ExecuteQueriesSpark(String jarFile, String system, boolean savePlans, boolean saveResults,
-			String test, String queriesDirJar) {
+	
+	/**
+	 * @param args
+	 * 
+	 * args[0] main work directory
+	 * args[1] subdirectory of work directory to store the results
+	 * args[2] subdirectory of work directory to store the execution plans
+	 * args[3] system (system name used within the logs)
+	 * args[4] save plans (boolean)
+	 * args[5] save results (boolean)
+	 * args[6] database name
+	 * args[7] test (e.g. power)
+	 * args[8] queries dir within the jar
+	 * args[9] results folder name (e.g. for Google Drive)
+	 * args[10] experiment name (name of subfolder within the results folder
+	 * args[11] experiment instance number
+	 * args[12] jar file
+	 * args[13] "all" or query file
+	 * 
+	 */
+	public ExecuteQueriesSpark(String[] args) {
 		try {
-			this.savePlans = savePlans;
-			this.saveResults = saveResults;
-			this.queriesReader = null;
-			this.queriesReader = new JarQueriesReaderAsZipFile(jarFile, queriesDirJar);
+			this.workDir = args[0];
+			this.resultsDir = args[1];
+			this.plansDir = args[2];
+			this.system = args[3];
+			this.savePlans = Boolean.parseBoolean(args[4]);
+			this.saveResults = Boolean.parseBoolean(args[5]);
+			this.dbName = args[6];
+			this.test = args[7];
+			this.queriesDir = args[8];
+			this.folderName = args[9];
+			this.experimentName = args[10];
+			this.instance = Integer.parseInt(args[11]);
+			this.queriesReader = new JarQueriesReaderAsZipFile(args[12], queriesDir);
 			this.spark = SparkSession.builder().appName("TPC-DS Sequential Query Execution")
 				.config("spark.sql.crossJoin.enabled", "true")
 				.enableHiveSupport()
 				.getOrCreate();
-			this.recorder = new AnalyticsRecorder(test, system);
+			this.recorder = new AnalyticsRecorder(test, system, workDir, folderName, experimentName, instance);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -57,59 +95,40 @@ public class ExecuteQueriesSpark {
 		}
 	}
 
-	/**
-	 * @param args
-	 * 
-	 * args[0] main work directory
-	 * args[1] subdirectory of work directory to store the results
-	 * args[2] subdirectory of work directory to store the execution plans
-	 * args[3] jar file
-	 * args[4] system (directory name used to store logs)
-	 * args[5] save plans (boolean)
-	 * args[6] save results (boolean)
-	 * args[7] database name
-	 * args[8] test (e.g. power)
-	 * args[9] queries dir within the jar
-	 * args[10] "all" or query file
-	 * 
-	 * all directories without slash
-	 */
+
 	public static void main(String[] args) {
-		if( args.length != 11 ) {
-			System.out.println("Incorrect number of arguments.");
-			logger.error("Insufficient arguments.");
+		if( args.length != 14 ) {
+			System.out.println("Incorrect number of arguments: "  + args.length);
+			logger.error("Insufficient arguments: " + args.length);
 			System.exit(1);
 		}
-		boolean savePlans = Boolean.parseBoolean(args[5]);
-		boolean saveResults = Boolean.parseBoolean(args[6]);
-		ExecuteQueriesSpark prog = new ExecuteQueriesSpark(args[3], args[4], savePlans, saveResults, args[8],
-				args[9]);
-		String queryFile = args[args.length-1].equalsIgnoreCase("all") ? null : args[args.length-1];
-		prog.executeQueries(args[0], args[1], args[2], queryFile, args[7], args[8]);
+		ExecuteQueriesSpark prog = new ExecuteQueriesSpark(args);
+		String querySingleOrAllByNull = args[args.length-1].equalsIgnoreCase("all") ? null : args[args.length-1];
+		prog.executeQueries(querySingleOrAllByNull);
 	}
 	
-	public void executeQueries(String workDir, String resultsDir, String plansDir,
-			String queryFile, String dbName, String test) {
+	public void executeQueries(String querySingleOrAllByNull) {
 		this.spark.sql("USE " + dbName);
 		this.recorder.header();
 		for (final String fileName : this.queriesReader.getFilesOrdered()) {
+			if( querySingleOrAllByNull != null ) {
+				if( ! fileName.equals(querySingleOrAllByNull) )
+					continue;
+			}
 			String sqlStr = this.queriesReader.getFile(fileName);
 			String nQueryStr = fileName.replaceAll("[^\\d]", "");
 			int nQuery = Integer.parseInt(nQueryStr);
 			QueryRecord queryRecord = new QueryRecord(nQuery);
-			if( queryFile != null ) {
-				if( ! fileName.equals(queryFile) )
-					continue;
-			}
 			this.logger.info("\nExecuting query: " + fileName + "\n" + sqlStr);
 			try {
-				this.executeQueryMultipleCalls(workDir, resultsDir, plansDir, fileName, sqlStr, queryRecord, test);
-				String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
-				//long resultsSize = calculateSize(workDir + "/" + resultsDir + "/" + noExtFileName, ".csv", this.logger);
-				//queryRecord.setResultsSize(resultsSize);
-				File resultsFile = new File(workDir + "/" + resultsDir + "/" + test + "/" + 
-						this.recorder.system + "/" + noExtFileName + ".txt");
-				queryRecord.setResultsSize(resultsFile.length());
+				this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
+				if( this.saveResults ) {
+					String queryResultsFileName = this.generateResultsFileName(fileName);
+					File resultsFile = new File(queryResultsFileName);
+					queryRecord.setResultsSize(resultsFile.length());
+				}
+				else
+					queryRecord.setResultsSize(0);
 				queryRecord.setSuccessful(true);
 			}
 			catch(Exception e) {
@@ -123,37 +142,27 @@ public class ExecuteQueriesSpark {
 				this.recorder.record(queryRecord);
 			}
 		}
-		//In the case of Spark on Databricks, copy the /data/logs/analytics.log file to
-		// /dbfs/data/logs/tput/sparkdatabricks/analyticsDuplicate.log, in case the application is
-		//running on a job cluster that will be shutdown automatically after completion.
-		if( this.recorder.system.equals("sparkdatabricks") ) {
-			this.copyLog("/data/logs/analytics.log",
-					"/dbfs/data/logs/" + test + "/sparkdatabricks/analyticsDuplicate.log");
-		}
 		if( ! this.recorder.system.equals("sparkdatabricks") ) {
 			this.spark.stop();
 		}
 	}
 	
-	// Execute a query from the provided file.
-	private void executeQuerySingleCall(String workDir, String resultsDir, String plansDir, 
-			String fileName, String sqlStr, QueryRecord queryRecord) {
-		// Remove the last semicolon.
-		sqlStr = sqlStr.trim();
-		sqlStr = sqlStr.substring(0, sqlStr.length() - 1);
-		// Obtain the plan for the query.
-		Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
-		String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
-		planDataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + plansDir + "/" + noExtFileName);
-		// Execute the query.
-		queryRecord.setStartTime(System.currentTimeMillis());
-		Dataset<Row> dataset = this.spark.sql(sqlStr);
-		// Save the results.
-		dataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
+	
+	private String generateResultsFileName(String queryFileName) {
+		String noExtFileName = queryFileName.substring(0, queryFileName.indexOf('.'));
+		return this.workDir + "/" + this.folderName + "/" + this.resultsDir + "/" + this.experimentName + 
+				"/" + this.test + "/" + this.instance + "/" + noExtFileName + ".txt";
 	}
 	
-	private void executeQueryMultipleCalls(String workDir, String resultsDir, String plansDir,
-			String fileName, String sqlStrFull, QueryRecord queryRecord, String test) {
+	
+	private String generatePlansFileName(String queryFileName) {
+		String noExtFileName = queryFileName.substring(0, queryFileName.indexOf('.'));
+		return this.workDir + "/" + this.folderName + "/" + this.plansDir + "/" + this.experimentName + 
+				"/" + this.test + "/" + this.instance + "/" + noExtFileName + ".txt";
+	}
+	
+	
+	private void executeQueryMultipleCalls(String queryFileName, String sqlStrFull, QueryRecord queryRecord) {
 		// Split the various queries and execute each.
 		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
 		boolean firstQuery = true;
@@ -162,27 +171,22 @@ public class ExecuteQueriesSpark {
 			String sqlStr = tokenizer.nextToken().trim();
 			if( sqlStr.length() == 0 )
 				continue;
-			String noExtFileName = fileName.substring(0, fileName.indexOf('.'));
 			this.spark.sparkContext().setJobDescription("Executing iteration " + iteration + 
-					" of query " + fileName + ".");
+					" of query " + queryFileName + ".");
 			// Obtain the plan for the query.
 			Dataset<Row> planDataset = null;
 			if( this.savePlans )
 				planDataset = this.spark.sql("EXPLAIN " + sqlStr);
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
-			//planDataset.write().mode(SaveMode.Overwrite).csv(workDir + "/" + plansDir + "/" + noExtFileName);
 			if( this.savePlans )
-				this.saveResults(workDir + "/" + plansDir + "/" + test + "/" + 
-						this.recorder.system + "/" + noExtFileName + ".txt", planDataset, ! firstQuery);
+				this.saveResults(this.generatePlansFileName(queryFileName), planDataset, ! firstQuery);
 			// Execute the query.
-			System.out.println("Executing iteration " + iteration + " of query " + fileName + ".");
+			System.out.println("Executing iteration " + iteration + " of query " + queryFileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
-			//dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + noExtFileName);
 			if( this.saveResults )
-				this.saveResults(workDir + "/" + resultsDir + "/" + test + "/" + 
-						this.recorder.system + "/" + noExtFileName + ".txt", dataset, ! firstQuery);
+				this.saveResults(this.generateResultsFileName(queryFileName), dataset, ! firstQuery);
 			firstQuery = false;
 			iteration++;
 		}
@@ -234,7 +238,6 @@ public class ExecuteQueriesSpark {
 			tmp.getParentFile().mkdirs();
 			FileWriter fileWriter = new FileWriter(resFileName, append);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
-			//List<String> list = dataset.as(Encoders.STRING()).collectAsList();
 			List<String> list = dataset.map(row -> row.mkString(" | "), Encoders.STRING()).collectAsList();
 			for(String s: list)
 				printWriter.println(s);
@@ -248,27 +251,6 @@ public class ExecuteQueriesSpark {
 		}
 	}
 	
-	private void copyLog(String logFile, String duplicateFile) {
-		try {
-			BufferedReader inBR = new BufferedReader(new InputStreamReader(new FileInputStream(logFile)));
-			File tmp = new File(duplicateFile);
-			tmp.getParentFile().mkdirs();
-			FileWriter fileWriter = new FileWriter(duplicateFile, false);
-			PrintWriter printWriter = new PrintWriter(fileWriter);
-			String line = null;
-			while ((line = inBR.readLine()) != null) {
-				printWriter.println(line);
-			}
-			inBR.close();
-			printWriter.close();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-			this.logger.error("Error in ExecuteQueriesConcurrentSpark copyLog.");
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-		}
-	}
 
 }
 

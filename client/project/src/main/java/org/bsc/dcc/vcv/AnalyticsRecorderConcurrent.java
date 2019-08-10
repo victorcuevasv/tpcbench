@@ -5,8 +5,9 @@ import java.util.Date;
 
 public class AnalyticsRecorderConcurrent extends AnalyticsRecorder {
 	
-	public AnalyticsRecorderConcurrent(String testName, String system) {
-		super(testName, system);
+	public AnalyticsRecorderConcurrent(String testName, String system, String folderName, 
+			String experimentName, int instance) {
+		super(testName, system, folderName, experimentName, instance);
 	}
 	
 	public void header() {

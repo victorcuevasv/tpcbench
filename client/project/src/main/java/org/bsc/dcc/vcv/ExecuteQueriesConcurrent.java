@@ -43,18 +43,29 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private String dbName;
 
 	public ExecuteQueriesConcurrent(String system, String hostname, boolean multiple,
-			boolean savePlans, boolean saveResults, String dbName) {
-		this.savePlans = savePlans;
-		this.saveResults = saveResults;
-		this.system = system;
-		this.hostname = hostname;
-		this.dbName = dbName;
-		this.multiple = multiple;
-		if( ! this.multiple )
-			this.con = this.createConnection(system, hostname, dbName);
-		this.recorder = new AnalyticsRecorderConcurrent("tput", this.system);
-		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
-		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
+			boolean savePlans, boolean saveResults, String dbName, String folderName,
+			String experimentName, String instanceStr) {
+		try {
+			this.savePlans = savePlans;
+			this.saveResults = saveResults;
+			this.system = system;
+			this.hostname = hostname;
+			this.dbName = dbName;
+			this.multiple = multiple;
+			if( ! this.multiple )
+				this.con = this.createConnection(system, hostname, dbName);
+			int instance = Integer.parseInt(instanceStr);
+			this.recorder = new AnalyticsRecorderConcurrent("tput", this.system, folderName, 
+					experimentName, instance);
+			this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
+			this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueriesConcurrent constructor.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
 	}
 	
 	// Open the connection (the server address depends on whether the program is
@@ -125,7 +136,6 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 
 	/**
 	 * @param args
-	 * @throws SQLException
 	 * 
 	 * args[0] main work directory
 	 * args[1] subdirectory of work directory that contains the queries
@@ -139,20 +149,22 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	 * args[9] save plans (true|false)
 	 * args[10] save results (true|false)
 	 * args[11] database name
+	 * args[12] results folder name (e.g. for Google Drive)
+	 * args[13] experiment name (name of subfolder within the results folder
+	 * args[14] experiment instance number
 	 * 
-	 * all directories without slash
 	 */
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 12 ) {
-			System.out.println("Insufficient arguments.");
-			logger.error("Insufficient arguments.");
+		if( args.length != 15 ) {
+			System.out.println("Incorrect number of arguments: "  + args.length);
+			logger.error("Insufficient arguments: " + args.length);
 			System.exit(1);
 		}
 		boolean multiple = Boolean.parseBoolean(args[8]);
 		boolean savePlans = Boolean.parseBoolean(args[9]);
 		boolean saveResults = Boolean.parseBoolean(args[10]);
 		ExecuteQueriesConcurrent prog = new ExecuteQueriesConcurrent(args[4], args[5], multiple,
-				savePlans, saveResults, args[11]);
+				savePlans, saveResults, args[11], args[12], args[13], args[14]);
 		File directory = new File(args[0] + "/" + args[1]);
 		// Process each .sql file found in the directory.
 		// The preprocessing steps are necessary to obtain the right order, i.e.,

@@ -17,8 +17,8 @@ USER_ID=$(id -u)
 #Get the user id of the user executing this script.
 GROUP_ID=$(id -g)
 
-if [ $# -lt 2 ]; then
-    echo "${yel}Usage: bash runclient_executequeriesspark.sh <scale factor> <all | query filename>${end}"
+if [ $# -lt 3 ]; then
+    echo "${yel}Usage: bash runclient_executequeriesspark.sh <scale factor> <experiment instance number> <all | query filename>${end}"
     exit 0
 fi
 
@@ -31,5 +31,6 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.ExecuteQueriesSpark \
 --master spark://namenodecontainer:7077 --deploy-mode client \
 /project/targetspark/client-1.0-SNAPSHOT.jar \
-/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar spark true true tpcdsdb$1gb power QueriesSpark $2"                
+/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar spark true true tpcdsdb$1gb power QueriesSpark \
+/data/13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 spark $2 $3"                
 	

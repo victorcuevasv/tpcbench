@@ -23,15 +23,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #and used to identify the folder that holds the data.
 #$1 scale factor (positive integer)
 
-if [ $# -lt 1 ]; then
-    echo "${yel}Usage: bash runclient_createdbspark.sh <scale factor>${end}"
+if [ $# -lt 2 ]; then
+    echo "${yel}Usage: bash runclient_createdbspark.sh <scale factor> <experiment instance number>${end}"
     exit 0
-fi
-
-#Default ontainer to execute the command over, can be overriden by an argument.
-CONTAINER=namenodecontainer
-if [ $# -gt 1 ]; then
-    CONTAINER=$2
 fi
 
 #Execute the Java project with Maven on the client builder container running in the docker-compose setup. 
@@ -47,7 +41,8 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.CreateDatabaseSpark \
 --master spark://namenodecontainer:7077 --deploy-mode client \
 /project/targetspark/client-1.0-SNAPSHOT.jar \
-/data/tables _ext /temporal/$1GB $CONTAINER spark false tables null null parquet tpcdsdb$1gb \
+/data _ext /temporal/$1GB UNUSED spark false tables null null parquet tpcdsdb$1gb \
+/data/13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 spark $2 \
 /project/targetspark/client-1.0-SNAPSHOT.jar"
 
 
