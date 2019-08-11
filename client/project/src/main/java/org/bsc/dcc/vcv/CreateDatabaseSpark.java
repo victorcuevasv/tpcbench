@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.Optional;
 import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -18,27 +19,28 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Encoders;
 
+
 public class CreateDatabaseSpark {
 
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private SparkSession spark;
-	private JarCreateTableReaderAsZipFile createTableReader;
-	private AnalyticsRecorder recorder;
-	private String workDir;
-	private String dbName;
-	private String folderName;
-	private String experimentName;
-	private String system;
-	private String test;
-	private int instance;
-	private String genDataDir;
-	private String subDir;
-	private String suffix;
-	private String extTablePrefixRaw;
-	private String extTablePrefixCreated;
-	private String format;
-	private boolean doCount;
-	private String jarFile;
+	private final JarCreateTableReaderAsZipFile createTableReader;
+	private final AnalyticsRecorder recorder;
+	private final String workDir;
+	private final String dbName;
+	private final String folderName;
+	private final String experimentName;
+	private final String system;
+	private final String test;
+	private final int instance;
+	private final String genDataDir;
+	private final String subDir;
+	private final String suffix;
+	private final Optional<String> extTablePrefixRaw;
+	private final Optional<String> extTablePrefixCreated;
+	private final String format;
+	private final boolean doCount;
+	private final String jarFile;
 	
 	
 	/**
@@ -62,37 +64,45 @@ public class CreateDatabaseSpark {
 	 * 
 	 */
 	public CreateDatabaseSpark(String[] args) {
+		this.workDir = args[0];
+		this.dbName = args[1];
+		this.folderName = args[2];
+		this.experimentName = args[3];
+		this.system = args[4];
+		this.test = args[5];
+		this.instance = Integer.parseInt(args[6]);
+		this.genDataDir = args[7];
+		this.subDir = args[8];
+		this.suffix = args[9];
+		this.extTablePrefixRaw = Optional.ofNullable(
+				args[10].equalsIgnoreCase("null") ? null : args[10]);
+		this.extTablePrefixCreated = Optional.ofNullable(
+				args[11].equalsIgnoreCase("null") ? null : args[11]);
+		this.format = args[12];
+		this.doCount = Boolean.parseBoolean(args[13]);
+		this.jarFile = args[14];
+		JarCreateTableReaderAsZipFile createTableReaderTemp;
+		AnalyticsRecorder recorderTemp;
 		try {
-			this.workDir = args[0];
-			this.dbName = args[1];
-			this.folderName = args[2];
-			this.experimentName = args[3];
-			this.system = args[4];
-			this.test = args[5];
-			this.instance = Integer.parseInt(args[6]);
-			this.genDataDir = args[7];
-			this.subDir = args[8];
-			this.suffix = args[9];
-			this.extTablePrefixRaw = args[10].equalsIgnoreCase("null") ? null : args[10];
-			this.extTablePrefixCreated = args[11].equalsIgnoreCase("null") ? null : args[11];
-			this.format = args[12];
-			this.doCount = Boolean.parseBoolean(args[13]);
-			this.jarFile = args[14];
-			this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, 
-			this.workDir + "/" + this.subDir);
+			//createTableReaderTemp = new JarCreateTableReaderAsZipFile(this.jarFile, 
+			//		this.workDir + "/" + this.subDir);
+			createTableReaderTemp = new JarCreateTableReaderAsZipFile(this.jarFile, this.subDir);
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
-						.enableHiveSupport()
-						.getOrCreate();
-			this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
-					this.system, this.test, this.instance);
+					.enableHiveSupport()
+					.getOrCreate();
+			recorderTemp = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+				this.system, this.test, this.instance);
 		}
 		catch(Exception e) {
+			createTableReaderTemp = null;
+			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error("Error in CreateDatabaseSpark constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
-		
+		this.createTableReader = createTableReaderTemp;
+		this.recorder = recorderTemp;
 	}
 
 
@@ -151,7 +161,7 @@ public class CreateDatabaseSpark {
 			this.logger.info("Processing table " + index + ": " + tableName);
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, suffix);
 			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName, genDataDir, extTablePrefixRaw);
-			saveCreateTableFile(workDir, "textfile", tableName, extSqlCreate);
+			saveCreateTableFile("textfile", tableName, extSqlCreate);
 			// Skip the dbgen_version table since its time attribute is not
 			// compatible with Hive.
 			if (tableName.equals("dbgen_version")) {
@@ -167,7 +177,7 @@ public class CreateDatabaseSpark {
 			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "");
 			String intSqlCreate = internalCreateTable(incIntSqlCreate, tableName, extTablePrefixCreated,
 					format);
-			saveCreateTableFile(workDir, "parquet", tableName, intSqlCreate);
+			saveCreateTableFile("parquet", tableName, intSqlCreate);
 			this.dropTable("drop table if exists " + tableName);
 			this.spark.sql(intSqlCreate);
 			this.spark.sql("INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix);
@@ -198,7 +208,7 @@ public class CreateDatabaseSpark {
 			//Do nothing.
 		}
 	}
-
+	
 	
 	// Generate an incomplete SQL create statement to be completed for the texfile
 	// external and
@@ -240,15 +250,15 @@ public class CreateDatabaseSpark {
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an external textfile table in Hive.
 	private String externalCreateTable(String incompleteSqlCreate, String tableName, String genDataDir,
-			String extTablePrefixRaw) {
+			Optional<String> extTablePrefixRaw) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
 		builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY '\001' \n");
 		builder.append("STORED AS TEXTFILE \n");
-		if( extTablePrefixRaw == null )
-			builder.append("LOCATION '" + genDataDir + "/" + tableName + "' \n");
-		else
+		if( extTablePrefixRaw.isPresent() )
 			builder.append("LOCATION '" + extTablePrefixRaw + "/" + tableName + "' \n");
+		else
+			builder.append("LOCATION '" + genDataDir + "/" + tableName + "' \n");
 		return builder.toString();
 	}
 
@@ -256,10 +266,10 @@ public class CreateDatabaseSpark {
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an internal parquet table in Hive.
 	private String internalCreateTable(String incompleteSqlCreate, String tableName,
-			String extTablePrefixCreated, String format) {
+			Optional<String> extTablePrefixCreated, String format) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
-		if( extTablePrefixCreated != null ) {
+		if( extTablePrefixCreated.isPresent() ) {
 			if( format.equalsIgnoreCase("DELTA") )
 				builder.append("USING DELTA \n");
 			else
@@ -272,11 +282,12 @@ public class CreateDatabaseSpark {
 	}
 
 	
-	public void saveCreateTableFile(String workDir, String suffix, String tableName, String sqlCreate) {
+	public void saveCreateTableFile(String suffix, String tableName, String sqlCreate) {
 		try {
-			File temp = new File(workDir + suffix + "/" + tableName + ".sql");
+			File temp = new File(this.workDir + "/" + this.subDir + suffix + "/" + tableName + ".sql");
 			temp.getParentFile().mkdirs();
-			FileWriter fileWriter = new FileWriter(workDir + suffix + "/" + tableName + ".sql");
+			FileWriter fileWriter = new FileWriter(
+					this.workDir + "/" + this.subDir + suffix + "/" + tableName + ".sql");
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			printWriter.println(sqlCreate);
 			printWriter.close();
