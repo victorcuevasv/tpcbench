@@ -13,14 +13,44 @@ import org.apache.spark.sql.Encoders;
 
 public class AnalyzeTablesSpark {
 
+	
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private SparkSession spark;
 	private AnalyticsRecorder recorder;
+	private String workDir;
+	private String dbName;
+	private String folderName;
+	private String experimentName;
+	private String system;
+	private String test;
+	private int instance;
+	private boolean computeForCols;
 
-	public AnalyzeTablesSpark(String workDir, String system, String folderName, 
-			String experimentName, String instanceStr) {
+	
+	/**
+	 * @param args
+	 * 
+	 * args[0] main work directory
+	 * args[1] schema (database) name
+	 * args[2] results folder name (e.g. for Google Drive)
+	 * args[3] experiment name (name of subfolder within the results folder)
+	 * args[4] system name (system name used within the logs)
+	 * args[5] test name (i.e. load)
+	 * args[6] experiment instance number
+	 * args[7] compute statistics for columns (true/false)
+	 * 
+	 */
+	public AnalyzeTablesSpark(String[] args) {
 		try {
-			if( system.equals("sparkdatabricks") ) {
+			this.workDir = args[0];
+			this.dbName = args[1];
+			this.folderName = args[2];
+			this.experimentName = args[3];
+			this.system = args[4];
+			this.test = args[5];
+			this.instance = Integer.parseInt(args[6]);
+			this.computeForCols = Boolean.parseBoolean(args[7]);
+			if( this.system.equals("sparkdatabricks") ) {
 				this.spark = SparkSession.builder().appName("TPC-DS Database Table Analysis")
 						//	.enableHiveSupport()
 						.getOrCreate();
@@ -31,43 +61,33 @@ public class AnalyzeTablesSpark {
 						.enableHiveSupport()
 						.getOrCreate();
 			}
-			int instance = Integer.parseInt(instanceStr);
-			this.recorder = new AnalyticsRecorder("analyze", system, workDir, folderName, experimentName, instance);
+			this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+					this.system, this.test, this.instance);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSpark constructor.");
+			this.logger.error("Error in AnalyzeTablesSpark constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
 
-	/**
-	 * @param args
-	 * 
-	 * args[0] main work dir
-	 * args[1] system to evaluate the queries (spark/sparkdatabricks)
-	 * args[2] compute statistics for columns (true/false)
-	 * args[3] database name
-	 * args[4] results folder name (e.g. for Google Drive)
-	 * args[5] experiment name (name of subfolder within the results folder
-	 * args[6] experiment instance number
-	 * 
-	 */
+	
 	public static void main(String[] args) {
-		if( args.length < 7 ) {
-			System.out.println("Incorrect number of arguments.");
-			logger.error("Insufficient arguments.");
+		if( args.length != 8 ) {
+			System.out.println("Incorrect number of arguments: "  + args.length);
+			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
 		}
 		boolean computeForCols = Boolean.parseBoolean(args[2]);
-		AnalyzeTablesSpark prog = new AnalyzeTablesSpark(args[0], args[1], args[4], args[5], args[6]);
-		prog.analyzeTables(args[3], computeForCols);
+		AnalyzeTablesSpark prog = new AnalyzeTablesSpark(args);
+		prog.analyzeTables();
 		//prog.closeConnection();
 	}
 	
-	private void analyzeTables(String dbName, boolean computeForCols) {
-		this.useDatabase(dbName);
+	
+	private void analyzeTables() {
+		this.useDatabase(this.dbName);
 		this.recorder.header();
 		String[] tables = {"call_center", "catalog_page", "catalog_returns", "catalog_sales",
 				"customer", "customer_address", "customer_demographics", "date_dim",
@@ -76,21 +96,23 @@ public class AnalyzeTablesSpark {
 				"store_sales", "time_dim", "warehouse", "web_page", "web_returns",
 				"web_sales", "web_site"};
 		for(int i = 0; i < tables.length; i++) {
-			analyzeTable(tables[i], computeForCols, i);
+			analyzeTable(tables[i], this.computeForCols, i);
 		}
 	}
 
+	
 	private void useDatabase(String dbName) {
 		try {
 			this.spark.sql("USE " + dbName);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSpark useDatabase.");
+			this.logger.error("Error in AnalyzeTablesSpark useDatabase.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
+	
 	
 	private void analyzeTable(String tableName, boolean computeForCols, int index) {
 		QueryRecord queryRecord = null;
@@ -129,6 +151,7 @@ public class AnalyzeTablesSpark {
 		}
 	}
 	
+	
 	private String processResults(Dataset<Row> dataset) {
 		String retVal = null;
 		try {
@@ -145,6 +168,7 @@ public class AnalyzeTablesSpark {
 		return retVal;
 	}
 	
+	
 	public void closeConnection() {
 		try {
 			this.spark.stop();
@@ -155,6 +179,7 @@ public class AnalyzeTablesSpark {
 		}
 	}
 
+	
 }
 
 

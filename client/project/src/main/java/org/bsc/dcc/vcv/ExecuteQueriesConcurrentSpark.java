@@ -35,37 +35,38 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	private JarQueriesReaderAsZipFile queriesReader;
 	private static final int POOL_SIZE = 100;
 	private Random random;
-	private String workDir;
-	private String resultsDir;
-	private String plansDir;
-	private String system;
-	private boolean savePlans;
-	private boolean saveResults;
-	private String dbName;
-	private String test;
-	private String queriesDir;
-	private String folderName;
-	private String experimentName;
-	private int instance;
+	String workDir;
+	String dbName;
+	String folderName;
+	String experimentName;
+	String system;
+	String test;
+	int instance;
+	String queriesDir;
+	String resultsDir;
+	String plansDir;
+	boolean savePlans;
+	boolean saveResults;
+	private String jarFile;
 	private int nStreams;
 	private long seed;
 	
 	
 	/**
 	 * @param args
-	 * 
+	 *  
 	 * args[0] main work directory
-	 * args[1] subdirectory of work directory to store the results
-	 * args[2] subdirectory of work directory to store the execution plans
-	 * args[3] system (system name used within the logs)
-	 * args[4] save plans (boolean)
-	 * args[5] save results (boolean)
-	 * args[6] database name
-	 * args[7] test (e.g. power)
-	 * args[8] queries dir within the jar
-	 * args[9] results folder name (e.g. for Google Drive)
-	 * args[10] experiment name (name of subfolder within the results folder
-	 * args[11] experiment instance number
+	 * args[1] schema (database) name
+	 * args[2] results folder name (e.g. for Google Drive)
+	 * args[3] experiment name (name of subfolder within the results folder)
+	 * args[4] system name (system name used within the logs)
+	 * args[5] test name (e.g. power)
+	 * args[6] experiment instance number
+	 * args[7] queries dir within the jar
+	 * args[8] subdirectory of work directory to store the results
+	 * args[9] subdirectory of work directory to store the execution plans
+	 * args[10] save plans (boolean)
+	 * args[11] save results (boolean)
 	 * args[12] jar file
 	 * args[13] number of streams
 	 * args[14] random seed
@@ -74,26 +75,28 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	public ExecuteQueriesConcurrentSpark(String[] args) {
 		try {
 			this.workDir = args[0];
-			this.resultsDir = args[1];
-			this.plansDir = args[2];
-			this.system = args[3];
-			this.savePlans = Boolean.parseBoolean(args[4]);
-			this.saveResults = Boolean.parseBoolean(args[5]);
-			this.dbName = args[6];
-			this.test = args[7];
-			this.queriesDir = args[8];
-			this.folderName = args[9];
-			this.experimentName = args[10];
-			this.instance = Integer.parseInt(args[11]);
+			this.dbName = args[1];
+			this.folderName = args[2];
+			this.experimentName = args[3];
+			this.system = args[4];
+			this.test = args[5];
+			this.instance = Integer.parseInt(args[6]);
+			this.queriesDir = args[7];
+			this.resultsDir = args[8];
+			this.plansDir = args[9];
+			this.savePlans = Boolean.parseBoolean(args[10]);
+			this.saveResults = Boolean.parseBoolean(args[11]);
+			this.jarFile = args[12];
 			this.nStreams = Integer.parseInt(args[13]);
 			this.seed = Long.parseLong(args[14]);
 			this.random = new Random(seed);
-			this.queriesReader = new JarQueriesReaderAsZipFile(args[12], "QueriesSpark");
+			this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, "QueriesSpark");
 			this.spark = SparkSession.builder().appName("TPC-DS Throughput Test")
 				.config("spark.sql.crossJoin.enabled", "true")
 				.enableHiveSupport()
 				.getOrCreate();
-			this.recorder = new AnalyticsRecorderConcurrent(test, system, folderName, experimentName, instance);
+			this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.folderName,
+					this.experimentName, this.system, this.test, this.instance);
 			this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
 			this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 		}
@@ -109,7 +112,7 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	public static void main(String[] args) {
 		if( args.length != 15 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
-			logger.error("Insufficient arguments: " + args.length);
+			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
 		}
 		ExecuteQueriesConcurrentSpark prog = new ExecuteQueriesConcurrentSpark(args);
@@ -123,7 +126,7 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in ExecuteQueriesConcurrentSpark copyLog.");
+			this.logger.error("Error in ExecuteQueriesConcurrentSpark useDatabase.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -179,7 +182,15 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	
 	
 	public void closeConnection() {
-		this.spark.stop();
+		try {
+			this.spark.stop();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueriesConcurrentSpark closeConnection.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
 	}
 
 }

@@ -25,17 +25,17 @@ public class ExecuteQueries {
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private AnalyticsRecorder recorder;
 	private String workDir;
-	private String resultsDir;
-	private String plansDir;
-	private String system;
-	private boolean savePlans;
-	private boolean saveResults;
 	private String dbName;
-	private String test;
-	private String queriesDir;
 	private String folderName;
 	private String experimentName;
+	private String system;
+	private String test;
 	private int instance;
+	private String queriesDir;
+	private String resultsDir;
+	private String plansDir;
+	private boolean savePlans;
+	private boolean saveResults;
 	private String hostname;
 	
 	
@@ -43,17 +43,17 @@ public class ExecuteQueries {
 	 * @param args
 	 * 
 	 * args[0] main work directory
-	 * args[1] subdirectory of work directory to store the results
-	 * args[2] subdirectory of work directory to store the execution plans
-	 * args[3] system (system name used within the logs)
-	 * args[4] save plans (boolean)
-	 * args[5] save results (boolean)
-	 * args[6] database name
-	 * args[7] test (e.g. power)
-	 * args[8] queries dir
-	 * args[9] results folder name (e.g. for Google Drive)
-	 * args[10] experiment name (name of subfolder within the results folder
-	 * args[11] experiment instance number
+	 * args[1] schema (database) name
+	 * args[2] results folder name (e.g. for Google Drive)
+	 * args[3] experiment name (name of subfolder within the results folder)
+	 * args[4] system name (system name used within the logs)
+	 * args[5] test name (e.g. power)
+	 * args[6] experiment instance number
+	 * args[7] queries dir within the jar
+	 * args[8] subdirectory of work directory to store the results
+	 * args[9] subdirectory of work directory to store the execution plans
+	 * args[10] save plans (boolean)
+	 * args[11] save results (boolean)
 	 * args[12] hostname of the server
 	 * args[13] "all" or query file
 	 * 
@@ -63,48 +63,49 @@ public class ExecuteQueries {
 	public ExecuteQueries(String[] args) {
 		try {
 			this.workDir = args[0];
-			this.resultsDir = args[1];
-			this.plansDir = args[2];
-			this.system = args[3];
-			this.savePlans = Boolean.parseBoolean(args[4]);
-			this.saveResults = Boolean.parseBoolean(args[5]);
-			this.dbName = args[6];
-			this.test = args[7];
-			this.queriesDir = args[8];
-			this.folderName = args[9];
-			this.experimentName = args[10];
-			this.instance = Integer.parseInt(args[11]);
+			this.dbName = args[1];
+			this.folderName = args[2];
+			this.experimentName = args[3];
+			this.system = args[4];
+			this.test = args[5];
+			this.instance = Integer.parseInt(args[6]);
+			this.queriesDir = args[7];
+			this.resultsDir = args[8];
+			this.plansDir = args[9];
+			this.savePlans = Boolean.parseBoolean(args[10]);
+			this.saveResults = Boolean.parseBoolean(args[11]);
 			this.hostname = args[12];
 			String driverName = "";
-			if( system.equals("hive") ) {
+			if( this.system.equals("hive") ) {
 				Class.forName(hiveDriverName);
-				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10000/" + dbName, "hive", "");
+				this.con = DriverManager.getConnection("jdbc:hive2://" +
+						this.hostname + ":10000/" + this.dbName, "hive", "");
 			}
 			else if( system.equals("presto") ) {
 				Class.forName(prestoDriverName);
-				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8080/hive/" + dbName, "hive", "");
+				this.con = DriverManager.getConnection("jdbc:presto://" + 
+						this.hostname + ":8080/hive/" + this.dbName, "hive", "");
 				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
 			else if( system.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
-				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8889/hive/" + dbName, "hive", "");
+				this.con = DriverManager.getConnection("jdbc:presto://" + 
+						this.hostname + ":8889/hive/" + this.dbName, "hive", "");
 				setPrestoDefaultSessionOpts();
 			}
-			else if( system.equals("sparkdatabricksjdbc") ) {
+			else if( this.system.equals("sparkdatabricksjdbc") ) {
 				Class.forName(databricksDriverName);
-				con = DriverManager.getConnection("jdbc:hive2://hostname:443/" + dbName);
+				this.con = DriverManager.getConnection("jdbc:hive2://hostname:443/" + this.dbName);
 			}
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
-				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10015/" + dbName, "", "");
+				this.con = DriverManager.getConnection("jdbc:hive2://" +
+						this.hostname + ":10015/" + this.dbName, "", "");
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
-			this.recorder = new AnalyticsRecorder(test, system, workDir, folderName, experimentName, instance);
+			this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+					this.system, this.test, this.instance);
 		}
 		catch (ClassNotFoundException e) {
 			e.printStackTrace();

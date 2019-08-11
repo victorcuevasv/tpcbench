@@ -34,34 +34,35 @@ public class ExecuteQueriesSpark {
 	private AnalyticsRecorder recorder;
 	private JarQueriesReaderAsZipFile queriesReader;
 	private String workDir;
-	private String resultsDir;
-	private String plansDir;
-	private String system;
-	private boolean savePlans;
-	private boolean saveResults;
 	private String dbName;
-	private String test;
-	private String queriesDir;
 	private String folderName;
 	private String experimentName;
+	private String system;
+	private String test;
 	private int instance;
+	private String queriesDir;
+	private String resultsDir;
+	private String plansDir;
+	private boolean savePlans;
+	private boolean saveResults;
+	private String jarFile;
 
 	
 	/**
 	 * @param args
 	 * 
 	 * args[0] main work directory
-	 * args[1] subdirectory of work directory to store the results
-	 * args[2] subdirectory of work directory to store the execution plans
-	 * args[3] system (system name used within the logs)
-	 * args[4] save plans (boolean)
-	 * args[5] save results (boolean)
-	 * args[6] database name
-	 * args[7] test (e.g. power)
-	 * args[8] queries dir within the jar
-	 * args[9] results folder name (e.g. for Google Drive)
-	 * args[10] experiment name (name of subfolder within the results folder
-	 * args[11] experiment instance number
+	 * args[1] schema (database) name
+	 * args[2] results folder name (e.g. for Google Drive)
+	 * args[3] experiment name (name of subfolder within the results folder)
+	 * args[4] system name (system name used within the logs)
+	 * args[5] test name (e.g. power)
+	 * args[6] experiment instance number
+	 * args[7] queries dir within the jar
+	 * args[8] subdirectory of work directory to store the results
+	 * args[9] subdirectory of work directory to store the execution plans
+	 * args[10] save plans (boolean)
+	 * args[11] save results (boolean)
 	 * args[12] jar file
 	 * args[13] "all" or query file
 	 * 
@@ -69,23 +70,25 @@ public class ExecuteQueriesSpark {
 	public ExecuteQueriesSpark(String[] args) {
 		try {
 			this.workDir = args[0];
-			this.resultsDir = args[1];
-			this.plansDir = args[2];
-			this.system = args[3];
-			this.savePlans = Boolean.parseBoolean(args[4]);
-			this.saveResults = Boolean.parseBoolean(args[5]);
-			this.dbName = args[6];
-			this.test = args[7];
-			this.queriesDir = args[8];
-			this.folderName = args[9];
-			this.experimentName = args[10];
-			this.instance = Integer.parseInt(args[11]);
-			this.queriesReader = new JarQueriesReaderAsZipFile(args[12], queriesDir);
+			this.dbName = args[1];
+			this.folderName = args[2];
+			this.experimentName = args[3];
+			this.system = args[4];
+			this.test = args[5];
+			this.instance = Integer.parseInt(args[6]);
+			this.queriesDir = args[7];
+			this.resultsDir = args[8];
+			this.plansDir = args[9];
+			this.savePlans = Boolean.parseBoolean(args[10]);
+			this.saveResults = Boolean.parseBoolean(args[11]);
+			this.jarFile = args[12];
+			this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 			this.spark = SparkSession.builder().appName("TPC-DS Sequential Query Execution")
 				.config("spark.sql.crossJoin.enabled", "true")
 				.enableHiveSupport()
 				.getOrCreate();
-			this.recorder = new AnalyticsRecorder(test, system, workDir, folderName, experimentName, instance);
+			this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+					this.system, this.test, this.instance);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -99,7 +102,7 @@ public class ExecuteQueriesSpark {
 	public static void main(String[] args) {
 		if( args.length != 14 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
-			logger.error("Insufficient arguments: " + args.length);
+			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
 		}
 		ExecuteQueriesSpark prog = new ExecuteQueriesSpark(args);
@@ -245,7 +248,7 @@ public class ExecuteQueriesSpark {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error saving results: " + resFileName);
+			this.logger.error("Error in saving results: " + resFileName);
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}

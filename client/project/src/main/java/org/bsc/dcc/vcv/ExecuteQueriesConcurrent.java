@@ -33,30 +33,69 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private ExecutorService executor;
 	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
 	private static final int POOL_SIZE = 100;
-	private long seed;
 	private Random random;
-	private String system;
-	private String hostname;
-	private boolean multiple = false;
+	String workDir;
+	String dbName;
+	String folderName;
+	String experimentName;
+	String system;
+	String test;
+	int instance;
+	String queriesDir;
+	String resultsDir;
+	String plansDir;
 	boolean savePlans;
 	boolean saveResults;
-	private String dbName;
+	private String hostname;
+	private int nStreams;
+	private long seed;
+	private boolean multiple;
 
-	public ExecuteQueriesConcurrent(String system, String hostname, boolean multiple,
-			boolean savePlans, boolean saveResults, String dbName, String folderName,
-			String experimentName, String instanceStr) {
+	
+	/**
+	 * @param args
+	 * 
+	 * args[0] main work directory
+	 * args[1] schema (database) name
+	 * args[2] results folder name (e.g. for Google Drive)
+	 * args[3] experiment name (name of subfolder within the results folder)
+	 * args[4] system name (system name used within the logs)
+	 * args[5] test name (e.g. power)
+	 * args[6] experiment instance number
+	 * args[7] queries dir within the jar
+	 * args[8] subdirectory of work directory to store the results
+	 * args[9] subdirectory of work directory to store the execution plans
+	 * args[10] save plans (boolean)
+	 * args[11] save results (boolean)
+	 * args[12] jar file
+	 * args[13] number of streams
+	 * args[14] random seed
+	 * args[15] use multiple connections (true|false)
+	 * 
+	 */
+	public ExecuteQueriesConcurrent(String[] args) {
 		try {
-			this.savePlans = savePlans;
-			this.saveResults = saveResults;
-			this.system = system;
-			this.hostname = hostname;
-			this.dbName = dbName;
-			this.multiple = multiple;
+			this.workDir = args[0];
+			this.dbName = args[1];
+			this.folderName = args[2];
+			this.experimentName = args[3];
+			this.system = args[4];
+			this.test = args[5];
+			this.instance = Integer.parseInt(args[6]);
+			this.queriesDir = args[7];
+			this.resultsDir = args[8];
+			this.plansDir = args[9];
+			this.savePlans = Boolean.parseBoolean(args[10]);
+			this.saveResults = Boolean.parseBoolean(args[11]);
+			this.hostname = args[12];
+			this.nStreams = Integer.parseInt(args[13]);
+			this.seed = Long.parseLong(args[14]);
+			this.multiple = Boolean.parseBoolean(args[15]);
+			this.random = new Random(seed);
 			if( ! this.multiple )
-				this.con = this.createConnection(system, hostname, dbName);
-			int instance = Integer.parseInt(instanceStr);
-			this.recorder = new AnalyticsRecorderConcurrent("tput", this.system, folderName, 
-					experimentName, instance);
+				this.con = this.createConnection(this.system, this.hostname, this.dbName);
+			this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.folderName,
+					this.experimentName, this.system, this.test, this.instance);
 			this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
 			this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 		}
@@ -67,6 +106,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
+	
 	
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
@@ -104,21 +144,18 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			// "hive", "");
 		}
 		catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
 		catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
 		catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
@@ -127,6 +164,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		return con;
 	}
 	
+	
 	private void setPrestoDefaultSessionOpts() {
 		((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 		((PrestoConnection)con).setSessionProperty("join_reordering_strategy", "AUTOMATIC");
@@ -134,38 +172,20 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		((PrestoConnection)con).setSessionProperty("task_concurrency", "8");
 	}
 
-	/**
-	 * @param args
-	 * 
-	 * args[0] main work directory
-	 * args[1] subdirectory of work directory that contains the queries
-	 * args[2] subdirectory of work directory to store the results
-	 * args[3] subdirectory of work directory to store the execution plans
-	 * args[4] system to evaluate the queries (hive/presto)
-	 * args[5] hostname of the server
-	 * args[6] number of streams
-	 * args[7] random seed
-	 * args[8] use multiple connections (true|false)
-	 * args[9] save plans (true|false)
-	 * args[10] save results (true|false)
-	 * args[11] database name
-	 * args[12] results folder name (e.g. for Google Drive)
-	 * args[13] experiment name (name of subfolder within the results folder
-	 * args[14] experiment instance number
-	 * 
-	 */
+	
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 15 ) {
+		if( args.length != 16 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
-			logger.error("Insufficient arguments: " + args.length);
+			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
 		}
-		boolean multiple = Boolean.parseBoolean(args[8]);
-		boolean savePlans = Boolean.parseBoolean(args[9]);
-		boolean saveResults = Boolean.parseBoolean(args[10]);
-		ExecuteQueriesConcurrent prog = new ExecuteQueriesConcurrent(args[4], args[5], multiple,
-				savePlans, saveResults, args[11], args[12], args[13], args[14]);
-		File directory = new File(args[0] + "/" + args[1]);
+		ExecuteQueriesConcurrent prog = new ExecuteQueriesConcurrent(args);
+		prog.doRun();
+	}
+	
+	
+	private void doRun() {
+		File directory = new File(this.workDir + "/" + this.queriesDir);
 		// Process each .sql file found in the directory.
 		// The preprocessing steps are necessary to obtain the right order, i.e.,
 		// query1.sql, query2.sql, query3.sql, ..., query99.sql.
@@ -174,43 +194,37 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 				map(AppUtil::extractNumber).
 				sorted().
 				map(n -> "query" + n + ".sql").
-				map(s -> new File(args[0] + "/" + args[1] + "/" + s)).
+				map(s -> new File(this.workDir + "/" + this.queriesDir + "/" + s)).
 				toArray(File[]::new);
-		HashMap<Integer, String> queriesHT = prog.createQueriesHT(files);
-		int nStreams = Integer.parseInt(args[6]);
-		long seed = Long.parseLong(args[7]);
-		prog.seed = seed;
-		prog.random = new Random(seed);
+		HashMap<Integer, String> queriesHT = this.createQueriesHT(files);
 		int nQueries = files.length;
-		prog.executeStreams(nQueries, nStreams, prog.random, queriesHT,
-				args[0], args[2], args[3], false);
+		this.executeStreams(nQueries, queriesHT);
 	}
 	
-	public void executeStreams(int nQueries, int nStreams, Random random, HashMap<Integer, String> queriesHT,
-			String workDir, String resultsDir, String plansDir, boolean singleCall) {
-		int totalQueries = nQueries * nStreams;
+	
+	public void executeStreams(int nQueries, HashMap<Integer, String> queriesHT) {
+		int totalQueries = nQueries * this.nStreams;
 		QueryResultsCollector resultsCollector = new QueryResultsCollector(totalQueries, 
 				this.resultsQueue, this.recorder, this);
 		ExecutorService resultsCollectorExecutor = Executors.newSingleThreadExecutor();
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
-		for(int i = 0; i < nStreams; i++) {
+		for(int i = 0; i < this.nStreams; i++) {
 			QueryStream stream = null;
-			if( !this.multiple ) {
-				stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT, nQueries,
-					workDir, resultsDir, plansDir, singleCall, random, this.recorder.system,
-					this.savePlans, this.saveResults);
+			if( ! this.multiple ) {
+				stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT,
+						nQueries, this.random, this);
 			}
 			else {
 				Connection con = this.createConnection(this.system, this.hostname, this.dbName);
-				stream = new QueryStream(i, this.resultsQueue, con, queriesHT, nQueries,
-						workDir, resultsDir, plansDir, singleCall, random, this.recorder.system,
-						this.savePlans, this.saveResults);
+				stream = new QueryStream(i, this.resultsQueue, con, queriesHT,
+						nQueries, this.random, this);
 			}
 			this.executor.submit(stream);
 		}
 		this.executor.shutdown();
 	}
+	
 	
 	public HashMap<Integer, String> createQueriesHT(File[] files) {
 		HashMap<Integer, String> queriesHT = new HashMap<Integer, String>();
@@ -222,6 +236,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		return queriesHT;
 	}
 
+	
 	public String readFileContents(String filename) {
 		BufferedReader inBR = null;
 		String retVal = null;
@@ -241,14 +256,18 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		return retVal;
 	}
 	
+	
 	public void closeConnection() {
 		try {
 			this.con.close();
 		}
 		catch(SQLException e) {
 			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueriesConcurrent closeConnection.");
 			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
 
 }
+

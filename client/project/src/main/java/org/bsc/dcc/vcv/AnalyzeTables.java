@@ -15,33 +15,62 @@ public class AnalyzeTables {
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private AnalyticsRecorder recorder;
-	private final boolean computeForCols;
+	private String workDir;
+	private String dbName;
+	private String folderName;
+	private String experimentName;
+	private String system;
+	private String test;
+	private int instance;
+	private boolean computeForCols;
+	private String hostname;
+	
 
+	/**
+	 * @param args
+	 * 
+	 * args[0] main work directory
+	 * args[1] schema (database) name
+	 * args[2] results folder name (e.g. for Google Drive)
+	 * args[3] experiment name (name of subfolder within the results folder)
+	 * args[4] system name (system name used within the logs)
+	 * args[5] test name (i.e. load)
+	 * args[6] experiment instance number
+	 * args[7] compute statistics for columns (true/false)
+	 * args[8] hostname of the server
+	 * 
+	 */
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public AnalyzeTables(String workDir, String system, String hostname, boolean computeForCols,
-			String dbName, String folderName, String experimentName, String instanceStr) {
-		this.computeForCols = computeForCols;
+	public AnalyzeTables(String[] args) {
+		this.workDir = args[0];
+		this.dbName = args[1];
+		this.folderName = args[2];
+		this.experimentName = args[3];
+		this.system = args[4];
+		this.test = args[5];
+		this.instance = Integer.parseInt(args[6]);
+		this.computeForCols = Boolean.parseBoolean(args[7]);
+		this.hostname = args[8];
 		try {
-			system = system.toLowerCase();
 			String driverName = "";
-			if( system.equals("hive") ) {
+			if( this.system.equals("hive") ) {
 				Class.forName(hiveDriverName);
-				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10000/" + dbName, "hive", "");
+				this.con = DriverManager.getConnection("jdbc:hive2://" +
+						this.hostname + ":10000/" + this.dbName, "hive", "");
 				
 			}
-			else if( system.equals("presto") ) {
+			else if( this.system.equals("presto") ) {
 				Class.forName(prestoDriverName);
-				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8080/hive/" + dbName, "hive", "");
-				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
+				this.con = DriverManager.getConnection("jdbc:presto://" + 
+						this.hostname + ":8080/hive/" + this.dbName, "hive", "");
+				((PrestoConnection)this.con).setSessionProperty("query_max_stage_count", "102");
 			}
-			else if( system.equals("prestoemr") ) {
+			else if( this.system.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
 				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8889/hive/" + dbName, "hive", "");
-				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
+						this.hostname + ":8889/hive/" + this.dbName, "hive", "");
+				((PrestoConnection)this.con).setSessionProperty("query_max_stage_count", "102");
 			}
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
@@ -50,53 +79,34 @@ public class AnalyzeTables {
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
-			int instance = Integer.parseInt(instanceStr);
-			this.recorder = new AnalyticsRecorder("analyze", system, workDir, folderName, experimentName, instance);
+			this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+					this.system, this.test, this.instance);
 		}
 		catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
 
-	/**
-	 * @param args
-	 * @throws SQLException
-	 * 
-	 * args[0] main work directory
-	 * args[1] system to evaluate the queries (hive/presto)
-	 * args[2] hostname of the server
-	 * args[3] compute statistics for columns (true/false)
-	 * args[4] database name
-	 * args[5] results folder name (e.g. for Google Drive)
-	 * args[6] experiment name (name of subfolder within the results folder
-	 * args[7] experiment instance number
-	 * 
-	 * all directories without slash
-	 */
+
 	public static void main(String[] args) throws SQLException {
-		if( args.length < 8 ) {
-			System.out.println("Incorrect number of arguments.");
-			logger.error("Insufficient arguments.");
+		if( args.length != 9 ) {
+			System.out.println("Incorrect number of arguments: "  + args.length);
+			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
 		}
-		boolean computeForCols = Boolean.parseBoolean(args[3]);
-		AnalyzeTables prog = new AnalyzeTables(args[0], args[1], args[2], computeForCols, args[4],
-				args[5], args[6], args[7]);
+		AnalyzeTables prog = new AnalyzeTables(args);
 		prog.configureMapreduce();
 		String[] tables = {"call_center", "catalog_page", "catalog_returns", "catalog_sales",
 							"customer", "customer_address", "customer_demographics", "date_dim",

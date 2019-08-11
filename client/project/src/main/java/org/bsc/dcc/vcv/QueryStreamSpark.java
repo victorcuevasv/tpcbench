@@ -36,26 +36,20 @@ import scala.Option;
 
 public class QueryStreamSpark implements Callable<Void> {
 
+	
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
 	private SparkSession spark;
 	private int nStream;
 	private HashMap<Integer, String> queriesHT;
 	private int nQueries;
-	private String workDir;
-	private String resultsDir;
-	private String plansDir;
-	private boolean singleCall;
 	private Random random;
-	private final String system;
-	boolean savePlans;
-	boolean saveResults;
-	private final String dbName;
+	private ExecuteQueriesConcurrentSpark parent;
 
+	
 	public QueryStreamSpark(int nStream, BlockingQueue<QueryRecordConcurrent> resultsQueue,
-			SparkSession spark, HashMap<Integer, String> queriesHT, int nQueries,
-			String workDir, String resultsDir, String plansDir, boolean singleCall, 
-			Random random, String system, boolean savePlans, boolean saveResults, String dbName) {
+			SparkSession spark, HashMap<Integer, String> queriesHT, int nQueries, Random random,
+			ExecuteQueriesConcurrentSpark parent) {
 		this.nStream = nStream;
 		this.resultsQueue = resultsQueue;
 		//this.spark = spark;
@@ -66,16 +60,10 @@ public class QueryStreamSpark implements Callable<Void> {
 		this.spark = session;
 		this.queriesHT = queriesHT;
 		this.nQueries = nQueries;
-		this.workDir = workDir;
-		this.resultsDir = resultsDir;
-		this.plansDir = plansDir;
-		this.singleCall = singleCall;
 		this.random = random;
-		this.system = system;
-		this.savePlans = savePlans;
-		this.saveResults = saveResults;
-		this.dbName = dbName;
+		this.parent = parent;
 	}
+	
 	
 	private void useDatabase(String dbName) {
 		try {
@@ -89,10 +77,11 @@ public class QueryStreamSpark implements Callable<Void> {
 		}
 	}
 
+	
 	@Override
 	public Void call() {
 		this.logger.info("\n\n\n\n\nStarting query stream: " + this.nStream + " using " + this.dbName);
-		this.useDatabase(this.dbName);
+		this.useDatabase(this.parent.dbName);
 		this.spark.conf().set("spark.sql.crossJoin.enabled", "true");
 		//this.logger.info(AppUtil.stringifySparkConfiguration(this.spark));
 		//Integer[] queries = this.queriesHT.keySet().toArray(new Integer[] {});
@@ -105,33 +94,41 @@ public class QueryStreamSpark implements Callable<Void> {
 			//if( Arrays.binarySearch(impalaKit, queries[i]) < 0 )
 			//	continue;
 			String sqlStr = this.queriesHT.get(queries[i]);
-			this.executeQuery(this.nStream, this.workDir, queries[i], sqlStr,
-					this.resultsDir, this.plansDir, this.singleCall, i);
+			this.executeQuery(this.nStream, queries[i], sqlStr, i);
 		}
 		return null;
 	}
 
+	
+	private String generateResultsFileName(String fileName, int nStream, int item) {
+		return this.parent.workDir + "/" + this.parent.folderName + "/" + this.parent.resultsDir + 
+				"/" + this.parent.experimentName + "/" + this.parent.test + "/" + this.parent.instance + "/" + 
+				nStream + "_" + item + "_" + fileName + ".txt";
+	}
+	
+	
+	private String generatePlansFileName(String fileName, int nStream, int item) {
+		return this.parent.workDir + "/" + this.parent.folderName + "/" + this.parent.plansDir + 
+				"/" + this.parent.experimentName + "/" + this.parent.test + "/" + this.parent.instance + "/" + 
+				nStream + "_" + item + "_" + fileName + ".txt";
+	}
+	
+	
 	// Execute the query (or queries) from the provided file.
-	private void executeQuery(int nStream, String workDir, int nQuery, String sqlStr, String resultsDir,
-			String plansDir, boolean singleCall, int item) {
+	private void executeQuery(int nStream, int nQuery, String sqlStr, int item) {
 		QueryRecordConcurrent queryRecord = null;
 		String noExtFileName = "query" + nQuery;
 		try {
 			queryRecord = new QueryRecordConcurrent(nStream, nQuery);
 			// Execute the query or queries.
-			if (singleCall)
-				this.executeQuerySingleCall(nStream, workDir, resultsDir, plansDir,
-						noExtFileName, sqlStr, queryRecord);
-			else
-				this.executeQueryMultipleCalls(nStream, workDir, resultsDir, plansDir,
-						noExtFileName, sqlStr, queryRecord, item);
+			this.executeQueryMultipleCalls(nStream, noExtFileName, sqlStr, queryRecord, item);
 			// Record the results file size.
-			//long resultsSize = calculateSize(workDir + "/" + resultsDir + "/" + nStream + "_" + 
-			//noExtFileName, ".csv");
-			//queryRecord.setResultsSize(resultsSize);
-			File resultsFile = new File(workDir + "/" + resultsDir + "/" + "tput" + "/" + 
-					this.system + "/" + nStream + "_" + noExtFileName + ".txt");
-			queryRecord.setResultsSize(resultsFile.length());
+			if( this.parent.saveResults ) {
+				File resultsFile = new File(generateResultsFileName(noExtFileName, nStream, item));
+				queryRecord.setResultsSize(resultsFile.length());
+			}
+			else
+				queryRecord.setResultsSize(0);
 			queryRecord.setSuccessful(true);
 		}
 		catch (Exception e) {
@@ -146,26 +143,9 @@ public class QueryStreamSpark implements Callable<Void> {
 		}
 	}
 	
-	// Execute a query from the provided file.
-	private void executeQuerySingleCall(int nStream, String workDir, String resultsDir, String plansDir, 
-				String noExtFileName, String sqlStr, QueryRecordConcurrent queryRecord) {
-		// Remove the last semicolon.
-		sqlStr = sqlStr.trim();
-		sqlStr = sqlStr.substring(0, sqlStr.length() - 1);
-		// Obtain the plan for the query.
-		Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
-		planDataset.write().mode(SaveMode.Overwrite).csv(
-				workDir + "/" + plansDir + "/" + nStream + "_" + noExtFileName);
-		// Execute the query.
-		queryRecord.setStartTime(System.currentTimeMillis());
-		Dataset<Row> dataset = this.spark.sql(sqlStr);
-		// Save the results.
-		dataset.write().mode(SaveMode.Overwrite).csv(
-				workDir + "/" + resultsDir + "/" + nStream + "_" + noExtFileName);
-	}
 	
-	private void executeQueryMultipleCalls(int nStream, String workDir, String resultsDir, String plansDir,
-			String noExtFileName, String sqlStrFull, QueryRecordConcurrent queryRecord, int item) 
+	private void executeQueryMultipleCalls(int nStream, String noExtFileName, String sqlStrFull,
+			QueryRecordConcurrent queryRecord, int item) 
 		throws Exception {
 		// Split the various queries and execute each.
 		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
@@ -181,9 +161,8 @@ public class QueryStreamSpark implements Callable<Void> {
 			Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
 			//planDataset.write().mode(SaveMode.Append).csv(workDir + "/" + plansDir + "/" + 
 			//noExtFileName);
-			if( this.savePlans )
-				this.saveResults(workDir + "/" + plansDir + "/" + "tput" + "/" + this.system + "/" + 
-					nStream + "_" + item + "_" + noExtFileName + ".txt", planDataset, ! firstQuery);
+			if( this.parent.savePlans )
+				this.saveResults(generatePlansFileName(noExtFileName, nStream, item), planDataset, ! firstQuery);
 			// Execute the query.
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
@@ -193,13 +172,13 @@ public class QueryStreamSpark implements Callable<Void> {
 			// Save the results.
 			//dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + 
 			//nStream + "_" + noExtFileName);
-			if( this.saveResults )
-				this.saveResults(workDir + "/" + resultsDir + "/" + "tput" + "/" + this.system + "/" + 
-					nStream + "_" + item + "_" + noExtFileName + ".txt", dataset, ! firstQuery);
+			if( this.parent.saveResults )
+				this.saveResults(generateResultsFileName(noExtFileName, nStream, item), dataset, ! firstQuery);
 			firstQuery = false;
 			iteration++;
 		}
 	}
+	
 	
 	private void saveResults(String resFileName, Dataset<Row> dataset, boolean append) throws Exception {
 		File temp = new File(resFileName);
@@ -212,6 +191,7 @@ public class QueryStreamSpark implements Callable<Void> {
 			printWriter.println(s);
 		printWriter.close();
 	}
+	
 	
 	/*
 	 * Calculate the size of the files ending with a given extension and stored in a given folder.
@@ -254,6 +234,7 @@ public class QueryStreamSpark implements Callable<Void> {
 	    return size.get();
 	}
 	
+	
 	private void shuffle(Integer[] array) {
 		for(int i = 0; i < array.length; i++) {
 			int randPos = this.random.nextInt(array.length);
@@ -263,6 +244,7 @@ public class QueryStreamSpark implements Callable<Void> {
 		}
 	}
 
+	
 }
 
 

@@ -25,67 +25,66 @@ public class CreateDatabaseSpark {
 	private JarCreateTableReaderAsZipFile createTableReader;
 	private AnalyticsRecorder recorder;
 	private String workDir;
-	private String suffix;
-	private String genDataDir;
-	private String system;
-	private boolean doCount;
-	private String subDir;
-	private String extTablePrefixRaw;
-	private String extTablePrefixCreated;
-	private String format;
 	private String dbName;
 	private String folderName;
 	private String experimentName;
+	private String system;
+	private String test;
 	private int instance;
+	private String genDataDir;
+	private String subDir;
+	private String suffix;
+	private String extTablePrefixRaw;
+	private String extTablePrefixCreated;
+	private String format;
+	private boolean doCount;
+	private String jarFile;
 	
 	
 	/**
 	 * @param args
 	 * 
 	 * args[0] main work directory
-	 * args[1] suffix used for intermediate table text files
-	 * args[2] directory for generated data raw files
-	 * args[3] system running the data loading queries
-	 * args[4] whether to run queries to count the tuples generated (true/false)
-	 * args[5] subdirectory within the jar that contains the create table files
-	 * args[6] prefix of external location for raw data tables (e.g. S3 bucket), null for none
-	 * args[7] prefix of external location for created tables (e.g. S3 bucket), null for none
-	 * args[8] format for column-storage tables (PARQUET, DELTA)
-	 * args[9] schema (database) name
-	 * args[10] results folder name (e.g. for Google Drive)
-	 * args[11] experiment name (name of subfolder within the results folder
-	 * args[12] experiment instance number
-	 * args[13] jar file
+	 * args[1] schema (database) name
+	 * args[2] results folder name (e.g. for Google Drive)
+	 * args[3] experiment name (name of subfolder within the results folder)
+	 * args[4] system name (system name used within the logs)
+	 * args[5] test name (i.e. load)
+	 * args[6] experiment instance number
+	 * args[7] directory for generated data raw files
+	 * args[8] subdirectory within the jar that contains the create table files
+	 * args[9] suffix used for intermediate table text files
+	 * args[10] prefix of external location for raw data tables (e.g. S3 bucket), null for none
+	 * args[11] prefix of external location for created tables (e.g. S3 bucket), null for none
+	 * args[12] format for column-storage tables (PARQUET, DELTA)
+	 * args[13] whether to run queries to count the tuples generated (true/false)
+	 * args[14] jar file
 	 * 
 	 */
 	public CreateDatabaseSpark(String[] args) {
 		try {
 			this.workDir = args[0];
-			this.suffix = args[1];
-			this.genDataDir = args[2];
-			this.system = args[3];
-			this.doCount = Boolean.parseBoolean(args[4]);
-			this.subDir = args[5];
-			this.extTablePrefixRaw = args[6].equalsIgnoreCase("null") ? null : args[6];
-			this.extTablePrefixCreated = args[7].equalsIgnoreCase("null") ? null : args[7];
-			this.format = args[8];
-			this.dbName = args[9];
-			this.folderName = args[10];
-			this.experimentName = args[11];
-			this.instance = Integer.parseInt(args[12]);
-			this.createTableReader = new JarCreateTableReaderAsZipFile(args[13], workDir + "/" + subDir);
-			if( system.equals("sparkdatabricks") ) {
-				this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
+			this.dbName = args[1];
+			this.folderName = args[2];
+			this.experimentName = args[3];
+			this.system = args[4];
+			this.test = args[5];
+			this.instance = Integer.parseInt(args[6]);
+			this.genDataDir = args[7];
+			this.subDir = args[8];
+			this.suffix = args[9];
+			this.extTablePrefixRaw = args[10].equalsIgnoreCase("null") ? null : args[10];
+			this.extTablePrefixCreated = args[11].equalsIgnoreCase("null") ? null : args[11];
+			this.format = args[12];
+			this.doCount = Boolean.parseBoolean(args[13]);
+			this.jarFile = args[14];
+			this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, 
+			this.workDir + "/" + this.subDir);
+			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
 						.enableHiveSupport()
 						.getOrCreate();
-				//this.logger.info(SparkUtil.stringifySparkConfiguration(this.spark));
-			}
-			else {
-				this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
-						.enableHiveSupport()
-						.getOrCreate();
-			}
-			this.recorder = new AnalyticsRecorder(system, system, workDir, folderName, experimentName, instance);
+			this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+					this.system, this.test, this.instance);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -98,17 +97,15 @@ public class CreateDatabaseSpark {
 
 
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 14 ) {
+		if( args.length != 15 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
-			logger.error("Insufficient arguments: " + args.length);
+			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
 		}
 		CreateDatabaseSpark prog = new CreateDatabaseSpark(args);
 		prog.createTables();
-		if( ! args[4].equals("sparkdatabricks") ) {
-			prog.closeConnection();
-		}	
 	}
+	
 	
 	private void createTables() {
 		// Process each .sql create table file found in the jar file.
@@ -122,8 +119,12 @@ public class CreateDatabaseSpark {
 			createTable(fileName, sqlCreate, i);
 			i++;
 		}
+		if( this.system.equals("sparkdatabricks") ) {
+			this.closeConnection();
+		}
 	}
 
+	
 	private void useDatabase(String dbName) {
 		try {
 			this.spark.sql("USE " + dbName);
@@ -135,6 +136,7 @@ public class CreateDatabaseSpark {
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
+	
 	
 	// To create each table from the .dat file, an external table is first created.
 	// Then a parquet table is created and data is inserted into it from the
@@ -187,6 +189,7 @@ public class CreateDatabaseSpark {
 		}
 	}
 	
+	
 	private void dropTable(String dropStmt) {
 		try {
 			this.spark.sql(dropStmt);
@@ -196,6 +199,7 @@ public class CreateDatabaseSpark {
 		}
 	}
 
+	
 	// Generate an incomplete SQL create statement to be completed for the texfile
 	// external and
 	// parquet internal tables.
@@ -232,6 +236,7 @@ public class CreateDatabaseSpark {
 		return builder.toString().replace("integer", "int    ");
 	}
 
+	
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an external textfile table in Hive.
 	private String externalCreateTable(String incompleteSqlCreate, String tableName, String genDataDir,
@@ -247,6 +252,7 @@ public class CreateDatabaseSpark {
 		return builder.toString();
 	}
 
+	
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an internal parquet table in Hive.
 	private String internalCreateTable(String incompleteSqlCreate, String tableName,
@@ -265,6 +271,7 @@ public class CreateDatabaseSpark {
 		return builder.toString();
 	}
 
+	
 	public void saveCreateTableFile(String workDir, String suffix, String tableName, String sqlCreate) {
 		try {
 			File temp = new File(workDir + suffix + "/" + tableName + ".sql");
@@ -280,6 +287,7 @@ public class CreateDatabaseSpark {
 		}
 	}
 
+	
 	private void countRowsQuery(String tableName) {
 		try {
 			String sqlCount = "select count(*) from " + tableName;
@@ -295,6 +303,7 @@ public class CreateDatabaseSpark {
 		}
 	}
 
+	
 	public String readFileContents(String filename) {
 		BufferedReader inBR = null;
 		String retVal = null;
@@ -314,13 +323,16 @@ public class CreateDatabaseSpark {
 		return retVal;
 	}
 	
+	
 	public void closeConnection() {
 		try {
 			this.spark.stop();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			this.logger.error("Error in CreateDatabaseSpark closeConnection.");
 			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
 	

@@ -19,41 +19,32 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
 
+
 public class QueryStream implements Callable<Void> {
 
+	
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
 	private Connection con;
 	private int nStream;
 	private HashMap<Integer, String> queriesHT;
 	private int nQueries;
-	private String workDir;
-	private String resultsDir;
-	private String plansDir;
-	private boolean singleCall;
 	private Random random;
-	private final String system;
-	boolean savePlans;
-	boolean saveResults;
+	private ExecuteQueriesConcurrent parent;
 
+	
 	public QueryStream(int nStream, BlockingQueue<QueryRecordConcurrent> resultsQueue,
-			Connection con, HashMap<Integer, String> queriesHT, int nQueries,
-			String workDir, String resultsDir, String plansDir, boolean singleCall, 
-			Random random, String system, boolean savePlans, boolean saveResults) {
+			Connection con, HashMap<Integer, String> queriesHT, int nQueries, Random random,
+			ExecuteQueriesConcurrent parent) {
 		this.nStream = nStream;
 		this.resultsQueue = resultsQueue;
 		this.con = con;
 		this.queriesHT = queriesHT;
 		this.nQueries = nQueries;
-		this.workDir = workDir;
-		this.resultsDir = resultsDir;
-		this.plansDir = plansDir;
-		this.singleCall = singleCall;
 		this.random = random;
-		this.system = system;
-		this.savePlans = savePlans;
-		this.saveResults = saveResults;
+		this.parent = parent;
 	}
+	
 	
 	private void setPrestoDefaultSessionOpts() {
 		((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
@@ -62,6 +53,7 @@ public class QueryStream implements Callable<Void> {
 		((PrestoConnection)con).setSessionProperty("task_concurrency", "8");
 	}
 
+	
 	@Override
 	public Void call() {
 		//Integer[] queries = this.queriesHT.keySet().toArray(new Integer[] {});
@@ -77,33 +69,44 @@ public class QueryStream implements Callable<Void> {
 			//if( Arrays.binarySearch(impalaKit, queries[i]) < 0 )
 			//	continue;
 			String sqlStr = this.queriesHT.get(queries[i]);
-			this.executeQuery(this.nStream, this.workDir, queries[i], sqlStr,
-					this.resultsDir, this.plansDir, this.singleCall, i);
+			this.executeQuery(this.nStream, queries[i], sqlStr, i);
 		}
 		return null;
 	}
 
+	
+	private String generateResultsFileName(String fileName, int nStream, int item) {
+		return this.parent.workDir + "/" + this.parent.folderName + "/" + this.parent.resultsDir + 
+				"/" + this.parent.experimentName + "/" + this.parent.test + "/" + this.parent.instance + "/" + 
+				nStream + "_" + item + "_" + fileName + ".txt";
+	}
+	
+	
+	private String generatePlansFileName(String fileName, int nStream, int item) {
+		return this.parent.workDir + "/" + this.parent.folderName + "/" + this.parent.plansDir + 
+				"/" + this.parent.experimentName + "/" + this.parent.test + "/" + this.parent.instance + "/" + 
+				nStream + "_" + item + "_" + fileName + ".txt";
+	}
+	
+	
 	// Execute the query (or queries) from the provided file.
-	private void executeQuery(int nStream, String workDir, int nQuery, String sqlStr, String resultsDir,
-			String plansDir, boolean singleCall, int item) {
+	private void executeQuery(int nStream, int nQuery, String sqlStr, int item) {
 		QueryRecordConcurrent queryRecord = null;
 		String fileName = "query" + nQuery;
 		try {
-			if( this.system.equals("prestoemr") ) {
+			if( this.parent.system.equals("prestoemr") ) {
 				this.setPrestoDefaultSessionOpts();
 			}
 			queryRecord = new QueryRecordConcurrent(nStream, nQuery);
 			// Execute the query or queries.
-			if (singleCall)
-				this.executeQuerySingleCall(nStream, workDir, resultsDir, plansDir,
-						fileName, sqlStr, queryRecord);
-			else
-				this.executeQueryMultipleCalls(nStream, workDir, resultsDir, plansDir,
-						fileName, sqlStr, queryRecord, item);
+			this.executeQueryMultipleCalls(nStream, fileName, sqlStr, queryRecord, item);
 			// Record the results file size.
-			File resultsFile = new File(workDir + "/" + resultsDir + "/" + "tput" + "/" + 
-					this.system + "/" + nStream + "_" + fileName + ".txt");
-			queryRecord.setResultsSize(resultsFile.length());
+			if( this.parent.saveResults ) {
+				File resultsFile = new File(generateResultsFileName(fileName, nStream, item));
+				queryRecord.setResultsSize(resultsFile.length());
+			}
+			else
+				queryRecord.setResultsSize(0);
 			queryRecord.setSuccessful(true);
 		}
 		catch (SQLException e) {
@@ -121,30 +124,11 @@ public class QueryStream implements Callable<Void> {
 			this.resultsQueue.add(queryRecord);
 		}
 	}
-
-	// Execute a query from the provided file.
-	private void executeQuerySingleCall(int nStream, String workDir, String resultsDir, String plansDir,
-			String fileName, String sqlStr, QueryRecordConcurrent queryRecord) throws SQLException {
-		// Remove the last semicolon.
-		sqlStr = sqlStr.trim();
-		sqlStr = sqlStr.substring(0, sqlStr.length() - 1);
-		// Obtain the plan for the query.
-		Statement stmt = con.createStatement();
-		ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
-		this.saveResults(workDir + "/" + plansDir + "/" + nStream + "_" + fileName + ".txt", planrs, false);
-		planrs.close();
-		// Execute the query.
-		queryRecord.setStartTime(System.currentTimeMillis());
-		ResultSet rs = stmt.executeQuery(sqlStr);
-		// Save the results.
-		this.saveResults(workDir + "/" + resultsDir + "/" + nStream + "_" + fileName + ".txt", rs, false);
-		stmt.close();
-		rs.close();
-	}
+	
 
 	// Execute the queries from the provided file.
-	private void executeQueryMultipleCalls(int nStream, String workDir, String resultsDir, String plansDir,
-			String fileName, String sqlStrFull, QueryRecord queryRecord, int item) throws SQLException {
+	private void executeQueryMultipleCalls(int nStream, String fileName, String sqlStrFull,
+			QueryRecord queryRecord, int item) throws SQLException {
 		// Split the various queries and execute each.
 		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
 		boolean firstQuery = true;
@@ -162,9 +146,8 @@ public class QueryStream implements Callable<Void> {
 			// Obtain the plan for the query.
 			Statement stmt = con.createStatement();
 			ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
-			if( this.savePlans )
-				this.saveResults(workDir + "/" + plansDir + "/" + "tput" + "/" + this.system + "/" + 
-					nStream + "_" + item + "_" + fileName + ".txt", planrs, !firstQuery);
+			if( this.parent.savePlans )
+				this.saveResults(generatePlansFileName(fileName, nStream, item), planrs, !firstQuery);
 			planrs.close();
 			// Execute the query.
 			if (firstQuery)
@@ -173,9 +156,8 @@ public class QueryStream implements Callable<Void> {
 					" executing iteration " + iteration + " of query " + fileName + ".");
 			ResultSet rs = stmt.executeQuery(sqlStr);
 			// Save the results.
-			if( this.saveResults )
-				this.saveResults(workDir + "/" + resultsDir + "/" + "tput" + "/" + this.system + "/" + 
-					nStream + "_" + item + "_" + fileName + ".txt", rs, !firstQuery);
+			if( this.parent.saveResults )
+				this.saveResults(generateResultsFileName(fileName, nStream, item), rs, !firstQuery);
 			stmt.close();
 			rs.close();
 			firstQuery = false;
@@ -183,6 +165,7 @@ public class QueryStream implements Callable<Void> {
 		}
 	}
 
+	
 	private void saveResults(String resFileName, ResultSet rs, boolean append) {
 		try {
 			File tmp = new File(resFileName);
@@ -216,6 +199,7 @@ public class QueryStream implements Callable<Void> {
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
+	
 	
 	private void shuffle(Integer[] array) {
 		for(int i = 0; i < array.length; i++) {
