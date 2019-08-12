@@ -15,7 +15,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #$1 Receives the command to execute as the first parameter (up, down, rm).
 
 if [ $# -lt 1 ]; then
-    echo "${yel}Usage: bash composePresto.sh <up|down|rm>.${end}"
+    echo "${yel}Usage: bash composePresto.sh <up | down | rm>${end}"
     exit 0
 fi
 

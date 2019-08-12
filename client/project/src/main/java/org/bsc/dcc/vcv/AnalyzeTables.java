@@ -14,16 +14,16 @@ public class AnalyzeTables {
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
-	private AnalyticsRecorder recorder;
-	private String workDir;
-	private String dbName;
-	private String folderName;
-	private String experimentName;
-	private String system;
-	private String test;
-	private int instance;
-	private boolean computeForCols;
-	private String hostname;
+	private final AnalyticsRecorder recorder;
+	private final String workDir;
+	private final String dbName;
+	private final String folderName;
+	private final String experimentName;
+	private final String system;
+	private final String test;
+	private final int instance;
+	private final boolean computeForCols;
+	private final String hostname;
 	
 
 	/**
@@ -52,6 +52,7 @@ public class AnalyzeTables {
 		this.instance = Integer.parseInt(args[6]);
 		this.computeForCols = Boolean.parseBoolean(args[7]);
 		this.hostname = args[8];
+		AnalyticsRecorder recorderTemp;
 		try {
 			String driverName = "";
 			if( this.system.equals("hive") ) {
@@ -79,24 +80,28 @@ public class AnalyzeTables {
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
-			this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+			recorderTemp = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
 					this.system, this.test, this.instance);
 		}
 		catch (ClassNotFoundException e) {
+			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (SQLException e) {
+			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (Exception e) {
+			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+		this.recorder = recorderTemp;
 	}
 
 
@@ -107,19 +112,26 @@ public class AnalyzeTables {
 			System.exit(1);
 		}
 		AnalyzeTables prog = new AnalyzeTables(args);
-		prog.configureMapreduce();
+		prog.analyzeTables();
+		prog.closeConnection();
+	}
+	
+	
+	private void analyzeTables() {
+		this.configureMapreduce();
 		String[] tables = {"call_center", "catalog_page", "catalog_returns", "catalog_sales",
 							"customer", "customer_address", "customer_demographics", "date_dim",
 							"household_demographics", "income_band", "inventory", "item",
 							"promotion", "reason", "ship_mode", "store", "store_returns",
 							"store_sales", "time_dim", "warehouse", "web_page", "web_returns",
 							"web_sales", "web_site"};
+		this.recorder.header();
 		for(int i = 0; i < tables.length; i++) {
-			prog.executeAnalyzeTable(tables[i], i);
+			this.executeAnalyzeTable(tables[i], i);
 		}
-		prog.closeConnection();
 	}
 
+	
 	private void configureMapreduce() {
 		String[] stmtStrs = {"set mapreduce.map.memory.mb=4096",
 						  "set mapreduce.map.java.opts=-Xmx3686m",
@@ -143,6 +155,7 @@ public class AnalyzeTables {
 			logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
+	
 	
 	private void executeAnalyzeTable(String table, int index) {
 		QueryRecord queryRecord = null;
@@ -176,6 +189,7 @@ public class AnalyzeTables {
 		}
 	}
 	
+	
 	private void closeConnection() {
 		try {
 			this.con.close();
@@ -187,6 +201,7 @@ public class AnalyzeTables {
 		}
 	}
 
+	
 }
 
 

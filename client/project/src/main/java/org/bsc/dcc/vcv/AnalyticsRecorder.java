@@ -10,14 +10,13 @@ import org.apache.logging.log4j.Logger;
 public class AnalyticsRecorder {
 	
 	private static final Logger logger = LogManager.getLogger("AllLog");
-	
-	protected String workDir;
-	protected String folderName;
-	protected String experimentName;
-	protected String system;
-	protected String test;
-	protected int instance;
-	private BufferedWriter writer;
+	protected final String workDir;
+	protected final String folderName;
+	protected final String experimentName;
+	protected final String system;
+	protected final String test;
+	protected final int instance;
+	private final BufferedWriter writer;
 	
 	
 	public AnalyticsRecorder(String workDir, String folderName, String experimentName,
@@ -28,17 +27,19 @@ public class AnalyticsRecorder {
 		this.system = system;
 		this.test = test;
 		this.instance = instance;
-		this.writer = null;
+		BufferedWriter writerTemp;
 		try {
 			File logFile = new File(this.workDir + "/" + this.folderName + "/logs/" + 
 						this.experimentName + "/" + this.test + "/" + this.instance + "/analytics.log");
 			logFile.getParentFile().mkdirs();
-			this.writer = new BufferedWriter(new FileWriter(logFile));
+			writerTemp = new BufferedWriter(new FileWriter(logFile));
 		}
 		catch (Exception e) {
+			writerTemp = null;
 			e.printStackTrace();
 			this.logger.error(e);
 		}
+		this.writer = writerTemp;
 	}
 	
 	protected void message(String msg) {
