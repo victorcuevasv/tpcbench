@@ -23,20 +23,20 @@ public class ExecuteQueries {
 	private static final String databricksDriverName = "com.simba.spark.jdbc41.Driver";
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
-	private AnalyticsRecorder recorder;
-	private String workDir;
-	private String dbName;
-	private String folderName;
-	private String experimentName;
-	private String system;
-	private String test;
-	private int instance;
-	private String queriesDir;
-	private String resultsDir;
-	private String plansDir;
-	private boolean savePlans;
-	private boolean saveResults;
-	private String hostname;
+	private final AnalyticsRecorder recorder;
+	private final String workDir;
+	private final String dbName;
+	private final String folderName;
+	private final String experimentName;
+	private final String system;
+	private final String test;
+	private final int instance;
+	private final String queriesDir;
+	private final String resultsDir;
+	private final String plansDir;
+	private final boolean savePlans;
+	private final boolean saveResults;
+	private final String hostname;
 	
 	
 	/**
@@ -49,7 +49,7 @@ public class ExecuteQueries {
 	 * args[4] system name (system name used within the logs)
 	 * args[5] test name (e.g. power)
 	 * args[6] experiment instance number
-	 * args[7] queries dir within the jar
+	 * args[7] queries dir
 	 * args[8] subdirectory of work directory to store the results
 	 * args[9] subdirectory of work directory to store the execution plans
 	 * args[10] save plans (boolean)
@@ -61,20 +61,21 @@ public class ExecuteQueries {
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
 	public ExecuteQueries(String[] args) {
+		this.workDir = args[0];
+		this.dbName = args[1];
+		this.folderName = args[2];
+		this.experimentName = args[3];
+		this.system = args[4];
+		this.test = args[5];
+		this.instance = Integer.parseInt(args[6]);
+		this.queriesDir = args[7];
+		this.resultsDir = args[8];
+		this.plansDir = args[9];
+		this.savePlans = Boolean.parseBoolean(args[10]);
+		this.saveResults = Boolean.parseBoolean(args[11]);
+		this.hostname = args[12];
+		AnalyticsRecorder recorderTemp;
 		try {
-			this.workDir = args[0];
-			this.dbName = args[1];
-			this.folderName = args[2];
-			this.experimentName = args[3];
-			this.system = args[4];
-			this.test = args[5];
-			this.instance = Integer.parseInt(args[6]);
-			this.queriesDir = args[7];
-			this.resultsDir = args[8];
-			this.plansDir = args[9];
-			this.savePlans = Boolean.parseBoolean(args[10]);
-			this.saveResults = Boolean.parseBoolean(args[11]);
-			this.hostname = args[12];
 			String driverName = "";
 			if( this.system.equals("hive") ) {
 				Class.forName(hiveDriverName);
@@ -104,27 +105,31 @@ public class ExecuteQueries {
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
-			this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+			recorderTemp = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
 					this.system, this.test, this.instance);
 		}
 		catch (ClassNotFoundException e) {
+			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error("Error in ExecuteQueries constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (SQLException e) {
+			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error("Error in ExecuteQueries constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (Exception e) {
+			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error("Error in ExecuteQueries constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+		this.recorder = recorderTemp;
 	}
 	
 	private void setPrestoDefaultSessionOpts() {
@@ -185,10 +190,10 @@ public class ExecuteQueries {
 				this.setPrestoDefaultSessionOpts();
 			}
 			//Execute the query or queries.
-			this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
+			this.executeQueryMultipleCalls(sqlFile.getName(), sqlStr, queryRecord);
 			//Record the results file size.
 			if( this.saveResults ) {
-				String queryResultsFileName = this.generateResultsFileName(fileName);
+				String queryResultsFileName = this.generateResultsFileName(sqlFile.getName());
 				File resultsFile = new File(queryResultsFileName);
 				queryRecord.setResultsSize(resultsFile.length());
 			}

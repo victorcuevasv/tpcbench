@@ -12,13 +12,34 @@ end=$'\e[0m'
 
 #Execute the Java project with Maven on the buildhiveclient container running in docker-compose. 
 
-if [ $# -lt 2 ]; then
-    echo "${yel}Usage: bash runclient_executequeries.sh <scale factor> <all | query filename>${end}"
+if [ $# -lt 3 ]; then
+    echo "${yel}Usage: bash runclient_executequeries.sh <scale factor> <experiment instance number> <all | query filename>${end}"     
     exit 0
 fi
 
+#args[0] main work directory
+#args[1] schema (database) name
+#args[2] results folder name (e.g. for Google Drive)
+#args[3] experiment name (name of subfolder within the results folder)
+#args[4] system name (system name used within the logs)
+	 
+#args[5] test name (e.g. power)
+#args[6] experiment instance number
+#args[7] queries dir
+#args[8] subdirectory of work directory to store the results
+#args[9] subdirectory of work directory to store the execution plans
+	 
+#args[10] save plans (boolean)
+#args[11] save results (boolean)
+#args[12] hostname of the server
+#args[13] "all" or query file
+
 docker exec -ti  clientbuildercontainer  /bin/bash -c \
-	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueries\" \
-	-Dexec.args=\"/data QueriesPresto results plans presto namenodecontainer true true tpcdsdb$1gb $2\" \
-	-f /project/pom.xml"      
+"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueries\" \
+-Dexec.args=\"/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestosinglenode presto \
+power $2 QueriesPresto results plans \
+true true namenodecontainer $3\" \
+-f /project/pom.xml"
+
+
 
