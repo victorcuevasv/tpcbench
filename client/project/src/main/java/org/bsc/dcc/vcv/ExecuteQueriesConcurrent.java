@@ -62,12 +62,12 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	 * args[4] system name (system name used within the logs)
 	 * args[5] test name (e.g. power)
 	 * args[6] experiment instance number
-	 * args[7] queries dir within the jar
+	 * args[7] queries dir
 	 * args[8] subdirectory of work directory to store the results
 	 * args[9] subdirectory of work directory to store the execution plans
 	 * args[10] save plans (boolean)
 	 * args[11] save results (boolean)
-	 * args[12] jar file
+	 * args[12] hostname of the server
 	 * args[13] number of streams
 	 * args[14] random seed
 	 * args[15] use multiple connections (true|false)
