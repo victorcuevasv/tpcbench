@@ -22,6 +22,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #Create and populate the database from the .dat files. The scale factor is passed as an argument
 #and used to identify the folder that holds the data.
 #$1 scale factor (positive integer)
+#$2 experiment instance number (positive integer)
 
 if [ $# -lt 2 ]; then
     echo "${yel}Usage: bash runclient_createdbspark.sh <scale factor> <experiment instance number>${end}"
