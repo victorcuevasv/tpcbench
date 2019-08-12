@@ -256,7 +256,7 @@ public class CreateDatabaseSpark {
 		builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY '\001' \n");
 		builder.append("STORED AS TEXTFILE \n");
 		if( extTablePrefixRaw.isPresent() )
-			builder.append("LOCATION '" + extTablePrefixRaw + "/" + tableName + "' \n");
+			builder.append("LOCATION '" + extTablePrefixRaw.get() + "/" + tableName + "' \n");
 		else
 			builder.append("LOCATION '" + genDataDir + "/" + tableName + "' \n");
 		return builder.toString();
@@ -274,7 +274,7 @@ public class CreateDatabaseSpark {
 				builder.append("USING DELTA \n");
 			else
 				builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
-			builder.append("LOCATION '" + extTablePrefixCreated + "/" + tableName + "' \n");
+			builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
 		}
 		else
 			builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");

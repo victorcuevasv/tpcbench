@@ -28,7 +28,7 @@ printf "\n\n%s\n\n" "${mag}Creating the schema (database).${end}"
 
 docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateSchema\" \
-	-Dexec.args=\"namenodecontainer spark tpcdsdb$1gb\" \
+	-Dexec.args=\"namenodecontainer sparkjdbc tpcdsdb$1gb\" \
 	-f /project/pomSparkJDBC.xml"  
   
 

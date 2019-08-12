@@ -185,7 +185,7 @@ public class CreateDatabase {
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, 
 					! this.recorder.system.startsWith("presto"), suffix);
 			String extSqlCreate = null;
-			if( this.recorder.system.equals("hive") || this.recorder.system.equals("spark"))
+			if( this.recorder.system.equals("hive") || this.recorder.system.startsWith("spark"))
 				extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, genDataDir, 
 						extTablePrefixRaw);
 			else if( this.recorder.system.startsWith("presto") )
@@ -207,14 +207,14 @@ public class CreateDatabase {
 				countRowsQuery(stmt, tableName + suffix);
 			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "");
 			String intSqlCreate = null;
-			if( this.recorder.system.equals("hive") || this.recorder.system.equals("spark") )
+			if( this.recorder.system.equals("hive") || this.recorder.system.startsWith("spark") )
 				intSqlCreate = internalCreateTableHive(incIntSqlCreate, tableName, extTablePrefixCreated, format);
 			else if( this.recorder.system.startsWith("presto") )
 				intSqlCreate = internalCreateTablePresto(incIntSqlCreate, tableName, extTablePrefixCreated, format);
 			saveCreateTableFile(format, tableName, intSqlCreate);
 			stmt.execute("drop table if exists " + tableName);
 			stmt.execute(intSqlCreate);
-			if( this.recorder.system.equals("hive") || this.recorder.system.equals("spark") )
+			if( this.recorder.system.equals("hive") || this.recorder.system.startsWith("spark") )
 				stmt.execute("INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix);
 			else if( this.recorder.system.startsWith("presto") )
 				stmt.execute("INSERT INTO " + tableName + " SELECT * FROM " + tableName + suffix);
@@ -281,7 +281,7 @@ public class CreateDatabase {
 		builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY '\001' \n");
 		builder.append("STORED AS TEXTFILE \n");
 		if( extTablePrefixRaw.isPresent() )
-			builder.append("LOCATION '" + extTablePrefixRaw + "/" + genDataDir + "/" + tableName + "' \n");
+			builder.append("LOCATION '" + extTablePrefixRaw.get() + "/" + genDataDir + "/" + tableName + "' \n");
 		else
 			builder.append("LOCATION '" + genDataDir + "/" + tableName + "' \n");
 		return builder.toString();
@@ -296,7 +296,7 @@ public class CreateDatabase {
 		// Add the stored as statement.
 		builder.append("WITH ( format = 'TEXTFILE', \n");
 		if( extTablePrefixRaw.isPresent() )
-			builder.append("external_location = '" + extTablePrefixRaw + "/" + tableName + "' ) \n");
+			builder.append("external_location = '" + extTablePrefixRaw.get() + "/" + tableName + "' ) \n");
 		else
 			builder.append("external_location = '" + genDataDir + "/" + tableName + "' ) \n");
 		return builder.toString();
@@ -314,7 +314,7 @@ public class CreateDatabase {
 				builder.append("STORED AS PARQUET \n");
 			else if( format.equals("orc") )
 				builder.append("STORED AS ORC \n");
-			builder.append("LOCATION '" + extTablePrefixCreated + "/" + tableName + "' \n");
+			builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
 			if( format.equals("parquet") )
 				builder.append("TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
 			else if( format.equals("orc") )
@@ -341,7 +341,7 @@ public class CreateDatabase {
 				builder.append("WITH ( format = 'PARQUET', ");
 			else if( format.equals("orc") )
 				builder.append("WITH ( format = 'ORC', ");
-			builder.append("external_location = '" + extTablePrefixCreated + "/" + tableName + "' ) \n");
+			builder.append("external_location = '" + extTablePrefixCreated.get() + "/" + tableName + "' ) \n");
 		}
 		else {
 			if( format.equals("parquet") )
