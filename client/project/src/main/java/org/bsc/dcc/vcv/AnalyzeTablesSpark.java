@@ -16,15 +16,15 @@ public class AnalyzeTablesSpark {
 	
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private SparkSession spark;
-	private AnalyticsRecorder recorder;
-	private String workDir;
-	private String dbName;
-	private String folderName;
-	private String experimentName;
-	private String system;
-	private String test;
-	private int instance;
-	private boolean computeForCols;
+	private final AnalyticsRecorder recorder;
+	private final String workDir;
+	private final String dbName;
+	private final String folderName;
+	private final String experimentName;
+	private final String system;
+	private final String test;
+	private final int instance;
+	private final boolean computeForCols;
 
 	
 	/**
@@ -41,15 +41,16 @@ public class AnalyzeTablesSpark {
 	 * 
 	 */
 	public AnalyzeTablesSpark(String[] args) {
+		this.workDir = args[0];
+		this.dbName = args[1];
+		this.folderName = args[2];
+		this.experimentName = args[3];
+		this.system = args[4];
+		this.test = args[5];
+		this.instance = Integer.parseInt(args[6]);
+		this.computeForCols = Boolean.parseBoolean(args[7]);
+		AnalyticsRecorder recorderTemp;
 		try {
-			this.workDir = args[0];
-			this.dbName = args[1];
-			this.folderName = args[2];
-			this.experimentName = args[3];
-			this.system = args[4];
-			this.test = args[5];
-			this.instance = Integer.parseInt(args[6]);
-			this.computeForCols = Boolean.parseBoolean(args[7]);
 			if( this.system.equals("sparkdatabricks") ) {
 				this.spark = SparkSession.builder().appName("TPC-DS Database Table Analysis")
 						//	.enableHiveSupport()
@@ -61,15 +62,17 @@ public class AnalyzeTablesSpark {
 						.enableHiveSupport()
 						.getOrCreate();
 			}
-			this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+			recorderTemp = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
 					this.system, this.test, this.instance);
 		}
 		catch(Exception e) {
+			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error("Error in AnalyzeTablesSpark constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+		this.recorder = recorderTemp;
 	}
 
 	
