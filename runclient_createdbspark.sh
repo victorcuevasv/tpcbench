@@ -10,6 +10,8 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+#Get the user name of the user executing this script.
+USER_NAME=$(whoami)
 #Get the user id of the user executing this script.
 USER_ID=$(id -u)
 #Get the user id of the user executing this script.
@@ -58,6 +60,6 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 /project/targetspark/client-1.0-SNAPSHOT.jar \
 /data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparksinglenode spark \
 load $2 /temporal/$1GB tables _ext \
-null null parquet false  /project/targetspark/client-1.0-SNAPSHOT.jar"
+null null parquet false /project/targetspark/client-1.0-SNAPSHOT.jar"
 
 

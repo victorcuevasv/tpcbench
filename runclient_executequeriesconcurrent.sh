@@ -10,6 +10,11 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+#Get the user id of the user executing this script.
+USER_ID=$(id -u)
+#Get the user id of the user executing this script.
+GROUP_ID=$(id -g)
+
 #Execute the Java project with Maven on the client builder container running in the docker-compose setup. 
 
 if [ $# -lt 3 ]; then
@@ -37,7 +42,7 @@ fi
 
 #args[15] use multiple connections (true|false)
 
-docker exec -ti  clientbuildercontainer  /bin/bash -c \
+docker exec --user $USER_ID:$GROUP_ID -ti  clientbuildercontainer  /bin/bash -c \
 "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueriesConcurrent\" \
 -Dexec.args=\"/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestosinglenode presto \
 tput $2 QueriesPresto results plans \
