@@ -12,7 +12,7 @@
    {
     "Classification": "spark",
     "Properties": {
-      "spark.sql.broadcastTimeou": "7200",
+      "spark.sql.broadcastTimeout": "7200",
       "spark.sql.crossJoin.enabled": "true"
     }
   }
