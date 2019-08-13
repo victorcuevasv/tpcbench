@@ -81,7 +81,8 @@ public class CreateDatabase {
 		this.doCount = Boolean.parseBoolean(args[13]);
 		this.hostname = args[14];
 		this.username = args[15];
-		AnalyticsRecorder recorderTemp;
+		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+				this.system, this.test, this.instance);
 		try {
 			if( this.system.equals("hive") ) {
 				Class.forName(driverName);
@@ -110,11 +111,8 @@ public class CreateDatabase {
 			else {
 				throw new java.lang.RuntimeException("Unsupported system: " + this.system);
 			}
-			recorderTemp = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
-					this.system, this.test, this.instance);
 		}
 		catch (ClassNotFoundException e) {
-			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error("Error in CreateDatabase constructor.");
 			this.logger.error(e);
@@ -122,7 +120,6 @@ public class CreateDatabase {
 			System.exit(1);
 		}
 		catch (SQLException e) {
-			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error("Error in CreateDatabase constructor.");
 			this.logger.error(e);
@@ -130,14 +127,12 @@ public class CreateDatabase {
 			System.exit(1);
 		}
 		catch (Exception e) {
-			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error("Error in CreateDatabase constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		this.recorder = recorderTemp;
 	}
 
 	

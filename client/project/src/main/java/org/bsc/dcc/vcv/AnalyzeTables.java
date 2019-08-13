@@ -52,7 +52,8 @@ public class AnalyzeTables {
 		this.instance = Integer.parseInt(args[6]);
 		this.computeForCols = Boolean.parseBoolean(args[7]);
 		this.hostname = args[8];
-		AnalyticsRecorder recorderTemp;
+		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+				this.system, this.test, this.instance);
 		try {
 			String driverName = "";
 			if( this.system.equals("hive") ) {
@@ -80,28 +81,22 @@ public class AnalyzeTables {
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
-			recorderTemp = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
-					this.system, this.test, this.instance);
 		}
 		catch (ClassNotFoundException e) {
-			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (SQLException e) {
-			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (Exception e) {
-			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
-		this.recorder = recorderTemp;
 	}
 
 

@@ -81,28 +81,20 @@ public class CreateDatabaseSpark {
 		this.format = args[12];
 		this.doCount = Boolean.parseBoolean(args[13]);
 		this.jarFile = args[14];
-		JarCreateTableReaderAsZipFile createTableReaderTemp;
-		AnalyticsRecorder recorderTemp;
+		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.subDir);
+		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+				this.system, this.test, this.instance);
 		try {
-			//createTableReaderTemp = new JarCreateTableReaderAsZipFile(this.jarFile, 
-			//		this.workDir + "/" + this.subDir);
-			createTableReaderTemp = new JarCreateTableReaderAsZipFile(this.jarFile, this.subDir);
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
 					.enableHiveSupport()
 					.getOrCreate();
-			recorderTemp = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
-				this.system, this.test, this.instance);
 		}
 		catch(Exception e) {
-			createTableReaderTemp = null;
-			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error("Error in CreateDatabaseSpark constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
-		this.createTableReader = createTableReaderTemp;
-		this.recorder = recorderTemp;
 	}
 
 

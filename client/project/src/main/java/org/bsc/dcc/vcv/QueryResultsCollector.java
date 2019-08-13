@@ -4,10 +4,10 @@ import java.util.concurrent.BlockingQueue;
 
 public class QueryResultsCollector implements Runnable {
 	
-	private int totalQueries;
-	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
-	private AnalyticsRecorderConcurrent analyticsRecorder;
-	private ConcurrentExecutor parent;
+	private final int totalQueries;
+	private final BlockingQueue<QueryRecordConcurrent> resultsQueue;
+	private final AnalyticsRecorderConcurrent analyticsRecorder;
+	private final ConcurrentExecutor parent;
 	
 	public QueryResultsCollector(int totalQueries, BlockingQueue<QueryRecordConcurrent> resultsQueue,
 			AnalyticsRecorderConcurrent analyticsRecorder, ConcurrentExecutor parent) {

@@ -38,13 +38,13 @@ public class QueryStreamSpark implements Callable<Void> {
 
 	
 	private static final Logger logger = LogManager.getLogger("AllLog");
-	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
+	private final BlockingQueue<QueryRecordConcurrent> resultsQueue;
 	private SparkSession spark;
-	private int nStream;
-	private HashMap<Integer, String> queriesHT;
-	private int nQueries;
-	private Random random;
-	private ExecuteQueriesConcurrentSpark parent;
+	private final int nStream;
+	private final HashMap<Integer, String> queriesHT;
+	private final int nQueries;
+	private final Random random;
+	private final ExecuteQueriesConcurrentSpark parent;
 
 	
 	public QueryStreamSpark(int nStream, BlockingQueue<QueryRecordConcurrent> resultsQueue,

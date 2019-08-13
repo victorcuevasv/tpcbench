@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 
 public class JarCreateTableReaderAsZipFile {
 	
-	private Map<String, String> ht;
-	private List<String> filesNames;
+	private final Map<String, String> ht;
+	private final List<String> filesNames;
 	
 	public static void main(String[] args) {
 		JarCreateTableReaderAsZipFile app = new JarCreateTableReaderAsZipFile(args[0], args[1]);

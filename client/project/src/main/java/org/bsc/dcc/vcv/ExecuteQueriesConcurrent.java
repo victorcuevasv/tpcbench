@@ -29,27 +29,27 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private static final String databricksDriverName = "com.simba.spark.jdbc41.Driver";
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
-	private AnalyticsRecorderConcurrent recorder;
-	private ExecutorService executor;
-	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
+	private final AnalyticsRecorderConcurrent recorder;
+	private final ExecutorService executor;
+	private final BlockingQueue<QueryRecordConcurrent> resultsQueue;
 	private static final int POOL_SIZE = 100;
-	private Random random;
-	String workDir;
-	String dbName;
-	String folderName;
-	String experimentName;
-	String system;
-	String test;
-	int instance;
-	String queriesDir;
-	String resultsDir;
-	String plansDir;
-	boolean savePlans;
-	boolean saveResults;
-	private String hostname;
-	private int nStreams;
-	private long seed;
-	private boolean multiple;
+	private final Random random;
+	final String workDir;
+	final String dbName;
+	final String folderName;
+	final String experimentName;
+	final String system;
+	final String test;
+	final int instance;
+	final String queriesDir;
+	final String resultsDir;
+	final String plansDir;
+	final boolean savePlans;
+	final boolean saveResults;
+	final private String hostname;
+	final private int nStreams;
+	final private long seed;
+	final private boolean multiple;
 
 	
 	/**
@@ -74,30 +74,30 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	 * 
 	 */
 	public ExecuteQueriesConcurrent(String[] args) {
+		this.workDir = args[0];
+		this.dbName = args[1];
+		this.folderName = args[2];
+		this.experimentName = args[3];
+		this.system = args[4];
+		this.test = args[5];
+		this.instance = Integer.parseInt(args[6]);
+		this.queriesDir = args[7];
+		this.resultsDir = args[8];
+		this.plansDir = args[9];
+		this.savePlans = Boolean.parseBoolean(args[10]);
+		this.saveResults = Boolean.parseBoolean(args[11]);
+		this.hostname = args[12];
+		this.nStreams = Integer.parseInt(args[13]);
+		this.seed = Long.parseLong(args[14]);
+		this.multiple = Boolean.parseBoolean(args[15]);
+		this.random = new Random(seed);
+		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.folderName,
+				this.experimentName, this.system, this.test, this.instance);
+		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
+		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 		try {
-			this.workDir = args[0];
-			this.dbName = args[1];
-			this.folderName = args[2];
-			this.experimentName = args[3];
-			this.system = args[4];
-			this.test = args[5];
-			this.instance = Integer.parseInt(args[6]);
-			this.queriesDir = args[7];
-			this.resultsDir = args[8];
-			this.plansDir = args[9];
-			this.savePlans = Boolean.parseBoolean(args[10]);
-			this.saveResults = Boolean.parseBoolean(args[11]);
-			this.hostname = args[12];
-			this.nStreams = Integer.parseInt(args[13]);
-			this.seed = Long.parseLong(args[14]);
-			this.multiple = Boolean.parseBoolean(args[15]);
-			this.random = new Random(seed);
 			if( ! this.multiple )
 				this.con = this.createConnection(this.system, this.hostname, this.dbName);
-			this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.folderName,
-					this.experimentName, this.system, this.test, this.instance);
-			this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
-			this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -112,7 +112,6 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	// running locally or under docker-compose).
 	public Connection createConnection(String system, String hostname, String dbName) {
 		try {
-			system = system.toLowerCase();
 			String driverName = "";
 			if( system.equals("hive") ) {
 				Class.forName(hiveDriverName);

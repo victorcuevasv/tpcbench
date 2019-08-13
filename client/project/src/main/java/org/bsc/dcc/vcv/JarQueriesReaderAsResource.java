@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 
 public class JarQueriesReaderAsResource {
 	
-	private Map<String, String> ht;
-	private List<String> filesNamesSorted;
+	private final Map<String, String> ht;
+	private final List<String> filesNamesSorted;
 	
 	public static void main(String[] args) {
 		JarQueriesReaderAsResource app = new JarQueriesReaderAsResource(args[0]);

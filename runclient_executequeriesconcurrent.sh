@@ -33,7 +33,7 @@ fi
 #args[11] save results (boolean)
 #args[12] hostname of the server
 #args[13] number of streams
-#args[14] random seed
+#args[14] random seed (not used unless code is modified)
 
 #args[15] use multiple connections (true|false)
 

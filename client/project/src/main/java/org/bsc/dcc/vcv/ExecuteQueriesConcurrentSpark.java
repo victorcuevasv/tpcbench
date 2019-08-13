@@ -29,27 +29,27 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private SparkSession spark;
-	private AnalyticsRecorderConcurrent recorder;
-	private ExecutorService executor;
-	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
-	private JarQueriesReaderAsZipFile queriesReader;
+	private final AnalyticsRecorderConcurrent recorder;
+	private final ExecutorService executor;
+	private final BlockingQueue<QueryRecordConcurrent> resultsQueue;
+	private final JarQueriesReaderAsZipFile queriesReader;
 	private static final int POOL_SIZE = 100;
-	private Random random;
-	String workDir;
-	String dbName;
-	String folderName;
-	String experimentName;
-	String system;
-	String test;
-	int instance;
-	String queriesDir;
-	String resultsDir;
-	String plansDir;
-	boolean savePlans;
-	boolean saveResults;
-	private String jarFile;
-	private int nStreams;
-	private long seed;
+	private final Random random;
+	final String workDir;
+	final String dbName;
+	final String folderName;
+	final String experimentName;
+	final String system;
+	final String test;
+	final int instance;
+	final String queriesDir;
+	final String resultsDir;
+	final String plansDir;
+	final boolean savePlans;
+	final boolean saveResults;
+	final private String jarFile;
+	final private int nStreams;
+	final private long seed;
 	
 	
 	/**
@@ -73,32 +73,32 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	 * 
 	 */
 	public ExecuteQueriesConcurrentSpark(String[] args) {
+		this.workDir = args[0];
+		this.dbName = args[1];
+		this.folderName = args[2];
+		this.experimentName = args[3];
+		this.system = args[4];
+		this.test = args[5];
+		this.instance = Integer.parseInt(args[6]);
+		this.queriesDir = args[7];
+		this.resultsDir = args[8];
+		this.plansDir = args[9];
+		this.savePlans = Boolean.parseBoolean(args[10]);
+		this.saveResults = Boolean.parseBoolean(args[11]);
+		this.jarFile = args[12];
+		this.nStreams = Integer.parseInt(args[13]);
+		this.seed = Long.parseLong(args[14]);
+		this.random = new Random(seed);
+		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
+		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.folderName,
+				this.experimentName, this.system, this.test, this.instance);
+		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
+		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 		try {
-			this.workDir = args[0];
-			this.dbName = args[1];
-			this.folderName = args[2];
-			this.experimentName = args[3];
-			this.system = args[4];
-			this.test = args[5];
-			this.instance = Integer.parseInt(args[6]);
-			this.queriesDir = args[7];
-			this.resultsDir = args[8];
-			this.plansDir = args[9];
-			this.savePlans = Boolean.parseBoolean(args[10]);
-			this.saveResults = Boolean.parseBoolean(args[11]);
-			this.jarFile = args[12];
-			this.nStreams = Integer.parseInt(args[13]);
-			this.seed = Long.parseLong(args[14]);
-			this.random = new Random(seed);
-			this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, "QueriesSpark");
 			this.spark = SparkSession.builder().appName("TPC-DS Throughput Test")
 				.config("spark.sql.crossJoin.enabled", "true")
 				.enableHiveSupport()
 				.getOrCreate();
-			this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.folderName,
-					this.experimentName, this.system, this.test, this.instance);
-			this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
-			this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 		}
 		catch(Exception e) {
 			e.printStackTrace();

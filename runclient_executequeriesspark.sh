@@ -18,9 +18,26 @@ USER_ID=$(id -u)
 GROUP_ID=$(id -g)
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_executequeriesspark.sh <scale factor> <experiment instance number> <all | query filename>${end}"
+    echo "${yel}Usage: bash runclient_executequeriesspark.sh <scale factor> <experiment instance number> <all | query filename>${end}"     
     exit 0
 fi
+
+#args[0] main work directory
+#args[1] schema (database) name
+#args[2] results folder name (e.g. for Google Drive)
+#args[3] experiment name (name of subfolder within the results folder)
+#args[4] system name (system name used within the logs)
+
+#args[5] test name (e.g. power)
+#args[6] experiment instance number
+#args[7] queries dir within the jar
+#args[8] subdirectory of work directory to store the results
+#args[9] subdirectory of work directory to store the execution plans
+
+#args[10] save plans (boolean)
+#args[11] save results (boolean)
+#args[12] jar file
+#args[13] "all" or query file
 
 docker exec --user $USER_ID:$GROUP_ID -ti  namenodecontainer  /bin/bash -c \
 "/opt/spark-2.4.0-bin-hadoop2.7/bin/spark-submit --conf spark.eventLog.enabled=true  \
@@ -31,6 +48,9 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.ExecuteQueriesSpark \
 --master spark://namenodecontainer:7077 --deploy-mode client \
 /project/targetspark/client-1.0-SNAPSHOT.jar \
-/data results plans /project/targetspark/client-1.0-SNAPSHOT.jar spark true true tpcdsdb$1gb power QueriesSpark \
-/data/13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 spark $2 $3"                
-	
+/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparksinglenode spark \
+power $2 QueriesSpark results plans \
+true true /project/targetspark/client-1.0-SNAPSHOT.jar $3"                
+
+
+

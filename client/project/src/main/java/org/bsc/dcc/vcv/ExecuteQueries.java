@@ -74,7 +74,8 @@ public class ExecuteQueries {
 		this.savePlans = Boolean.parseBoolean(args[10]);
 		this.saveResults = Boolean.parseBoolean(args[11]);
 		this.hostname = args[12];
-		AnalyticsRecorder recorderTemp;
+		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+						this.system, this.test, this.instance);
 		try {
 			String driverName = "";
 			if( this.system.equals("hive") ) {
@@ -105,31 +106,25 @@ public class ExecuteQueries {
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
-			recorderTemp = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
-					this.system, this.test, this.instance);
 		}
 		catch (ClassNotFoundException e) {
-			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error("Error in ExecuteQueries constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (SQLException e) {
-			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error("Error in ExecuteQueries constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (Exception e) {
-			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error("Error in ExecuteQueries constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
-		this.recorder = recorderTemp;
 	}
 	
 	private void setPrestoDefaultSessionOpts() {

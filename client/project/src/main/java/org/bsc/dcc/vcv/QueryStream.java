@@ -24,13 +24,13 @@ public class QueryStream implements Callable<Void> {
 
 	
 	private static final Logger logger = LogManager.getLogger("AllLog");
-	private BlockingQueue<QueryRecordConcurrent> resultsQueue;
-	private Connection con;
-	private int nStream;
-	private HashMap<Integer, String> queriesHT;
-	private int nQueries;
-	private Random random;
-	private ExecuteQueriesConcurrent parent;
+	private final BlockingQueue<QueryRecordConcurrent> resultsQueue;
+	private final Connection con;
+	private final int nStream;
+	private final HashMap<Integer, String> queriesHT;
+	private final int nQueries;
+	private final Random random;
+	private final ExecuteQueriesConcurrent parent;
 
 	
 	public QueryStream(int nStream, BlockingQueue<QueryRecordConcurrent> resultsQueue,

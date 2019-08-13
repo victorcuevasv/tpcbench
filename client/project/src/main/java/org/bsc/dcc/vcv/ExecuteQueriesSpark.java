@@ -31,21 +31,21 @@ public class ExecuteQueriesSpark {
 	//private static final Logger logger = LogManager.getLogger(ExecuteQueriesSpark.class);
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private SparkSession spark;
-	private AnalyticsRecorder recorder;
-	private JarQueriesReaderAsZipFile queriesReader;
-	private String workDir;
-	private String dbName;
-	private String folderName;
-	private String experimentName;
-	private String system;
-	private String test;
-	private int instance;
-	private String queriesDir;
-	private String resultsDir;
-	private String plansDir;
-	private boolean savePlans;
-	private boolean saveResults;
-	private String jarFile;
+	private final AnalyticsRecorder recorder;
+	private final JarQueriesReaderAsZipFile queriesReader;
+	private final String workDir;
+	private final String dbName;
+	private final String folderName;
+	private final String experimentName;
+	private final String system;
+	private final String test;
+	private final int instance;
+	private final String queriesDir;
+	private final String resultsDir;
+	private final String plansDir;
+	private final boolean savePlans;
+	private final boolean saveResults;
+	private final String jarFile;
 
 	
 	/**
@@ -68,27 +68,27 @@ public class ExecuteQueriesSpark {
 	 * 
 	 */
 	public ExecuteQueriesSpark(String[] args) {
+		this.workDir = args[0];
+		this.dbName = args[1];
+		this.folderName = args[2];
+		this.experimentName = args[3];
+		this.system = args[4];
+		this.test = args[5];
+		this.instance = Integer.parseInt(args[6]);
+		this.queriesDir = args[7];
+		this.resultsDir = args[8];
+		this.plansDir = args[9];
+		this.savePlans = Boolean.parseBoolean(args[10]);
+		this.saveResults = Boolean.parseBoolean(args[11]);
+		this.jarFile = args[12];
+		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
+		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+				this.system, this.test, this.instance);
 		try {
-			this.workDir = args[0];
-			this.dbName = args[1];
-			this.folderName = args[2];
-			this.experimentName = args[3];
-			this.system = args[4];
-			this.test = args[5];
-			this.instance = Integer.parseInt(args[6]);
-			this.queriesDir = args[7];
-			this.resultsDir = args[8];
-			this.plansDir = args[9];
-			this.savePlans = Boolean.parseBoolean(args[10]);
-			this.saveResults = Boolean.parseBoolean(args[11]);
-			this.jarFile = args[12];
-			this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 			this.spark = SparkSession.builder().appName("TPC-DS Sequential Query Execution")
 				.config("spark.sql.crossJoin.enabled", "true")
 				.enableHiveSupport()
 				.getOrCreate();
-			this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
-					this.system, this.test, this.instance);
 		}
 		catch(Exception e) {
 			e.printStackTrace();

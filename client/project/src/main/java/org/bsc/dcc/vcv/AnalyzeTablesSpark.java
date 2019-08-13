@@ -49,7 +49,8 @@ public class AnalyzeTablesSpark {
 		this.test = args[5];
 		this.instance = Integer.parseInt(args[6]);
 		this.computeForCols = Boolean.parseBoolean(args[7]);
-		AnalyticsRecorder recorderTemp;
+		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+				this.system, this.test, this.instance);
 		try {
 			if( this.system.equals("sparkdatabricks") ) {
 				this.spark = SparkSession.builder().appName("TPC-DS Database Table Analysis")
@@ -62,17 +63,13 @@ public class AnalyzeTablesSpark {
 						.enableHiveSupport()
 						.getOrCreate();
 			}
-			recorderTemp = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
-					this.system, this.test, this.instance);
 		}
 		catch(Exception e) {
-			recorderTemp = null;
 			e.printStackTrace();
 			this.logger.error("Error in AnalyzeTablesSpark constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
-		this.recorder = recorderTemp;
 	}
 
 	
