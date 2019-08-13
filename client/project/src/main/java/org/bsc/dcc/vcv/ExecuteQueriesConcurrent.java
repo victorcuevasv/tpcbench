@@ -137,7 +137,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10015/" + dbName, "", "");
+						hostname + ":10015/" + dbName, "hive", "");
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");

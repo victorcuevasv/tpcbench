@@ -83,13 +83,13 @@ public class ExecuteQueries {
 				this.con = DriverManager.getConnection("jdbc:hive2://" +
 						this.hostname + ":10000/" + this.dbName, "hive", "");
 			}
-			else if( system.equals("presto") ) {
+			else if( this.system.equals("presto") ) {
 				Class.forName(prestoDriverName);
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8080/hive/" + this.dbName, "hive", "");
 				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
-			else if( system.equals("prestoemr") ) {
+			else if( this.system.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8889/hive/" + this.dbName, "hive", "");
@@ -99,10 +99,10 @@ public class ExecuteQueries {
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://hostname:443/" + this.dbName);
 			}
-			else if( system.startsWith("spark") ) {
+			else if( this.system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" +
-						this.hostname + ":10015/" + this.dbName, "", "");
+						this.hostname + ":10015/" + this.dbName, "hive", "");
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");

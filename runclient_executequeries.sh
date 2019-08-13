@@ -10,6 +10,11 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+#Get the user id of the user executing this script.
+USER_ID=$(id -u)
+#Get the user id of the user executing this script.
+GROUP_ID=$(id -g)
+
 #Execute the Java project with Maven on the buildhiveclient container running in docker-compose. 
 
 if [ $# -lt 3 ]; then
@@ -34,7 +39,7 @@ fi
 #args[12] hostname of the server
 #args[13] "all" or query file
 
-docker exec -ti  clientbuildercontainer  /bin/bash -c \
+docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueries\" \
 -Dexec.args=\"/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestosinglenode presto \
 power $2 QueriesPresto results plans \

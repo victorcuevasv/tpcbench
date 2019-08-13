@@ -10,15 +10,42 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+#Get the user id of the user executing this script.
+USER_ID=$(id -u)
+#Get the user id of the user executing this script.
+GROUP_ID=$(id -g)
+
 #Execute the Java project with Maven on the buildhiveclient container running in docker-compose. 
 
-if [ $# -lt 2 ]; then
-    echo "${yel}Usage: bash runclient_executequeriessparkjdbc.sh <scale factor> <all | query filename>${end}"
+if [ $# -lt 3 ]; then
+    echo "${yel}Usage: bash runclient_executequeriessparkjdbc.sh <scale factor> <experiment instance number> <all | query filename>${end}"      
     exit 0
 fi
 
-docker exec -ti  clientbuildercontainer  /bin/bash -c \
-	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueries\" \
-	-Dexec.args=\"/data QueriesSpark results plans sparkjdbc namenodecontainer true true tpcdsdb$1gb $2\" \
-	-f /project/pomSparkJDBC.xml"    
+#args[0] main work directory
+#args[1] schema (database) name
+#args[2] results folder name (e.g. for Google Drive)
+#args[3] experiment name (name of subfolder within the results folder)
+#args[4] system name (system name used within the logs)
+	 
+#args[5] test name (e.g. power)
+#args[6] experiment instance number
+#args[7] queries dir
+#args[8] subdirectory of work directory to store the results
+#args[9] subdirectory of work directory to store the execution plans
+	 
+#args[10] save plans (boolean)
+#args[11] save results (boolean)
+#args[12] hostname of the server
+#args[13] "all" or query file
+
+docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
+"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueries\" \
+-Dexec.args=\"/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparkjdbcsinglenode sparkjdbc \
+power $2 QueriesSpark results plans \
+true true namenodecontainer $3\" \
+-f /project/pomSparkJDBC.xml"
+
+
+
 

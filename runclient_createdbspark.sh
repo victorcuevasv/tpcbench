@@ -10,14 +10,10 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
-#Get the user name of the user executing this script.
-USER_NAME=$(whoami)
 #Get the user id of the user executing this script.
 USER_ID=$(id -u)
 #Get the user id of the user executing this script.
 GROUP_ID=$(id -g)
-
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 #Create and populate the database from the .dat files. The scale factor is passed as an argument
 #and used to identify the folder that holds the data.
