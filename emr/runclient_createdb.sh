@@ -21,8 +21,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #and used to identify the folder that holds the data.
 #$1 scale factor (positive integer)
 
-if [ $# -lt 1 ]; then
-    echo "${yel}Usage: bash runclient_createdb.sh <scale factor>${end}"
+if [ $# -lt 2 ]; then
+    echo "${yel}Usage: bash runclient_createdb.sh <scale factor> <experiment instance number>${end}"
     exit 0
 fi
 
@@ -30,16 +30,38 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Creating and populating the database.${end}"
 
-#First create the warehouse directory in hdfs, which (in a local cluster) is strictly necessary for presto.
+#First create the warehouse directory in hdfs, which (in a local cluster) is strictly necessary for Presto.
 #hadoop fs -mkdir -p /user/hive/warehouse
+
+#args[0] main work directory
+#args[1] schema (database) name
+#args[2] results folder name (e.g. for Google Drive)
+#args[3] experiment name (name of subfolder within the results folder)
+#args[4] system name (system name used within the logs)
+
+#args[5] test name (i.e. load)
+#args[6] experiment instance number
+#args[7] directory for generated data raw files
+#args[8] subdirectory within the jar that contains the create table files
+#args[9] suffix used for intermediate table text files
+
+#args[10] prefix of external location for raw data tables (e.g. S3 bucket), null for none
+#args[11] prefix of external location for created tables (e.g. S3 bucket), null for none
+#args[12] format for column-storage tables (PARQUET, DELTA)
+#args[13] whether to run queries to count the tuples generated (true/false)
+#args[14] hostname of the server
+
+#args[15] username for the connection
 
 docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
 --volume $DIR/../vols/data:/data \
 --volume $DIR/../client/project:/project \
 --entrypoint mvn clientbuilder:dev \
-	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.CreateDatabase" \
-	-Dexec.args="/data/tables _ext /temporal/$1GB $(hostname) prestoemr false s3a://tpcds-datasets/$1GB s3a://tpcds-warehouse-emr-presto-$1gb orc tpcdsdb$1gb" \
-	-f /project/pom.xml       
-  
+exec:java -Dexec.mainClass="org.bsc.dcc.vcv.CreateDatabase" \
+-Dexec.args="/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestoemr2nodes prestoemr \
+load $2 /temporal/$1GB tables _ext \
+s3://tpcds-datasets/$1GB s3://tpcds-warehouse-emr-presto-$1gb orc false $(hostname) \
+$(whoami)" \
+-f /project/pom.xml
 
-  
+
