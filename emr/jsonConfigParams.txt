@@ -1,0 +1,20 @@
+[
+   {
+      "Classification": "presto-connector-hive",
+      "Properties": {
+         "hive.allow-drop-table": "true",
+         "hive.compression-code": "SNAPPY",
+         "hive.s3-file-system-type": "PRESTO",
+         "query.max-memory": "240GB"
+      }
+   },
+   
+   {
+    "Classification": "spark",
+    "Properties": {
+      "spark.sql.broadcastTimeou": "7200",
+      "spark.sql.crossJoin.enabled": "true"
+    }
+  }
+  
+]
