@@ -350,10 +350,12 @@ public class CreateDatabase {
 	
 	public void saveCreateTableFile(String suffix, String tableName, String sqlCreate) {
 		try {
-			File temp = new File(this.workDir + "/" + this.subDir + suffix + "/" + tableName + ".sql");
+			String createTableFileName = this.workDir + "/" + this.folderName + "/" + this.subDir +
+											suffix + "/" + this.experimentName + "/" + this.instance +
+											"/" + tableName + ".sql";
+			File temp = new File(createTableFileName);
 			temp.getParentFile().mkdirs();
-			FileWriter fileWriter = new FileWriter(
-					this.workDir + "/" + this.subDir + suffix + "/" + tableName + ".sql");
+			FileWriter fileWriter = new FileWriter(createTableFileName);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			printWriter.println(sqlCreate);
 			printWriter.close();

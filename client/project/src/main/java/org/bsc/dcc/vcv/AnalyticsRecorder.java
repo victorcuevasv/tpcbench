@@ -29,7 +29,7 @@ public class AnalyticsRecorder {
 		this.instance = instance;
 		BufferedWriter writerTemp;
 		try {
-			File logFile = new File(this.workDir + "/" + this.folderName + "/logs/" + 
+			File logFile = new File(this.workDir + "/" + this.folderName + "/analytics/" + 
 						this.experimentName + "/" + this.test + "/" + this.instance + "/analytics.log");
 			logFile.getParentFile().mkdirs();
 			writerTemp = new BufferedWriter(new FileWriter(logFile));

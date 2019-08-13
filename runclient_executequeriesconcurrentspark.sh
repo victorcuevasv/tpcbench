@@ -63,7 +63,7 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 /project/targetspark/client-1.0-SNAPSHOT.jar \
 /data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparksinglenode spark \
 tput $2 QueriesSpark results plans \
-true true /project/targetspark/client-1.0-SNAPSHOT.jar spark $3 1954" 
+true true /project/targetspark/client-1.0-SNAPSHOT.jar $3 1954" 
 
 
                      
