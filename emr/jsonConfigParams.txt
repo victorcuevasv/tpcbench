@@ -3,7 +3,7 @@
       "Classification": "presto-connector-hive",
       "Properties": {
          "hive.allow-drop-table": "true",
-         "hive.compression-code": "SNAPPY",
+         "hive.compression-codec": "SNAPPY",
          "hive.s3-file-system-type": "PRESTO",
          "query.max-memory": "240GB"
       }
