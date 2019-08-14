@@ -21,10 +21,28 @@ GROUP_ID=$(id -g)
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-if [ $# -lt 2 ]; then
-    echo "${yel}Usage: bash runclient_executequeriesconcurrent.sh <scale factor> <number of streams>${end}"
+if [ $# -lt 3 ]; then
+    echo "${yel}Usage: bash runclient_executequeriesconcurrent.sh <scale factor> <experiment instance number> <number of streams>${end}"     
     exit 0
 fi
+
+#args[0] main work directory
+#args[1] schema (database) name
+#args[2] results folder name (e.g. for Google Drive)
+#args[3] experiment name (name of subfolder within the results folder)
+#args[4] system name (system name used within the logs)
+
+#args[5] test name (e.g. power)
+#args[6] experiment instance number
+#args[7] queries dir within the jar
+#args[8] subdirectory of work directory to store the results
+#args[9] subdirectory of work directory to store the execution plans
+
+#args[10] save plans (boolean)
+#args[11] save results (boolean)
+#args[12] jar file
+#args[13] number of streams
+#args[14] random seed (not used unless code is modified)
 
 spark-submit --conf spark.eventLog.enabled=true  \
 --packages org.apache.logging.log4j:log4j-api:2.11.2,org.apache.logging.log4j:log4j-core:2.11.2,\
@@ -32,8 +50,9 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.ExecuteQueriesConcurrentSpark \
 --master yarn --deploy-mode cluster \
 hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar \
-/data results plans hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar spark $2 1954 true true tpcdsdb$1gb
+/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparkemr2nodes sparkemr \
+tput $2 QueriesSpark results plans \
+true true hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar $3 1954
 
-
-                     
+         
 
