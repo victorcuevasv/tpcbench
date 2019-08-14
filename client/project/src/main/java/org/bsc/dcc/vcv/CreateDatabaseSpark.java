@@ -121,9 +121,10 @@ public class CreateDatabaseSpark {
 			createTable(fileName, sqlCreate, i);
 			i++;
 		}
-		if( this.system.equals("sparkdatabricks") ) {
-			this.closeConnection();
-		}
+		//if( ! this.system.equals("sparkdatabricks") ) {
+		//	this.closeConnection();
+		//}
+		this.recorder.close();
 	}
 
 	

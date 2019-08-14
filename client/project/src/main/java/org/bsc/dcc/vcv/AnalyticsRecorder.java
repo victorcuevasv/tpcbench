@@ -7,7 +7,9 @@ import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+
 public class AnalyticsRecorder {
+
 	
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	protected final String workDir;
@@ -42,6 +44,7 @@ public class AnalyticsRecorder {
 		this.writer = writerTemp;
 	}
 	
+	
 	protected void message(String msg) {
 		//logger.info(msg);
 		try {
@@ -55,6 +58,7 @@ public class AnalyticsRecorder {
 		}
 	}
 	
+	
 	public void header() {
 		String[] titles = {"QUERY", "SUCCESSFUL", "DURATION", "RESULTS_SIZE", "SYSTEM", 
 						   "STARTDATE_EPOCH", "STOPDATE_EPOCH", "DURATION_MS", "STARTDATE", "STOPDATE"};
@@ -64,6 +68,7 @@ public class AnalyticsRecorder {
 		builder.append(String.format("%-25s", titles[titles.length-1]));
 		this.message(builder.toString());
 	}
+	
 	
 	public void record(QueryRecord queryRecord) {
 		int spaces = 25;
@@ -89,4 +94,16 @@ public class AnalyticsRecorder {
 	}
 	
 	
+	public void close() {
+		try {
+			this.writer.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
+	}
+	
+	
 }
+
