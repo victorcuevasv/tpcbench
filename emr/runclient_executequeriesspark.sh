@@ -51,7 +51,7 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar \
 /data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparkemr2nodes sparkemr \
 power $2 QueriesSpark results plans \
-true true hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar $3"  
+true true hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar $3
 
 
 
