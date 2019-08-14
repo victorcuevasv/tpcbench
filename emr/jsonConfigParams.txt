@@ -18,3 +18,7 @@
   }
   
 ]
+
+
+Note: remove or edit the query.max-memory configuration parameter if creating a small cluster.
+
