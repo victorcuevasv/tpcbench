@@ -23,8 +23,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #and used to identify the folder that holds the data.
 #$1 scale factor (positive integer)
 
-if [ $# -lt 1 ]; then
-    echo "${yel}Usage: bash runclient_createdbspark.sh <scale factor> ${end}"
+if [ $# -lt 2 ]; then
+    echo "${yel}Usage: bash runclient_createdbspark.sh <scale factor> <experiment instance number>${end}"
     exit 0
 fi
 
@@ -39,13 +39,33 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Creating and populating the database.${end}"
 
+#args[0] main work directory
+#args[1] schema (database) name
+#args[2] results folder name (e.g. for Google Drive)
+#args[3] experiment name (name of subfolder within the results folder)
+#args[4] system name (system name used within the logs)
+
+#args[5] test name (i.e. load)
+#args[6] experiment instance number
+#args[7] directory for generated data raw files
+#args[8] subdirectory within the jar that contains the create table files
+#args[9] suffix used for intermediate table text files
+
+#args[10] prefix of external location for raw data tables (e.g. S3 bucket), null for none
+#args[11] prefix of external location for created tables (e.g. S3 bucket), null for none
+#args[12] format for column-storage tables (PARQUET, DELTA)
+#args[13] whether to run queries to count the tuples generated (true/false)
+#args[14] jar file
+
 spark-submit --conf spark.eventLog.enabled=true  \
 --packages org.apache.logging.log4j:log4j-api:2.11.2,org.apache.logging.log4j:log4j-core:2.11.2,\
 org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.CreateDatabaseSpark \
 --master yarn --deploy-mode cluster \
 hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar \
-/data/tables _ext /temporal/$1GB UNUSED spark false tables s3://tpcds-datasets/$1GB s3://tpcds-warehouse-emr-spark-$1gb tpcdsdb$1gb hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar     
+/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparkemr2nodes sparkemr \
+load $2 /temporal/$1GB tables _ext \
+s3://tpcds-datasets/$1GB s3://tpcds-warehouse-emr-spark-$1gb parquet false hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar     
 
 
  
