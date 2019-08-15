@@ -47,16 +47,19 @@ public class CreateDatabase {
 	 * args[2] results folder name (e.g. for Google Drive)
 	 * args[3] experiment name (name of subfolder within the results folder)
 	 * args[4] system name (system name used within the logs)
+	 * 
 	 * args[5] test name (i.e. load)
 	 * args[6] experiment instance number
 	 * args[7] directory for generated data raw files
 	 * args[8] subdirectory within the jar that contains the create table files
 	 * args[9] suffix used for intermediate table text files
+	 * 
 	 * args[10] prefix of external location for raw data tables (e.g. S3 bucket), null for none
 	 * args[11] prefix of external location for created tables (e.g. S3 bucket), null for none
 	 * args[12] format for column-storage tables (PARQUET, DELTA)
 	 * args[13] whether to run queries to count the tuples generated (true/false)
 	 * args[14] hostname of the server
+	 * 
 	 * args[15] username for the connection
 	 * 
 	 */

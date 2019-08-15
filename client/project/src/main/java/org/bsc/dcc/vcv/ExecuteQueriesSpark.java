@@ -56,11 +56,13 @@ public class ExecuteQueriesSpark {
 	 * args[2] results folder name (e.g. for Google Drive)
 	 * args[3] experiment name (name of subfolder within the results folder)
 	 * args[4] system name (system name used within the logs)
+	 * 
 	 * args[5] test name (e.g. power)
 	 * args[6] experiment instance number
 	 * args[7] queries dir within the jar
 	 * args[8] subdirectory of work directory to store the results
 	 * args[9] subdirectory of work directory to store the execution plans
+	 * 
 	 * args[10] save plans (boolean)
 	 * args[11] save results (boolean)
 	 * args[12] jar file

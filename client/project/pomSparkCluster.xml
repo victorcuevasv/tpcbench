@@ -84,6 +84,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<excludes>
+						<exclude>org/bsc/dcc/vcv/RunBenchmark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/AnalyzeTables.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabase.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateSchema.java</exclude>

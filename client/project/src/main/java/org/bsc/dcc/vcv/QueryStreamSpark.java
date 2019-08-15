@@ -19,6 +19,7 @@ import java.sql.Statement;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -95,6 +96,15 @@ public class QueryStreamSpark implements Callable<Void> {
 			//	continue;
 			String sqlStr = this.queriesHT.get(queries[i]);
 			this.executeQuery(this.nStream, queries[i], sqlStr, i);
+		}
+		try {
+			TimeUnit.SECONDS.sleep(5);
+		}
+		catch (InterruptedException ie) {
+			ie.printStackTrace();
+			this.logger.error("Error in QueryStreamSpark call.");
+			this.logger.error(ie);
+			this.logger.error(AppUtil.stringifyStackTrace(ie));
 		}
 		return null;
 	}
