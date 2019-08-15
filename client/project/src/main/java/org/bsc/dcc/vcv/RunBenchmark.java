@@ -242,7 +242,7 @@ public class RunBenchmark {
 			temp.getParentFile().mkdirs();
 			FileWriter fileWriter = new FileWriter(paramsFileName);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
-			int counter = 0;
+			int counter = 1;
 			for(int i = 0; i < args.length; i++) {
 				printWriter.println("args[" + i + "] = " + args[i]);
 				if( counter % 5 == 0 )
