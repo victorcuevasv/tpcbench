@@ -10,6 +10,8 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+#Get the user name of the user executing this script.
+USER_NAME=$(whoami)
 #Get the user id of the user executing this script.
 USER_ID=$(id -u)
 #Get the user id of the user executing this script.
@@ -21,13 +23,13 @@ GROUP_ID=$(id -g)
 #$2 experiment instance number (positive integer)
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_fullbenchmark.sh <scale factor> <experiment instance number> <number of streams>${end}"
+    echo "${yel}Usage: bash runclient_fullbenchmarkspark.sh <scale factor> <experiment instance number> <number of streams>${end}"
     exit 0
 fi
 
 #Execute the Java project with Maven on the client builder container running in the docker-compose setup. 
 
-printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
+printf "\n\n%s\n\n" "${mag}Creating and populating the database.${end}"
 
 #args[0] main work directory
 #args[1] schema (database) name
@@ -44,35 +46,33 @@ printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 #args[10] prefix of external location for created tables (e.g. S3 bucket), null for none
 #args[11] format for column-storage tables (PARQUET, DELTA)
 #args[12] whether to run queries to count the tuples generated (true/false)
-#args[13] hostname of the server
-#args[14] username for the connection
+#args[13] jar file
+#args[14] queries dir within the jar
  
-#args[15] queries dir within the jar
-#args[16] subdirectory of work directory to store the results
-#args[17] subdirectory of work directory to store the execution plans
-#args[18] save power test plans (boolean)
-#args[19] save power test results (boolean)
+#args[15] subdirectory of work directory to store the results
+#args[16] subdirectory of work directory to store the execution plans
+#args[17] save power test plans (boolean)
+#args[18] save power test results (boolean)
+#args[19] "all" or query file
  
-#args[20] "all" or query file
-#args[21] save tput test plans (boolean)
-#args[22] save tput test results (boolean)
-#args[23] number of streams
-#args[24] random seed
- 
-#args[25] use multiple connections (true|false)
+#args[20] save tput test plans (boolean)
+#args[21] save tput test results (boolean)
+#args[22] number of streams
+#args[23] random seed
 
-#First create the warehouse directory in hdfs, which is strictly necessary for presto.
-docker exec -ti namenodecontainer  /bin/bash -c "hadoop fs -mkdir -p /user/hive/warehouse/tpcdsdb$1gb.db" 
-
-docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
-"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.RunBenchmark\" \
--Dexec.args=\"/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestosinglenode presto \
+docker exec --user $USER_ID:$GROUP_ID -ti  namenodecontainer  /bin/bash -c \
+"/opt/spark-2.4.0-bin-hadoop2.7/bin/spark-submit --conf spark.eventLog.enabled=true  \
+--packages org.apache.logging.log4j:log4j-api:2.11.2,org.apache.logging.log4j:log4j-core:2.11.2,\
+org.apache.zookeeper:zookeeper:3.4.6 \
+--conf spark.local.dir=/home/$USER_NAME/tmp \
+--conf spark.eventLog.dir=/home/$USER_NAME/tmp \
+--class org.bsc.dcc.vcv.RunBenchmarkSpark \
+--master spark://namenodecontainer:7077 --deploy-mode client \
+/project/targetspark/client-1.0-SNAPSHOT.jar \
+/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparksinglenode spark \
 $2 /temporal/$1GB tables _ext null \
-null orc false namenodecontainer $(whoami) \
-QueriesPresto results plans true true \
-all true true $3 1954 \
-false\" \
--f /project/pom.xml"       
-  
+null parquet false /project/targetspark/client-1.0-SNAPSHOT.jar QueriesSpark \
+results plans true true all \
+true true $3 1954"
 
 

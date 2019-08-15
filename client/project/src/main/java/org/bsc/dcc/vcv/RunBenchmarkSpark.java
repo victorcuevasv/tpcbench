@@ -78,12 +78,15 @@ public class RunBenchmarkSpark {
 		String[] executeQueriesConcurrentSparkArgs = this.createExecuteQueriesConcurrentSparkArgs(args);
 		try {
 			this.saveTestParameters(createDatabaseSparkArgs, "load");
+			System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
 			CreateDatabaseSpark.main(createDatabaseSparkArgs);
 			TimeUnit.SECONDS.sleep(10);
 			this.saveTestParameters(executeQueriesSparkArgs, "power");
+			System.out.println("\n\n\nRunning the POWER test.\n\n\n");
 			ExecuteQueriesSpark.main(executeQueriesSparkArgs);
 			TimeUnit.SECONDS.sleep(10);
 			this.saveTestParameters(executeQueriesConcurrentSparkArgs, "tput");
+			System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
 			ExecuteQueriesConcurrentSpark.main(executeQueriesConcurrentSparkArgs);
 			TimeUnit.SECONDS.sleep(10);
 		}
