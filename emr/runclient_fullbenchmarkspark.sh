@@ -66,7 +66,7 @@ printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 spark-submit --conf spark.eventLog.enabled=true  \
 --packages org.apache.logging.log4j:log4j-api:2.11.2,org.apache.logging.log4j:log4j-core:2.11.2,\
 org.apache.zookeeper:zookeeper:3.4.6 \
---class org.bsc.dcc.vcv.CreateDatabaseSpark \
+--class org.bsc.dcc.vcv.RunBenchmarkSpark \
 --master yarn --deploy-mode cluster \
 hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar \
 /data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparkemr2nodes sparkemr \
