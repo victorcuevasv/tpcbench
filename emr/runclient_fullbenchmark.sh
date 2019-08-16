@@ -10,6 +10,8 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
 #Get the user id of the user executing this script.
 USER_ID=$(id -u)
 #Get the user id of the user executing this script.

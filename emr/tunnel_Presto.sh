@@ -15,7 +15,7 @@ end=$'\e[0m'
 #$1 master node hostname
 
 if [ $# -lt 1 ]; then
-    echo "${yel}Usage bash tunnel_Spark.sh <Public DNS name>${end}"
+    echo "${yel}Usage bash tunnel_Presto.sh <Public DNS name>${end}"
     exit 0
 fi
 
