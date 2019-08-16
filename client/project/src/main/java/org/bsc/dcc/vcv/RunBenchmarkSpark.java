@@ -164,7 +164,7 @@ public class RunBenchmarkSpark {
 		args[6] experiment instance number
 		args[7] compute statistics for columns (true/false)
 		*/
-		String[] array = new String[15];
+		String[] array = new String[8];
 		array[0] = args[0];
 		array[1] = args[1];
 		array[2] = args[2];
@@ -173,7 +173,7 @@ public class RunBenchmarkSpark {
 		
 		array[5] = "analyze";
 		array[6] = args[5];
-		array[7] = args[6];
+		array[7] = args[15];
 		
 		return array;
 	}
