@@ -20,7 +20,7 @@
     "main_class_name": "org.bsc.dcc.vcv.RunBenchmarkSpark",
     "parameters": 
     	[
-    	"/dbfs/data", "tpcdsdb1gb", "13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8", "databricks2nodes", "sparkdatabricks",
+    	"/dbfs/data", "tpcdsdb1gb", "13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8", "databricks2nodesstats", "sparkdatabricks",
 		"1", "UNUSED", "tables", "_ext", "dbfs:/mnt/tpcdsbucket/1GB",
 		"dbfs:/mnt/tpcdswarehousebucket1GB", "parquet", "false", "/dbfs/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar", "true",       
 		"true", "QueriesSpark", "results", "plans", "true",
