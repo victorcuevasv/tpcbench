@@ -47,18 +47,21 @@ printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 #args[11] format for column-storage tables (PARQUET, DELTA)
 #args[12] whether to run queries to count the tuples generated (true/false)
 #args[13] jar file
-#args[14] queries dir within the jar
- 
-#args[15] subdirectory of work directory to store the results
-#args[16] subdirectory of work directory to store the execution plans
-#args[17] save power test plans (boolean)
-#args[18] save power test results (boolean)
-#args[19] "all" or query file
- 
-#args[20] save tput test plans (boolean)
-#args[21] save tput test results (boolean)
-#args[22] number of streams
-#args[23] random seed
+#args[14] whether to generate statistics by analyzing tables (true/false)
+
+#args[15] if argument above is true, whether to compute statistics for columns (true/false)
+#args[16] queries dir within the jar
+#args[17] subdirectory of work directory to store the results
+#args[18] subdirectory of work directory to store the execution plans
+#args[19] save power test plans (boolean)
+
+#args[20] save power test results (boolean)
+#args[21] "all" or query file 
+#args[22] save tput test plans (boolean)
+#args[23] save tput test results (boolean)
+#args[24] number of streams
+
+#args[25] random seed
 
 spark-submit --conf spark.eventLog.enabled=true  \
 --packages org.apache.logging.log4j:log4j-api:2.11.2,org.apache.logging.log4j:log4j-core:2.11.2,\
@@ -68,9 +71,10 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar \
 /data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparkemr2nodes sparkemr \
 $2 UNUSED tables _ext s3://tpcds-datasets/$1GB \
-s3://tpcds-warehouse-emr-spark-$1gb parquet false hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar QueriesSpark \              
-results plans true true all \
-true true $3 1954
+s3://tpcds-warehouse-emr-spark-$1gb parquet false hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar false \
+UNUSED QueriesSpark results plans true \
+true all true true $3 \
+1954
 
 
 

@@ -47,22 +47,25 @@ public class RunBenchmarkSpark {
 	 * args[11] format for column-storage tables (PARQUET, DELTA)
 	 * args[12] whether to run queries to count the tuples generated (true/false)
 	 * args[13] jar file
-	 * args[14] queries dir within the jar
+	 * args[14] whether to generate statistics by analyzing tables (true/false)
 	 * 
-	 * args[15] subdirectory of work directory to store the results
-	 * args[16] subdirectory of work directory to store the execution plans
-	 * args[17] save power test plans (boolean)
-	 * args[18] save power test results (boolean)
-	 * args[19] "all" or query file
+	 * args[15]	if argument above is true, whether to compute statistics for columns (true/false)
+	 * args[16] queries dir within the jar
+	 * args[17] subdirectory of work directory to store the results
+	 * args[18] subdirectory of work directory to store the execution plans
+	 * args[19] save power test plans (boolean)
 	 * 
-	 * args[20] save tput test plans (boolean)
-	 * args[21] save tput test results (boolean)
-	 * args[22] number of streams
-	 * args[23] random seed
+	 * args[20] save power test results (boolean)
+	 * args[21] "all" or query file
+	 * args[22] save tput test plans (boolean)
+	 * args[23] save tput test results (boolean)
+	 * args[24] number of streams
+	 * 
+	 * args[25] random seed
 	 * 
 	 */
 	public static void main(String[] args) {
-		if( args.length != 24 ) {
+		if( args.length != 26 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
@@ -81,6 +84,14 @@ public class RunBenchmarkSpark {
 			System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
 			CreateDatabaseSpark.main(createDatabaseSparkArgs);
 			TimeUnit.SECONDS.sleep(10);
+			boolean analyze = Boolean.parseBoolean(args[14]);
+			if( analyze ) {
+				String[] analyzeTablesSparkArgs = this.createAnalyzeTablesSparkArgs(args);
+				this.saveTestParameters(analyzeTablesSparkArgs, "analyze");
+				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
+				AnalyzeTablesSpark.main(analyzeTablesSparkArgs);
+				TimeUnit.SECONDS.sleep(10);
+			}
 			this.saveTestParameters(executeQueriesSparkArgs, "power");
 			System.out.println("\n\n\nRunning the POWER test.\n\n\n");
 			ExecuteQueriesSpark.main(executeQueriesSparkArgs);
@@ -142,6 +153,32 @@ public class RunBenchmarkSpark {
 	}
 	
 	
+	private String[] createAnalyzeTablesSparkArgs(String args[]) {
+		/* 
+		args[0] main work directory
+		args[1] schema (database) name
+		args[2] results folder name (e.g. for Google Drive)
+		args[3] experiment name (name of subfolder within the results folder)
+		args[4] system name (system name used within the logs)
+		args[5] test name (i.e. analyze)
+		args[6] experiment instance number
+		args[7] compute statistics for columns (true/false)
+		*/
+		String[] array = new String[15];
+		array[0] = args[0];
+		array[1] = args[1];
+		array[2] = args[2];
+		array[3] = args[3];
+		array[4] = args[4];
+		
+		array[5] = "analyze";
+		array[6] = args[5];
+		array[7] = args[6];
+		
+		return array;
+	}
+	
+	
 	private String[] createExecuteQueriesSparkArgs(String args[]) {
 		/* 
 		args[0] main work directory
@@ -170,14 +207,14 @@ public class RunBenchmarkSpark {
 		
 		array[5] = "power";
 		array[6] = args[5];
-		array[7] = args[14];
-		array[8] = args[15];
-		array[9] = args[16];
+		array[7] = args[16];
+		array[8] = args[17];
+		array[9] = args[18];
 		
-		array[10] = args[17];
-		array[11] = args[18];
+		array[10] = args[19];
+		array[11] = args[20];
 		array[12] = args[13];
-		array[13] = args[19];
+		array[13] = args[21];
 		
 		return array;
 	}
@@ -212,15 +249,15 @@ public class RunBenchmarkSpark {
 		
 		array[5] = "tput";
 		array[6] = args[5];
-		array[7] = args[14];
-		array[8] = args[15];
-		array[9] = args[16];
+		array[7] = args[16];
+		array[8] = args[17];
+		array[9] = args[18];
 		
-		array[10] = args[20];
-		array[11] = args[21];
+		array[10] = args[22];
+		array[11] = args[23];
 		array[12] = args[13];
-		array[13] = args[22];
-		array[14] = args[23];
+		array[13] = args[24];
+		array[14] = args[25];
 		
 		return array;
 	}

@@ -35,7 +35,7 @@ public class AnalyzeTablesSpark {
 	 * args[2] results folder name (e.g. for Google Drive)
 	 * args[3] experiment name (name of subfolder within the results folder)
 	 * args[4] system name (system name used within the logs)
-	 * args[5] test name (i.e. load)
+	 * args[5] test name (i.e. analyze)
 	 * args[6] experiment instance number
 	 * args[7] compute statistics for columns (true/false)
 	 * 
