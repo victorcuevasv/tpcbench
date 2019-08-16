@@ -22,9 +22,10 @@
     	[
     	"/dbfs/data", "tpcdsdb1gb", "13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8", "databricks2nodes", "sparkdatabricks",
 		"1", "UNUSED", "tables", "_ext", "dbfs:/mnt/tpcdsbucket/1GB",
-		"dbfs:/mnt/tpcdswarehousebucket1GB", "parquet", "false", "/dbfs/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar", "QueriesSpark",      
-		"results", "plans", "true", "true", "all",
-		"true", "true", "2", "1954"
+		"dbfs:/mnt/tpcdswarehousebucket1GB", "parquet", "false", "/dbfs/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar", "false",       
+		"UNUSED", "QueriesSpark", "results", "plans", "true",
+		"true", "all", "true", "true", "2",
+		"1954"
     	]
   }
 }
