@@ -68,7 +68,7 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 --volume $DIR/../vols/data:/data \
 --volume $DIR/../client/project:/project \
 --entrypoint mvn clientbuilder:dev \
-exec:java -Dexec.mainClass="org.bsc.dcc.vcv.CreateDatabase" \
+exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmark" \
 -Dexec.args="/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestoemr2nodes prestoemr \
 $2 UNUSED tables _ext s3://tpcds-datasets/$1GB \
 s3://tpcds-warehouse-emr-presto-$1gb orc false $(hostname) $(whoami) \
