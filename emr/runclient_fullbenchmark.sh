@@ -50,19 +50,21 @@ printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 #args[13] hostname of the server
 #args[14] username for the connection
  
-#args[15] queries dir within the jar
-#args[16] subdirectory of work directory to store the results
-#args[17] subdirectory of work directory to store the execution plans
-#args[18] save power test plans (boolean)
-#args[19] save power test results (boolean)
- 
-#args[20] "all" or query file
-#args[21] save tput test plans (boolean)
-#args[22] save tput test results (boolean)
-#args[23] number of streams
-#args[24] random seed
- 
-#args[25] use multiple connections (true|false)
+#args[15] whether to generate statistics by analyzing tables (true/false)
+#args[16] if argument above is true, whether to compute statistics for columns (true/false)
+#args[17] queries dir within the jar
+#args[18] subdirectory of work directory to store the results
+#args[19] subdirectory of work directory to store the execution plans
+
+#args[20] save power test plans (boolean)
+#args[21] save power test results (boolean) 
+#args[22] "all" or query file
+#args[23] save tput test plans (boolean)
+#args[24] save tput test results (boolean)
+
+#args[25] number of streams
+#args[26] random seed 
+#args[27] use multiple connections (true|false)
 
 docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
 --volume $DIR/../vols/data:/data \
@@ -72,9 +74,9 @@ exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmark" \
 -Dexec.args="/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestoemr2nodes prestoemr \
 $2 UNUSED tables _ext s3://tpcds-datasets/$1GB \
 s3://tpcds-warehouse-emr-presto-$1gb orc false $(hostname) $(whoami) \
-QueriesPresto results plans true true \
-all true true $3 1954 \
-false" \
+false UNUSED QueriesPresto results plans \
+true true all true true \
+$3 1954 false" \
 -f /project/pom.xml
 
 
