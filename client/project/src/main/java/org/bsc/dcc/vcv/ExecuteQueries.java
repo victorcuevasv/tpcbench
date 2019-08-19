@@ -171,6 +171,7 @@ public class ExecuteQueries {
 				this.executeQueryFile(fileEntry);
 			}
 		}
+		this.recorder.close();
 	}
 
 	// Execute the query (or queries) from the provided file.

@@ -124,6 +124,7 @@ public class AnalyzeTables {
 		for(int i = 0; i < tables.length; i++) {
 			this.executeAnalyzeTable(tables[i], i);
 		}
+		this.recorder.close();
 	}
 
 	

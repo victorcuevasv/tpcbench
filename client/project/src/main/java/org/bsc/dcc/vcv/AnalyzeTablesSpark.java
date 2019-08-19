@@ -98,6 +98,7 @@ public class AnalyzeTablesSpark {
 		for(int i = 0; i < tables.length; i++) {
 			analyzeTable(tables[i], this.computeForCols, i);
 		}
+		this.recorder.close();
 	}
 
 	
