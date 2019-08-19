@@ -69,7 +69,7 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 --class org.bsc.dcc.vcv.RunBenchmarkSpark \
 --master yarn --deploy-mode cluster \
 hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar \
-/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparkemr2nodes sparkemr \
+/mnt/efs/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparkemr2nodes sparkemr \
 $2 UNUSED tables _ext s3://tpcds-datasets/$1GB \
 s3://tpcds-warehouse-emr-spark-$1gb parquet false hdfs://$(hostname)/project/targetspark/client-1.0-SNAPSHOT.jar false \
 UNUSED QueriesSpark results plans true \
