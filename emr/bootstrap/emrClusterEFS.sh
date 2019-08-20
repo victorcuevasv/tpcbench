@@ -11,5 +11,7 @@ sudo mount -a -t efs defaults
 if [ ! -d ${efs_directory}/data ]; then
 	sudo mkdir ${efs_directory}/data
 	sudo chmod -R 777 ${efs_directory}/data
+	sudo mkdir /data
+	sudo chmod -R 777 /data
 fi
 
