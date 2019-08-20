@@ -14,4 +14,8 @@ if [ ! -d ${efs_directory}/data ]; then
 	sudo mkdir /data
 	sudo chmod -R 777 /data
 fi
+if [ ! -d /data ]; then
+	sudo mkdir /data
+	sudo chmod -R 777 /data
+fi
 
