@@ -54,7 +54,9 @@ public class AnalyticsRecorder {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			this.logger.error("Error in AnalyticsRecorder message.");
 			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
 	
@@ -100,7 +102,9 @@ public class AnalyticsRecorder {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			this.logger.error("Error in AnalyticsRecorder close.");
 			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
 	

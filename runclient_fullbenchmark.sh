@@ -72,7 +72,7 @@ docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 $2 /temporal/$1GB tables _ext null \
 null orc false namenodecontainer $(whoami) \
 false UNUSED QueriesPresto results plans \
-true true all true true \
+true true query1.sql true true \
 $3 1954 false\" \
 -f /project/pom.xml"       
   

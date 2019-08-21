@@ -161,7 +161,7 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 			this.logger.error(ie);
 			this.logger.error(AppUtil.stringifyStackTrace(ie));
 		}
-		this.recorder.close();
+		//this.recorder.close();
 	}
 	
 	

@@ -201,7 +201,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		HashMap<Integer, String> queriesHT = this.createQueriesHT(files);
 		int nQueries = files.length;
 		this.executeStreams(nQueries, queriesHT);
-		this.recorder.close();
+		//this.recorder.close();
 	}
 	
 	
