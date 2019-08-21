@@ -47,19 +47,21 @@ printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 #args[13] hostname of the server
 #args[14] username for the connection
  
-#args[15] queries dir within the jar
-#args[16] subdirectory of work directory to store the results
-#args[17] subdirectory of work directory to store the execution plans
-#args[18] save power test plans (boolean)
-#args[19] save power test results (boolean)
+#args[15] whether to generate statistics by analyzing tables (true/false)
+#args[16] if argument above is true, whether to compute statistics for columns (true/false)
+#args[17] queries dir within the jar
+#args[18] subdirectory of work directory to store the results
+#args[19] subdirectory of work directory to store the execution plans
  
-#args[20] "all" or query file
-#args[21] save tput test plans (boolean)
-#args[22] save tput test results (boolean)
-#args[23] number of streams
-#args[24] random seed
- 
-#args[25] use multiple connections (true|false)
+#args[20] save power test plans (boolean)
+#args[21] save power test results (boolean)
+#args[22] "all" or query file
+#args[23] save tput test plans (boolean)
+#args[24] save tput test results (boolean)
+
+#args[25] number of streams
+#args[26] random seed
+#args[27] use multiple connections (true|false)
 
 #First create the warehouse directory in hdfs, which is strictly necessary for presto.
 docker exec -ti namenodecontainer  /bin/bash -c "hadoop fs -mkdir -p /user/hive/warehouse/tpcdsdb$1gb.db" 
@@ -69,10 +71,9 @@ docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 -Dexec.args=\"/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestosinglenode presto \
 $2 /temporal/$1GB tables _ext null \
 null orc false namenodecontainer $(whoami) \
-QueriesPresto results plans true true \
-all true true $3 1954 \
-false\" \
+false UNUSED QueriesPresto results plans \
+true true all true true \
+$3 1954 false\" \
 -f /project/pom.xml"       
   
-
 

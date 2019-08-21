@@ -28,8 +28,8 @@ public class QueryResultsCollector implements Runnable {
 				e.printStackTrace();
 			}
 		}
-		if( parent != null)
-			parent.closeConnection();
+		if( this.parent != null && ! this.analyticsRecorder.system.equalsIgnoreCase("sparkdatabricks"))
+			this.parent.closeConnection();
 	}
 	
 }
