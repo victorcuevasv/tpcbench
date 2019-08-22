@@ -73,7 +73,7 @@ docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 $2 /temporal/$1GB tables _ext null \
 null orc false namenodecontainer $(whoami) \
 /project/target/client-1.0-SNAPSHOT.jar false UNUSED QueriesPresto results \
-plans true true all true \
+plans true true query3.sql true \
 true $3 1954 false\" \
 -f /project/pom.xml"       
   

@@ -24,11 +24,12 @@ import com.facebook.presto.jdbc.PrestoConnection;
 
 public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 
+	private static final Logger logger = LogManager.getLogger("AllLog");
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private static final String databricksDriverName = "com.simba.spark.jdbc41.Driver";
 	private Connection con;
-	private static final Logger logger = LogManager.getLogger("AllLog");
+	private final JarQueriesReaderAsZipFile queriesReader;
 	private final AnalyticsRecorderConcurrent recorder;
 	private final ExecutorService executor;
 	private final BlockingQueue<QueryRecordConcurrent> resultsQueue;
@@ -97,6 +98,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.seed = Long.parseLong(args[15]);
 		this.multiple = Boolean.parseBoolean(args[16]);
 		this.random = new Random(seed);
+		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.folderName,
 				this.experimentName, this.system, this.test, this.instance);
 		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
@@ -185,30 +187,14 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			System.exit(1);
 		}
 		ExecuteQueriesConcurrent prog = new ExecuteQueriesConcurrent(args);
-		prog.doRun();
+		prog.executeStreams();
 	}
 	
 	
-	private void doRun() {
-		File directory = new File(this.workDir + "/" + this.queriesDir);
-		// Process each .sql file found in the directory.
-		// The preprocessing steps are necessary to obtain the right order, i.e.,
-		// query1.sql, query2.sql, query3.sql, ..., query99.sql.
-		File[] files = Stream.of(directory.listFiles()).
-				map(File::getName).
-				map(AppUtil::extractNumber).
-				sorted().
-				map(n -> "query" + n + ".sql").
-				map(s -> new File(this.workDir + "/" + this.queriesDir + "/" + s)).
-				toArray(File[]::new);
-		HashMap<Integer, String> queriesHT = this.createQueriesHT(files);
-		int nQueries = files.length;
-		this.executeStreams(nQueries, queriesHT);
-		//this.recorder.close();
-	}
-	
-	
-	public void executeStreams(int nQueries, HashMap<Integer, String> queriesHT) {
+	private void executeStreams() {
+		List<String> files = queriesReader.getFilesOrdered();
+		HashMap<Integer, String> queriesHT = createQueriesHT(files, this.queriesReader);
+		int nQueries = files.size();
 		int totalQueries = nQueries * this.nStreams;
 		QueryResultsCollector resultsCollector = new QueryResultsCollector(totalQueries, 
 				this.resultsQueue, this.recorder, this);
@@ -232,11 +218,11 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 	
 	
-	public HashMap<Integer, String> createQueriesHT(File[] files) {
+	public HashMap<Integer, String> createQueriesHT(List<String> files, JarQueriesReaderAsZipFile queriesReader) {
 		HashMap<Integer, String> queriesHT = new HashMap<Integer, String>();
-		for(File file : files) {
-			int nQuery = AppUtil.extractNumber(file.getName());
-			String sqlStr = readFileContents(file.getAbsolutePath());
+		for(String file : files) {
+			int nQuery = ExecuteQueriesConcurrent.extractNumber(file);
+			String sqlStr = queriesReader.getFile(file);
 			queriesHT.put(nQuery, sqlStr);
 		}
 		return queriesHT;
@@ -260,6 +246,13 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			this.logger.error(ioe);
 		}
 		return retVal;
+	}
+	
+	
+	// Converts a string representing a filename like query12.sql to the integer 12.
+	public static int extractNumber(String fileName) {
+		String nStr = fileName.substring(0, fileName.indexOf('.')).replaceAll("[^\\d.]", "");
+		return Integer.parseInt(nStr);
 	}
 	
 	

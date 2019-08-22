@@ -15,13 +15,12 @@
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
-		<!--  
 		<dependency>
 			<groupId>org.apache.hive</groupId>
 			<artifactId>hive-jdbc</artifactId>
 			<version>2.3.4</version>
+			<scope>provided</scope>
 		</dependency>
-		-->
 		<dependency>
 			<groupId>com.facebook.presto</groupId>
 			<artifactId>presto-jdbc</artifactId>
@@ -52,7 +51,29 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
 	<build>
+		<directory>targetemr</directory>
 		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions> 
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+				</execution> 
+				</executions>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef> 
+					</descriptorRefs>
+					<archive>
+            			<manifest>
+              				<mainClass>org.bsc.dcc.vcv.RunBenchmark</mainClass>
+            			</manifest>
+          			</archive>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
