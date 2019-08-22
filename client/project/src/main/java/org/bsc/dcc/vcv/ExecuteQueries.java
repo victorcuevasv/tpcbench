@@ -37,6 +37,7 @@ public class ExecuteQueries {
 	private final boolean savePlans;
 	private final boolean saveResults;
 	private final String hostname;
+	private final String jarFile;
 	
 	
 	/**
@@ -57,7 +58,8 @@ public class ExecuteQueries {
 	 * args[10] save plans (boolean)
 	 * args[11] save results (boolean)
 	 * args[12] hostname of the server
-	 * args[13] "all" or query file
+	 * args[13] jar file
+	 * args[14] "all" or query file
 	 * 
 	 */
 	// Open the connection (the server address depends on whether the program is
@@ -76,6 +78,7 @@ public class ExecuteQueries {
 		this.savePlans = Boolean.parseBoolean(args[10]);
 		this.saveResults = Boolean.parseBoolean(args[11]);
 		this.hostname = args[12];
+		this.jarFile = args[13];
 		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
 						this.system, this.test, this.instance);
 		try {
@@ -138,7 +141,7 @@ public class ExecuteQueries {
 
 
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 14 ) {
+		if( args.length != 15 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Insufficient arguments: " + args.length);
 			System.exit(1);

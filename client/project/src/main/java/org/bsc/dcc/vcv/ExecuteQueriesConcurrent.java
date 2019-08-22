@@ -47,6 +47,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	final boolean savePlans;
 	final boolean saveResults;
 	final private String hostname;
+	final private String jarFile;
 	final private int nStreams;
 	final private long seed;
 	final private boolean multiple;
@@ -70,10 +71,11 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	 * args[10] save plans (boolean)
 	 * args[11] save results (boolean)
 	 * args[12] hostname of the server
-	 * args[13] number of streams
-	 * args[14] random seed
+	 * args[13] jar file
+	 * args[14] number of streams
 	 * 
-	 * args[15] use multiple connections (true|false)
+	 * args[15] random seed
+	 * args[16] use multiple connections (true|false)
 	 * 
 	 */
 	public ExecuteQueriesConcurrent(String[] args) {
@@ -90,9 +92,10 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.savePlans = Boolean.parseBoolean(args[10]);
 		this.saveResults = Boolean.parseBoolean(args[11]);
 		this.hostname = args[12];
-		this.nStreams = Integer.parseInt(args[13]);
-		this.seed = Long.parseLong(args[14]);
-		this.multiple = Boolean.parseBoolean(args[15]);
+		this.jarFile = args[13];
+		this.nStreams = Integer.parseInt(args[14]);
+		this.seed = Long.parseLong(args[15]);
+		this.multiple = Boolean.parseBoolean(args[16]);
 		this.random = new Random(seed);
 		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.folderName,
 				this.experimentName, this.system, this.test, this.instance);
@@ -176,7 +179,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 
 	
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 16 ) {
+		if( args.length != 17 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);

@@ -49,25 +49,26 @@ public class RunBenchmark {
 	 * args[13] hostname of the server
 	 * args[14] username for the connection
 	 * 
-	 * args[15] whether to generate statistics by analyzing tables (true/false)
-	 * args[16]	if argument above is true, whether to compute statistics for columns (true/false)
-	 * args[17] queries dir within the jar
-	 * args[18] subdirectory of work directory to store the results
-	 * args[19] subdirectory of work directory to store the execution plans
+	 * args[15] jar file
+	 * args[16] whether to generate statistics by analyzing tables (true/false)
+	 * args[17]	if argument above is true, whether to compute statistics for columns (true/false)
+	 * args[18] queries dir within the jar
+	 * args[19] subdirectory of work directory to store the results
 	 * 
-	 * args[20] save power test plans (boolean)
-	 * args[21] save power test results (boolean)
-	 * args[22] "all" or query file
-	 * args[23] save tput test plans (boolean)
-	 * args[24] save tput test results (boolean)
+	 * args[20] subdirectory of work directory to store the execution plans
+	 * args[21] save power test plans (boolean)
+	 * args[22] save power test results (boolean)
+	 * args[23] "all" or query file
+	 * args[24] save tput test plans (boolean)
 	 * 
-	 * args[25] number of streams
-	 * args[26] random seed
-	 * args[27] use multiple connections (true|false)
+	 * args[25] save tput test results (boolean)
+	 * args[26] number of streams
+	 * args[27] random seed
+	 * args[28] use multiple connections (true|false)
 	 * 
 	 */
 	public static void main(String[] args) {
-		if( args.length != 28 ) {
+		if( args.length != 29 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
@@ -78,9 +79,9 @@ public class RunBenchmark {
 	
 	
 	public void runBenchmark(String[] args) {
-		String[] createDatabaseSparkArgs = this.createCreateDatabaseSparkArgs(args);
-		String[] executeQueriesSparkArgs = this.createExecuteQueriesSparkArgs(args);
-		String[] executeQueriesConcurrentSparkArgs = this.createExecuteQueriesConcurrentSparkArgs(args);
+		String[] createDatabaseSparkArgs = this.createCreateDatabaseArgs(args);
+		String[] executeQueriesSparkArgs = this.createExecuteQueriesArgs(args);
+		String[] executeQueriesConcurrentSparkArgs = this.createExecuteQueriesConcurrentArgs(args);
 		try {
 			this.saveTestParameters(createDatabaseSparkArgs, "load");
 			System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
@@ -112,7 +113,7 @@ public class RunBenchmark {
 	}
 	
 	
-	private String[] createCreateDatabaseSparkArgs(String args[]) {
+	private String[] createCreateDatabaseArgs(String args[]) {
 		/* 
 		args[0] main work directory
 		args[1] schema (database) name
@@ -133,8 +134,9 @@ public class RunBenchmark {
 		args[14] hostname of the server
 		
 		args[15] username for the connection
+		args[16] jar file
 		*/
-		String[] array = new String[16];
+		String[] array = new String[17];
 		array[0] = args[0];
 		array[1] = args[1];
 		array[2] = args[2];
@@ -154,6 +156,7 @@ public class RunBenchmark {
 		array[14] = args[13];
 		
 		array[15] = args[14];
+		array[16] = args[15];
 		
 		return array;
 	}
@@ -180,13 +183,14 @@ public class RunBenchmark {
 		
 		array[5] = "analyze";
 		array[6] = args[5];
-		array[7] = args[16];
+		array[7] = args[17];
+		array[8] = args[13];
 		
 		return array;
 	}
 	
 	
-	private String[] createExecuteQueriesSparkArgs(String args[]) {
+	private String[] createExecuteQueriesArgs(String args[]) {
 		/* 
 		args[0] main work directory
 		args[1] schema (database) name
@@ -203,9 +207,10 @@ public class RunBenchmark {
 		args[10] save plans (boolean)
 		args[11] save results (boolean)
 		args[12] hostname of the server
-		args[13] "all" or query file
+		args[13] jar file
+		args[14] "all" or query file
 		*/
-		String[] array = new String[14];
+		String[] array = new String[15];
 		array[0] = args[0];
 		array[1] = args[1];
 		array[2] = args[2];
@@ -214,20 +219,21 @@ public class RunBenchmark {
 		
 		array[5] = "power";
 		array[6] = args[5];
-		array[7] = args[17];
-		array[8] = args[18];
-		array[9] = args[19];
+		array[7] = args[18];
+		array[8] = args[19];
+		array[9] = args[20];
 		
-		array[10] = args[20];
-		array[11] = args[21];
+		array[10] = args[21];
+		array[11] = args[22];
 		array[12] = args[13];
-		array[13] = args[22];
+		array[13] = args[15];
+		array[14] = args[23];
 		
 		return array;
 	}
 	
 	
-	private String[] createExecuteQueriesConcurrentSparkArgs(String args[]) {
+	private String[] createExecuteQueriesConcurrentArgs(String args[]) {
 		/* 
 		args[0] main work directory
 		args[1] schema (database) name
@@ -244,12 +250,13 @@ public class RunBenchmark {
 		args[10] save plans (boolean)
 		args[11] save results (boolean)
 		args[12] hostname of the server
-		args[13] number of streams
-		args[14] random seed
+		args[13] jar file
+		args[14] number of streams
 		
-		args[15] use multiple connections (true|false)
+		args[15] random seed
+		args[16] use multiple connections (true|false)
 		*/
-		String[] array = new String[16];
+		String[] array = new String[17];
 		array[0] = args[0];
 		array[1] = args[1];
 		array[2] = args[2];
@@ -258,17 +265,18 @@ public class RunBenchmark {
 		
 		array[5] = "tput";
 		array[6] = args[5];
-		array[7] = args[17];
-		array[8] = args[18];
-		array[9] = args[19];
+		array[7] = args[18];
+		array[8] = args[19];
+		array[9] = args[20];
 		
-		array[10] = args[23];
-		array[11] = args[24];
+		array[10] = args[24];
+		array[11] = args[25];
 		array[12] = args[13];
-		array[13] = args[25];
+		array[13] = args[15];
 		array[14] = args[26];
 		
 		array[15] = args[27];
+		array[16] = args[28];
 		
 		return array;
 	}

@@ -38,6 +38,7 @@ public class CreateDatabase {
 	private final boolean doCount;
 	private final String hostname;
 	private final String username;
+	private final String jarFile;
 	
 	/**
 	 * @param args
@@ -61,6 +62,7 @@ public class CreateDatabase {
 	 * args[14] hostname of the server
 	 * 
 	 * args[15] username for the connection
+	 * args[16] jar file
 	 * 
 	 */
 	// Open the connection (the server address depends on whether the program is
@@ -84,6 +86,7 @@ public class CreateDatabase {
 		this.doCount = Boolean.parseBoolean(args[13]);
 		this.hostname = args[14];
 		this.username = args[15];
+		this.jarFile = args[16];
 		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
 				this.system, this.test, this.instance);
 		try {
@@ -140,7 +143,7 @@ public class CreateDatabase {
 
 	
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 16 ) {
+		if( args.length != 17 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);

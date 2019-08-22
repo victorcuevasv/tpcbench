@@ -46,19 +46,20 @@ printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 #args[12] whether to run queries to count the tuples generated (true/false)
 #args[13] hostname of the server
 #args[14] username for the connection
- 
+
+#args[15] jar file
 #args[15] whether to generate statistics by analyzing tables (true/false)
 #args[16] if argument above is true, whether to compute statistics for columns (true/false)
 #args[17] queries dir within the jar
 #args[18] subdirectory of work directory to store the results
-#args[19] subdirectory of work directory to store the execution plans
- 
+
+#args[19] subdirectory of work directory to store the execution plans 
 #args[20] save power test plans (boolean)
 #args[21] save power test results (boolean)
 #args[22] "all" or query file
 #args[23] save tput test plans (boolean)
-#args[24] save tput test results (boolean)
 
+#args[24] save tput test results (boolean)
 #args[25] number of streams
 #args[26] random seed
 #args[27] use multiple connections (true|false)
@@ -71,9 +72,9 @@ docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 -Dexec.args=\"/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestosinglenode presto \
 $2 /temporal/$1GB tables _ext null \
 null orc false namenodecontainer $(whoami) \
-false UNUSED QueriesPresto results plans \
-true true query1.sql true true \
-$3 1954 false\" \
+/project/target/client-1.0-SNAPSHOT.jar false UNUSED QueriesPresto results \
+plans true true query1.sql true \
+true $3 1954 false\" \
 -f /project/pom.xml"       
   
 
