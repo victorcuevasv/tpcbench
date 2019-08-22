@@ -18,11 +18,12 @@ import com.facebook.presto.jdbc.PrestoConnection;
 
 public class ExecuteQueries {
 
+	private static final Logger logger = LogManager.getLogger("AllLog");
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private static final String databricksDriverName = "com.simba.spark.jdbc41.Driver";
 	private Connection con;
-	private static final Logger logger = LogManager.getLogger("AllLog");
+	private final JarQueriesReaderAsZipFile queriesReader;
 	private final AnalyticsRecorder recorder;
 	private final String workDir;
 	private final String dbName;
@@ -79,6 +80,7 @@ public class ExecuteQueries {
 		this.saveResults = Boolean.parseBoolean(args[11]);
 		this.hostname = args[12];
 		this.jarFile = args[13];
+		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
 						this.system, this.test, this.instance);
 		try {
@@ -153,69 +155,40 @@ public class ExecuteQueries {
 	}
 	
 	public void executeQueries(String querySingleOrAllByNull) {
-		File directory = new File(this.workDir + "/" + this.queriesDir);
-		// Process each .sql file found in the directory.
-		// The preprocessing steps are necessary to obtain the right order, i.e.,
-		// query1.sql, query2.sql, query3.sql, ..., query99.sql.
-		File[] files = Stream.of(directory.listFiles()).
-				map(File::getName).
-				map(AppUtil::extractNumber).
-				sorted().
-				map(n -> "query" + n + ".sql").
-				map(s -> new File(this.workDir + "/" + this.queriesDir + "/" + s)).
-				toArray(File[]::new);
 		this.recorder.header();
-		for (final File fileEntry : files) {
-			if (!fileEntry.isDirectory()) {
-				if( querySingleOrAllByNull != null ) {
-					if( ! fileEntry.getName().equals(querySingleOrAllByNull) )
-						continue;
+		for (final String fileName : this.queriesReader.getFilesOrdered()) {
+			if( querySingleOrAllByNull != null ) {
+				if( ! fileName.equals(querySingleOrAllByNull) )
+					continue;
+			}
+			String sqlStr = this.queriesReader.getFile(fileName);
+			String nQueryStr = fileName.replaceAll("[^\\d]", "");
+			int nQuery = Integer.parseInt(nQueryStr);
+			QueryRecord queryRecord = new QueryRecord(nQuery);
+			this.logger.info("\nExecuting query: " + fileName + "\n" + sqlStr);
+			try {
+				this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
+				if( this.saveResults ) {
+					String queryResultsFileName = this.generateResultsFileName(fileName);
+					File resultsFile = new File(queryResultsFileName);
+					queryRecord.setResultsSize(resultsFile.length());
 				}
-				this.executeQueryFile(fileEntry);
+				else
+					queryRecord.setResultsSize(0);
+				queryRecord.setSuccessful(true);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				this.logger.error("Error processing: " + fileName);
+				this.logger.error(e);
+				this.logger.error(AppUtil.stringifyStackTrace(e));
+			}
+			finally {
+				queryRecord.setEndTime(System.currentTimeMillis());
+				this.recorder.record(queryRecord);
 			}
 		}
 		this.recorder.close();
-	}
-
-	// Execute the query (or queries) from the provided file.
-	private void executeQueryFile(File sqlFile) {
-		QueryRecord queryRecord = null;
-		try {
-			String fileName = sqlFile.getName().substring(0, sqlFile.getName().indexOf('.'));
-			String nQueryStr = fileName.replaceAll("[^\\d.]", "");
-			int nQuery = Integer.parseInt(nQueryStr);
-			queryRecord = new QueryRecord(nQuery);
-			String sqlStr = readFileContents(sqlFile.getAbsolutePath());
-			this.logger.info("\nExecuting query: " + sqlFile.getName() + "\n");
-			if( this.recorder.system.equals("prestoemr") ) {
-				this.setPrestoDefaultSessionOpts();
-			}
-			//Execute the query or queries.
-			this.executeQueryMultipleCalls(sqlFile.getName(), sqlStr, queryRecord);
-			//Record the results file size.
-			if( this.saveResults ) {
-				String queryResultsFileName = this.generateResultsFileName(sqlFile.getName());
-				File resultsFile = new File(queryResultsFileName);
-				queryRecord.setResultsSize(resultsFile.length());
-			}
-			else
-				queryRecord.setResultsSize(0);
-			queryRecord.setSuccessful(true);
-		}
-		catch (SQLException e) {
-			e.printStackTrace();
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-		}
-		finally {
-			queryRecord.setEndTime(System.currentTimeMillis());
-			this.recorder.record(queryRecord);
-		}
 	}
 	
 	

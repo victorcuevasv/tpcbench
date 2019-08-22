@@ -16,11 +16,12 @@ import com.facebook.presto.jdbc.PrestoConnection;
 
 public class CreateDatabase {
 
+	private static final Logger logger = LogManager.getLogger("AllLog");
 	private static String driverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private Connection con;
-	private static final Logger logger = LogManager.getLogger("AllLog");
+	private final JarCreateTableReaderAsZipFile createTableReader;
 	private final AnalyticsRecorder recorder;
 	private final String workDir;
 	private final String dbName;
@@ -87,6 +88,7 @@ public class CreateDatabase {
 		this.hostname = args[14];
 		this.username = args[15];
 		this.jarFile = args[16];
+		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.subDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
 				this.system, this.test, this.instance);
 		try {
@@ -155,17 +157,15 @@ public class CreateDatabase {
 	
 	
 	private void createTables() {
-		File directory = new File(this.workDir + "/" + this.subDir);
 		this.recorder.header();
 		// Process each .sql create table file found in the directory.
-		File[] filesArray = directory.listFiles();
-		List<File> filesList = Arrays.stream(filesArray).sorted().collect(Collectors.toList());
+		List<String> unorderedList = this.createTableReader.getFiles();
+		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
 		int i = 1;
-		for (final File fileEntry : filesList) {
-			if (!fileEntry.isDirectory()) {
-				this.createTable(fileEntry, i);
-				i++;
-			}
+		for (final String fileName : orderedList) {
+			String sqlCreate = this.createTableReader.getFile(fileName);
+			this.createTable(fileName, sqlCreate, i);
+			i++;
 		}
 	}
 
@@ -175,13 +175,12 @@ public class CreateDatabase {
 	// external table.
 	// The SQL create table statement found in the file has to be modified for
 	// creating these tables.
-	private void createTable(File tableSQLfile, int index) {
+	private void createTable(String sqlCreateFilename, String sqlCreate, int index) {
 		QueryRecord queryRecord = null;
 		try {
-			String tableName = tableSQLfile.getName().substring(0, tableSQLfile.getName().indexOf('.'));
+			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			String sqlCreate = readFileContents(tableSQLfile.getAbsolutePath());
 			//Hive and Spark use the statement 'create external table ...' for raw data tables
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, 
 					! this.recorder.system.startsWith("presto"), suffix);

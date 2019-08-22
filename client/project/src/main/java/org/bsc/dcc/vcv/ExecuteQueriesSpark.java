@@ -147,9 +147,6 @@ public class ExecuteQueriesSpark {
 				this.recorder.record(queryRecord);
 			}
 		}
-		//if( ! this.recorder.system.equals("sparkdatabricks") ) {
-		//	this.spark.stop();
-		//}
 		this.recorder.close();
 	}
 	

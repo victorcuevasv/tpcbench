@@ -48,6 +48,7 @@ bash $DIR/dqgen/generateQueries.sh $USER_ID $GROUP_ID $1
 #Generate the Presto queries.
 printf "\n\n%s\n\n" "${mag}Generating the Presto queries.${end}"
 bash $DIR/dqgen/generateQueriesPresto.sh $USER_ID $GROUP_ID $1
+cp -r $DIR/vols/data/QueriesPresto $DIR/client/project/src/main/resources/
 
 #Generate the Spark queries.
 printf "\n\n%s\n\n" "${mag}Generating the Spark queries.${end}"
