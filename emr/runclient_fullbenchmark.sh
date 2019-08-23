@@ -68,14 +68,14 @@ printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 #args[28] use multiple connections (true|false)
 
 docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
---volume /mnt/efs/data:/data \
+--volume /mnt/efs:/efs \
 --volume $DIR/../client/project:/project \
 --entrypoint mvn clientbuilder:dev \
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmark" \
--Dexec.args="/mnt/efs/data tpcdsdb$1gb_$2 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestoemr2nodes prestoemr \
+-Dexec.args="/efs/data tpcdsdb$1gb_$2 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestoemr2nodes prestoemr \
 $2 UNUSED tables _ext s3://tpcds-datasets/$1GB \
 s3://tpcds-warehouse-emr-$1gb-$2 orc false $(hostname) $(whoami) \
-/mnt/efs/FileStore/job-jars/project/targetemr/client-1.0-SNAPSHOT-jar-with-dependencies.jar false UNUSED QueriesPresto results \
+/efs/FileStore/job-jars/project/targetemr/client-1.0-SNAPSHOT-jar-with-dependencies.jar false UNUSED QueriesPresto results \
 plans true true all true \
 true $3 1954 false" \
 -f /project/pomEMR.xml
