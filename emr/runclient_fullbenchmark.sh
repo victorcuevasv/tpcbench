@@ -78,7 +78,7 @@ s3://tpcds-warehouse-emr-$1gb-$2 orc false $(hostname) $(whoami) \
 /mnt/efs/FileStore/job-jars/project/targetemr/client-1.0-SNAPSHOT-jar-with-dependencies.jar false UNUSED QueriesPresto results \
 plans true true all true \
 true $3 1954 false" \
--f /project/pom.xml
+-f /project/pomEMR.xml
 
 
 
