@@ -19,7 +19,6 @@
 			<groupId>org.apache.hive</groupId>
 			<artifactId>hive-jdbc</artifactId>
 			<version>2.3.4</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.facebook.presto</groupId>
@@ -61,18 +60,18 @@
 						<goals>
 							<goal>single</goal>
 						</goals>
-				</execution> 
+						<configuration>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef> 
+							</descriptorRefs>
+							<archive>
+            					<manifest>
+              						<mainClass>org.bsc.dcc.vcv.RunBenchmark</mainClass>
+            					</manifest>
+          					</archive>
+						</configuration>
+					</execution> 
 				</executions>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef> 
-					</descriptorRefs>
-					<archive>
-            			<manifest>
-              				<mainClass>org.bsc.dcc.vcv.RunBenchmark</mainClass>
-            			</manifest>
-          			</archive>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
