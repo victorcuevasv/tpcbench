@@ -25,7 +25,7 @@ ARG POSTGRES_DRIVER_MIRROR=jdbc.postgresql.org
 ARG PRESTO_MIRROR=repo1.maven.org
 ARG HADOOP_VERSION=2.7.7
 ARG HIVE_VERSION=2.3.4
-ARG PRESTO_VERSION=0.215
+ARG PRESTO_VERSION=0.220
 
 #Generate a key and add it to the authorized set.
 

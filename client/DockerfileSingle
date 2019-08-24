@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
 ARG APACHE_MIRROR=archive.apache.org
 ARG PRESTO_MIRROR=repo1.maven.org
 ARG MAVEN_VERSION=3.6.0
+ARG PRESTO_VERSION=0.220
 
 #Download and decompress Maven.
 
@@ -27,8 +28,8 @@ ENV PATH="${PATH}:/opt/apache-maven-$MAVEN_VERSION/bin"
 #Download the Presto CLI jar.
 
 RUN wget --no-check-certificate -q -P /opt \ 
-    https://$PRESTO_MIRROR/maven2/com/facebook/presto/presto-cli/0.215/presto-cli-0.215-executable.jar && \
-    mv /opt/presto-cli-0.215-executable.jar /opt/presto && \
+    https://$PRESTO_MIRROR/maven2/com/facebook/presto/presto-cli/$PRESTO_VERSION/presto-cli-$PRESTO_VERSION-executable.jar && \
+    mv /opt/presto-cli-$PRESTO_VERSION-executable.jar /opt/presto && \
     chmod +x /opt/presto 
 
 #Download the Maven dependencies.
