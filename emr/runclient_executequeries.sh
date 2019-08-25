@@ -27,26 +27,27 @@ fi
 #args[2] results folder name (e.g. for Google Drive)
 #args[3] experiment name (name of subfolder within the results folder)
 #args[4] system name (system name used within the logs)
-	 
+ 
 #args[5] test name (e.g. power)
 #args[6] experiment instance number
 #args[7] queries dir
 #args[8] subdirectory of work directory to store the results
 #args[9] subdirectory of work directory to store the execution plans
-	 
+ 
 #args[10] save plans (boolean)
 #args[11] save results (boolean)
 #args[12] hostname of the server
-#args[13] "all" or query file
+#args[13] jar file
+#args[14] "all" or query file
 
 docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
 --volume $DIR/../vols/data:/data \
 --volume $DIR/../client/project:/project \
 --entrypoint mvn clientbuilder:dev \
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ExecuteQueries" \
--Dexec.args="/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestoemr2nodes prestoemr \
+-Dexec.args="/data tpcdsdb$1gb_$2 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestoemr2nodes prestoemr \
 power $2 QueriesPresto results plans \
-true true $(hostname) $3" \
+true true $(hostname) /project/target/client-1.0-SNAPSHOT.jar $3" \
 -f /project/pom.xml 
 
 
