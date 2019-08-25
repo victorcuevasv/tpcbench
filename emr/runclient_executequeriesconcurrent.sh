@@ -46,7 +46,8 @@ fi
 #args[16] use multiple connections (true|false)
 
 docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
---volume $DIR/../vols/data:/data \
+--volume /mnt/efs/data:/data \
+--volume /mnt/efs/FileStore:/FileStore \
 --volume $DIR/../client/project:/project \
 --entrypoint mvn clientbuilder:dev \
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ExecuteQueriesConcurrent" \
