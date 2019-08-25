@@ -48,6 +48,10 @@ catalog_sales cs_quantity
 customer c_birth_year
 customer_demographics cd_dep_count
 
+Query 18: ensure removal of the cross join.
+
+SET SESSION join_reordering_strategy=ELIMINATE_CROSS_JOINS;
+
 
 
 
