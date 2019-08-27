@@ -87,7 +87,7 @@ public class RunBenchmark {
 			System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
 			CreateDatabase.main(createDatabaseSparkArgs);
 			TimeUnit.SECONDS.sleep(10);
-			boolean analyze = Boolean.parseBoolean(args[14]);
+			boolean analyze = Boolean.parseBoolean(args[16]);
 			if( analyze ) {
 				String[] analyzeTablesArgs = this.createAnalyzeTablesArgs(args);
 				this.saveTestParameters(analyzeTablesArgs, "analyze");
