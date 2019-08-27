@@ -34,6 +34,7 @@ public class AnalyzeTables {
 	 * args[2] results folder name (e.g. for Google Drive)
 	 * args[3] experiment name (name of subfolder within the results folder)
 	 * args[4] system name (system name used within the logs)
+	 * 
 	 * args[5] test name (i.e. load)
 	 * args[6] experiment instance number
 	 * args[7] compute statistics for columns (true/false)
@@ -113,7 +114,8 @@ public class AnalyzeTables {
 	
 	
 	private void analyzeTables() {
-		this.configureMapreduce();
+		if( this.system.equals("hive") )
+			this.configureMapreduce();
 		String[] tables = {"call_center", "catalog_page", "catalog_returns", "catalog_sales",
 							"customer", "customer_address", "customer_demographics", "date_dim",
 							"household_demographics", "income_band", "inventory", "item",
@@ -160,9 +162,13 @@ public class AnalyzeTables {
 			System.out.println("\nAnalyzing table: " + table + "\n");
 			this.logger.info("\nAnalyzing table: " + table + "\n");
 			Statement stmt = con.createStatement();
-			String sqlStr = "ANALYZE TABLE " + table + " COMPUTE STATISTICS";
+			String sqlStr = null;
+			if( this.system.equals("hive") )
+				sqlStr = "ANALYZE TABLE " + table + " COMPUTE STATISTICS";
+			else if( this.system.startsWith("presto") )
+				sqlStr = "ANALYZE " + table;
 			stmt.executeUpdate(sqlStr);
-			if( this.computeForCols ) {
+			if( this.system.equals("hive") && this.computeForCols ) {
 				String sqlStrCols = "ANALYZE TABLE " + table + " COMPUTE STATISTICS FOR COLUMNS";
 				stmt.executeUpdate(sqlStrCols);
 			}
