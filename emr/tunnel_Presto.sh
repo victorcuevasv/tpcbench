@@ -21,6 +21,8 @@ fi
 
 #Tunnel through ssh the presto web interfaces.
 printf "\n\n%s\n\n" "${cyn}Tunneling the ports for Presto (8889).${end}"
+printf "\n\n%s\n\n" "${cyn}Presto GUI: http://localhost:8889${end}"
+printf "\n\n%s\n\n" "${cyn}Ganglia GUI: http://localhost:8900/ganglia${end}"
 
 ssh -i id_rsa -l hadoop -N -L 8889:localhost:8889 $1 &
 ssh -i id_rsa -l hadoop -N -L 8900:localhost:80 $1 &
