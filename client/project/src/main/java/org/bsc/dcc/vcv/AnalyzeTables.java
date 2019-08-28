@@ -167,6 +167,7 @@ public class AnalyzeTables {
 				sqlStr = "ANALYZE TABLE " + table + " COMPUTE STATISTICS";
 			else if( this.system.startsWith("presto") )
 				sqlStr = "ANALYZE " + table;
+			queryRecord.setStartTime(System.currentTimeMillis());
 			stmt.executeUpdate(sqlStr);
 			if( this.system.equals("hive") && this.computeForCols ) {
 				String sqlStrCols = "ANALYZE TABLE " + table + " COMPUTE STATISTICS FOR COLUMNS";
