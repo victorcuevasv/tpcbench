@@ -18,6 +18,7 @@ public class RunBenchmarkSpark {
 	private final String folderName;
 	private final String experimentName;
 	private final String instance;
+	private final String system;
 	
 	
 	public RunBenchmarkSpark(String args[]) {
@@ -25,6 +26,7 @@ public class RunBenchmarkSpark {
 		this.folderName = args[2];
 		this.experimentName = args[3];
 		this.instance = args[5];
+		this.system = args[4];
 	}
 	
 	
@@ -49,7 +51,7 @@ public class RunBenchmarkSpark {
 	 * args[13] jar file
 	 * args[14] whether to generate statistics by analyzing tables (true/false)
 	 * 
-	 * args[15]	if argument above is true, whether to compute statistics for columns (true/false)
+	 * args[15] if argument above is true, whether to compute statistics for columns (true/false)
 	 * args[16] queries dir within the jar
 	 * args[17] subdirectory of work directory to store the results
 	 * args[18] subdirectory of work directory to store the execution plans
@@ -75,7 +77,7 @@ public class RunBenchmarkSpark {
 	}
 	
 	
-	public void runBenchmark(String[] args) {
+	private void runBenchmark(String[] args) {
 		String[] createDatabaseSparkArgs = this.createCreateDatabaseSparkArgs(args);
 		String[] executeQueriesSparkArgs = this.createExecuteQueriesSparkArgs(args);
 		String[] executeQueriesConcurrentSparkArgs = this.createExecuteQueriesConcurrentSparkArgs(args);
@@ -100,6 +102,11 @@ public class RunBenchmarkSpark {
 			System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
 			ExecuteQueriesConcurrentSpark.main(executeQueriesConcurrentSparkArgs);
 			TimeUnit.SECONDS.sleep(10);
+			if( this.system.equals("sparkdatabricks")  ) {
+				this.executeCommand("mkdir /dbfs/data/" + this.instance);
+				this.executeCommand("cp -r /data /dbfs/data/" + this.instance);
+				TimeUnit.SECONDS.sleep(3600);
+			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -263,7 +270,7 @@ public class RunBenchmarkSpark {
 	}
 	
 	
-	public void saveTestParameters(String args[], String test) {
+	private void saveTestParameters(String args[], String test) {
 		try {
 			String paramsFileName = this.workDir + "/" + this.folderName + "/analytics/" + 
 					this.experimentName + "/" + test + "/" + this.instance + "/parameters.log";
@@ -283,6 +290,22 @@ public class RunBenchmarkSpark {
 		catch (IOException ioe) {
 			ioe.printStackTrace();
 			this.logger.error(ioe);
+		}
+	}
+
+	private void executeCommand(String cmd) {
+		ProcessBuilder processBuilder = new ProcessBuilder();
+		processBuilder.command("bash", "-c", cmd);
+		try {
+			Process process = processBuilder.start();
+			int exitVal = process.waitFor();
+			System.out.println(exitVal);
+		}
+		catch(IOException ioe) {
+			ioe.printStackTrace();
+		}
+		catch(InterruptedException ie) {
+			ie.printStackTrace();
 		}
 	}
 
