@@ -24,15 +24,10 @@ if [ $# -lt 2 ]; then
     exit 0
 fi
 
-docker exec --user $USER_ID:$GROUP_ID -ti  namenodecontainer  /bin/bash -c \
-"/opt/spark-2.4.0-bin-hadoop2.7/bin/spark-submit --conf spark.eventLog.enabled=true  \
---packages org.apache.logging.log4j:log4j-api:2.11.2,org.apache.logging.log4j:log4j-core:2.11.2,\
-org.apache.zookeeper:zookeeper:3.4.6 \
---conf spark.local.dir=/home/$USER_NAME/tmp \
---conf spark.eventLog.dir=/home/$USER_NAME/tmp \
+spark-submit --conf spark.eventLog.enabled=true  \
 --class org.bsc.dcc.vcv.CreateSchemaSpark \
---master spark://namenodecontainer:7077 --deploy-mode client \
-/project/targetspark/client-1.0-SNAPSHOT.jar \
-spark tpcdsdb$1gb_$2"
+--master yarn --deploy-mode cluster \
+/mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar \
+spark tpcdsdb$1gb_$2
 
 
