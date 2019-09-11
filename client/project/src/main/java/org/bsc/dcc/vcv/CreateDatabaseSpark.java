@@ -3,6 +3,8 @@ package org.bsc.dcc.vcv;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.Optional;
@@ -40,6 +42,7 @@ public class CreateDatabaseSpark {
 	private final Optional<String> extTablePrefixCreated;
 	private final String format;
 	private final boolean doCount;
+	private final boolean partition;
 	private final String jarFile;
 	
 	
@@ -62,7 +65,9 @@ public class CreateDatabaseSpark {
 	 * args[11] prefix of external location for created tables (e.g. S3 bucket), null for none
 	 * args[12] format for column-storage tables (PARQUET, DELTA)
 	 * args[13] whether to run queries to count the tuples generated (true/false)
-	 * args[14] jar file
+	 * args[14] whether to use data partitioning for the tables (true/false)
+	 * 
+	 * args[15] jar file
 	 * 
 	 */
 	public CreateDatabaseSpark(String[] args) {
@@ -82,12 +87,15 @@ public class CreateDatabaseSpark {
 				args[11].equalsIgnoreCase("null") ? null : args[11]);
 		this.format = args[12];
 		this.doCount = Boolean.parseBoolean(args[13]);
-		this.jarFile = args[14];
+		this.partition = Boolean.parseBoolean(args[14]);
+		this.jarFile = args[15];
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.subDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
 				this.system, this.test, this.instance);
 		try {
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
+					.config("hive.exec.dynamic.partition.mode", "nonstrict") 
+					.config("hive.exec.max.dynamic.partitions", "3000") 
 					.enableHiveSupport()
 					.getOrCreate();
 		}
@@ -101,7 +109,7 @@ public class CreateDatabaseSpark {
 
 
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 15 ) {
+		if( args.length != 16 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
@@ -152,9 +160,17 @@ public class CreateDatabaseSpark {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
+			
+			
+			
+			if( ! tableName.equalsIgnoreCase("catalog_returns") )
+				return;
+			
+			
+			
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, suffix);
+			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, suffix, false);
 			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName, genDataDir, extTablePrefixRaw);
 			saveCreateTableFile("textfile", tableName, extSqlCreate);
 			// Skip the dbgen_version table since its time attribute is not
@@ -169,13 +185,19 @@ public class CreateDatabaseSpark {
 			this.spark.sql(extSqlCreate);
 			if( doCount )
 				countRowsQuery(tableName + suffix);
-			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "");
+			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", true);
 			String intSqlCreate = internalCreateTable(incIntSqlCreate, tableName, extTablePrefixCreated,
 					format);
 			saveCreateTableFile("parquet", tableName, intSqlCreate);
 			this.dropTable("drop table if exists " + tableName);
 			this.spark.sql(intSqlCreate);
-			this.spark.sql("INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix);
+			String insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
+			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
+				List<String> columns = extractColumnNames(incIntSqlCreate); 
+				insertSql = createPartitionInsertStmt(tableName, columns, suffix);
+			}
+			saveCreateTableFile("insert", tableName, insertSql);
+			this.spark.sql(insertSql);
 			queryRecord.setSuccessful(true);
 			if( doCount )
 				countRowsQuery(tableName);
@@ -208,7 +230,8 @@ public class CreateDatabaseSpark {
 	// Generate an incomplete SQL create statement to be completed for the texfile
 	// external and
 	// parquet internal tables.
-	private String incompleteCreateTable(String sqlCreate, String tableName, boolean external, String suffix) {
+	private String incompleteCreateTable(String sqlCreate, String tableName, boolean external, String suffix,
+			boolean checkPartitionKey) {
 		boolean hasPrimaryKey = sqlCreate.contains("primary key");
 		// Remove the 'not null' statements.
 		sqlCreate = sqlCreate.replace("not null", "        ");
@@ -228,7 +251,14 @@ public class CreateDatabaseSpark {
 		StringBuilder builder = new StringBuilder(firstLineNew);
 		int tail = hasPrimaryKey ? 3 : 2;
 		for (int i = 1; i < lines.length - tail; i++) {
-			builder.append(lines[i] + "\n");
+			//if( checkPartitionKey && this.partition && ! this.system.equals("sparkdatabricks") &&
+			if( checkPartitionKey && this.partition && 
+					Arrays.asList(Partitioning.tables).contains(tableName) &&
+					lines[i].contains(Partitioning.keys[Arrays.asList(Partitioning.tables).indexOf(tableName)])) {
+				continue;
+			}
+			else
+				builder.append(lines[i] + "\n");
 		}
 		// Change the last comma for a space (since the primary key statement was
 		// removed).
@@ -269,10 +299,21 @@ public class CreateDatabaseSpark {
 				builder.append("USING DELTA \n");
 			else
 				builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
+			if( this.partition ) {
+				int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
+				if( pos != -1 )
+					builder.append("PARTITIONED BY (" + Partitioning.keys[pos] + ") \n" );
+			}
 			builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
 		}
-		else
+		else {
+			if( this.partition ) {
+				int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
+				if( pos != -1 )
+					builder.append("PARTITIONED BY (" + Partitioning.keys[pos] + " integer) \n" );
+			}
 			builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
+		}
 		return builder.toString();
 	}
 
@@ -329,6 +370,45 @@ public class CreateDatabaseSpark {
 			this.logger.error(ioe);
 		}
 		return retVal;
+	}
+	
+	
+	private List<String> extractColumnNames(String sqlStr) {
+		List<String> list = new ArrayList<String>();
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new StringReader(sqlStr));
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				if( line.trim().length() == 0 )
+				continue;
+				if( line.trim().startsWith("create") || line.trim().startsWith("(") || line.trim().startsWith(")") )
+					continue;
+				StringTokenizer tokenizer = new StringTokenizer(line);
+				list.add(tokenizer.nextToken());
+			}
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+			this.logger.error(ioe);
+		}
+		return list;
+	}
+	
+	
+	private String createPartitionInsertStmt(String tableName, List<String> columns, String suffix) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("INSERT OVERWRITE TABLE " + tableName + " PARTITION (" +
+				Partitioning.keys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + ") SELECT \n");
+		for(String column : columns) {
+			if ( column.equalsIgnoreCase(Partitioning.keys[Arrays.asList(Partitioning.tables).indexOf(tableName)] ))
+				continue;
+			else
+				builder.append(column + ", \n");
+		}
+		builder.append(Partitioning.keys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + " \n");
+		builder.append("FROM " + tableName + suffix);
+		return builder.toString();
 	}
 	
 	

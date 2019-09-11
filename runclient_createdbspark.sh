@@ -47,7 +47,9 @@ printf "\n\n%s\n\n" "${mag}Creating and populating the database.${end}"
 #args[11] prefix of external location for created tables (e.g. S3 bucket), null for none
 #args[12] format for column-storage tables (PARQUET, DELTA)
 #args[13] whether to run queries to count the tuples generated (true/false)
-#args[14] jar file
+#args[14] whether to use data partitioning for the tables (true/false)
+
+#args[15] jar file
 
 docker exec --user $USER_ID:$GROUP_ID -ti  namenodecontainer  /bin/bash -c \
 "/opt/spark-2.4.0-bin-hadoop2.7/bin/spark-submit --conf spark.eventLog.enabled=true  \
@@ -60,6 +62,7 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 /project/targetspark/client-1.0-SNAPSHOT.jar \
 /data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparksinglenode spark \
 load $2 /temporal/$1GB tables _ext \
-null null parquet false /project/targetspark/client-1.0-SNAPSHOT.jar"
+null null parquet false true \
+/project/targetspark/client-1.0-SNAPSHOT.jar"
 
 

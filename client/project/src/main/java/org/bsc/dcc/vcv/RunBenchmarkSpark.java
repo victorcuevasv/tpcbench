@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,26 +47,27 @@ public class RunBenchmarkSpark {
 	 * args[10] prefix of external location for created tables (e.g. S3 bucket), null for none
 	 * args[11] format for column-storage tables (PARQUET, DELTA)
 	 * args[12] whether to run queries to count the tuples generated (true/false)
-	 * args[13] jar file
-	 * args[14] whether to generate statistics by analyzing tables (true/false)
+	 * args[13] whether to use data partitioning for the tables (true/false)
+	 * args[14] jar file
 	 * 
-	 * args[15] if argument above is true, whether to compute statistics for columns (true/false)
-	 * args[16] queries dir within the jar
-	 * args[17] subdirectory of work directory to store the results
-	 * args[18] subdirectory of work directory to store the execution plans
-	 * args[19] save power test plans (boolean)
+	 * args[15] whether to generate statistics by analyzing tables (true/false)
+	 * args[16] if argument above is true, whether to compute statistics for columns (true/false)
+	 * args[17] queries dir within the jar
+	 * args[18] subdirectory of work directory to store the results
+	 * args[19] subdirectory of work directory to store the execution plans
 	 * 
-	 * args[20] save power test results (boolean)
-	 * args[21] "all" or query file
-	 * args[22] save tput test plans (boolean)
-	 * args[23] save tput test results (boolean)
-	 * args[24] number of streams
+	 * args[20] save power test plans (boolean)
+	 * args[21] save power test results (boolean)
+	 * args[22] "all" or query file
+	 * args[23] save tput test plans (boolean)
+	 * args[24] save tput test results (boolean)
 	 * 
-	 * args[25] random seed
+	 * args[25] number of streams
+	 * args[26] random seed
 	 * 
 	 */
 	public static void main(String[] args) {
-		if( args.length != 26 ) {
+		if( args.length != 27 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
@@ -85,27 +85,22 @@ public class RunBenchmarkSpark {
 			this.saveTestParameters(createDatabaseSparkArgs, "load");
 			System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
 			CreateDatabaseSpark.main(createDatabaseSparkArgs);
-			TimeUnit.SECONDS.sleep(10);
-			boolean analyze = Boolean.parseBoolean(args[14]);
+			boolean analyze = Boolean.parseBoolean(args[15]);
 			if( analyze ) {
 				String[] analyzeTablesSparkArgs = this.createAnalyzeTablesSparkArgs(args);
 				this.saveTestParameters(analyzeTablesSparkArgs, "analyze");
 				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
 				AnalyzeTablesSpark.main(analyzeTablesSparkArgs);
-				TimeUnit.SECONDS.sleep(10);
 			}
 			this.saveTestParameters(executeQueriesSparkArgs, "power");
 			System.out.println("\n\n\nRunning the POWER test.\n\n\n");
 			ExecuteQueriesSpark.main(executeQueriesSparkArgs);
-			TimeUnit.SECONDS.sleep(10);
 			this.saveTestParameters(executeQueriesConcurrentSparkArgs, "tput");
 			System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
 			ExecuteQueriesConcurrentSpark.main(executeQueriesConcurrentSparkArgs);
-			TimeUnit.SECONDS.sleep(10);
 			if( this.system.equals("sparkdatabricks")  ) {
 				this.executeCommand("mkdir /dbfs/data/" + this.instance);
 				this.executeCommand("cp -r /data /dbfs/data/" + this.instance);
-				TimeUnit.SECONDS.sleep(3600);
 			}
 		}
 		catch(Exception e) {
@@ -135,9 +130,11 @@ public class RunBenchmarkSpark {
 		args[11] prefix of external location for created tables (e.g. S3 bucket), null for none
 		args[12] format for column-storage tables (PARQUET, DELTA)
 		args[13] whether to run queries to count the tuples generated (true/false)
-		args[14] jar file
+		args[14] whether to use data partitioning for the tables (true/false)
+		
+		args[15] jar file
 		*/
-		String[] array = new String[15];
+		String[] array = new String[16];
 		array[0] = args[0];
 		array[1] = args[1];
 		array[2] = args[2];
@@ -155,6 +152,8 @@ public class RunBenchmarkSpark {
 		array[12] = args[11];
 		array[13] = args[12];
 		array[14] = args[13];
+		
+		array[15]= args[14];
 		
 		return array;
 	}
@@ -180,7 +179,7 @@ public class RunBenchmarkSpark {
 		
 		array[5] = "analyze";
 		array[6] = args[5];
-		array[7] = args[15];
+		array[7] = args[16];
 		
 		return array;
 	}
@@ -214,14 +213,14 @@ public class RunBenchmarkSpark {
 		
 		array[5] = "power";
 		array[6] = args[5];
-		array[7] = args[16];
-		array[8] = args[17];
-		array[9] = args[18];
+		array[7] = args[17];
+		array[8] = args[18];
+		array[9] = args[19];
 		
-		array[10] = args[19];
-		array[11] = args[20];
-		array[12] = args[13];
-		array[13] = args[21];
+		array[10] = args[20];
+		array[11] = args[21];
+		array[12] = args[14];
+		array[13] = args[22];
 		
 		return array;
 	}
@@ -256,15 +255,15 @@ public class RunBenchmarkSpark {
 		
 		array[5] = "tput";
 		array[6] = args[5];
-		array[7] = args[16];
-		array[8] = args[17];
-		array[9] = args[18];
+		array[7] = args[17];
+		array[8] = args[18];
+		array[9] = args[19];
 		
-		array[10] = args[22];
-		array[11] = args[23];
-		array[12] = args[13];
-		array[13] = args[24];
-		array[14] = args[25];
+		array[10] = args[23];
+		array[11] = args[24];
+		array[12] = args[14];
+		array[13] = args[25];
+		array[14] = args[26];
 		
 		return array;
 	}
