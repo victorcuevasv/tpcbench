@@ -160,14 +160,6 @@ public class CreateDatabaseSpark {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
-			
-			
-			
-			if( ! tableName.equalsIgnoreCase("catalog_returns") )
-				return;
-			
-			
-			
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, suffix, false);
@@ -251,8 +243,7 @@ public class CreateDatabaseSpark {
 		StringBuilder builder = new StringBuilder(firstLineNew);
 		int tail = hasPrimaryKey ? 3 : 2;
 		for (int i = 1; i < lines.length - tail; i++) {
-			//if( checkPartitionKey && this.partition && ! this.system.equals("sparkdatabricks") &&
-			if( checkPartitionKey && this.partition && 
+			if( checkPartitionKey && this.partition && ! this.system.equals("sparkdatabricks") && 
 					Arrays.asList(Partitioning.tables).contains(tableName) &&
 					lines[i].contains(Partitioning.keys[Arrays.asList(Partitioning.tables).indexOf(tableName)])) {
 				continue;

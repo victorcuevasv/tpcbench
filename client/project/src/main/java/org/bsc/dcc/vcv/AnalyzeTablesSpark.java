@@ -158,7 +158,7 @@ public class AnalyzeTablesSpark {
 		String retVal = null;
 		try {
 			List<String> list = dataset.map(row -> row.getString(0), Encoders.STRING()).collectAsList();
-			String columnsStr = list.stream().map(x -> x).collect(Collectors.joining(", "));
+			String columnsStr = list.stream().map(x -> x).filter(s -> ! s.startsWith("#")).collect(Collectors.joining(", "));
 			retVal = columnsStr;
 		}
 		catch (Exception e) {

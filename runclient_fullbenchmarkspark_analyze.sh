@@ -75,7 +75,7 @@ org.apache.zookeeper:zookeeper:3.4.6 \
 /project/targetspark/client-1.0-SNAPSHOT.jar \
 /data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparksinglenode spark \
 $2 /temporal/$1GB tables _ext null \
-null parquet false false /project/targetspark/client-1.0-SNAPSHOT.jar \
+null parquet false true /project/targetspark/client-1.0-SNAPSHOT.jar \
 true true QueriesSpark results plans \
 true true query5.sql true true \
 $3 1954"
