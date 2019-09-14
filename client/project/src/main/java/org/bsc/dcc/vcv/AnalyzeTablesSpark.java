@@ -55,12 +55,14 @@ public class AnalyzeTablesSpark {
 		try {
 			if( this.system.equals("sparkdatabricks") ) {
 				this.spark = SparkSession.builder().appName("TPC-DS Database Table Analysis")
-						//	.enableHiveSupport()
+						.config("spark.sql.shuffle.partitions", "200")
+						.enableHiveSupport()
 						.getOrCreate();
 				//this.logger.info(SparkUtil.stringifySparkConfiguration(this.spark));
 			}
 			else {
 				this.spark = SparkSession.builder().appName("TPC-DS Database Table Analysis")
+						.config("spark.sql.shuffle.partitions", "200")
 						.enableHiveSupport()
 						.getOrCreate();
 			}

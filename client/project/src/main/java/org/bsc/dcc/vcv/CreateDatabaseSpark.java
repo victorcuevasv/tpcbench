@@ -95,7 +95,8 @@ public class CreateDatabaseSpark {
 		try {
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
 					.config("hive.exec.dynamic.partition.mode", "nonstrict") 
-					.config("hive.exec.max.dynamic.partitions", "3000") 
+					.config("hive.exec.max.dynamic.partitions", "3000")
+					.config("spark.sql.shuffle.partitions", "1")
 					.enableHiveSupport()
 					.getOrCreate();
 		}
@@ -128,6 +129,7 @@ public class CreateDatabaseSpark {
 		int i = 1;
 		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
+			//if( fileName.equals("store_sales.sql") )
 			createTable(fileName, sqlCreate, i);
 			i++;
 		}
@@ -177,7 +179,8 @@ public class CreateDatabaseSpark {
 			this.spark.sql(extSqlCreate);
 			if( doCount )
 				countRowsQuery(tableName + suffix);
-			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", true);
+			//String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", true);
+			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", false);
 			String intSqlCreate = internalCreateTable(incIntSqlCreate, tableName, extTablePrefixCreated,
 					format);
 			saveCreateTableFile("parquet", tableName, intSqlCreate);
@@ -243,10 +246,10 @@ public class CreateDatabaseSpark {
 		StringBuilder builder = new StringBuilder(firstLineNew);
 		int tail = hasPrimaryKey ? 3 : 2;
 		for (int i = 1; i < lines.length - tail; i++) {
-			if( checkPartitionKey && this.partition && ! this.system.equals("sparkdatabricks") && 
-					Arrays.asList(Partitioning.tables).contains(tableName) &&
-					lines[i].contains(Partitioning.keys[Arrays.asList(Partitioning.tables).indexOf(tableName)])) {
-				continue;
+			if( checkPartitionKey && this.partition && 
+				Arrays.asList(Partitioning.tables).contains(tableName) &&
+				lines[i].contains(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)])) {
+					continue;
 			}
 			else
 				builder.append(lines[i] + "\n");
@@ -289,21 +292,26 @@ public class CreateDatabaseSpark {
 			if( format.equalsIgnoreCase("DELTA") )
 				builder.append("USING DELTA \n");
 			else
-				builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
+				//builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
+				builder.append("USING PARQUET \n" + "OPTIONS ('compression'='snappy') \n");
 			if( this.partition ) {
 				int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
 				if( pos != -1 )
-					builder.append("PARTITIONED BY (" + Partitioning.keys[pos] + ") \n" );
+					builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n" );
 			}
 			builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
 		}
 		else {
+			builder.append("USING PARQUET \n" + "OPTIONS ('compression'='snappy') \n");
 			if( this.partition ) {
 				int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
 				if( pos != -1 )
-					builder.append("PARTITIONED BY (" + Partitioning.keys[pos] + " integer) \n" );
+					//Use for Hive format.
+					//builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + " integer) \n" );
+					builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n");
 			}
-			builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
+			//Use for Hive format.
+			//builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
 		}
 		return builder.toString();
 	}
@@ -390,15 +398,16 @@ public class CreateDatabaseSpark {
 	private String createPartitionInsertStmt(String tableName, List<String> columns, String suffix) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("INSERT OVERWRITE TABLE " + tableName + " PARTITION (" +
-				Partitioning.keys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + ") SELECT \n");
+				Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + ") SELECT \n");
 		for(String column : columns) {
-			if ( column.equalsIgnoreCase(Partitioning.keys[Arrays.asList(Partitioning.tables).indexOf(tableName)] ))
+			if ( column.equalsIgnoreCase(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] ))
 				continue;
 			else
 				builder.append(column + ", \n");
 		}
-		builder.append(Partitioning.keys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + " \n");
-		builder.append("FROM " + tableName + suffix);
+		builder.append(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + " \n");
+		builder.append("FROM " + tableName + suffix + "\n");
+		builder.append("DISTRIBUTE BY " + Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
 		return builder.toString();
 	}
 	

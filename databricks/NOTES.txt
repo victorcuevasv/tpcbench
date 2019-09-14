@@ -213,10 +213,12 @@ dbutils.fs.unmount(s"/mnt/$MountName")
 
 
 
+spark.conf.set("spark.sql.shuffle.partitions", 5)
+//spark.sql("""show tables""").collect().foreach(println)
 
 
 
-
+SET spark.sql.shuffle.partitions = 5;
 
 
 
