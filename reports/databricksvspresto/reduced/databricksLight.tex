@@ -6,7 +6,7 @@ Concretely, the experiments in this section use the Light 2.4 runtime instead of
 
 \subsection{Data loading}
 
-The results of the Data Loading Test appear in Figure \ref{fig:prestoVsDatabricksLightDataLoadingTotalTime}. Databricks Light is about 50\% slower than EMR Presto using the ORC format, and about twice as slow as Databricks Data Engineering. Clearly, data loading is far from being a straightforward task, and an optimized implementation can yield major performance improvements. In terms of monetary costs (summarized in Section \ref{resultsSummaryTotalCost}), EMR Presto and Databricks Data Engineering are close to balancing each other, while Databricks Light is more than 30\% more expensive.
+The results of the Data Loading Test appear in Figure \ref{fig:prestoVsDatabricksLightDataLoadingTotalTime}. Databricks Light is about 20\% faster than EMR Presto using the ORC format, and essentially as fast as Databricks Data Engineering. In terms of monetary costs (summarized in Section \ref{resultsSummaryTotalCost}), EMR Presto and Databricks Data Engineering are close to balancing each other, but they are beaten by Databricks Light due to its lower software costs, yielding a cost around 25\% cheaper.
 
 \begin{figure}
    \begin{center}
@@ -18,7 +18,7 @@ The results of the Data Loading Test appear in Figure \ref{fig:prestoVsDatabrick
 
 \subsection{Individual query execution (Power Test)}
 
-We present the metrics associated with the Power Test in Figure \ref{fig:prestoVsDatabricksLightPowerTestTotalTime} to Figure \ref{fig:prestoVsDatabricksLightPowerTestArithmeticMean}. Overall, EMR Presto and Databricks Light show a very similar performance.
+We present the metrics associated with the Power Test in Figure \ref{fig:prestoVsDatabricksLightPowerTestTotalTime} to Figure \ref{fig:prestoVsDatabricksLightPowerTestArithmeticMean}. Overall, Databricks Light shows a performance about twice as good as EMR Presto.
 
 \begin{figure}
    \begin{center}
@@ -44,7 +44,7 @@ We present the metrics associated with the Power Test in Figure \ref{fig:prestoV
    \label{fig:prestoVsDatabricksLightPowerTestArithmeticMean}
 \end{figure}
 
-The comparison of individual queries that we show in Figure \ref{fig:prestoVsDatabricksLightPowerTestIndividualQueries1} to Figure \ref{fig:prestoVsDatabricksLightPowerTestIndividualQueries5} enables to make a more in depth analysis. Databricks Light gives a better performance in 36 queries, while the remaining 63 favor EMR Presto. Among the queries that complete faster in Databricks Light, 23 of them do so by a margin of 25\% or more. In the case of the queries that are faster in EMR Presto, 51 of them are at least 25\% faster. In general, Databricks Light is significantly faster for a subset of the queries in the benchmark, while EMR Presto is significantly faster for the larger complementary subset.
+The comparison of individual queries that we show in Figure \ref{fig:prestoVsDatabricksLightPowerTestIndividualQueries1} to Figure \ref{fig:prestoVsDatabricksLightPowerTestIndividualQueries5} enables to make a more in depth analysis. Databricks Light gives a better performance in 81 queries, while the remaining 18 favor EMR Presto. Among the queries that complete faster in EMR Presto, 12 of them do so by a margin of 25\% or more. In the case of the queries that are faster in Databricks Light, 69 of them are at least 25\% faster. In general, Databricks Light is significantly faster for the vast majority of the queries in the benchmark, while EMR Presto is significantly faster for a relatively small subset.
 
 \begin{figure}
    \begin{center}
@@ -86,11 +86,11 @@ The comparison of individual queries that we show in Figure \ref{fig:prestoVsDat
    \label{fig:prestoVsDatabricksLightPowerTestIndividualQueries5}
 \end{figure}
 
-If we were to exclude query 72, which is much slower in EMR Presto, the performance of Databricks Light in relation to the total time required for the Power Test would be about 10\% worse than EMR Presto. This is partially reflected in the geometric mean in contrast to the arithmetic mean, shown in Figure \ref{fig:prestoVsDatabricksLightPowerTestGeomean} and Figure \ref{fig:prestoVsDatabricksLightPowerTestArithmeticMean}, respectively.
+The geometric mean and the arithmetic mean, shown in Figure \ref{fig:prestoVsDatabricksLightPowerTestGeomean} and Figure \ref{fig:prestoVsDatabricksLightPowerTestArithmeticMean}, respectively, confirm that Databricks Light is about 100\% faster than EMR Presto.
 
 \subsection{Concurrent query execution (Throughput Test)}
 
-We provide the results for the Throughput Test in Figure \ref{fig:prestoVsDatabricksLightTputTest}. Databricks Light outperforms EMR Presto by a small margin of about 8\%.
+We provide the results for the Throughput Test in Figure \ref{fig:prestoVsDatabricksLightTputTest}. Databricks Light is almost 2.4 times faster than EMR Presto.
 
 \begin{figure}
    \begin{center}
@@ -100,7 +100,7 @@ We provide the results for the Throughput Test in Figure \ref{fig:prestoVsDatabr
    \label{fig:prestoVsDatabricksLightTputTest}
 \end{figure}
 
-Again, the performance of Databricks Light and EMR Presto is very similar. Even in total costs, as we show in Section \ref{resultsSummaryTotalCost}, the benchmark results are close. Given that running a job either on Databricks Light or in Databricks Data Engineering requires minimal configuration changes, it is definitely an advantage to have two alternatives with distinct price-performance profiles; we provide the concrete metrics in Section \ref{resultsSummaryPerformanceMetric}.
+Again, the performance of Databricks Light is roughly twice that of EMR Presto. Even in total costs, as we show in Section \ref{resultsSummaryTotalCost}, the relation between their performance holds. Given that running a job either on Databricks Light or in Databricks Data Engineering requires minimal configuration changes, it is definitely an advantage to have two alternatives with distinct price-performance profiles; we provide the concrete metrics in Section \ref{resultsSummaryPerformanceMetric}.
 
 
 
