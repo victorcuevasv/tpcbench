@@ -14,7 +14,7 @@ Figure \ref{fig:resultsSummaryTotalTimes} presents the total time required for e
    \label{fig:resultsSummaryTotalTimes}
 \end{figure}
 
-The lowest total time is achieved with Databricks using the cost-based optimizer with table and column statistics. It represents an almost 5 times faster alternative than the most efficient configuration for EMR Presto. In the case of Databricks Data Engineering without the cost-based optimizer, our reference configuration, the advantage drops to about 4 times faster, still very significant. Notably, Databricks Light and EMR Presto using the ORC format show very similar performance.
+The lowest total time is achieved with Databricks using the cost-based optimizer with table and column statistics. It represents an almost 5 times faster alternative than the most efficient configuration for EMR Presto. In the case of Databricks Data Engineering without the cost-based optimizer, our reference configuration, the advantage drops to about 4 times faster, still very significant. Databricks Light also outperforms EMR Presto using the ORC format, completing the benchmark in less than half of the time.
 
 \subsection{Total costs}\label{resultsSummaryTotalCost}
 
@@ -28,7 +28,7 @@ Regarding the monetary costs incurred to obtain the total execution times listed
    \label{fig:resultsSummaryTotalCosts}
 \end{figure}
 
-Again, we obtain the lowest cost with Databricks with table and column statistics, which is over 4 times cheaper than EMR Presto using ORC. When comparing the reference Databricks configuration with EMR Presto using ORC, it is about 3.4 times cheaper. In turn, Databricks Light is not only slightly faster than EMR Presto ORC, but also cheaper.
+Again, we obtain the lowest cost with Databricks with table and column statistics, which is over 4 times cheaper than EMR Presto using ORC. When comparing the reference Databricks configuration with EMR Presto using ORC, it is about 3.4 times cheaper. In turn, Databricks Light is not only more than twice as fast as EMR Presto ORC, but also cheaper by a similar magnitude.
 
 Disabling the io cache for Databricks increases the cost significantly, therefore it is a feature that provides real benefits. Nevertheless, additional experiments would be required to determine whether if using lower cost EC2 instances not optimized for io, and potentially inviable for the io cache, could yield a lower cost. For example, the memory optimized r5.2xlarge instances offer the same 8 cores with 3 additional GB of memory, but no NVMe SSD at a cost of \$0.504. Assuming the total time obtained with these instances would be the same as with the cache disabled, the total cost would be \$91.29, still greater than the \$80.01 cost with Databricks Data Engineering with cache enabled, our reference configuration.
 
@@ -80,7 +80,7 @@ Using that equation, we derive the results we present in Figure \ref{fig:perform
    \label{fig:performanceMetricResults}
 \end{figure}
 
-In this case, a larger number is better, and Databricks with statistics obtains the best score, followed by the reference configuration that does not employ them. Interestingly, Databricks Light obtains a slightly lower score than EMR Presto using ORC, despite having obtained a lower total execution time. This is because EMR Presto using the ORC format was about 50\% more efficient in loading the data. The geometric mean component of the formula makes the corresponding factor more relevant.
+In this case, a larger number is better, and Databricks with statistics obtains the best score, followed by the reference configuration that does not employ them. The score obtained by Databricks Light is significantly lower than those two, but still much higher than the score of EMR Presto using ORC.
 
 From the TPC-DS Benchmark performance metric and the total monetary costs data, we can derive a price-performance metric. In fact, TPC-DS already defines such a metric as simply the price to run the benchmark divided by the score. In our case, we consider the EC2 instances costs and the software costs. The AWS S3 storage costs are not included, but we do not expect them to vary significantly between the two systems. We do not give a monetary cost to the administrative and software development tasks required to create and run the benchmark applications, but we do comment on them in Section \ref{usability}.
 
@@ -94,7 +94,7 @@ In Figure \ref{fig:pricePerformanceResults} we present the price-performance met
    \label{fig:pricePerformanceResults}
 \end{figure}
 
-In this case, a higher value indicates that more money needs to be spent for each benchmark performance unit. Again, Databricks with statistics obtains the best result, closely followed by its alternative configurations. EMR Presto using the ORC format beats Databricks Light, due to the previously discussed higher benchmark score and similar operational costs. The advantages of the ORC format for EMR Presto are also highlighted in comparison to Parquet.
+In this case, a higher value indicates that more money needs to be spent for each benchmark performance unit. Again, Databricks with statistics obtains the best result, closely followed by its alternative configurations. Databricks Light takes the next place beating EMR Presto using the ORC format by an important margin. The advantages of the ORC format for EMR Presto are also highlighted in comparison to Parquet.
 
 
 
