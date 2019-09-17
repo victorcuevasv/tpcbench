@@ -14,7 +14,7 @@ Figure \ref{fig:resultsSummaryTotalTimes} presents the total time required for e
    \label{fig:resultsSummaryTotalTimes}
 \end{figure}
 
-The lowest total time is achieved with Databricks using the cost-based optimizer with table and column statistics. It represents an almost 5 times faster alternative than the most efficient configuration for EMR Presto. In the case of Databricks Data Engineering without the cost-based optimizer, our reference configuration, the advantage drops to about 4 times faster, still very significant. Notably, Databricks Light and EMR Presto using the ORC format show very similar performance.
+The lowest total time is achieved with Databricks using the cost-based optimizer with table and column statistics. It represents an almost 5 times faster alternative than the most efficient configuration for EMR Presto. In the case of Databricks Data Engineering without the cost-based optimizer, our reference configuration, the advantage drops to about 4 times faster, still very significant. In addition, Databricks Light also shows a much better performance than EMR Presto using the ORC format, albeit limited to about twice as fast.
 
 \subsection{Total costs}\label{resultsSummaryTotalCost}
 
