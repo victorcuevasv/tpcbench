@@ -96,7 +96,7 @@ public class CreateDatabaseSpark {
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
 					.config("hive.exec.dynamic.partition.mode", "nonstrict") 
 					.config("hive.exec.max.dynamic.partitions", "3000")
-					.config("spark.sql.shuffle.partitions", "1")
+					.config("spark.sql.shuffle.partitions", "64")
 					.enableHiveSupport()
 					.getOrCreate();
 		}
