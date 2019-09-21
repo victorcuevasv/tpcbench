@@ -71,10 +71,10 @@ docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.RunBenchmark\" \
 -Dexec.args=\"/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestosinglenode presto \
 $2 /temporal/$1GB tables _ext null \
-null orc false namenodecontainer $(whoami) \
-/project/target/client-1.0-SNAPSHOT.jar false UNUSED QueriesPresto results \
-plans true true query5.sql true \
-true $3 1954 false\" \
+null orc false false namenodecontainer \
+$(whoami) /project/target/client-1.0-SNAPSHOT.jar false UNUSED QueriesPresto \
+results plans true true query5.sql \
+true true $3 1954 false\" \
 -f /project/pom.xml"       
   
 

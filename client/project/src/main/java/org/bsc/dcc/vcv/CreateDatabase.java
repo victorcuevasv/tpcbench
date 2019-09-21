@@ -5,9 +5,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringTokenizer;
 import java.sql.DriverManager;
 import java.io.*;
 import org.apache.logging.log4j.LogManager;
@@ -41,6 +43,8 @@ public class CreateDatabase {
 	private final String username;
 	private final String jarFile;
 	
+	private final boolean partition;
+	
 	/**
 	 * @param args
 	 * 
@@ -60,10 +64,11 @@ public class CreateDatabase {
 	 * args[11] prefix of external location for created tables (e.g. S3 bucket), null for none
 	 * args[12] format for column-storage tables (PARQUET, DELTA)
 	 * args[13] whether to run queries to count the tuples generated (true/false)
-	 * args[14] hostname of the server
+	 * args[14] whether to use data partitioning for the tables (true/false)
 	 * 
-	 * args[15] username for the connection
-	 * args[16] jar file
+	 * args[15] hostname of the server
+	 * args[16] username for the connection
+	 * args[17] jar file
 	 * 
 	 */
 	// Open the connection (the server address depends on whether the program is
@@ -85,9 +90,10 @@ public class CreateDatabase {
 				args[11].equalsIgnoreCase("null") ? null : args[11]);
 		this.format = args[12];
 		this.doCount = Boolean.parseBoolean(args[13]);
-		this.hostname = args[14];
-		this.username = args[15];
-		this.jarFile = args[16];
+		this.partition = Boolean.parseBoolean(args[14]);
+		this.hostname = args[15];
+		this.username = args[16];
+		this.jarFile = args[17];
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.subDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
 				this.system, this.test, this.instance);
@@ -145,7 +151,7 @@ public class CreateDatabase {
 
 	
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 17 ) {
+		if( args.length != 18 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
@@ -164,6 +170,7 @@ public class CreateDatabase {
 		int i = 1;
 		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
+			//if( fileName.equals("store_sales.sql") )
 			this.createTable(fileName, sqlCreate, i);
 			i++;
 		}
@@ -209,15 +216,27 @@ public class CreateDatabase {
 			String intSqlCreate = null;
 			if( this.recorder.system.equals("hive") || this.recorder.system.startsWith("spark") )
 				intSqlCreate = internalCreateTableHive(incIntSqlCreate, tableName, extTablePrefixCreated, format);
-			else if( this.recorder.system.startsWith("presto") )
+			else if( this.recorder.system.startsWith("presto") ) {
+				if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
+					String partitionAtt = Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+					incIntSqlCreate = shiftPartitionColumn(incIntSqlCreate, partitionAtt);
+				}
 				intSqlCreate = internalCreateTablePresto(incIntSqlCreate, tableName, extTablePrefixCreated, format);
+			}
 			saveCreateTableFile(format, tableName, intSqlCreate);
 			stmt.execute("drop table if exists " + tableName);
 			stmt.execute(intSqlCreate);
 			if( this.recorder.system.equals("hive") || this.recorder.system.startsWith("spark") )
 				stmt.execute("INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix);
-			else if( this.recorder.system.startsWith("presto") )
-				stmt.execute("INSERT INTO " + tableName + " SELECT * FROM " + tableName + suffix);
+			else if( this.recorder.system.startsWith("presto") ) {
+				String insertSql = "INSERT INTO " + tableName + " SELECT * FROM " + tableName + suffix;
+				if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
+					List<String> columns = extractColumnNames(incIntSqlCreate); 
+					insertSql = createPartitionInsertStmt(tableName, columns, suffix);
+				}
+				saveCreateTableFile("insert", tableName, insertSql);
+				stmt.execute(insertSql);
+			}
 			queryRecord.setSuccessful(true);
 			if( doCount )
 				countRowsQuery(stmt, tableName);
@@ -338,18 +357,90 @@ public class CreateDatabase {
 			Optional<String> extTablePrefixCreated, String format) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
-		if( extTablePrefixCreated.isPresent() ) {
-			if( format.equals("parquet") )
-				builder.append("WITH ( format = 'PARQUET', ");
-			else if( format.equals("orc") )
-				builder.append("WITH ( format = 'ORC', ");
-			builder.append("external_location = '" + extTablePrefixCreated.get() + "/" + tableName + "' ) \n");
+		if( format.equals("parquet") )
+			builder.append("WITH ( format = 'PARQUET' \n");
+		else if( format.equals("orc") )
+			builder.append("WITH ( format = 'ORC' \n");
+		if( extTablePrefixCreated.isPresent() )
+			builder.append(", external_location = '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
+		if( this.partition ) {
+			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
+			if( pos != -1 )
+				builder.append(", partitioned_by = ARRAY['" + Partitioning.partKeys[pos] + "'] ");
 		}
-		else {
-			if( format.equals("parquet") )
-				builder.append("WITH ( format = 'PARQUET' ) \n");
-			else if( format.equals("orc") )
-				builder.append("WITH ( format = 'ORC' ) \n");
+		builder.append(") \n");
+		return builder.toString();
+	}
+	
+	private String createPartitionInsertStmt(String tableName, List<String> columns, String suffix) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("INSERT INTO " + tableName + " SELECT \n");
+		for(String column : columns) {
+			if ( column.equalsIgnoreCase(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] ))
+				continue;
+			else
+				builder.append(column + ", \n");
+		}
+		builder.append(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + " \n");
+		builder.append("FROM " + tableName + suffix + "\n");
+		return builder.toString();
+	}
+	
+	
+	private List<String> extractColumnNames(String sqlStr) {
+		List<String> list = new ArrayList<String>();
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new StringReader(sqlStr));
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				if( line.trim().length() == 0 )
+				continue;
+				if( line.trim().startsWith("create") || line.trim().startsWith("(") || line.trim().startsWith(")") )
+					continue;
+				StringTokenizer tokenizer = new StringTokenizer(line);
+				list.add(tokenizer.nextToken());
+			}
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+			this.logger.error(ioe);
+		}
+		return list;
+	}
+	
+	
+	private String shiftPartitionColumn(String sqlStr, String partitionAtt) {
+		ArrayList<String> list = new ArrayList<String>();
+		String partitionAttLine = null;
+		BufferedReader reader = null;
+		StringBuilder builder = null;
+		try {
+			reader = new BufferedReader(new StringReader(sqlStr));
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				if( line.trim().length() == 0 )
+					continue;
+				if( line.contains(partitionAtt) ) {
+					partitionAttLine = line;
+					continue;
+				}
+				list.add(line);
+			}
+			//First remove the comma at the end in the partition attribute line.
+			partitionAttLine = partitionAttLine.replace(',', ' ');
+			//And add the comma at the end of the current last attribute.
+			String lastAttLine = list.get(list.size() - 2);
+			list.set(list.size() - 2, lastAttLine + ",");
+			//Now insert the partition attribute line at the next to last position.
+			list.add(list.size() - 1 ,partitionAttLine);
+			builder = new StringBuilder();
+			for(String s : list)
+				builder.append(s + "\n");
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+			this.logger.error(ioe);
 		}
 		return builder.toString();
 	}
