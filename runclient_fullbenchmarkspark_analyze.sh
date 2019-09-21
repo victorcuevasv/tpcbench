@@ -47,25 +47,22 @@ printf "\n\n%s\n\n" "${mag}Creating and populating the database.${end}"
 #args[11] format for column-storage tables (PARQUET, DELTA)
 #args[12] whether to run queries to count the tuples generated (true/false)
 #args[13] whether to use data partitioning for the tables (true/false)
-#args[14] hostname of the server
- 
-#args[15] username for the connection
-#args[16] jar file
-#args[17] whether to generate statistics by analyzing tables (true/false)
-#args[18] if argument above is true, whether to compute statistics for columns (true/false)
-#args[19] queries dir within the jar
+#args[14] jar file
 
-#args[20] subdirectory of work directory to store the results
-#args[21] subdirectory of work directory to store the execution plans
-#args[22] save power test plans (boolean)
-#args[23] save power test results (boolean)
-#args[24] "all" or query file
- 
-#args[25] save tput test plans (boolean)
-#args[26] save tput test results (boolean)
-#args[27] number of streams
-#args[28] random seed
-#args[29] use multiple connections (true|false)
+#args[15] whether to generate statistics by analyzing tables (true/false)
+#args[16] if argument above is true, whether to compute statistics for columns (true/false)
+#args[17] queries dir within the jar
+#args[18] subdirectory of work directory to store the results
+#args[19] subdirectory of work directory to store the execution plans
+
+#args[20] save power test plans (boolean) 
+#args[21] save power test results (boolean)
+#args[22] "all" or query file
+#args[23] save tput test plans (boolean)
+#args[24] save tput test results (boolean)
+
+#args[25] number of streams 
+#args[26] random seed
 
 docker exec --user $USER_ID:$GROUP_ID -ti  namenodecontainer  /bin/bash -c \
 "/opt/spark-2.4.0-bin-hadoop2.7/bin/spark-submit --conf spark.eventLog.enabled=true  \

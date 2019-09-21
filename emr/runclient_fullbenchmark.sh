@@ -47,25 +47,26 @@ printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 #args[10] prefix of external location for created tables (e.g. S3 bucket), null for none
 #args[11] format for column-storage tables (PARQUET, DELTA)
 #args[12] whether to run queries to count the tuples generated (true/false)
-#args[13] hostname of the server
-#args[14] username for the connection
+#args[13] whether to use data partitioning for the tables (true/false)
+#args[14] hostname of the server
  
-#args[15] jar file
-#args[16] whether to generate statistics by analyzing tables (true/false)
-#args[17] if argument above is true, whether to compute statistics for columns (true/false)
-#args[18] queries dir within the jar
-#args[19] subdirectory of work directory to store the results
+#args[15] username for the connection
+#args[16] jar file
+#args[17] whether to generate statistics by analyzing tables (true/false)
+#args[18] if argument above is true, whether to compute statistics for columns (true/false)
+#args[19] queries dir within the jar
+
+#args[20] subdirectory of work directory to store the results
+#args[21] subdirectory of work directory to store the execution plans
+#args[22] save power test plans (boolean)
+#args[23] save power test results (boolean)
+#args[24] "all" or query file
  
-#args[20] subdirectory of work directory to store the execution plans
-#args[21] save power test plans (boolean)
-#args[22] save power test results (boolean)
-#args[23] "all" or query file
-#args[24] save tput test plans (boolean)
- 
-#args[25] save tput test results (boolean)
-#args[26] number of streams
-#args[27] random seed
-#args[28] use multiple connections (true|false)
+#args[25] save tput test plans (boolean)
+#args[26] save tput test results (boolean)
+#args[27] number of streams
+#args[28] random seed
+#args[29] use multiple connections (true|false)
 
 docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
 --volume /mnt/efs/data:/data \
@@ -75,10 +76,10 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmark" \
 -Dexec.args="/data tpcdsdb$1gb_$2 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestoemr2nodes prestoemr \
 $2 UNUSED tables _ext s3://tpcds-datasets/$1GB \
-s3://tpcds-warehouse-emr-$1gb-$2 orc false $(hostname) $(whoami) \
-/project/target/client-1.0-SNAPSHOT.jar false UNUSED QueriesPresto results \
-plans true true all true \
-true $3 1954 false" \
+s3://tpcds-warehouse-emr-$1gb-$2 orc false false $(hostname) \
+$(whoami) /project/target/client-1.0-SNAPSHOT.jar false UNUSED QueriesPresto \
+results plans true true all \
+true true $3 1954 false" \
 -f /project/pom.xml
 
 
