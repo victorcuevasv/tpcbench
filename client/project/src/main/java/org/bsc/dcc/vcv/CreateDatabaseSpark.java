@@ -96,7 +96,7 @@ public class CreateDatabaseSpark {
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
 					.config("hive.exec.dynamic.partition.mode", "nonstrict") 
 					.config("hive.exec.max.dynamic.partitions", "3000")
-					.config("spark.sql.shuffle.partitions", "64")
+					//.config("spark.sql.shuffle.partitions", "64")
 					.enableHiveSupport()
 					.getOrCreate();
 		}
@@ -186,6 +186,7 @@ public class CreateDatabaseSpark {
 			saveCreateTableFile("parquet", tableName, intSqlCreate);
 			this.dropTable("drop table if exists " + tableName);
 			this.spark.sql(intSqlCreate);
+			
 			String insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
 			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
 				List<String> columns = extractColumnNames(incIntSqlCreate); 
@@ -193,6 +194,16 @@ public class CreateDatabaseSpark {
 			}
 			saveCreateTableFile("insert", tableName, insertSql);
 			this.spark.sql(insertSql);
+			
+			/*
+			String selectSql = "SELECT * FROM " + tableName + suffix;
+			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
+				List<String> columns = extractColumnNames(incIntSqlCreate); 
+				selectSql = createPartitionSelectStmt(tableName, columns, suffix);
+			}
+			saveCreateTableFile("select", tableName, selectSql);
+			this.spark.sql(selectSql).coalesce(64).write().mode("overwrite").insertInto(tableName);
+			*/
 			queryRecord.setSuccessful(true);
 			if( doCount )
 				countRowsQuery(tableName);
@@ -397,8 +408,9 @@ public class CreateDatabaseSpark {
 	
 	private String createPartitionInsertStmt(String tableName, List<String> columns, String suffix) {
 		StringBuilder builder = new StringBuilder();
-		builder.append("INSERT OVERWRITE TABLE " + tableName + " PARTITION (" +
-				Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + ") SELECT \n");
+		//builder.append("INSERT OVERWRITE TABLE " + tableName + " PARTITION (" +
+		//		Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + ") SELECT \n");
+		builder.append("INSERT OVERWRITE TABLE " + tableName + " SELECT \n");
 		for(String column : columns) {
 			if ( column.equalsIgnoreCase(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] ))
 				continue;
@@ -408,6 +420,21 @@ public class CreateDatabaseSpark {
 		builder.append(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + " \n");
 		builder.append("FROM " + tableName + suffix + "\n");
 		builder.append("DISTRIBUTE BY " + Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
+		return builder.toString();
+	}
+	
+	
+	private String createPartitionSelectStmt(String tableName, List<String> columns, String suffix) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("SELECT \n");
+		for(String column : columns) {
+			if ( column.equalsIgnoreCase(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] ))
+				continue;
+			else
+				builder.append(column + ", \n");
+		}
+		builder.append(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + " \n");
+		builder.append("FROM " + tableName + suffix + "\n");
 		return builder.toString();
 	}
 	

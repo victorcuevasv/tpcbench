@@ -89,7 +89,7 @@ public class ExecuteQueriesSpark {
 		try {
 			this.spark = SparkSession.builder().appName("TPC-DS Sequential Query Execution")
 				.config("spark.sql.crossJoin.enabled", "true")
-				.config("spark.sql.shuffle.partitions", "200")
+				//.config("spark.sql.shuffle.partitions", "200")
 				.enableHiveSupport()
 				.getOrCreate();
 		}
