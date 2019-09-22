@@ -170,8 +170,8 @@ public class CreateDatabase {
 		int i = 1;
 		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
-			//if( fileName.equals("store_sales.sql") )
-			this.createTable(fileName, sqlCreate, i);
+			if( fileName.equals("store_sales.sql") )
+				this.createTable(fileName, sqlCreate, i);
 			i++;
 		}
 	}
@@ -365,8 +365,11 @@ public class CreateDatabase {
 			builder.append(", external_location = '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
 		if( this.partition ) {
 			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
-			if( pos != -1 )
-				builder.append(", partitioned_by = ARRAY['" + Partitioning.partKeys[pos] + "'] ");
+			if( pos != -1 ) {
+				builder.append(", partitioned_by = ARRAY['" + Partitioning.partKeys[pos] + "'] \n");
+				builder.append(", bucketed_by = ARRAY['" + Partitioning.bucketKeys[pos] + "'] \n");
+				builder.append(", bucket_count = 1 \n");
+			}
 		}
 		builder.append(") \n");
 		return builder.toString();
