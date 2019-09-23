@@ -39,9 +39,9 @@ hive --service metastore &
 wait_for_server localhost 9083 24
 hive --service hiveserver2 &
 wait_for_server localhost 10000 24
-bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-all.sh
+bash /opt/spark-2.4.3-bin-hadoop2.7/sbin/start-all.sh
 wait_for_server localhost 8080 24 
-bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-history-server.sh
+bash /opt/spark-2.4.3-bin-hadoop2.7/sbin/start-history-server.sh
 wait_for_server localhost 18080 24 
 if [[ $RUN_THRIFT_SERVER -eq 1 ]]; then
 	#Must force the logs to be created inside the USER_NAME_DC home directory.   
@@ -50,7 +50,7 @@ if [[ $RUN_THRIFT_SERVER -eq 1 ]]; then
     #The jars should be downloaded to /home/USER_NAME_DC/.ivy2
     #Note that the eventLog.dir parameter uses the previously created directory.
     sudo -u $USER_NAME_DC mkdir /home/$USER_NAME_DC/tmp          
-	sudo -u $USER_NAME_DC bash /opt/spark-2.4.0-bin-hadoop2.7/sbin/start-thriftserver.sh \
+	sudo -u $USER_NAME_DC bash /opt/spark-2.4.3-bin-hadoop2.7/sbin/start-thriftserver.sh \
 		--master spark://namenodecontainer:7077  \
 		--hiveconf hive.server2.thrift.port=10015 \
 		--conf spark.eventLog.dir=/home/$USER_NAME_DC/tmp \

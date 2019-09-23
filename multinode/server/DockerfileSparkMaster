@@ -16,8 +16,8 @@ RUN apt-get update && apt-get install -y \
 ARG APACHE_MIRROR=archive.apache.org
 ARG POSTGRES_DRIVER_MIRROR=jdbc.postgresql.org
 ARG HADOOP_VERSION=2.7.7
-ARG HIVE_VERSION=2.3.4
-ARG SPARK_VERSION=2.4.0
+ARG HIVE_VERSION=2.3.5
+ARG SPARK_VERSION=2.4.3
 
 #Add the generated key to the authorized set.
 #The ssh server has been installed in the ubuntujavahadoop image.

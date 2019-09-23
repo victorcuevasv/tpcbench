@@ -55,10 +55,10 @@ docker exec -ti namenodecontainer  /bin/bash -c "hadoop fs -mkdir -p /user/hive/
 
 docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateDatabase\" \
--Dexec.args=\"/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestosinglenode presto \
+-Dexec.args=\"/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 hivesinglenode hive \
 load $2 /temporal/$1GB tables _ext \
-null null orc false namenodecontainer \
-$(whoami) /project/target/client-1.0-SNAPSHOT.jar \" \
+null null orc false false \
+namenodecontainer $(whoami) /project/target/client-1.0-SNAPSHOT.jar \" \
 -f /project/pom.xml"       
 
 
