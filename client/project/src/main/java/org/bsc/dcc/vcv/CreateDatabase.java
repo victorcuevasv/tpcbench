@@ -170,7 +170,7 @@ public class CreateDatabase {
 		int i = 1;
 		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
-			if( fileName.equals("store_sales.sql") )
+			if( fileName.equals("web_sales.sql") )
 				this.createTable(fileName, sqlCreate, i);
 			i++;
 		}
@@ -357,18 +357,18 @@ public class CreateDatabase {
 			Optional<String> extTablePrefixCreated, String format) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
-		if( format.equals("parquet") )
+		if( format.equals("parquet") ) {
 			builder.append("WITH ( format = 'PARQUET' \n");
-		else if( format.equals("orc") )
+		}
+		else if( format.equals("orc") ) {
 			builder.append("WITH ( format = 'ORC' \n");
+		}
 		if( extTablePrefixCreated.isPresent() )
 			builder.append(", external_location = '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
 		if( this.partition ) {
 			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
 			if( pos != -1 ) {
 				builder.append(", partitioned_by = ARRAY['" + Partitioning.partKeys[pos] + "'] \n");
-				builder.append(", bucketed_by = ARRAY['" + Partitioning.bucketKeys[pos] + "'] \n");
-				builder.append(", bucket_count = 1 \n");
 			}
 		}
 		builder.append(") \n");

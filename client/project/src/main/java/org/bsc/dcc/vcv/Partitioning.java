@@ -11,8 +11,5 @@ public static final String[] partKeys = {"cr_returned_date_sk", "cs_sold_date_sk
 public static final String[] distKeys = {"cr_returned_date_sk", "cs_sold_date_sk", "inv_date_sk", "sr_returned_date_sk",
 		"ss_sold_date_sk", "wr_returned_date_sk", "ws_sold_date_sk"};
 
-public static final String[] bucketKeys = {"cr_returned_date_sk", "cs_sold_date_sk", "inv_date_sk", "sr_returned_date_sk",
-		"ss_sold_time_sk", "wr_returned_date_sk", "ws_sold_date_sk"};
-
 }
 
