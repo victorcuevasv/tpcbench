@@ -170,8 +170,8 @@ public class CreateDatabase {
 		int i = 1;
 		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
-			//if( fileName.equals("web_sales.sql") )
-			this.createTable(fileName, sqlCreate, i);
+			if( fileName.equals("web_sales.sql") )
+				this.createTable(fileName, sqlCreate, i);
 			i++;
 		}
 	}
@@ -190,7 +190,7 @@ public class CreateDatabase {
 			this.logger.info("Processing table " + index + ": " + tableName);
 			//Hive and Spark use the statement 'create external table ...' for raw data tables
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, 
-					! this.recorder.system.startsWith("presto"), suffix);
+					! this.recorder.system.startsWith("presto"), suffix, false);
 			String extSqlCreate = null;
 			if( this.recorder.system.equals("hive") || this.recorder.system.startsWith("spark"))
 				extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, genDataDir, 
@@ -212,11 +212,17 @@ public class CreateDatabase {
 			stmt.execute(extSqlCreate);
 			if( doCount )
 				countRowsQuery(stmt, tableName + suffix);
-			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "");
+			String incIntSqlCreate = null;
 			String intSqlCreate = null;
-			if( this.recorder.system.equals("hive") || this.recorder.system.startsWith("spark") )
+			if( this.recorder.system.equals("hive") || this.recorder.system.startsWith("spark") ) {
+				//For Hive the partition attribute should NOT be included in the create table attributes list.
+				incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", true);
 				intSqlCreate = internalCreateTableHive(incIntSqlCreate, tableName, extTablePrefixCreated, format);
+			}
 			else if( this.recorder.system.startsWith("presto") ) {
+				//For Presto the create table statement should include all of the attributes, but the partition
+				//attribute should be the last.
+				incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", false);
 				if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
 					String partitionAtt = Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
 					incIntSqlCreate = shiftPartitionColumn(incIntSqlCreate, partitionAtt);
@@ -226,17 +232,29 @@ public class CreateDatabase {
 			saveCreateTableFile(format, tableName, intSqlCreate);
 			stmt.execute("drop table if exists " + tableName);
 			stmt.execute(intSqlCreate);
-			if( this.recorder.system.equals("hive") || this.recorder.system.startsWith("spark") )
-				stmt.execute("INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix);
+			String insertSql = null;
+			if( this.recorder.system.equals("hive") || this.recorder.system.startsWith("spark") ) {
+				insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
+				if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
+					//The partition attribute was removed from the attributes list in the create table
+					//statement for Hive, so the columns should be extracted as it is the case for Presto.
+					incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", false);
+					String partitionAtt = Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+					incIntSqlCreate = shiftPartitionColumn(incIntSqlCreate, partitionAtt);
+					List<String> columns = extractColumnNames(incIntSqlCreate);
+					insertSql = createPartitionInsertStmt(tableName, columns, suffix, "INSERT OVERWRITE TABLE " + 
+							tableName + " PARTITION (" + partitionAtt + ")");
+				}
+			}
 			else if( this.recorder.system.startsWith("presto") ) {
-				String insertSql = "INSERT INTO " + tableName + " SELECT * FROM " + tableName + suffix;
+				insertSql = "INSERT INTO " + tableName + " SELECT * FROM " + tableName + suffix;
 				if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
 					List<String> columns = extractColumnNames(incIntSqlCreate); 
-					insertSql = createPartitionInsertStmt(tableName, columns, suffix);
+					insertSql = createPartitionInsertStmt(tableName, columns, suffix, "INSERT INTO " + tableName);
 				}
-				saveCreateTableFile("insert", tableName, insertSql);
-				stmt.execute(insertSql);
 			}
+			saveCreateTableFile("insert", tableName, insertSql);
+			stmt.execute(insertSql);
 			queryRecord.setSuccessful(true);
 			if( doCount )
 				countRowsQuery(stmt, tableName);
@@ -259,7 +277,8 @@ public class CreateDatabase {
 	// Generate an incomplete SQL create statement to be completed for the texfile
 	// external and
 	// parquet internal tables.
-	private String incompleteCreateTable(String sqlCreate, String tableName, boolean external, String suffix) {
+	private String incompleteCreateTable(String sqlCreate, String tableName, boolean external, String suffix,
+			boolean checkPartitionKey) {
 		boolean hasPrimaryKey = sqlCreate.contains("primary key");
 		// Remove the 'not null' statements.
 		sqlCreate = sqlCreate.replace("not null", "        ");
@@ -279,7 +298,13 @@ public class CreateDatabase {
 		StringBuilder builder = new StringBuilder(firstLineNew);
 		int tail = hasPrimaryKey ? 3 : 2;
 		for (int i = 1; i < lines.length - tail; i++) {
-			builder.append(lines[i] + "\n");
+			if( checkPartitionKey && this.partition && 
+				Arrays.asList(Partitioning.tables).contains(tableName) &&
+				lines[i].contains(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)])) {
+					continue;
+			}
+			else
+				builder.append(lines[i] + "\n");
 		}
 		// Change the last comma for a space (since the primary key statement was
 		// removed).
@@ -329,6 +354,13 @@ public class CreateDatabase {
 	private String internalCreateTableHive(String incompleteSqlCreate, String tableName,
 			Optional<String> extTablePrefixCreated, String format) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
+		//Add the partition statement, if needed.
+		if( this.partition ) {
+			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
+			if( pos != -1 )
+				//Use for Hive format.
+				builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + " integer) \n" );
+		}
 		// Add the stored as statement.
 		if( extTablePrefixCreated.isPresent() ) {
 			if( format.equals("parquet") )
@@ -375,9 +407,9 @@ public class CreateDatabase {
 		return builder.toString();
 	}
 	
-	private String createPartitionInsertStmt(String tableName, List<String> columns, String suffix) {
+	private String createPartitionInsertStmt(String tableName, List<String> columns, String suffix, String insertVariant) {
 		StringBuilder builder = new StringBuilder();
-		builder.append("INSERT INTO " + tableName + " SELECT \n");
+		builder.append(insertVariant + " SELECT \n");
 		for(String column : columns) {
 			if ( column.equalsIgnoreCase(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] ))
 				continue;
