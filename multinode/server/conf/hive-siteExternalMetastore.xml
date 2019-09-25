@@ -38,5 +38,14 @@
       In nonstrict mode all partitions are allowed to be dynamic.
     </description>
   </property>
+  <property>
+    <name>hive.exec.max.dynamic.partitions</name>
+    <value>4000</value>
+    <description>Maximum number of dynamic partitions allowed to be created in total.</description>
+  </property>
+  <property>
+    <name>hive.exec.max.dynamic.partitions.pernode</name>
+    <value>2000</value>
+    <description>Maximum number of dynamic partitions allowed to be created in each mapper/reducer node.</description>
+  </property>
 </configuration>
-
