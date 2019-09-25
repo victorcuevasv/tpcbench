@@ -20,6 +20,13 @@
          "spark.driver.memory":"5692M",
          "spark.sql.broadcastTimeout":"7200"
       }
+   },
+   {
+      "classification":"hive-site",
+      "properties":{
+         "hive.exec.max.dynamic.partitions":"5000",
+         "hive.exec.max.dynamic.partitions.pernode":"2500"
+      }
    }
 ]
 
