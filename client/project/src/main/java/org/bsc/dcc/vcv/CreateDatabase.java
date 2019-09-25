@@ -170,8 +170,8 @@ public class CreateDatabase {
 		int i = 1;
 		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
-			if( fileName.equals("web_sales.sql") )
-				this.createTable(fileName, sqlCreate, i);
+			//if( fileName.equals("web_sales.sql") )
+			this.createTable(fileName, sqlCreate, i);
 			i++;
 		}
 	}
