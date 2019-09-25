@@ -335,7 +335,7 @@ public class CreateDatabase {
 		builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY '\001' \n");
 		builder.append("STORED AS TEXTFILE \n");
 		if( extTablePrefixRaw.isPresent() )
-			builder.append("LOCATION '" + extTablePrefixRaw.get() + "/" + genDataDir + "/" + tableName + "' \n");
+			builder.append("LOCATION '" + extTablePrefixRaw.get() + "/" + tableName + "' \n");
 		else
 			builder.append("LOCATION '" + genDataDir + "/" + tableName + "' \n");
 		return builder.toString();
