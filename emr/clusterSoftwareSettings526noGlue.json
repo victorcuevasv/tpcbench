@@ -24,6 +24,7 @@
    {
       "classification":"hive-site",
       "properties":{
+         "hive.exec.dynamic.partition.mode":"nonstrict",
          "hive.exec.max.dynamic.partitions":"5000",
          "hive.exec.max.dynamic.partitions.pernode":"2500"
       }
