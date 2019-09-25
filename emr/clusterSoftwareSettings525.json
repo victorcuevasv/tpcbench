@@ -4,7 +4,8 @@
     "properties": {
       "hive.allow-drop-table": "true",
       "hive.compression-codec": "SNAPPY",
-      "hive.s3-file-system-type": "PRESTO"
+      "hive.s3-file-system-type": "PRESTO",
+      "hive.max-partitions-per-writers": "2500"
     }
   },
   {
