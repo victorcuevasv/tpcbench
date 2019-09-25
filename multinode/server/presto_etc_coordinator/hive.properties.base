@@ -1,3 +1,5 @@
 connector.name=hive-hadoop2
 hive.config.resources=/etc/hadoop/conf/core-site.xml,/etc/hadoop/conf/hdfs-site.xml
 hive.allow-drop-table=true
+hive.compression-codec = SNAPPY
+hive.max-partitions-per-writers	 = 2500
