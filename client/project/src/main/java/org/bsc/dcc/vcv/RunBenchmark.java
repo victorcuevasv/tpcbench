@@ -80,13 +80,13 @@ public class RunBenchmark {
 	
 	
 	public void runBenchmark(String[] args) {
-		String[] createDatabaseSparkArgs = this.createCreateDatabaseArgs(args);
-		String[] executeQueriesSparkArgs = this.createExecuteQueriesArgs(args);
-		String[] executeQueriesConcurrentSparkArgs = this.createExecuteQueriesConcurrentArgs(args);
+		String[] createDatabaseArgs = this.createCreateDatabaseArgs(args);
+		String[] executeQueriesArgs = this.createExecuteQueriesArgs(args);
+		String[] executeQueriesConcurrentArgs = this.createExecuteQueriesConcurrentArgs(args);
 		try {
-			this.saveTestParameters(createDatabaseSparkArgs, "load");
+			this.saveTestParameters(createDatabaseArgs, "load");
 			System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
-			CreateDatabase.main(createDatabaseSparkArgs);
+			CreateDatabase.main(createDatabaseArgs);
 			TimeUnit.SECONDS.sleep(10);
 			boolean analyze = Boolean.parseBoolean(args[17]);
 			if( analyze ) {
@@ -96,13 +96,13 @@ public class RunBenchmark {
 				AnalyzeTables.main(analyzeTablesArgs);
 				TimeUnit.SECONDS.sleep(10);
 			}
-			this.saveTestParameters(executeQueriesSparkArgs, "power");
+			this.saveTestParameters(executeQueriesArgs, "power");
 			System.out.println("\n\n\nRunning the POWER test.\n\n\n");
-			ExecuteQueries.main(executeQueriesSparkArgs);
+			ExecuteQueries.main(executeQueriesArgs);
 			TimeUnit.SECONDS.sleep(10);
-			this.saveTestParameters(executeQueriesConcurrentSparkArgs, "tput");
+			this.saveTestParameters(executeQueriesConcurrentArgs, "tput");
 			System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
-			ExecuteQueriesConcurrent.main(executeQueriesConcurrentSparkArgs);
+			ExecuteQueriesConcurrent.main(executeQueriesConcurrentArgs);
 			TimeUnit.SECONDS.sleep(10);
 		}
 		catch(Exception e) {

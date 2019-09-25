@@ -44,6 +44,9 @@ public class CreateDatabase {
 	private final String jarFile;
 	
 	private final boolean partition;
+	//When data partitioning is used, Presto has to be replaced by Hive.
+	//This variable keeps track of that case.
+	private String systemRunning;
 	
 	/**
 	 * @param args
@@ -97,13 +100,18 @@ public class CreateDatabase {
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.subDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
 				this.system, this.test, this.instance);
+		this.systemRunning = this.system;
 		try {
-			if( this.system.equals("hive") ) {
+			//IMPORTANT.
+			//Use Hive instead of Presto due to out of memory errors when using partitioning.
+			//The logs would still be organized as if Presto was used.
+			if( this.system.equals("hive") || ( this.partition && this.system.startsWith("presto") ) ) {
 				Class.forName(driverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" + this.hostname + 
 					":10000/" + dbName, "hive", "");
+				this.systemRunning = "hive";
 			}
-			else if( system.equals("presto") ) {
+			else if( this.system.equals("presto") ) {
 				Class.forName(prestoDriverName);
 				//this.con = DriverManager.getConnection("jdbc:presto://" + 
 				//		this.hostname + ":8080/hive/" + this.dbName, "hive", "");
@@ -111,13 +119,13 @@ public class CreateDatabase {
 						this.hostname + ":8080/hive/" + this.dbName, this.username, "");
 				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
-			else if( system.equals("prestoemr") ) {
+			else if( this.system.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
 				//Should use hadoop to drop a table created by spark.
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8889/hive/" + this.dbName, "hadoop", "");
 			}
-			else if( system.startsWith("spark") ) {
+			else if( this.system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" +
 						this.hostname + ":10015/" + this.dbName, "hive", "");
@@ -190,12 +198,12 @@ public class CreateDatabase {
 			this.logger.info("Processing table " + index + ": " + tableName);
 			//Hive and Spark use the statement 'create external table ...' for raw data tables
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, 
-					! this.recorder.system.startsWith("presto"), suffix, false);
+					! this.systemRunning.startsWith("presto"), suffix, false);
 			String extSqlCreate = null;
-			if( this.recorder.system.equals("hive") || this.recorder.system.startsWith("spark"))
+			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark"))
 				extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, genDataDir, 
 						extTablePrefixRaw);
-			else if( this.recorder.system.startsWith("presto") )
+			else if( this.systemRunning.startsWith("presto") )
 				extSqlCreate = externalCreateTablePresto(incExtSqlCreate, tableName, genDataDir,
 						extTablePrefixRaw);
 			saveCreateTableFile("textfile", tableName, extSqlCreate);
@@ -214,12 +222,12 @@ public class CreateDatabase {
 				countRowsQuery(stmt, tableName + suffix);
 			String incIntSqlCreate = null;
 			String intSqlCreate = null;
-			if( this.recorder.system.equals("hive") || this.recorder.system.startsWith("spark") ) {
+			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark") ) {
 				//For Hive the partition attribute should NOT be included in the create table attributes list.
 				incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", true);
 				intSqlCreate = internalCreateTableHive(incIntSqlCreate, tableName, extTablePrefixCreated, format);
 			}
-			else if( this.recorder.system.startsWith("presto") ) {
+			else if( this.systemRunning.startsWith("presto") ) {
 				//For Presto the create table statement should include all of the attributes, but the partition
 				//attribute should be the last.
 				incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", false);
@@ -233,7 +241,7 @@ public class CreateDatabase {
 			stmt.execute("drop table if exists " + tableName);
 			stmt.execute(intSqlCreate);
 			String insertSql = null;
-			if( this.recorder.system.equals("hive") || this.recorder.system.startsWith("spark") ) {
+			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark") ) {
 				insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
 				if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
 					//The partition attribute was removed from the attributes list in the create table
@@ -246,7 +254,7 @@ public class CreateDatabase {
 							tableName + " PARTITION (" + partitionAtt + ")");
 				}
 			}
-			else if( this.recorder.system.startsWith("presto") ) {
+			else if( this.systemRunning.startsWith("presto") ) {
 				insertSql = "INSERT INTO " + tableName + " SELECT * FROM " + tableName + suffix;
 				if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
 					List<String> columns = extractColumnNames(incIntSqlCreate); 
