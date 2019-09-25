@@ -16,7 +16,7 @@ end=$'\e[0m'
 start_time=`date +%s`
 
 #Create the volume directories in the PARENT directory.
-bash ../createDirs.sh
+bash $DIR/../createDirs.sh
 
 #Get the username the user executing this script.
 USER_NAME=$(whoami)
@@ -32,56 +32,56 @@ index=0
 
 #Build the Ubuntu with java base image.
 printf "\n\n%s\n\n" "${mag}Building the ubuntu with java image.${end}"
-bash ../ubuntujava/build.sh
+bash $DIR/../ubuntujava/build.sh
 buildFlags[$index]=$?
 buildLabels[$index]=ubuntujava
 index=$((index+1))
 
 #Build the Hadoop base image.
 printf "\n\n%s\n\n" "${mag}Building the hadoop base image.${end}"
-bash server/buildHadoop.sh
+bash $DIR/server/buildHadoop.sh
 buildFlags[$index]=$?
 buildLabels[$index]=hadoop_base
 index=$((index+1))
 
 #Build the Presto namenode server image.
 printf "\n\n%s\n\n" "${mag}Building the Presto namenode server image.${end}"
-bash server/buildPresto.sh $USER_NAME $USER_ID $GROUP_ID
+bash $DIR/server/buildPresto.sh $USER_NAME $USER_ID $GROUP_ID
 buildFlags[$index]=$?
 buildLabels[$index]=presto_namenode
 index=$((index+1))
 
 #Build the Presto slave server image.
 printf "\n\n%s\n\n" "${mag}Building the Presto slave server image.${end}"
-bash server/buildSlavesPresto.sh
+bash $DIR/server/buildSlavesPresto.sh
 buildFlags[$index]=$?
 buildLabels[$index]=presto_slave
 index=$((index+1))
 
 #Build the Spark namenode server image.
 printf "\n\n%s\n\n" "${mag}Building the Spark namenode server image.${end}"
-bash server/buildSparkMaster.sh $USER_NAME $USER_ID $GROUP_ID
+bash $DIR/server/buildSparkMaster.sh $USER_NAME $USER_ID $GROUP_ID
 buildFlags[$index]=$?
 buildLabels[$index]=spark_namenode
 index=$((index+1))
 
 #Build the Spark slave server image.
 printf "\n\n%s\n\n" "${mag}Building the Spark slave server image.${end}"
-bash server/buildSparkSlave.sh
+bash $DIR/server/buildSparkSlave.sh
 buildFlags[$index]=$?
 buildLabels[$index]=spark_slave
 index=$((index+1))
 
 #Build the client image.
 printf "\n\n%s\n\n" "${mag}Building the client image.${end}"
-bash ../client/buildSingle.sh $USER_NAME $USER_ID $GROUP_ID
+bash $DIR/../client/buildSingle.sh $USER_NAME $USER_ID $GROUP_ID
 buildFlags[$index]=$?
 buildLabels[$index]=client
 index=$((index+1))
 
 #Build the dqgen image with the TPC-DS toolkit to generate data and queries.
 printf "\n\n%s\n\n" "${mag}Creating the dqgen TPC-DS toolkit image.${end}"
-bash ../dqgen/createContainer.sh $USER_NAME $USER_ID $GROUP_ID
+bash $DIR/../dqgen/createContainer.sh $USER_NAME $USER_ID $GROUP_ID
 buildFlags[$index]=$?
 buildLabels[$index]=tpcds
 index=$((index+1))
