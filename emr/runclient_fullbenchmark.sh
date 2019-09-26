@@ -76,7 +76,7 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmark" \
 -Dexec.args="/data tpcdsdb$1gb_$2 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestoemr2nodes prestoemr \
 $2 UNUSED tables _ext s3://tpcds-datasets/$1GB \
-s3://tpcds-warehouse-emr-$1gb-$2 orc false true $(hostname) \
+s3://tpcds-warehouse-emr-$1gb-$2 orc false false $(hostname) \
 $(whoami) /project/target/client-1.0-SNAPSHOT.jar false UNUSED QueriesPresto \
 results plans true true all \
 true true $3 1954 false" \
