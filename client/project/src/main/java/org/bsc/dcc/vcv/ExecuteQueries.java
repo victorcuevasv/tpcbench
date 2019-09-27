@@ -101,7 +101,6 @@ public class ExecuteQueries {
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8889/hive/" + this.dbName, "hive", "");
 				setPrestoDefaultSessionOpts();
-				setPrestoSpillSessionOpts();
 			}
 			else if( this.system.equals("sparkdatabricksjdbc") ) {
 				Class.forName(databricksDriverName);
@@ -142,12 +141,6 @@ public class ExecuteQueries {
 		((PrestoConnection)con).setSessionProperty("join_distribution_type", "AUTOMATIC");
 		//((PrestoConnection)con).setSessionProperty("task_concurrency", "8");
 	}
-	
-	
-	private void setPrestoSpillSessionOpts() {
-		((PrestoConnection)con).setSessionProperty("spill-enabled", "true");
-		((PrestoConnection)con).setSessionProperty("spiller-spill-path", "/mnt/mapred/");
-	}
 
 
 	public static void main(String[] args) throws SQLException {
@@ -161,6 +154,7 @@ public class ExecuteQueries {
 		prog.executeQueries(querySingleOrAllByNull);
 		prog.closeConnection();
 	}
+	
 	
 	public void executeQueries(String querySingleOrAllByNull) {
 		this.recorder.header();
