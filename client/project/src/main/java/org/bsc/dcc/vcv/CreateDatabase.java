@@ -105,7 +105,8 @@ public class CreateDatabase {
 			//IMPORTANT.
 			//Use Hive instead of Presto due to out of memory errors when using partitioning.
 			//The logs would still be organized as if Presto was used.
-			if( this.system.equals("hive") || ( this.partition && this.system.startsWith("presto") ) ) {
+			//if( this.system.equals("hive") || ( this.partition && this.system.startsWith("presto") ) ) {
+			if( this.system.equals("hive") ) {
 				Class.forName(driverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" + this.hostname + 
 					":10000/" + dbName, "hive", "");

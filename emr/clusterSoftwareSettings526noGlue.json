@@ -12,8 +12,8 @@
       "classification":"presto-config",
       "properties":{
          "query.max-memory":"240GB",
-         "spill-enabled":"true",
-         "spiller-spill-path":"/mnt/mapred/"
+         "experimental.spill-enabled":"true",
+         "experimental.spiller-spill-path":"/mnt/tmp/"
       }
    },
    {
