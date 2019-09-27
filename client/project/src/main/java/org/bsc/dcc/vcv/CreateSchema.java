@@ -14,6 +14,7 @@ public class CreateSchema {
 	private static String driverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
+	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
 
@@ -42,6 +43,11 @@ public class CreateSchema {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
 						hostname + ":10015/", "hive", "");
+			}
+			else if( system.startsWith("snowflake") ) {
+				Class.forName(snowflakeDriverName);
+				con = DriverManager.getConnection("jdbc:snowflake://zua56993.snowflakecomputing.com/?" +
+						"user=bsctest&password=c4[*4XYM1GIw");
 			}
 			else {
 				throw new java.lang.RuntimeException("Unsupported system: " + system);
@@ -88,12 +94,15 @@ public class CreateSchema {
 			System.out.println("Creating schema (database) " + dbName + " with " + system);
 			this.logger.info("Creating schema (database) " + dbName + " with " + system);
 			Statement stmt = con.createStatement();
-			String sql = null;
 			if( system.startsWith("presto") )
-				sql = "CREATE SCHEMA " + dbName;
+				stmt.execute("CREATE SCHEMA " + dbName);
 			else if( system.startsWith("spark") )
-				sql = "CREATE DATABASE " + dbName;
-			stmt.execute(sql);
+				stmt.execute("CREATE DATABASE " + dbName);
+			else if( system.startsWith("snowflake") ) {
+				stmt.execute("CREATE DATABASE " + dbName);
+				stmt.execute("USE DATABASE " + dbName);
+				stmt.execute("CREATE SCHEMA " + dbName);
+			}
 			System.out.println("Schema (database) created.");
 			this.logger.info("Schema (database) created.");
 		}

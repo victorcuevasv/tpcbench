@@ -22,6 +22,7 @@ public class CreateDatabase {
 	private static String driverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
+	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
 	private Connection con;
 	private final JarCreateTableReaderAsZipFile createTableReader;
 	private final AnalyticsRecorder recorder;
@@ -105,8 +106,8 @@ public class CreateDatabase {
 			//IMPORTANT.
 			//Use Hive instead of Presto due to out of memory errors when using partitioning.
 			//The logs would still be organized as if Presto was used.
-			//if( this.system.equals("hive") || ( this.partition && this.system.startsWith("presto") ) ) {
-			if( this.system.equals("hive") ) {
+			if( this.system.equals("hive") || ( this.partition && this.system.startsWith("presto") ) ) {
+			//if( this.system.equals("hive") ) {
 				Class.forName(driverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" + this.hostname + 
 					":10000/" + dbName, "hive", "");
@@ -130,6 +131,12 @@ public class CreateDatabase {
 				Class.forName(hiveDriverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" +
 						this.hostname + ":10015/" + this.dbName, "hive", "");
+			}
+			else if( system.startsWith("snowflake") ) {
+				Class.forName(snowflakeDriverName);
+				con = DriverManager.getConnection("jdbc:snowflake://zua56993.snowflakecomputing.com/?" +
+						"user=bsctest" + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
+						"&schema=" + this.dbName);
 			}
 			else {
 				throw new java.lang.RuntimeException("Unsupported system: " + this.system);
@@ -180,11 +187,52 @@ public class CreateDatabase {
 		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
 			//if( fileName.equals("web_sales.sql") )
-			this.createTable(fileName, sqlCreate, i);
+			if( ! this.systemRunning.equals("snowflake") )
+				this.createTable(fileName, sqlCreate, i);
+			else
+				this.createTableSnowflake(fileName, sqlCreate, i);
 			i++;
 		}
 	}
 
+	
+	private void createTableSnowflake(String sqlCreateFilename, String sqlCreate, int index) {
+		QueryRecord queryRecord = null;
+		String suffix = "";
+		try {
+			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
+			System.out.println("Processing table " + index + ": " + tableName);
+			this.logger.info("Processing table " + index + ": " + tableName);
+			//Hive and Spark use the statement 'create external table ...' for raw data tables
+			String testSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, suffix, false);
+			saveCreateTableFile("snowflaketestfile", tableName, testSqlCreate);
+			// Skip the dbgen_version table since its time attribute is not
+			// compatible with Hive.
+			if (tableName.equals("dbgen_version")) {
+				System.out.println("Skipping: " + tableName);
+				return;
+			}
+			queryRecord = new QueryRecord(index);
+			queryRecord.setStartTime(System.currentTimeMillis());
+			Statement stmt = con.createStatement();
+			stmt.execute("drop table if exists " + tableName + suffix);
+			stmt.execute(testSqlCreate);
+			queryRecord.setSuccessful(true);
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error("Error in CreateDatabase createTable.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		finally {
+			if( queryRecord != null ) {
+				queryRecord.setEndTime(System.currentTimeMillis());
+				this.recorder.record(queryRecord);
+			}
+		}
+	}
+	
 	
 	// To create each table from the .dat file, an external table is first created.
 	// Then a parquet table is created and data is inserted into it from the
