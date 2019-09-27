@@ -46,7 +46,7 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 --volume $DIR/../client/project:/project \
 --entrypoint mvn clientbuilder:dev \
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ExecuteQueries" \
--Dexec.args="/data tpcdsdb$1gb_$2 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestoemr2nodes prestoemr \
+-Dexec.args="/data tpcdsdb$1gb_$2 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestoemr220partstats prestoemr \
 power $2 QueriesPresto results plans \
 true true $(hostname) /project/target/client-1.0-SNAPSHOT.jar $3" \
 -f /project/pom.xml 

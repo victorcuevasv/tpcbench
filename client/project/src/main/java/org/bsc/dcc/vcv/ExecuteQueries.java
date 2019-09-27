@@ -101,6 +101,7 @@ public class ExecuteQueries {
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8889/hive/" + this.dbName, "hive", "");
 				setPrestoDefaultSessionOpts();
+				setPrestoSpillSessionOpts();
 			}
 			else if( this.system.equals("sparkdatabricksjdbc") ) {
 				Class.forName(databricksDriverName);
@@ -134,11 +135,18 @@ public class ExecuteQueries {
 		}
 	}
 	
+	
 	private void setPrestoDefaultSessionOpts() {
 		((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 		((PrestoConnection)con).setSessionProperty("join_reordering_strategy", "AUTOMATIC");
 		((PrestoConnection)con).setSessionProperty("join_distribution_type", "AUTOMATIC");
-		((PrestoConnection)con).setSessionProperty("task_concurrency", "8");
+		//((PrestoConnection)con).setSessionProperty("task_concurrency", "8");
+	}
+	
+	
+	private void setPrestoSpillSessionOpts() {
+		((PrestoConnection)con).setSessionProperty("experimental.spill-enabled", "true");
+		((PrestoConnection)con).setSessionProperty("experimental.spiller-spill-path", "/mnt/mapred/");
 	}
 
 
