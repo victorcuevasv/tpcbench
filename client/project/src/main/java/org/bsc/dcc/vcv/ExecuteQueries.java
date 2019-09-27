@@ -145,8 +145,8 @@ public class ExecuteQueries {
 	
 	
 	private void setPrestoSpillSessionOpts() {
-		((PrestoConnection)con).setSessionProperty("experimental.spill-enabled", "true");
-		((PrestoConnection)con).setSessionProperty("experimental.spiller-spill-path", "/mnt/mapred/");
+		((PrestoConnection)con).setSessionProperty("spill-enabled", "true");
+		((PrestoConnection)con).setSessionProperty("spiller-spill-path", "/mnt/mapred/");
 	}
 
 
