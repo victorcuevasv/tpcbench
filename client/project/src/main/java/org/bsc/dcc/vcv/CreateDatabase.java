@@ -224,7 +224,7 @@ public class CreateDatabase {
 			saveCreateTableFile("snowflakeput", tableName, putSql);
 			stmt.execute(putSql);
 			String copyIntoSql = "COPY INTO " + tableName + " FROM " + "'@%" + tableName + "' \n" +
-								"FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = '\\\\001')";
+								"FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = '\\\\001' ENCODING = 'ISO88591')";
 			saveCreateTableFile("snowflakecopy", tableName, copyIntoSql);
 			stmt.execute(copyIntoSql);
 			queryRecord.setSuccessful(true);
