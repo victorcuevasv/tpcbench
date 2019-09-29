@@ -33,35 +33,39 @@
 -- Contributors:
 -- 
 
-define YEAR=random(1998, 2002, uniform);
-define _LIMIT = 100;
-define BP= text({"1001-5000",1},{">10000",1},{"501-1000",1});
-define MS= dist(marital_status, 1, 1);
+define YEAR = random(1999, 2002, uniform);
+define MONTH = random(2,5,uniform);
+define STATE = dist(fips_county,3,1);
+define _LIMIT=100;
 
-[_LIMITA] select [_LIMITB] i_item_desc
-      ,w_warehouse_name
-      ,d1.d_week_seq
-      ,sum(case when p_promo_sk is null then 1 else 0 end) no_promo
-      ,sum(case when p_promo_sk is not null then 1 else 0 end) promo
-      ,count(*) total_cnt
-from catalog_sales
-join inventory on (cs_item_sk = inv_item_sk)
-join warehouse on (w_warehouse_sk=inv_warehouse_sk)
-join item on (i_item_sk = cs_item_sk)
-join customer_demographics on (cs_bill_cdemo_sk = cd_demo_sk)
-join household_demographics on (cs_bill_hdemo_sk = hd_demo_sk)
-join date_dim d1 on (cs_sold_date_sk = d1.d_date_sk)
-join date_dim d2 on (inv_date_sk = d2.d_date_sk)
-join date_dim d3 on (cs_ship_date_sk = d3.d_date_sk)
-left outer join promotion on (cs_promo_sk=p_promo_sk)
-left outer join catalog_returns on (cr_item_sk = cs_item_sk and cr_order_number = cs_order_number)
-where d1.d_week_seq = d2.d_week_seq
-  and inv_quantity_on_hand < cs_quantity 
-  and d3.d_date > d1.d_date + interval '5' day
-  and hd_buy_potential = '[BP]'
-  and d1.d_year = [YEAR]
-  and cd_marital_status = '[MS]'
-group by i_item_desc,w_warehouse_name,d1.d_week_seq
-order by total_cnt desc, i_item_desc, w_warehouse_name, d_week_seq
+with ws_wh as
+(select distinct ws1.ws_order_number
+ from web_sales ws1,web_sales ws2
+ where ws1.ws_order_number = ws2.ws_order_number
+   and ws1.ws_warehouse_sk <> ws2.ws_warehouse_sk)
+[_LIMITA] select [_LIMITB] 
+   count(distinct ws_order_number) as `order count`
+  ,sum(ws_ext_ship_cost) as `total shipping cost`
+  ,sum(ws_net_profit) as `total net profit`
+from
+   web_sales ws1
+  ,date_dim
+  ,customer_address
+  ,web_site
+where
+    date(d_date) between date('[YEAR]-[MONTH]-01') and 
+           (cast('[YEAR]-[MONTH]-01' as date) + interval '60' day)
+and ws1.ws_ship_date_sk = d_date_sk
+and ws1.ws_ship_addr_sk = ca_address_sk
+and ca_state = '[STATE]'
+and ws1.ws_web_site_sk = web_site_sk
+and web_company_name = 'pri'
+and ws1.ws_order_number in (select ws_order_number
+                            from ws_wh)
+and ws1.ws_order_number in (select wr_order_number
+                            from web_returns,ws_wh
+                            where wr_order_number = ws_wh.ws_order_number)
+order by count(distinct ws_order_number)
 [_LIMITC];
+
 
