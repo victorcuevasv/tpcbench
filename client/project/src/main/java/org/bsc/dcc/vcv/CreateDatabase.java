@@ -136,7 +136,7 @@ public class CreateDatabase {
 				Class.forName(snowflakeDriverName);
 				con = DriverManager.getConnection("jdbc:snowflake://zua56993.snowflakecomputing.com/?" +
 						"user=bsctest" + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
-						"&schema=" + this.dbName);
+						"&schema=" + this.dbName + "&warehouse=testwh");
 			}
 			else {
 				throw new java.lang.RuntimeException("Unsupported system: " + this.system);
@@ -186,7 +186,8 @@ public class CreateDatabase {
 		int i = 1;
 		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
-			//if( fileName.equals("web_sales.sql") )
+			//if( ! fileName.equals("call_center.sql") )
+			//	continue;
 			if( ! this.systemRunning.equals("snowflake") )
 				this.createTable(fileName, sqlCreate, i);
 			else
@@ -200,12 +201,13 @@ public class CreateDatabase {
 		QueryRecord queryRecord = null;
 		String suffix = "";
 		try {
+			//First, create the table, no format or options are specified, only the schema data.
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			//Hive and Spark use the statement 'create external table ...' for raw data tables
-			String testSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, suffix, false);
-			saveCreateTableFile("snowflaketestfile", tableName, testSqlCreate);
+			String snowflakeSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, suffix, false);
+			saveCreateTableFile("snowflaketable", tableName, snowflakeSqlCreate);
 			// Skip the dbgen_version table since its time attribute is not
 			// compatible with Hive.
 			if (tableName.equals("dbgen_version")) {
@@ -216,8 +218,18 @@ public class CreateDatabase {
 			queryRecord.setStartTime(System.currentTimeMillis());
 			Statement stmt = con.createStatement();
 			stmt.execute("drop table if exists " + tableName + suffix);
-			stmt.execute(testSqlCreate);
+			stmt.execute(snowflakeSqlCreate);
+			//Upload the .dat files to the table stage, which is created by default.
+			String putSql = "PUT file://" + this.genDataDir + "/" + tableName + "/*.dat @%" + tableName;
+			saveCreateTableFile("snowflakeput", tableName, putSql);
+			stmt.execute(putSql);
+			String copyIntoSql = "COPY INTO " + tableName + " FROM " + "'@%" + tableName + "' \n" +
+								"FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = '\\\\001')";
+			saveCreateTableFile("snowflakecopy", tableName, copyIntoSql);
+			stmt.execute(copyIntoSql);
 			queryRecord.setSuccessful(true);
+			if( doCount )
+				countRowsQuery(stmt, tableName);
 		}
 		catch (SQLException e) {
 			e.printStackTrace();

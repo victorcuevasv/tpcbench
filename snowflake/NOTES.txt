@@ -1,0 +1,75 @@
+Processing table 1: call_center
+Running count query on call_center: 6
+Processing table 2: catalog_page
+Running count query on catalog_page: 11718
+Processing table 3: catalog_returns
+Running count query on catalog_returns: 144067
+Processing table 4: catalog_sales
+Running count query on catalog_sales: 1441548
+Processing table 5: customer
+net.snowflake.client.jdbc.SnowflakeSQLException: Invalid UTF8 detected in string 'C0xD40x54E D'IVOIRE'
+  File '@CUSTOMER/customer.dat.gz', line 28, character 87
+  Row 28, column "CUSTOMER"["C_BIRTH_COUNTRY":15]
+  If you would like to continue loading when an error is encountered, use other values such as 'SKIP_FILE' or 'CONTINUE' for the ON_ERROR option. For more information on loading options, please run 'info loading_data' in a SQL client.
+        at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowExceptionSub(SnowflakeUtil.java:151)
+        at net.snowflake.client.jdbc.SnowflakeUtil.checkErrorAndThrowException(SnowflakeUtil.java:76)
+        at net.snowflake.client.core.StmtUtil.pollForOutput(StmtUtil.java:495)
+        at net.snowflake.client.core.StmtUtil.execute(StmtUtil.java:372)
+        at net.snowflake.client.core.SFStatement.executeHelper(SFStatement.java:506)
+        at net.snowflake.client.core.SFStatement.executeQueryInternal(SFStatement.java:250)
+        at net.snowflake.client.core.SFStatement.executeQuery(SFStatement.java:188)
+        at net.snowflake.client.core.SFStatement.execute(SFStatement.java:797)
+        at net.snowflake.client.jdbc.SnowflakeStatementV1.executeInternal(SnowflakeStatementV1.java:309)
+        at net.snowflake.client.jdbc.SnowflakeStatementV1.execute(SnowflakeStatementV1.java:373)
+        at org.bsc.dcc.vcv.CreateDatabase.createTableSnowflake(CreateDatabase.java:229)
+        at org.bsc.dcc.vcv.CreateDatabase.createTables(CreateDatabase.java:194)
+        at org.bsc.dcc.vcv.CreateDatabase.main(CreateDatabase.java:176)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:282)
+        at java.lang.Thread.run(Thread.java:748)
+Processing table 6: customer_address
+Running count query on customer_address: 50000
+Processing table 7: customer_demographics
+Running count query on customer_demographics: 1920800
+Processing table 8: date_dim
+Running count query on date_dim: 73049
+Processing table 9: dbgen_version
+Skipping: dbgen_version
+Processing table 10: household_demographics
+Running count query on household_demographics: 7200
+Processing table 11: income_band
+Running count query on income_band: 20
+Processing table 12: inventory
+Running count query on inventory: 11745000
+Processing table 13: item
+Running count query on item: 18000
+Processing table 14: promotion
+Running count query on promotion: 300
+Processing table 15: reason
+Running count query on reason: 35
+Processing table 16: ship_mode
+Running count query on ship_mode: 20
+Processing table 17: store
+Running count query on store: 12
+Processing table 18: store_returns
+Running count query on store_returns: 287514
+Processing table 19: store_sales
+Running count query on store_sales: 2880404
+Processing table 20: time_dim
+Running count query on time_dim: 86400
+Processing table 21: warehouse
+Running count query on warehouse: 5
+Processing table 22: web_page
+Running count query on web_page: 60
+Processing table 23: web_returns
+Running count query on web_returns: 71763
+Processing table 24: web_sales
+Running count query on web_sales: 719384
+Processing table 25: web_site
+Running count query on web_site: 30
+
+
+
