@@ -234,9 +234,8 @@ public class ExecuteQueries {
 			}
 			// Obtain the plan for the query.
 			Statement stmt = con.createStatement();
-			ResultSet planrs = null;
 			if( this.savePlans ) {
-				stmt.executeQuery("EXPLAIN " + sqlStr);
+				ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
 				//this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs, ! firstQuery);
 				this.saveResults(this.generatePlansFileName(queryFileName), planrs, ! firstQuery);
 				planrs.close();
