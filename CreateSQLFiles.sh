@@ -42,8 +42,9 @@ bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID tpcdsvarchar.sql
 cp -r $DIR/vols/data/tables $DIR/client/project/src/main/resources/
 
 #Generate the unused Netezza queries.
-printf "\n\n%s\n\n" "${mag}Generating the Presto queries.${end}"
+printf "\n\n%s\n\n" "${mag}Generating the Netezza queries.${end}"
 bash $DIR/dqgen/generateQueries.sh $USER_ID $GROUP_ID $1
+cp -r $DIR/vols/data/QueriesNetezza $DIR/client/project/src/main/resources/
 
 #Generate the Presto queries.
 printf "\n\n%s\n\n" "${mag}Generating the Presto queries.${end}"
@@ -54,5 +55,12 @@ cp -r $DIR/vols/data/QueriesPresto $DIR/client/project/src/main/resources/
 printf "\n\n%s\n\n" "${mag}Generating the Spark queries.${end}"
 bash $DIR/dqgen/generateQueriesSpark.sh $USER_ID $GROUP_ID $1
 cp -r $DIR/vols/data/QueriesSpark $DIR/client/project/src/main/resources/
+
+#Generate the Snowflake queries.
+printf "\n\n%s\n\n" "${mag}Generating the Snowflake queries.${end}"
+bash $DIR/dqgen/generateQueriesSnowflake.sh $USER_ID $GROUP_ID $1
+cp -r $DIR/vols/data/QueriesSnowflake $DIR/client/project/src/main/resources/
+
+
 
 

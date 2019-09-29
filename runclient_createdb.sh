@@ -45,19 +45,20 @@ printf "\n\n%s\n\n" "${mag}Creating and populating the database.${end}"
 #args[11] prefix of external location for created tables (e.g. S3 bucket), null for none
 #args[12] format for column-storage tables (PARQUET, DELTA)
 #args[13] whether to run queries to count the tuples generated (true/false)
-#args[14] hostname of the server
+#args[14] whether to use data partitioning for the tables (true/false)
  
-#args[15] username for the connection
-#args[16] jar file
+#args[15] hostname of the server
+#args[16] username for the connection
+#args[17] jar file
 
 #First create the warehouse directory in hdfs, which is strictly necessary for presto.
 docker exec -ti namenodecontainer  /bin/bash -c "hadoop fs -mkdir -p /user/hive/warehouse/tpcdsdb$1gb.db" 
 
 docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateDatabase\" \
--Dexec.args=\"/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 snowflaketest snowflake \
+-Dexec.args=\"/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestosinglenode presto \
 load $2 /temporal/$1GB tables _ext \
-null null orc false true \
+null null orc false false \
 namenodecontainer $(whoami) /project/target/client-1.0-SNAPSHOT.jar \" \
 -f /project/pom.xml"       
 

@@ -22,6 +22,7 @@ public class ExecuteQueries {
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private static final String databricksDriverName = "com.simba.spark.jdbc41.Driver";
+	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
 	private Connection con;
 	private final JarQueriesReaderAsZipFile queriesReader;
 	private final AnalyticsRecorder recorder;
@@ -110,6 +111,12 @@ public class ExecuteQueries {
 				Class.forName(hiveDriverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" +
 						this.hostname + ":10015/" + this.dbName, "hive", "");
+			}
+			else if( system.startsWith("snowflake") ) {
+				Class.forName(snowflakeDriverName);
+				con = DriverManager.getConnection("jdbc:snowflake://zua56993.snowflakecomputing.com/?" +
+						"user=bsctest" + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
+						"&schema=" + this.dbName + "&warehouse=testwh");
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
@@ -227,11 +234,13 @@ public class ExecuteQueries {
 			}
 			// Obtain the plan for the query.
 			Statement stmt = con.createStatement();
-			ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
-			//this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs, ! firstQuery);
-			if( this.savePlans )
+			ResultSet planrs = null;
+			if( this.savePlans ) {
+				stmt.executeQuery("EXPLAIN " + sqlStr);
+				//this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs, ! firstQuery);
 				this.saveResults(this.generatePlansFileName(queryFileName), planrs, ! firstQuery);
-			planrs.close();
+				planrs.close();
+			}
 			// Execute the query.
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
