@@ -115,7 +115,7 @@ public class ExecuteQueries {
 			else if( system.startsWith("snowflake") ) {
 				Class.forName(snowflakeDriverName);
 				con = DriverManager.getConnection("jdbc:snowflake://zua56993.snowflakecomputing.com/?" +
-						"user=bsctest" + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
+						"user=bsctest" + "&password=" + "&db=" + this.dbName +
 						"&schema=" + this.dbName + "&warehouse=testwh");
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",

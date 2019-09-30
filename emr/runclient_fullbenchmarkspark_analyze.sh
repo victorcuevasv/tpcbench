@@ -46,22 +46,23 @@ printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 #args[10] prefix of external location for created tables (e.g. S3 bucket), null for none
 #args[11] format for column-storage tables (PARQUET, DELTA)
 #args[12] whether to run queries to count the tuples generated (true/false)
-#args[13] jar file
-#args[14] whether to generate statistics by analyzing tables (true/false)
-
-#args[15] if argument above is true, whether to compute statistics for columns (true/false)
-#args[16] queries dir within the jar
-#args[17] subdirectory of work directory to store the results
-#args[18] subdirectory of work directory to store the execution plans
-#args[19] save power test plans (boolean)
-
-#args[20] save power test results (boolean)
-#args[21] "all" or query file 
-#args[22] save tput test plans (boolean)
-#args[23] save tput test results (boolean)
-#args[24] number of streams
-
-#args[25] random seed
+#args[13] whether to use data partitioning for the tables (true/false)
+#args[14] jar file
+ 
+#args[15] whether to generate statistics by analyzing tables (true/false)
+#args[16] if argument above is true, whether to compute statistics for columns (true/false)
+#args[17] queries dir within the jar
+#args[18] subdirectory of work directory to store the results
+#args[19] subdirectory of work directory to store the execution plans
+ 
+#args[20] save power test plans (boolean)
+#args[21] save power test results (boolean)
+#args[22] "all" or query file
+#args[23] save tput test plans (boolean)
+#args[24] save tput test results (boolean)
+ 
+#args[25] number of streams
+#args[26] random seed
 
 spark-submit --conf spark.eventLog.enabled=true  \
 --class org.bsc.dcc.vcv.RunBenchmarkSpark \
@@ -69,10 +70,9 @@ spark-submit --conf spark.eventLog.enabled=true  \
 /mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar \
 /mnt/efs/data tpcdsdb$1gb_$2 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparkemr sparkemr \
 $2 UNUSED tables _ext s3://tpcds-datasets/$1GB \
-s3://tpcds-warehouse-emr-$1gb-$2 parquet false /mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar true \
-true QueriesSpark results plans true \
-true all true true $3 \
-1954
-
+s3://tpcds-warehouse-emr-$1gb-$2 parquet false true /mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar \
+true true QueriesSpark results plans \
+true true all true true \
+$3 1954
 
 
