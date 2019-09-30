@@ -69,10 +69,10 @@ spark-submit --conf spark.eventLog.enabled=true  \
 /mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar \
 /mnt/efs/data tpcdsdb$1gb_$2 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparkemr sparkemr \
 $2 UNUSED tables _ext s3://tpcds-datasets/$1GB \
-s3://tpcds-warehouse-emr-$1gb-$2 parquet false /mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar true \
-true QueriesSpark results plans true \
-true all true true $3 \
-1954
+s3://tpcds-warehouse-emr-$1gb-$2 parquet false false /mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies.jar \
+true true QueriesSpark results plans \
+true true all true true \
+$3 1954
 
 
 
