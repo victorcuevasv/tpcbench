@@ -145,10 +145,11 @@ public class QueryStream implements Callable<Void> {
 			}
 			// Obtain the plan for the query.
 			Statement stmt = con.createStatement();
-			ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
-			if( this.parent.savePlans )
+			if( this.parent.savePlans ) {
+				ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
 				this.saveResults(generatePlansFileName(fileName, nStream, item), planrs, !firstQuery);
-			planrs.close();
+				planrs.close();
+			}
 			// Execute the query.
 			if (firstQuery)
 				queryRecord.setStartTime(System.currentTimeMillis());

@@ -28,6 +28,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private static final String databricksDriverName = "com.simba.spark.jdbc41.Driver";
+	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
 	private Connection con;
 	private final JarQueriesReaderAsZipFile queriesReader;
 	private final AnalyticsRecorderConcurrent recorder;
@@ -146,6 +147,12 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
 						hostname + ":10015/" + dbName, "hive", "");
+			}
+			else if( system.startsWith("snowflake") ) {
+				Class.forName(snowflakeDriverName);
+				con = DriverManager.getConnection("jdbc:snowflake://zua56993.snowflakecomputing.com/?" +
+						"user=bsctest" + "&password=" + "&db=" + this.dbName +
+						"&schema=" + this.dbName + "&warehouse=testwh");
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
