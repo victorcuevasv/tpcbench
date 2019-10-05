@@ -1,0 +1,2 @@
+COPY INTO web_returns FROM '@%web_returns' 
+FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = '\\001' ENCODING = 'ISO88591')

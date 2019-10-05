@@ -1,0 +1,2 @@
+COPY INTO web_sales FROM '@%web_sales' 
+FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = '\\001' ENCODING = 'ISO88591')

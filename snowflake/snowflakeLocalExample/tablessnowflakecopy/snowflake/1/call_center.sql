@@ -1,0 +1,2 @@
+COPY INTO call_center FROM '@%call_center' 
+FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = '\\001' ENCODING = 'ISO88591')

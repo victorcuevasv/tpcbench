@@ -77,56 +77,20 @@ Running count query on web_site: 30
 
 
 
-Processing table 1: call_center
-Running count query on call_center: 6
-Processing table 2: catalog_page
-Running count query on catalog_page: 11718
-Processing table 3: catalog_returns
-Running count query on catalog_returns: 144067
-Processing table 4: catalog_sales
-Running count query on catalog_sales: 1441548
-Processing table 5: customer
-Running count query on customer: 100000
-Processing table 6: customer_address
-Running count query on customer_address: 50000
-Processing table 7: customer_demographics
-Running count query on customer_demographics: 1920800
-Processing table 8: date_dim
-Running count query on date_dim: 73049
-Processing table 9: dbgen_version
-Skipping: dbgen_version
-Processing table 10: household_demographics
-Running count query on household_demographics: 7200
-Processing table 11: income_band
-Running count query on income_band: 20
-Processing table 12: inventory
-Running count query on inventory: 11745000
-Processing table 13: item
-Running count query on item: 18000
-Processing table 14: promotion
-Running count query on promotion: 300
-Processing table 15: reason
-Running count query on reason: 35
-Processing table 16: ship_mode
-Running count query on ship_mode: 20
-Processing table 17: store
-Running count query on store: 12
-Processing table 18: store_returns
-Running count query on store_returns: 287514
-Processing table 19: store_sales
-Running count query on store_sales: 2880404
-Processing table 20: time_dim
-Running count query on time_dim: 86400
-Processing table 21: warehouse
-Running count query on warehouse: 5
-Processing table 22: web_page
-Running count query on web_page: 60
-Processing table 23: web_returns
-Running count query on web_returns: 71763
-Processing table 24: web_sales
-Running count query on web_sales: 719384
-Processing table 25: web_site
-Running count query on web_site: 30
+
+USE SCHEMA tpcdsdb1gb.tpcdsdb1gb;
+
+CREATE STAGE tpcdsdb1gb_s3_stage
+STORAGE_INTEGRATION = s3_integration
+URL = 's3://tpcds-datasets/';
+  
+  
+LIST @TPCDSDB1GB_S3_STAGE;
+  
+  
+  
+  
+  
 
 
 
