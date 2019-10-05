@@ -135,7 +135,7 @@ public class CreateDatabase {
 			else if( system.startsWith("snowflake") ) {
 				Class.forName(snowflakeDriverName);
 				con = DriverManager.getConnection("jdbc:snowflake://zua56993.snowflakecomputing.com/?" +
-						"user=bsctest" + "&password=" + "&db=" + this.dbName +
+						"user=bsctest" + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
 						"&schema=" + this.dbName + "&warehouse=testwh");
 			}
 			else {
@@ -223,8 +223,16 @@ public class CreateDatabase {
 			String putSql = "PUT file://" + this.genDataDir + "/" + tableName + "/*.dat @%" + tableName;
 			saveCreateTableFile("snowflakeput", tableName, putSql);
 			stmt.execute(putSql);
-			String copyIntoSql = "COPY INTO " + tableName + " FROM " + "'@%" + tableName + "' \n" +
+			String copyIntoSql = null;
+			//A null extTablePrefixRaw indicates to use local files for table creation.
+			if( ! this.extTablePrefixRaw.isPresent() )
+				copyIntoSql = "COPY INTO " + tableName + " FROM " + "'@%" + tableName + "' \n" +
 								"FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = '\\\\001' ENCODING = 'ISO88591')";
+			//Otherwise, extTablePrefixRaw indicates the Snowflake stage associated with the S3 bucket.
+			else 
+				copyIntoSql = "COPY INTO " + tableName + " FROM " + 
+						"@" + this.extTablePrefixRaw.get() + "/" + tableName + "/ \n" +
+						"FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = '\\\\001' ENCODING = 'ISO88591')";
 			saveCreateTableFile("snowflakecopy", tableName, copyIntoSql);
 			stmt.execute(copyIntoSql);
 			queryRecord.setSuccessful(true);
