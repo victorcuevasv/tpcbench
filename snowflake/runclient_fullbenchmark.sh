@@ -75,7 +75,7 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 --entrypoint mvn clientbuilder:dev \
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmark" \
 -Dexec.args="/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 snowflake snowflake \
-$2 UNUSED tables _ext TPCDSDB1GB_S3_STAGE/$1GB \
+$2 UNUSED tables _ext TPCDSDB$1GB_S3_STAGE/$1GB \
 null UNUSED false false zua56993.snowflakecomputing.com \
 bsctest /project/target/client-1.0-SNAPSHOT.jar false UNUSED QueriesSnowflake \
 results plans false true all \
