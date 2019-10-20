@@ -134,8 +134,8 @@ public class CreateDatabase {
 			}
 			else if( system.startsWith("snowflake") ) {
 				Class.forName(snowflakeDriverName);
-				con = DriverManager.getConnection("jdbc:snowflake://zua56993.snowflakecomputing.com/?" +
-						"user=bsctest" + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
+				con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
+						"user=" + this.username + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
 						"&schema=" + this.dbName + "&warehouse=testwh");
 			}
 			else {
@@ -220,9 +220,12 @@ public class CreateDatabase {
 			stmt.execute("drop table if exists " + tableName + suffix);
 			stmt.execute(snowflakeSqlCreate);
 			//Upload the .dat files to the table stage, which is created by default.
-			String putSql = "PUT file://" + this.genDataDir + "/" + tableName + "/*.dat @%" + tableName;
-			saveCreateTableFile("snowflakeput", tableName, putSql);
-			stmt.execute(putSql);
+			String putSql = null;
+			if( ! this.genDataDir.equals("UNUSED") ) {
+				putSql = "PUT file://" + this.genDataDir + "/" + tableName + "/*.dat @%" + tableName;
+				saveCreateTableFile("snowflakeput", tableName, putSql);
+				stmt.execute(putSql);
+			}
 			String copyIntoSql = null;
 			//A null extTablePrefixRaw indicates to use local files for table creation.
 			if( ! this.extTablePrefixRaw.isPresent() )
