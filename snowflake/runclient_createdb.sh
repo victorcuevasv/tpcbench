@@ -60,7 +60,7 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.CreateDatabase" \
 -Dexec.args="/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 snowflake snowflake \
 load $2 /temporal/$1GB tables UNUSED \
-TPCDSDB1GB_S3_STAGE/$1GB null UNUSED true false \
+TPCDSDB$1GB_S3_STAGE/$1GB null UNUSED true false \
 zua56993.snowflakecomputing.com bsctest /project/target/client-1.0-SNAPSHOT.jar" \
 -f /project/pom.xml
 
