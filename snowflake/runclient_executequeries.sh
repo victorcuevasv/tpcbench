@@ -46,7 +46,7 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 --volume $DIR/../vols/hive:/temporal \
 --entrypoint mvn clientbuilder:dev \
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ExecuteQueries" \
--Dexec.args="/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 snowflake snowflake \
+-Dexec.args="/data tpcdsdb$1gb 1-rtvjs-45qnx2peo-ar39q2dprvzkmga snowflake snowflake \
 power $2 QueriesSnowflake results plans \
 false true UNUSED /project/target/client-1.0-SNAPSHOT.jar $3" \
 -f /project/pom.xml 

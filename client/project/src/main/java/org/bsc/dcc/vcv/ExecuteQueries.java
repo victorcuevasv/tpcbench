@@ -266,9 +266,10 @@ public class ExecuteQueries {
 		int nCols = metadata.getColumnCount();
 		while (rs.next()) {
 			StringBuilder rowBuilder = new StringBuilder();
-			for (int i = 1; i <= nCols; i++) {
-				rowBuilder.append(rs.getString(i) + ", ");
+			for (int i = 1; i <= nCols - 1; i++) {
+				rowBuilder.append(rs.getString(i) + " | ");
 			}
+			rowBuilder.append(rs.getString(nCols));
 			printWriter.println(rowBuilder.toString());
 		}
 		printWriter.close();
