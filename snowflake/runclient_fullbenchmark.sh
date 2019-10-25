@@ -69,12 +69,12 @@ printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 #args[29] use multiple connections (true|false)
 
 docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
---volume $DIR/../vols/data:/data \
+--volume /mnt/efs/data:/data \
 --volume $DIR/../client/project:/project \
 --volume $DIR/../vols/hive:/temporal \
 --entrypoint mvn clientbuilder:dev \
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmark" \
--Dexec.args="/mnt/efs/data tpcdsdb$1gb 1-rtvjs-45qnx2peo-ar39q2dprvzkmga snowflake snowflake \
+-Dexec.args="/data tpcdsdb$1gb 1-rtvjs-45qnx2peo-ar39q2dprvzkmga snowflake snowflake \
 $2 UNUSED tables _ext TPCDSDB$1GB_S3_STAGE/$1GB \
 null UNUSED false false zua56993.snowflakecomputing.com \
 bsctest /project/target/client-1.0-SNAPSHOT.jar false UNUSED QueriesSnowflake \
