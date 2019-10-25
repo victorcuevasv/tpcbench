@@ -53,7 +53,19 @@ public class CompareResults {
 		String fileName1NoExt = fileName1.substring(0, fileName1.indexOf('.'));
 		String fileName2NoExt = fileName2.substring(0, fileName2.indexOf('.'));
 		this.saveProcessedResults(results1, dirName1 + "/" + fileName1NoExt + "_p.txt");
-		System.out.println(nQuery + ": " + (results1.size() == results2.size()));
+		this.saveProcessedResults(results2, dirName2 + "/" + fileName2NoExt + "_p.txt");
+		if( results1.size() != results2.size() )
+			System.out.println("Different result tuple count for query " + nQuery + 
+					": 1 -> " + results1.size() + " 2 -> " + results2.size());
+		else
+			System.out.println("Equal result tuple count for query " + nQuery + 
+					": 1 -> " + results1.size() + " 2 -> " + results2.size());
+		/*
+		int minSize = (int)Math.min(results1.size(), results2.size());
+		for(int i = 0; i < minSize; i++) {
+			this.compareLines(results1.get(i), results2.get(i));
+		}
+		*/
 	}
 	
 	
@@ -106,6 +118,28 @@ public class CompareResults {
 		return builder.toString();
 	}
 	
+	
+	private void compareLines(String line1, String line2) {
+		List<String> cols1 = this.lineToList(line1);
+		List<String> cols2 = this.lineToList(line2);
+		if( cols1.size() != cols2.size() ) {
+			System.out.println("Different column sizes: 1 -> " + cols1.size() + " 2 -> " + cols2.size() );
+			System.out.println("Line 1: " + line1);
+			System.out.println("Line 2: " + line2);
+		}
+	}
+	
+	
+	private List<String> lineToList(String line) {
+		StringTokenizer tokenizer = new StringTokenizer(line, "|");
+		List<String> list = new ArrayList<String>();
+		while(tokenizer.hasMoreTokens()) {
+			String token = tokenizer.nextToken();
+			list.add(token.trim());
+		}
+		return list;
+	}
+
 	
 }
 
