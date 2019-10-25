@@ -53,6 +53,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	final private int nStreams;
 	final private long seed;
 	final private boolean multiple;
+	private final boolean useCachedResultSnowflake = false;
 
 	
 	/**
@@ -153,6 +154,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 				con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
 						"user=bsctest" + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
 						"&schema=" + this.dbName + "&warehouse=testwh");
+				this.setSnowflakeDefaultSessionOpts();
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
@@ -184,6 +186,21 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		((PrestoConnection)con).setSessionProperty("join_reordering_strategy", "AUTOMATIC");
 		((PrestoConnection)con).setSessionProperty("join_distribution_type", "AUTOMATIC");
 		((PrestoConnection)con).setSessionProperty("task_concurrency", "8");
+	}
+	
+	
+	private void setSnowflakeDefaultSessionOpts() {
+		try {
+			Statement sessionStmt = this.con.createStatement();
+			sessionStmt.executeUpdate("ALTER SESSION SET USE_CACHED_RESULT = " + this.useCachedResultSnowflake);
+			sessionStmt.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in setSnowflakeDefaultSessionOpts");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
 	}
 
 	
