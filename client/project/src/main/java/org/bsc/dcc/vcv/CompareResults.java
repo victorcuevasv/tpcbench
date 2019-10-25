@@ -113,7 +113,7 @@ public class CompareResults {
 			String token = tokenizer.nextToken();
 			if( token.trim().length() == 0 )
 				token = "null";
-			builder.append(token);
+			builder.append(token.trim());
 		}
 		return builder.toString();
 	}
