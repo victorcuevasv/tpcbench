@@ -54,18 +54,17 @@ public class CompareResults {
 		String fileName2NoExt = fileName2.substring(0, fileName2.indexOf('.'));
 		this.saveProcessedResults(results1, dirName1 + "/" + fileName1NoExt + "_p.txt");
 		this.saveProcessedResults(results2, dirName2 + "/" + fileName2NoExt + "_p.txt");
-		if( results1.size() != results2.size() )
+		if( results1.size() != results2.size() ) {
 			System.out.println("Different result tuple count for query " + nQuery + 
 					": 1 -> " + results1.size() + " 2 -> " + results2.size());
-		else
+		}
+		else {
 			System.out.println("Equal result tuple count for query " + nQuery + 
 					": 1 -> " + results1.size() + " 2 -> " + results2.size());
-		/*
-		int minSize = (int)Math.min(results1.size(), results2.size());
-		for(int i = 0; i < minSize; i++) {
-			this.compareLines(results1.get(i), results2.get(i));
+			for(int i = 0; i < results1.size(); i++) {
+				this.compareLines(results1.get(i), results2.get(i));
+			}
 		}
-		*/
 	}
 	
 	
@@ -122,8 +121,34 @@ public class CompareResults {
 	private void compareLines(String line1, String line2) {
 		List<String> cols1 = this.lineToList(line1);
 		List<String> cols2 = this.lineToList(line2);
+		boolean linesEq = true;
 		if( cols1.size() != cols2.size() ) {
 			System.out.println("Different column sizes: 1 -> " + cols1.size() + " 2 -> " + cols2.size() );
+			linesEq = false;
+		}
+		else {
+			for(int i = 0; i < cols1.size(); i++) {
+				String s1 = cols1.get(i);
+				String s2 = cols2.get(i);
+				if( s1.equals(s2) )
+					;
+				else {
+					boolean s1isNum = this.isNumeric(s1);
+					boolean s2isNum = this.isNumeric(s2);
+					if( s1isNum && s2isNum ) {
+						double s1d = Double.parseDouble(s1);
+						double s2d = Double.parseDouble(s2);
+						if( this.compare(s1d, s2d, 0.1) )
+							;
+						else {
+							linesEq = false;
+						}
+					}
+				}
+			} 
+		}
+		if( ! linesEq ) {
+			System.out.println("Different column values.");
 			System.out.println("Line 1: " + line1);
 			System.out.println("Line 2: " + line2);
 		}
@@ -138,6 +163,24 @@ public class CompareResults {
 			list.add(token.trim());
 		}
 		return list;
+	}
+	
+	
+	private boolean compare(double a, double b, double epsilon) {
+		if ( a == b)
+			return true;
+		return Math.abs(a - b) < epsilon;
+	}
+	
+	
+	public static boolean isNumeric(String strNum) {
+		try {
+	    	double d = Double.parseDouble(strNum);
+	    }
+	    catch(NumberFormatException | NullPointerException nfe) {
+	    	return false;
+	    }
+	    return true;
 	}
 
 	
