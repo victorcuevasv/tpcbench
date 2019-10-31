@@ -1,0 +1,51 @@
+\section{Experimental setup}\label{experimentalSetup}
+
+\subsection{Systems under test (SUTs)}
+
+\subsubsection{Databricks Unified Analytics Platform}
+
+Based on Apache Spark, the Databricks Unified Analytics Platform has the objective of facilitating the data analytics process in its entirety. Notebooks support collaboration and interactive development, while the specification and execution of complex data pipelines is handled by production jobs. In both cases with the advantage of the optimized Databricks Runtime. The Databricks UAP is built on the Databricks Cloud Service, which is compatible and relies on two major cloud computing platforms, Amazon Web Services (AWS) and Microsoft Azure. Our experiments employ the former.
+
+\subsubsection{AWS EMR Presto}
+
+Amazon Web Services (AWS) EMR provides a common platform for multiple data analytics frameworks, including Apache Hadoop, Apache Hive, Apache Spark, and Presto. The first of two EMR systems that we include in this study is Presto. Originally developed by Facebook, Presto is a distributed SQL engine that can process data from multiple sources through pluggable connectors. Query processing is based on in-memory, pipelined parallel execution. EMR users can interact with Presto via a command line interface (CLI) or through JDBC.
+
+\subsubsection{AWS EMR Spark}
+
+The second EMR system taking part in our study is EMR Spark. Similarly to Databricks, it is based on the open-source Apache Spark. Although Apache Spark has multiple data processing capabilities, including machine learning, data streaming, and graph processing, we focus on its SQL processing functionality. EMR Spark runs SQL via its directed acyclic graph (DAG) execution engine which, like Databricks, supports applications in Scala, Java, and Python. However, it does not employ the same optimized runtime as Databricks.
+
+\subsection{TPC Benchmark DS}
+
+The Transaction Processing Performance Council (TPC) Benchmark DS \cite{tpcdsSpec} has the objective of evaluating decision support systems, which process large volumes of data in order to provide answers to real-world business questions. Based on a model of a retailer with several channels of distribution, it consists of SQL queries of the following types: reporting queries, ad-hoc queries, iterative queries, and data-mining queries. These queries, a total of 99, are posed on a snowflake schema over data produced by the accompanying data generator.
+
+Our implementation of this benchmark is based on the TPC-DS Toolkit v2.10.1rc3, and consists of data loading, i.e. the creation of relational tables from the generated raw text files (Data Loading Test); the sequential execution of queries (Power Test); and the concurrent execution of multiple independent streams of queries (Throughput Test). Due to the append-only character traditionally associated with distributed file systems and data processing frameworks, we exclude the data maintenance tasks defined in the benchmark.
+
+\subsection{Hardware configuration}
+
+All of our experiments employ Amazon Elastic Compute Cloud (Amazon EC2) computing clusters. Specifically, i3.2xlarge instance types, which are characterized as storage optimized. These machines are equipped with 8 vCPUs (2.3 GHz Intel Xeon E5 2686 v4), 61 GiB of RAM, and a 1,900 GB NVMe SSD. The network speed supported is up to 10 Gbps. For all of the experiments presented in this report we used clusters consisting of 8 worker nodes and one master node of the aforementioned instance type.
+
+\subsection{Software configuration}
+
+We present the main software configuration we use for the three SUTs in Table \ref{table:softwareConf}. These configuration parameters arise from the need to avoid errors in the benchmark execution, and do not correspond to fine-tuning of the systems to improve performance, since we opt to keep the original system configurations as much as possible.
+
+\begin{table}
+  \centering
+	\begin{tabular}{|l|l|l|}
+	  \hline
+		\textbf{SUT} & \textbf{Versions} & \textbf{Configuration parameters} \\ \hline
+		Databricks & \makecell[l]{Runtime 5.5 \\ Spark 2.4.3 \\ Scala 2.11} & \makecell[l]{spark.sql.broadcastTimeout: 7200 \\ spark.sql.crossJoin.enabled: true} \\ \hline
+		EMR Presto & \makecell[l]{emr-5.26.0 \\ Presto 0.220} & \makecell[l]{hive.allow-drop-table: true \\ hive.compression-codec: SNAPPY \\ hive.s3-file-system-type: PRESTO \\ query.max-memory: 240 GB} \\ \hline
+		EMR Spark & \makecell[l]{emr-5.26.0 \\ Spark 2.4.3} & \makecell[l]{spark.sql.broadcastTimeout: 7200 \\ spark.driver.memory: 5692M} \\ \hline 
+	\end{tabular}
+	\caption{SUTs software configuration.}
+	\label{table:softwareConf}
+\end{table}
+
+In the case of Databricks and EMR Spark it was necessary to increase the broadcast join timeout value, since for some queries (especially under concurrency) these operations take substantially longer than the default. For Databricks, a particular query also required enabling the cross-join. For EMR Spark, it was necessary to increase the memory allocated to the driver since our benchmarking application was not able to complete with the default allocated memory.
+
+EMR Presto required some options to be enabled explicitly. Namely, to drop tables if they already existed, using Snappy compression for table files, and the Presto file system type to access S3 buckets. The choice of Snappy, which is used by default in Spark, obeys to the fact that it is fast while offering a decent compression ratio. The Presto file system is necessary to avoid errors frequent under concurrency and is recommended by the AWS documentation.
+
+Finally, it was of foremost importance to increase the total memory available for a given query, since some of the TPC-DS queries are memory intensive and the default proved insufficient. However, as detailed in Section \ref{}, out of memory errors still manifested at the level of individual nodes, so additional settings were required at the level of specific queries.
+
+
+
