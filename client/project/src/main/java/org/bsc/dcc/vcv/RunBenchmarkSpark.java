@@ -92,6 +92,12 @@ public class RunBenchmarkSpark {
 				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
 				AnalyzeTablesSpark.main(analyzeTablesSparkArgs);
 			}
+			if( args[11].equalsIgnoreCase("delta") ) {
+				String[] executeQueriesSparkDeltaZorderArgs = this.createExecuteQueriesSparkDeltaZorderArgs(args);
+				this.saveTestParameters(executeQueriesSparkDeltaZorderArgs, "zorder");
+				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
+				ExecuteQueriesSpark.main(executeQueriesSparkDeltaZorderArgs);
+			}
 			this.saveTestParameters(executeQueriesSparkArgs, "power");
 			System.out.println("\n\n\nRunning the POWER test.\n\n\n");
 			ExecuteQueriesSpark.main(executeQueriesSparkArgs);
@@ -221,6 +227,47 @@ public class RunBenchmarkSpark {
 		array[11] = args[21];
 		array[12] = args[14];
 		array[13] = args[22];
+		
+		return array;
+	}
+	
+	
+	private String[] createExecuteQueriesSparkDeltaZorderArgs(String args[]) {
+		/* 
+		args[0] main work directory
+		args[1] schema (database) name
+		args[2] results folder name (e.g. for Google Drive)
+		args[3] experiment name (name of subfolder within the results folder)
+		args[4] system name (system name used within the logs)
+		
+		args[5] test name (e.g. power)
+		args[6] experiment instance number
+		args[7] queries dir within the jar
+		args[8] subdirectory of work directory to store the results
+		args[9] subdirectory of work directory to store the execution plans
+		
+		args[10] save plans (boolean)
+		args[11] save results (boolean)
+		args[12] jar file
+		args[13] "all" or query file
+		*/
+		String[] array = new String[14];
+		array[0] = args[0];
+		array[1] = args[1];
+		array[2] = args[2];
+		array[3] = args[3];
+		array[4] = args[4];
+		
+		array[5] = "zorder";
+		array[6] = args[5];
+		array[7] = "DatabricksDeltaZorder";
+		array[8] = args[18];
+		array[9] = args[19];
+		
+		array[10] = "false";
+		array[11] = "false";
+		array[12] = args[14];
+		array[13] = "all";
 		
 		return array;
 	}
