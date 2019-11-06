@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
 
 ARG APACHE_MIRROR=archive.apache.org
 ARG PRESTO_MIRROR=repo1.maven.org
+ARG SIMBADRIVER_MIRROR=localhost
 ARG MAVEN_VERSION=3.6.0
 ARG PRESTO_VERSION=0.220
 
@@ -34,7 +35,7 @@ RUN wget --no-check-certificate -q -P /opt \
     
 #Download the Simba JDBC driver for Databricks.
 
-RUN wget -q -P /opt https://$APACHE_MIRROR/simbadriver/SparkJDBC41.jar 
+RUN wget -q -P /opt http://$SIMBADRIVER_MIRROR/simbadriver/SparkJDBC41.jar 
 
 #Install the Simba JDBC driver jar with Maven.
 
