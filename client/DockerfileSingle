@@ -31,6 +31,14 @@ RUN wget --no-check-certificate -q -P /opt \
     https://$PRESTO_MIRROR/maven2/com/facebook/presto/presto-cli/$PRESTO_VERSION/presto-cli-$PRESTO_VERSION-executable.jar && \
     mv /opt/presto-cli-$PRESTO_VERSION-executable.jar /opt/presto && \
     chmod +x /opt/presto 
+    
+#Download the Simba JDBC driver for Databricks.
+
+RUN wget -q -P /opt https://$APACHE_MIRROR/simbadriver/SparkJDBC41.jar 
+
+#Install the Simba JDBC driver jar with Maven.
+
+RUN mvn install:install-file -Dfile=/opt/SparkJDBC41.jar -DgroupId=Spark -DartifactId=SparkJDBC41 -Dversion=2.6.3.1003 -Dpackaging=jar    
 
 #Download the Maven dependencies.
 
