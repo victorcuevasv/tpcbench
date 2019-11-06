@@ -74,7 +74,7 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 --volume $DIR/../vols/hive:/temporal \
 --entrypoint mvn clientbuilder:dev \
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmark" \
--Dexec.args="/data tpcdsdb$1gb 1-rtvjs-45qnx2peo-ar39q2dprvzkmga databricks61-2nodes sparkdatabricksjdbc \
+-Dexec.args="/data tpcdsdb$1gb_$2 1-rtvjs-45qnx2peo-ar39q2dprvzkmga databricks61-2nodes sparkdatabricksjdbc \
 $2 UNUSED tables _ext s3://tpcds-datasets/$1GB \
 s3://tpcds-warehouse-databricks-$1gb-$2 parquet false false dbc-08fc9045-faef.cloud.databricks.com \
 UNUSED /project/targetsparkjdbc/client-1.0-SNAPSHOT.jar false UNUSED QueriesSpark \
