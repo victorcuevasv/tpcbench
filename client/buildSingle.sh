@@ -21,7 +21,7 @@ if [[ $mirror -eq 0 ]]; then
 	--build-arg PRESTO_MIRROR=localhost:443 \
 	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3
 else
-	docker build --force-rm -t clientbuilder:dev $DIR -f $DIR/DockerfileSingle \
+	docker build --network="host"--force-rm -t clientbuilder:dev $DIR -f $DIR/DockerfileSingle \
 	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3
 fi
 
