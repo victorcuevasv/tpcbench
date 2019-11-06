@@ -39,11 +39,11 @@ RUN wget -q -P /opt http://$SIMBADRIVER_MIRROR/simbadriver/SparkJDBC41.jar
 
 #Install the Simba JDBC driver jar with Maven.
 
+USER $UNAME
+
 RUN mvn install:install-file -Dfile=/opt/SparkJDBC41.jar -DgroupId=com.simba.spark.jdbc41 -DartifactId=Driver -Dversion=2.6.3.1003 -Dpackaging=jar    
 
 #Download the Maven dependencies.
-
-USER $UNAME
 
 ADD project/*.xml /home/$UNAME/
 
