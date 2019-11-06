@@ -140,9 +140,13 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 						hostname + ":8889/hive/" + dbName, "hive", "");
 				setPrestoDefaultSessionOpts();
 			}
-			else if( system.equals("sparkdatabricksjdbc") ) {
+			else if( this.system.equals("sparkdatabricksjdbc") ) {
 				Class.forName(databricksDriverName);
-				con = DriverManager.getConnection("jdbc:hive2://hostname:443/" + dbName);
+				this.con = DriverManager.getConnection("jdbc:hive2://" + this.hostname + ":443/" +
+				this.dbName + ";transportMode=http;ssl=1" + 
+				";httpPath=sql/protocolv1/o/538214631695239/" + 
+				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
+				";UseNativeQuery=1");
 			}
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
