@@ -12,6 +12,7 @@ public class AnalyzeTables {
 
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
+	private static final String databricksDriverName = "com.simba.spark.jdbc41.Driver";
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private final AnalyticsRecorder recorder;
@@ -74,6 +75,14 @@ public class AnalyzeTables {
 				con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8889/hive/" + this.dbName, "hive", "");
 				((PrestoConnection)this.con).setSessionProperty("query_max_stage_count", "102");
+			}
+			else if( this.system.equals("sparkdatabricksjdbc") ) {
+				Class.forName(databricksDriverName);
+				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
+				this.dbName + ";transportMode=http;ssl=1" + 
+				";httpPath=sql/protocolv1/o/538214631695239/" + 
+				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
+				";UseNativeQuery=1");
 			}
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
