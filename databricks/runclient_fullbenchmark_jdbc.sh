@@ -75,12 +75,12 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 --entrypoint mvn clientbuilder:dev \
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmark" \
 -Dexec.args="/data tpcdsdb$1gb_$2 1-rtvjs-45qnx2peo-ar39q2dprvzkmga databricks61-2nodes sparkdatabricksjdbc \
-$2 UNUSED tables _ext s3://tpcds-datasets/$1GB \
-s3://tpcds-warehouse-databricks-$1gb-$2 parquet false false dbc-08fc9045-faef.cloud.databricks.com \
+$2 UNUSED tables _ext dbfs:/mnt/tpcdsbucket/$1GB \
+dbfs:/mnt/tpcdswarehousebucket$1GB_$2 parquet false false dbc-08fc9045-faef.cloud.databricks.com \
 UNUSED /project/targetsparkjdbc/client-1.0-SNAPSHOT.jar false UNUSED QueriesSpark \
 results plans true true all \
 true true $3 1954 false" \
--f /project/pomSparkJDBC.xml
+-f /project/pom.xml
 
 
 

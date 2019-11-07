@@ -142,7 +142,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			}
 			else if( this.system.equals("sparkdatabricksjdbc") ) {
 				Class.forName(databricksDriverName);
-				this.con = DriverManager.getConnection("jdbc:hive2://" + this.hostname + ":443/" +
+				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
 				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
