@@ -47,8 +47,8 @@
 		</dependency>
 		<!--  
 		<dependency>
-			<groupId>Spark</groupId>
-			<artifactId>SparkJDBC41</artifactId>
+			<groupId>com.simba.spark.jdbc41</groupId>
+			<artifactId>Driver</artifactId>
 			<version>2.6.3.1003</version>
 		</dependency>
 		-->
