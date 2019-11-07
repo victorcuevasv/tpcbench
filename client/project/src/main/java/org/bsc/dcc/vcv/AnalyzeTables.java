@@ -1,9 +1,15 @@
 package org.bsc.dcc.vcv;
 
 import java.sql.SQLException;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
@@ -133,7 +139,10 @@ public class AnalyzeTables {
 							"web_sales", "web_site"};
 		this.recorder.header();
 		for(int i = 0; i < tables.length; i++) {
-			this.executeAnalyzeTable(tables[i], i);
+			if( this.system.startsWith("spark") )
+				this.executeAnalyzeTableSpark(tables[i], i);
+			else
+				this.executeAnalyzeTable(tables[i], i);
 		}
 		this.recorder.close();
 	}
@@ -199,6 +208,60 @@ public class AnalyzeTables {
 			queryRecord.setEndTime(System.currentTimeMillis());
 			this.recorder.record(queryRecord);
 		}
+	}
+	
+	
+	private void executeAnalyzeTableSpark(String tableName, int index) {
+		QueryRecord queryRecord = null;
+		try {
+			System.out.println("Analyzing table: " + tableName);
+			this.logger.info("Analyzing table: " + tableName);
+			// Skip the dbgen_version table since its time attribute is not
+			// compatible with Hive.
+			if (tableName.equals("dbgen_version")) {
+				System.out.println("Skipping: " + tableName);
+				return;
+			}
+			queryRecord = new QueryRecord(index);
+			queryRecord.setStartTime(System.currentTimeMillis());
+			Statement stmt = con.createStatement();
+			if( this.computeForCols ) {
+				ResultSet rs = stmt.executeQuery("DESCRIBE " + tableName);
+				String columnsStr = extractColumns(rs);
+				stmt.executeUpdate("ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR COLUMNS " + 
+						columnsStr);
+			}
+			else
+				stmt.executeUpdate("ANALYZE TABLE " + tableName + " COMPUTE STATISTICS");
+			queryRecord.setSuccessful(true);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in AnalyzeTables analyzeTableSpark.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		finally {
+			if( queryRecord != null ) {
+				queryRecord.setEndTime(System.currentTimeMillis());
+				this.recorder.record(queryRecord);
+			}
+		}
+	}
+	
+	
+	private String extractColumns(ResultSet rs) 
+			throws SQLException {
+		StringBuilder builder = new StringBuilder();
+		boolean first = true;
+		while (rs.next()) {
+			if( ! first )
+				builder.append(", ");
+			builder.append(rs.getString(0));
+			first = false;
+		}
+		rs.close();
+		return builder.toString();
 	}
 	
 	
