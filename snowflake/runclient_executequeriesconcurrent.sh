@@ -46,12 +46,12 @@ fi
 #args[16] use multiple connections (true|false)
 
 docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
---volume $DIR/../vols/data:/data \
+--volume /mnt/efs/data:/data \
 --volume $DIR/../client/project:/project \
 --volume $DIR/../vols/hive:/temporal \
 --entrypoint mvn clientbuilder:dev \
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.ExecuteQueriesConcurrent" \
--Dexec.args="/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 snowflake snowflake \
+-Dexec.args="/data tpcdsdb$1gb 1-rtvjs-45qnx2peo-ar39q2dprvzkmga snowflake snowflake \
 tput $2 QueriesSnowflake results plans \
 false true UNUSED /project/target/client-1.0-SNAPSHOT.jar $3 \
 1954 false" \
