@@ -157,7 +157,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 				Class.forName(snowflakeDriverName);
 				con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
 						"user=bsctest" + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
-						"&schema=" + this.dbName + "&warehouse=testwh");
+						"&schema=" + this.dbName + "&warehouse=testwhsmall");
 				this.setSnowflakeDefaultSessionOpts();
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",

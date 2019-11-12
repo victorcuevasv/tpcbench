@@ -47,7 +47,7 @@ docker exec --user $USER_ID:$GROUP_ID -ti  clientbuildercontainer  /bin/bash -c 
 "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueriesConcurrent\" \
 -Dexec.args=\"/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 prestosinglenode presto \
 tput $2 QueriesPresto results plans \
-true true namenodecontainer /project/target/client-1.0-SNAPSHOT.jar $3 \
+false true namenodecontainer /project/target/client-1.0-SNAPSHOT.jar $3 \
 1954 false \" \
 -f /project/pom.xml"       
 
