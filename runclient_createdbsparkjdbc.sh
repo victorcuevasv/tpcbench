@@ -34,27 +34,29 @@ printf "\n\n%s\n\n" "${mag}Creating and populating the database.${end}"
 #args[2] results folder name (e.g. for Google Drive)
 #args[3] experiment name (name of subfolder within the results folder)
 #args[4] system name (system name used within the logs)
-
+ 
 #args[5] test name (i.e. load)
 #args[6] experiment instance number
 #args[7] directory for generated data raw files
 #args[8] subdirectory within the jar that contains the create table files
 #args[9] suffix used for intermediate table text files
-
+ 
 #args[10] prefix of external location for raw data tables (e.g. S3 bucket), null for none
 #args[11] prefix of external location for created tables (e.g. S3 bucket), null for none
 #args[12] format for column-storage tables (PARQUET, DELTA)
 #args[13] whether to run queries to count the tuples generated (true/false)
-#args[14] hostname of the server
-
-#args[15] username for the connection
+#args[14] whether to use data partitioning for the tables (true/false)
+ 
+#args[15] hostname of the server
+#args[16] username for the connection
+#args[17] jar file
 
 docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
 "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateDatabase\" \
--Dexec.args=\"data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparkjdbcsinglenode sparkjdbc \
+-Dexec.args=\"/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparkjdbcsinglenode sparkjdbc \
 load $2 temporal/$1GB tables _ext \
-hdfs://namenodecontainer:9000 hdfs://namenodecontainer:9000/user/hive/warehouse parquet false namenodecontainer \
-UNUSED\" \
+hdfs://namenodecontainer:9000 hdfs://namenodecontainer:9000/user/hive/warehouse parquet false false \
+namenodecontainer UNUSED /project/targetsparkjdbc/client-1.0-SNAPSHOT.jar \" \
 -f /project/pomSparkJDBC.xml"
 
 

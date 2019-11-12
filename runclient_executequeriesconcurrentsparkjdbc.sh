@@ -27,27 +27,28 @@ fi
 #args[2] results folder name (e.g. for Google Drive)
 #args[3] experiment name (name of subfolder within the results folder)
 #args[4] system name (system name used within the logs)
-
+ 
 #args[5] test name (e.g. power)
 #args[6] experiment instance number
 #args[7] queries dir
 #args[8] subdirectory of work directory to store the results
 #args[9] subdirectory of work directory to store the execution plans
-
+ 
 #args[10] save plans (boolean)
 #args[11] save results (boolean)
 #args[12] hostname of the server
-#args[13] number of streams
-#args[14] random seed (not used unless code is modified)
-
-#args[15] use multiple connections (true|false)
+#args[13] jar file
+#args[14] number of streams
+ 
+#args[15] random seed
+#args[16] use multiple connections (true|false)
 
 docker exec --user $USER_ID:$GROUP_ID -ti  clientbuildercontainer  /bin/bash -c \
 "mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.ExecuteQueriesConcurrent\" \
 -Dexec.args=\"/data tpcdsdb$1gb 13ox7IwkFEcRU61h2NXeAaSZMyTRzCby8 sparkjdbcsinglenode sparkjdbc \
 tput $2 QueriesSpark results plans \
-true true namenodecontainer $3 1954 \
-true \" \
+true true namenodecontainer /project/target/client-1.0-SNAPSHOT.jar $3 \
+1954 true \" \
 -f /project/pomSparkJDBC.xml" 
 
 
