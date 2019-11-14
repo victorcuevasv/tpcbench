@@ -96,6 +96,12 @@ public class RunBenchmark {
 				AnalyzeTables.main(analyzeTablesArgs);
 				TimeUnit.SECONDS.sleep(10);
 			}
+			if( args[11].equalsIgnoreCase("delta") ) {
+				String[] executeQueriesDeltaZorderArgs = this.createExecuteQueriesDeltaZorderArgs(args);
+				this.saveTestParameters(executeQueriesDeltaZorderArgs, "zorder");
+				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
+				ExecuteQueries.main(executeQueriesDeltaZorderArgs);
+			}
 			this.saveTestParameters(executeQueriesArgs, "power");
 			System.out.println("\n\n\nRunning the POWER test.\n\n\n");
 			ExecuteQueries.main(executeQueriesArgs);
@@ -231,6 +237,49 @@ public class RunBenchmark {
 		array[12] = args[14];
 		array[13] = args[16];
 		array[14] = args[24];
+		
+		return array;
+	}
+	
+	
+	private String[] createExecuteQueriesDeltaZorderArgs(String args[]) {
+		/* 
+		args[0] main work directory
+		args[1] schema (database) name
+		args[2] results folder name (e.g. for Google Drive)
+		args[3] experiment name (name of subfolder within the results folder)
+		args[4] system name (system name used within the logs)
+		
+		args[5] test name (e.g. power)
+		args[6] experiment instance number
+		args[7] queries dir within the jar
+		args[8] subdirectory of work directory to store the results
+		args[9] subdirectory of work directory to store the execution plans
+		
+		args[10] save plans (boolean)
+		args[11] save results (boolean)
+		args[12] hostname of the server
+		args[13] jar file
+		args[14] "all" or query file
+		*/
+		String[] array = new String[15];
+		array[0] = args[0];
+		array[1] = args[1];
+		array[2] = args[2];
+		array[3] = args[3];
+		array[4] = args[4];
+		
+		array[5] = "zorder";
+		array[6] = args[5];
+		array[7] = "DatabricksDeltaZorder";
+		array[8] = args[20];
+		array[9] = args[21];
+		
+		array[10] = "false";
+		array[11] = "false";
+		array[12] = args[14];
+		array[13] = args[16];
+		array[14] = "all";
 		
 		return array;
 	}
