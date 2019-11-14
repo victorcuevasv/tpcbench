@@ -188,9 +188,9 @@ public class CreateDatabaseSpark {
 			this.spark.sql(intSqlCreate);
 			
 			String insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
-			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
+			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) {
 				List<String> columns = extractColumnNames(incIntSqlCreate); 
-				insertSql = createPartitionInsertStmt(tableName, columns, suffix);
+				insertSql = createPartitionInsertStmt(tableName, columns, suffix, format);
 			}
 			saveCreateTableFile("insert", tableName, insertSql);
 			this.spark.sql(insertSql);
@@ -199,7 +199,7 @@ public class CreateDatabaseSpark {
 			String selectSql = "SELECT * FROM " + tableName + suffix;
 			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
 				List<String> columns = extractColumnNames(incIntSqlCreate); 
-				selectSql = createPartitionSelectStmt(tableName, columns, suffix);
+				selectSql = createPartitionSelectStmt(tableName, columns, suffix, format);
 			}
 			saveCreateTableFile("select", tableName, selectSql);
 			this.spark.sql(selectSql).coalesce(64).write().mode("overwrite").insertInto(tableName);
@@ -406,34 +406,44 @@ public class CreateDatabaseSpark {
 	}
 	
 	
-	private String createPartitionInsertStmt(String tableName, List<String> columns, String suffix) {
+	private String createPartitionInsertStmt(String tableName, List<String> columns, String suffix,
+			String format) {
 		StringBuilder builder = new StringBuilder();
 		//builder.append("INSERT OVERWRITE TABLE " + tableName + " PARTITION (" +
 		//		Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + ") SELECT \n");
 		builder.append("INSERT OVERWRITE TABLE " + tableName + " SELECT \n");
-		for(String column : columns) {
-			if ( column.equalsIgnoreCase(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] ))
-				continue;
-			else
-				builder.append(column + ", \n");
+		if( ! format.equalsIgnoreCase("delta") ) {
+			for(String column : columns) {
+				if ( column.equalsIgnoreCase(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] ))
+					continue;
+				else
+					builder.append(column + ", \n");
+			}
+			builder.append(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + " \n");
 		}
-		builder.append(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + " \n");
+		else
+			builder.append("* \n");
 		builder.append("FROM " + tableName + suffix + "\n");
 		builder.append("DISTRIBUTE BY " + Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
 		return builder.toString();
 	}
 	
 	
-	private String createPartitionSelectStmt(String tableName, List<String> columns, String suffix) {
+	private String createPartitionSelectStmt(String tableName, List<String> columns, String suffix,
+			String format) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("SELECT \n");
-		for(String column : columns) {
-			if ( column.equalsIgnoreCase(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] ))
-				continue;
-			else
-				builder.append(column + ", \n");
+		if( ! format.equalsIgnoreCase("delta") ) {
+			for(String column : columns) {
+				if ( column.equalsIgnoreCase(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] ))
+					continue;
+				else
+					builder.append(column + ", \n");
+			}
+			builder.append(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + " \n");
 		}
-		builder.append(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + " \n");
+		else
+			builder.append("* \n");
 		builder.append("FROM " + tableName + suffix + "\n");
 		return builder.toString();
 	}
