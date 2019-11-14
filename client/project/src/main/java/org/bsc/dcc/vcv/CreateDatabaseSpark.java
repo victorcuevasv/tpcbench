@@ -188,7 +188,7 @@ public class CreateDatabaseSpark {
 			this.spark.sql(intSqlCreate);
 			
 			String insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
-			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) {
+			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
 				List<String> columns = extractColumnNames(incIntSqlCreate); 
 				insertSql = createPartitionInsertStmt(tableName, columns, suffix, format);
 			}
