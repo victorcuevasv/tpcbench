@@ -1,1 +1,1 @@
-optimize catalog_sales zorder by cs_sold_date_sk;
+optimize catalog_page zorder by (cp_catalog_page_sk);

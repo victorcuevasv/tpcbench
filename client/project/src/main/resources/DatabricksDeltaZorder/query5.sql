@@ -1,1 +1,1 @@
-optimize store_sales zorder by ss_sold_date_sk;
+optimize customer zorder by (c_customer_sk);

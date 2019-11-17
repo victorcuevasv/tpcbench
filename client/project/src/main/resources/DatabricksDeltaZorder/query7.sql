@@ -1,1 +1,1 @@
-optimize web_sales zorder by ws_sold_date_sk;
+optimize customer_demographics zorder by (cd_demo_sk);

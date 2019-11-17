@@ -1,1 +1,1 @@
-optimize inventory zorder by inv_date_sk;
+optimize catalog_returns zorder by (cr_item_sk);

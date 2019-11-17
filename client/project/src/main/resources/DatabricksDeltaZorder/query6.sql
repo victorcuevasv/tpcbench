@@ -1,1 +1,1 @@
-optimize web_returns zorder by wr_returned_date_sk;
+optimize customer_address zorder by (ca_address_sk);

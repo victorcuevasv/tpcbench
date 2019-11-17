@@ -1,1 +1,1 @@
-optimize store_returns zorder by sr_returned_date_sk;
+optimize catalog_sales zorder by (cs_item_sk);
