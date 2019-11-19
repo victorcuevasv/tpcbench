@@ -220,7 +220,15 @@ spark.conf.set("spark.sql.shuffle.partitions", 5)
 
 SET spark.sql.shuffle.partitions = 5;
 
+spark.sql.crossJoin.enabled true
+spark.sql.broadcastTimeout 7200
+hive.exec.max.dynamic.partitions 3000
+hive.exec.dynamic.partition.mode nonstrict
 
+spark.databricks.optimizer.deltaTableFilesThreshold 100
+spark.databricks.delta.optimize.maxFileSize 134217728
+spark.databricks.delta.optimize.minFileSize 134217728
+spark.databricks.delta.autoCompact.maxFileSize 134217728
 
 
 
