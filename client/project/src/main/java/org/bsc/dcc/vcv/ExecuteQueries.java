@@ -170,6 +170,20 @@ public class ExecuteQueries {
 		}
 	}
 	
+	private void setSnowflakeQueryTag(String tag) {
+		try {
+			Statement sessionStmt = this.con.createStatement();
+			sessionStmt.executeUpdate("ALTER SESSION SET QUERY_TAG = '" + tag + "'");
+			sessionStmt.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in setSnowflakeQueryTag");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+	}
+	
 
 	public static void main(String[] args) throws SQLException {
 		if( args.length != 15 ) {
@@ -197,7 +211,11 @@ public class ExecuteQueries {
 			QueryRecord queryRecord = new QueryRecord(nQuery);
 			this.logger.info("\nExecuting query: " + fileName + "\n" + sqlStr);
 			try {
+				if( this.system.startsWith("snowflake") )
+					this.setSnowflakeQueryTag("q" + nQuery);
 				this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
+				if( this.system.startsWith("snowflake") )
+					this.setSnowflakeQueryTag("");
 				if( this.saveResults ) {
 					String queryResultsFileName = this.generateResultsFileName(fileName);
 					File resultsFile = new File(queryResultsFileName);
