@@ -201,15 +201,15 @@ public class ExecuteQueries {
 				"OUTBOUND_DATA_TRANSFER_BYTES", "INBOUND_DATA_TRANSFER_CLOUD", 
 				"INBOUND_DATA_TRANSFER_REGION", "INBOUND_DATA_TRANSFER_BYTES", "CREDITS_USED_CLOUD_SERVICES"};
 		StringBuilder headerBuilder = new StringBuilder();
-		for(int i = 0; i < titles.length - 1; i++)
-			headerBuilder.append(String.format("%-30s|", titles[i]));
-		headerBuilder.append(String.format("%-30s", titles[titles.length-1]));
 		StringBuilder columnsBuilder = new StringBuilder();
 		for(int i = 0; i < titles.length; i++) {
 			if( ! titles[i].equals("QUERY_TEXT") ) {
+				headerBuilder.append(String.format("%-30s|", titles[i]));
 				columnsBuilder.append(titles[i]);
-				if( i < titles.length - 1)
+				if( i < titles.length - 1) {
+					headerBuilder.append(String.format("%-30s", titles[titles.length-1]));
 					columnsBuilder.append(",");
+				}
 			}
 		}
 		printWriter.println(headerBuilder.toString());
