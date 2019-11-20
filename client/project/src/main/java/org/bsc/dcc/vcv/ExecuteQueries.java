@@ -207,7 +207,7 @@ public class ExecuteQueries {
 				headerBuilder.append(String.format("%-30s|", titles[i]));
 				columnsBuilder.append(titles[i]);
 				if( i < titles.length - 1) {
-					headerBuilder.append(String.format("%-30s", titles[titles.length-1]));
+					headerBuilder.append(String.format("%-30s", titles[i]));
 					columnsBuilder.append(",");
 				}
 			}
