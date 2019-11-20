@@ -204,11 +204,13 @@ public class ExecuteQueries {
 		StringBuilder columnsBuilder = new StringBuilder();
 		for(int i = 0; i < titles.length; i++) {
 			if( ! titles[i].equals("QUERY_TEXT") ) {
-				headerBuilder.append(String.format("%-30s|", titles[i]));
-				columnsBuilder.append(titles[i]);
 				if( i < titles.length - 1) {
+					headerBuilder.append(String.format("%-30|s", titles[i]));
+					columnsBuilder.append(titles[i] + ",");
+				}
+				else {
 					headerBuilder.append(String.format("%-30s", titles[i]));
-					columnsBuilder.append(",");
+					columnsBuilder.append(titles[i]);
 				}
 			}
 		}
