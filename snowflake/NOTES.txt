@@ -103,6 +103,17 @@ CREATE SCHEMA tpcdsdb10gb;
   
   
 
+SELECT CURRENT_SESSION();
+
+select *
+from table(information_schema.query_history_by_session(CAST(CURRENT_SESSION() AS INTEGER)))
+order by start_time;
+
+
+select *
+from table(information_schema.query_history_by_session(406282431500306))
+where query_type='SELECT'
+order by start_time;
 
 
 
