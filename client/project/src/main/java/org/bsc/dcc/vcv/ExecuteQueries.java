@@ -186,7 +186,7 @@ public class ExecuteQueries {
 	}
 	
 	
-	private void createSnowflakeHistoryFile(String fileName) throws Exception {
+	private String createSnowflakeHistoryFileAndColumnList(String fileName) throws Exception {
 		File tmp = new File(fileName);
 		tmp.getParentFile().mkdirs();
 		FileWriter fileWriter = new FileWriter(fileName, false);
@@ -200,12 +200,21 @@ public class ExecuteQueries {
 				"OUTBOUND_DATA_TRANSFER_CLOUD", "OUTBOUND_DATA_TRANSFER_REGION", 
 				"OUTBOUND_DATA_TRANSFER_BYTES", "INBOUND_DATA_TRANSFER_CLOUD", 
 				"INBOUND_DATA_TRANSFER_REGION", "INBOUND_DATA_TRANSFER_BYTES", "CREDITS_USED_CLOUD_SERVICES"};
-		StringBuilder builder = new StringBuilder();
+		StringBuilder headerBuilder = new StringBuilder();
 		for(int i = 0; i < titles.length - 1; i++)
-			builder.append(String.format("%-30s|", titles[i]));
-		builder.append(String.format("%-30s", titles[titles.length-1]));
-		printWriter.println(builder.toString());
+			headerBuilder.append(String.format("%-30s|", titles[i]));
+		headerBuilder.append(String.format("%-30s", titles[titles.length-1]));
+		StringBuilder columnsBuilder = new StringBuilder();
+		for(int i = 0; i < titles.length; i++) {
+			if( ! titles[i].equals("QUERY_TEXT") ) {
+				columnsBuilder.append(titles[i]);
+				if( i < titles.length - 1)
+					columnsBuilder.append(",");
+			}
+		}
+		printWriter.println(headerBuilder.toString());
 		printWriter.close();
+		return columnsBuilder.toString();
 	}
 	
 	
@@ -213,9 +222,10 @@ public class ExecuteQueries {
 		try {
 			String historyFile = this.workDir + "/" + this.folderName + "/analytics/" + 
 					this.experimentName + "/" + this.test + "/" + this.instance + "/history.log";
-			this.createSnowflakeHistoryFile(historyFile);
+			String columnsStr = this.createSnowflakeHistoryFileAndColumnList(historyFile);
 			Statement historyStmt = this.con.createStatement();
-			String historySQL = "select * from table( " + 
+			String historySQL = "select " + columnsStr + " " + 
+			"from table( " + 
 			"information_schema.query_history_by_session(CAST(CURRENT_SESSION() AS INTEGER))) " +
 			"where query_type='SELECT' " +
 			"order by start_time;";
