@@ -27,6 +27,7 @@ fi
 printf "\n\n%s\n\n" "${mag}Creating the schema (database).${end}"
 
 docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
+--volume $DIR/../client/project:/project \
 --entrypoint mvn clientbuilder:dev \	
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.CreateSchema" \
 -Dexec.args="dbc-08fc9045-faef.cloud.databricks.com sparkdatabricksjdbc tpcdsdb$1gb-$2" \
