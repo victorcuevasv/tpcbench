@@ -14,6 +14,7 @@ public class CreateSchema {
 	private static String driverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
+	private static final String databricksDriverName = "com.simba.spark.jdbc41.Driver";
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
@@ -43,6 +44,14 @@ public class CreateSchema {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
 						hostname + ":10015/", "hive", "");
+			}
+			else if( this.system.equals("sparkdatabricksjdbc") ) {
+				Class.forName(databricksDriverName);
+				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/default" +
+				";transportMode=http;ssl=1" + 
+				";httpPath=sql/protocolv1/o/538214631695239/" + 
+				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
+				";UseNativeQuery=1");
 			}
 			else if( system.startsWith("snowflake") ) {
 				Class.forName(snowflakeDriverName);
