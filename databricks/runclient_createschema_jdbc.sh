@@ -31,7 +31,7 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 --volume $DIR/../client/project:/project \
 --entrypoint mvn clientbuilder:dev \
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.CreateSchema" \
--Dexec.args="dbc-08fc9045-faef.cloud.databricks.com sparkdatabricksjdbc tpcdsdb$1gb-$2" \
+-Dexec.args="dbc-08fc9045-faef.cloud.databricks.com sparkdatabricksjdbc tpcdsdb$1gb_$2" \
 -f /project/pom.xml
   
 
