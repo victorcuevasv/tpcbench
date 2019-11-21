@@ -40,11 +40,6 @@ public class CreateSchema {
 				con = DriverManager.getConnection("jdbc:presto://" + 
 						hostname + ":8889/hive/", "hadoop", "");
 			}
-			else if( system.startsWith("spark") ) {
-				Class.forName(hiveDriverName);
-				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10015/", "hive", "");
-			}
 			else if( system.equals("sparkdatabricksjdbc") ) {
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://" + hostname + ":443/default" +
@@ -52,6 +47,11 @@ public class CreateSchema {
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
 				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
 				";UseNativeQuery=1");
+			}
+			else if( system.startsWith("spark") ) {
+				Class.forName(hiveDriverName);
+				con = DriverManager.getConnection("jdbc:hive2://" +
+						hostname + ":10015/", "hive", "");
 			}
 			else if( system.startsWith("snowflake") ) {
 				Class.forName(snowflakeDriverName);
