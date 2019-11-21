@@ -18,7 +18,7 @@ GROUP_ID=$(id -g)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 if [ $# -lt 2 ]; then
-    echo "${yel}Usage: bash runclient_createschema_jdbc.sh <scale factor> <suffix>${end}"
+    echo "${yel}Usage: bash runclient_createschema_jdbc.sh <scale factor> <tag>${end}"
     exit 0
 fi
 
