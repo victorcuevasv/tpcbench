@@ -26,10 +26,11 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Creating the schema (database).${end}"
 
-docker exec -ti --user $USER_ID:$GROUP_ID clientbuildercontainer  /bin/bash -c \
-	"mvn exec:java -Dexec.mainClass=\"org.bsc.dcc.vcv.CreateSchema\" \
-	-Dexec.args=\"dbc-08fc9045-faef.cloud.databricks.com sparkdatabricksjdbc tpcdsdb$1gb-$2\" \
-	-f /project/pom.xml"  
+docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
+--entrypoint mvn clientbuilder:dev \	
+exec:java -Dexec.mainClass="org.bsc.dcc.vcv.CreateSchema" \
+-Dexec.args="dbc-08fc9045-faef.cloud.databricks.com sparkdatabricksjdbc tpcdsdb$1gb-$2" \
+-f /project/pom.xml
   
 
 
