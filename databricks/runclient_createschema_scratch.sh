@@ -31,7 +31,7 @@ DATABASE_NAME=tpcdsdb$1gb_$2_$3
 #Mount the bucket and create the database.
 
 databricks jobs run-now --job-id 119 --notebook-params \
-'{"BucketName":"$BUCKET_NAME", "MountName":"$MOUNT_NAME", "DatabaseName":"$DATABASE_NAME"}'
+'{"BucketName":"'"$BUCKET_NAME"'", "MountName":"'"$MOUNT_NAME"'", "DatabaseName":"'"$DATABASE_NAME"'"}'
 
 
   
