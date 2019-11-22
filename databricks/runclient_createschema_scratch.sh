@@ -26,7 +26,7 @@ aws s3api create-bucket --bucket $BUCKET_NAME --region us-west-2 \
  
 #Create an empty directory within the bucket.
  
-aws s3api put-object --bucket $BUCKET_NAME --key empty
+aws s3api put-object --bucket $BUCKET_NAME --key empty --acl private
 
 #Mount the bucket and create the database.
 
