@@ -22,7 +22,7 @@ DATABASE_NAME=tpcdsdb$1gb_$2_$3
 #Create a the bucket for the database.
 
 aws s3api create-bucket --bucket $BUCKET_NAME --region us-west-2 \
- --create-bucket-configuration LocationConstraint=us-west-2
+ --create-bucket-configuration LocationConstraint=us-west-2 --acl private
  
 #Create an empty directory within the bucket.
  
