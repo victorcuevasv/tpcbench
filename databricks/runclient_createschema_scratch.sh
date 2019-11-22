@@ -21,12 +21,12 @@ DATABASE_NAME=tpcdsdb$1gb_$2_$3
 
 #Create a the bucket for the database.
 
-#aws s3api create-bucket --bucket $BUCKET_NAME --region us-west-2 \
-# --create-bucket-configuration LocationConstraint=us-west-2
+aws s3api create-bucket --bucket $BUCKET_NAME --region us-west-2 \
+ --create-bucket-configuration LocationConstraint=us-west-2
  
 #Create an empty directory within the bucket.
  
-#aws s3api put-object --bucket $BUCKET_NAME --key empty
+aws s3api put-object --bucket $BUCKET_NAME --key empty
 
 #Mount the bucket and create the database.
 
