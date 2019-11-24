@@ -56,7 +56,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	final private boolean multiple;
 	final int[][] matrix;
 	private final boolean useCachedResultSnowflake = false;
-
+	private final int maxConcurrencySnowflake = 8;
 	
 	/**
 	 * @param args
@@ -201,11 +201,69 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		try {
 			Statement sessionStmt = this.con.createStatement();
 			sessionStmt.executeUpdate("ALTER SESSION SET USE_CACHED_RESULT = " + this.useCachedResultSnowflake);
+			sessionStmt.executeUpdate("ALTER SESSION SET MAX_CONCURRENCY_LEVEL = " + this.maxConcurrencySnowflake);
 			sessionStmt.close();
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 			this.logger.error("Error in setSnowflakeDefaultSessionOpts");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+	}
+	
+	private String createSnowflakeHistoryFileAndColumnList(String fileName) throws Exception {
+		File tmp = new File(fileName);
+		tmp.getParentFile().mkdirs();
+		FileWriter fileWriter = new FileWriter(fileName, false);
+		PrintWriter printWriter = new PrintWriter(fileWriter);
+		String[] titles = {"QUERY_ID", "QUERY_TEXT", "DATABASE_NAME", "SCHEMA_NAME", "QUERY_TYPE",
+				"SESSION_ID", "USER_NAME", "ROLE_NAME", "WAREHOUSE_NAME", "WAREHOUSE_SIZE",
+				"WAREHOUSE_TYPE", "CLUSTER_NUMBER", "QUERY_TAG", "EXECUTION_STATUS", "ERROR_CODE",
+				"ERROR_MESSAGE", "START_TIME", "END_TIME", "TOTAL_ELAPSED_TIME", "BYTES_SCANNED",
+				"ROWS_PRODUCED", "COMPILATION_TIME", "EXECUTION_TIME", "QUEUED_PROVISIONING_TIME",
+				"QUEUED_REPAIR_TIME", "QUEUED_OVERLOAD_TIME", "TRANSACTION_BLOCKED_TIME", 
+				"OUTBOUND_DATA_TRANSFER_CLOUD", "OUTBOUND_DATA_TRANSFER_REGION", 
+				"OUTBOUND_DATA_TRANSFER_BYTES", "INBOUND_DATA_TRANSFER_CLOUD", 
+				"INBOUND_DATA_TRANSFER_REGION", "INBOUND_DATA_TRANSFER_BYTES", "CREDITS_USED_CLOUD_SERVICES"};
+		StringBuilder headerBuilder = new StringBuilder();
+		StringBuilder columnsBuilder = new StringBuilder();
+		for(int i = 0; i < titles.length; i++) {
+			if( ! titles[i].equals("QUERY_TEXT") ) {
+				if( i < titles.length - 1) {
+					headerBuilder.append(String.format("%-30s|", titles[i]));
+					columnsBuilder.append(titles[i] + ",");
+				}
+				else {
+					headerBuilder.append(String.format("%-30s", titles[i]));
+					columnsBuilder.append(titles[i]);
+				}
+			}
+		}
+		printWriter.println(headerBuilder.toString());
+		printWriter.close();
+		return columnsBuilder.toString();
+	}
+	
+	
+	private void saveSnowflakeHistory() {
+		try {
+			String historyFile = this.workDir + "/" + this.folderName + "/analytics/" + 
+					this.experimentName + "/" + this.test + "/" + this.instance + "/history.log";
+			String columnsStr = this.createSnowflakeHistoryFileAndColumnList(historyFile);
+			Statement historyStmt = this.con.createStatement();
+			String historySQL = "select " + columnsStr + " " + 
+			"from table( " + 
+			"information_schema.query_history_by_session(CAST(CURRENT_SESSION() AS INTEGER))) " +
+			"where query_type='SELECT' " +
+			"order by start_time;";
+			ResultSet rs = historyStmt.executeQuery(historySQL);
+			this.saveResults(historyFile, rs, true);
+			historyStmt.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in setSnowflakeQueryTag");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -247,6 +305,10 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			this.executor.submit(stream);
 		}
 		this.executor.shutdown();
+		if( this.system.startsWith("snowflake") ) {
+			this.saveSnowflakeHistory();
+			this.closeConnection();
+		}
 	}
 	
 	
@@ -298,6 +360,26 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+	}
+	
+	
+	private void saveResults(String resFileName, ResultSet rs, boolean append) 
+			throws Exception {
+		File tmp = new File(resFileName);
+		tmp.getParentFile().mkdirs();
+		FileWriter fileWriter = new FileWriter(resFileName, append);
+		PrintWriter printWriter = new PrintWriter(fileWriter);
+		ResultSetMetaData metadata = rs.getMetaData();
+		int nCols = metadata.getColumnCount();
+		while (rs.next()) {
+			StringBuilder rowBuilder = new StringBuilder();
+			for (int i = 1; i <= nCols - 1; i++) {
+				rowBuilder.append(rs.getString(i) + " | ");
+			}
+			rowBuilder.append(rs.getString(nCols));
+			printWriter.println(rowBuilder.toString());
+		}
+		printWriter.close();
 	}
 
 }
