@@ -31,6 +31,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
 	private Connection con;
 	private final JarQueriesReaderAsZipFile queriesReader;
+	private final JarStreamsReaderAsZipFile streamsReader;
 	private final AnalyticsRecorderConcurrent recorder;
 	private final ExecutorService executor;
 	private final BlockingQueue<QueryRecordConcurrent> resultsQueue;
@@ -53,6 +54,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	final private int nStreams;
 	final private long seed;
 	final private boolean multiple;
+	final int[][] matrix;
 	private final boolean useCachedResultSnowflake = false;
 
 	
@@ -101,6 +103,8 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.multiple = Boolean.parseBoolean(args[16]);
 		this.random = new Random(seed);
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
+		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
+		this.matrix = this.streamsReader.getFileAsMatrix(this.streamsReader.getFiles().get(0));
 		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.folderName,
 				this.experimentName, this.system, this.test, this.instance);
 		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
