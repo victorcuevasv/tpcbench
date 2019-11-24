@@ -26,7 +26,7 @@ public class JarStreamsReaderAsZipFile {
 		this.filesNames = this.listFiles(inFile, subDir);
 		for(String s : filesNames) {
 			System.out.println(s + "\n");
-			System.out.println(this.ht.get("s"));
+			System.out.println(this.ht.get(s));
 		}
 	}
 
