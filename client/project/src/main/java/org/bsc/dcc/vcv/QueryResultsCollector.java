@@ -29,8 +29,10 @@ public class QueryResultsCollector implements Runnable {
 			}
 		}
 		this.analyticsRecorder.close();
-		if( this.parent != null && ! this.analyticsRecorder.system.equalsIgnoreCase("sparkdatabricks") &&
-				! this.analyticsRecorder.system.toLowerCase().startsWith("snowflake")	)
+		if( this.analyticsRecorder.system.startsWith("snowflake") ) {
+			((ExecuteQueriesConcurrent)this.parent).saveSnowflakeHistory();
+		}
+		if( this.parent != null && ! this.analyticsRecorder.system.equalsIgnoreCase("sparkdatabricks") )
 			this.parent.closeConnection();
 	}
 	

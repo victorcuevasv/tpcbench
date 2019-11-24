@@ -201,7 +201,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		try {
 			Statement sessionStmt = this.con.createStatement();
 			sessionStmt.executeUpdate("ALTER SESSION SET USE_CACHED_RESULT = " + this.useCachedResultSnowflake);
-			sessionStmt.executeUpdate("ALTER SESSION SET MAX_CONCURRENCY_LEVEL = " + this.maxConcurrencySnowflake);
+			sessionStmt.executeUpdate("ALTER WAREHOUSE SET MAX_CONCURRENCY_LEVEL = " + this.maxConcurrencySnowflake);
 			sessionStmt.close();
 		}
 		catch(Exception e) {
@@ -246,7 +246,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 	
 	
-	private void saveSnowflakeHistory() {
+	public void saveSnowflakeHistory() {
 		try {
 			String historyFile = this.workDir + "/" + this.folderName + "/analytics/" + 
 					this.experimentName + "/" + this.test + "/" + this.instance + "/history.log";
@@ -305,10 +305,6 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			this.executor.submit(stream);
 		}
 		this.executor.shutdown();
-		if( this.system.startsWith("snowflake") ) {
-			this.saveSnowflakeHistory();
-			this.closeConnection();
-		}
 	}
 	
 	
