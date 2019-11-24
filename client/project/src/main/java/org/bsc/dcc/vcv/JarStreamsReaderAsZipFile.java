@@ -52,7 +52,7 @@ public class JarStreamsReaderAsZipFile {
 			Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					if (file.toString().endsWith(".sql")) {
+					if (file.toString().endsWith(".txt")) {
 						String simpFileName = file.getFileName().toString();
 						files.add(simpFileName);
 						String contents = readFile(file);
