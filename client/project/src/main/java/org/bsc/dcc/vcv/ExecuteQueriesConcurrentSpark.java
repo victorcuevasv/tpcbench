@@ -194,6 +194,11 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
+	
+	
+	public void saveSnowflakeHistory() {
+		
+	}
 
 }
 

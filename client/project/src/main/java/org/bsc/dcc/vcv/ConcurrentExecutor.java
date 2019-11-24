@@ -4,4 +4,6 @@ public interface ConcurrentExecutor {
 
 	public void closeConnection();
 	
+	public void saveSnowflakeHistory();
+	
 }
