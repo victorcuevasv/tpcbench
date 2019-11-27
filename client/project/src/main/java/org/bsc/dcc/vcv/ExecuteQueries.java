@@ -228,7 +228,7 @@ public class ExecuteQueries {
 			Statement historyStmt = this.con.createStatement();
 			String historySQL = "select " + columnsStr + " " + 
 			"from table( " + 
-			"information_schema.query_history_by_session(CAST(CURRENT_SESSION() AS INTEGER))) " +
+			"information_schema.query_history_by_session(CAST(CURRENT_SESSION() AS INTEGER), NULL, NULL, 10000)) " +
 			"where query_type='SELECT' " +
 			"order by start_time;";
 			ResultSet rs = historyStmt.executeQuery(historySQL);
