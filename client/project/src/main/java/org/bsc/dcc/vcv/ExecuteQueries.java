@@ -225,6 +225,7 @@ public class ExecuteQueries {
 			String historyFile = this.workDir + "/" + this.folderName + "/analytics/" + 
 					this.experimentName + "/" + this.test + "/" + this.instance + "/history.log";
 			String columnsStr = this.createSnowflakeHistoryFileAndColumnList(historyFile);
+			this.setSnowflakeQueryTag("saveHistory");
 			Statement historyStmt = this.con.createStatement();
 			String historySQL = "select " + columnsStr + " " + 
 			"from table( " + 
@@ -234,6 +235,7 @@ public class ExecuteQueries {
 			ResultSet rs = historyStmt.executeQuery(historySQL);
 			this.saveResults(historyFile, rs, true);
 			historyStmt.close();
+			this.setSnowflakeQueryTag("");
 		}
 		catch(Exception e) {
 			e.printStackTrace();
