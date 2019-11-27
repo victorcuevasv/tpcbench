@@ -117,7 +117,7 @@ public class SnowflakeHistory {
 			Statement historyStmt = this.con.createStatement();
 			String historySQL = "select " + columnsStr + " " + 
 			"from table( " + 
-			"information_schema.query_history_by_session(CAST(CURRENT_SESSION() AS INTEGER))) " +
+			"information_schema.query_history_by_session(" + sessionID + ")) " +
 			"where query_type='SELECT' " +
 			"order by start_time;";
 			ResultSet rs = historyStmt.executeQuery(historySQL);
