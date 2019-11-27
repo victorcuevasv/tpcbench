@@ -116,6 +116,12 @@ where query_type='SELECT'
 order by start_time;
 
 
+select sum(QUEUED_OVERLOAD_TIME)
+from table(information_schema.query_history_by_session(406282431520790))
+where query_type='SELECT';
+
+
+
 
 
 

@@ -83,6 +83,7 @@
 						<exclude>org/bsc/dcc/vcv/QueryStreamPrestoCLI.java</exclude>
 						<exclude>org/bsc/dcc/vcv/QueryStreamSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/SparkUtil.java</exclude>
+						<exclude>org/bsc/dcc/vcv/SnowflakeHistory.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
