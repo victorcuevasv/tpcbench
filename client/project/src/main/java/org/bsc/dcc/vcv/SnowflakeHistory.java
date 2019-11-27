@@ -118,7 +118,7 @@ public class SnowflakeHistory {
 			String historySQL = "select " + columnsStr + " " + 
 			"from table( " + 
 			"information_schema.query_history_by_session(" + sessionID + ", NULL, NULL, 10000)) " +
-			"where query_type='SELECT' " +
+			"where query_type='SELECT' AND query_tag <> 'saveHistory' " +
 			"order by start_time;";
 			ResultSet rs = historyStmt.executeQuery(historySQL);
 			this.saveResults(outFileName, rs, true);

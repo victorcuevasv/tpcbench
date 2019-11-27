@@ -212,6 +212,22 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		}
 	}
 	
+	
+	private void setSnowflakeQueryTag(String tag) {
+		try {
+			Statement sessionStmt = this.con.createStatement();
+			sessionStmt.executeUpdate("ALTER SESSION SET QUERY_TAG = '" + tag + "'");
+			sessionStmt.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in setSnowflakeQueryTag");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+	}
+	
+	
 	private String createSnowflakeHistoryFileAndColumnList(String fileName) throws Exception {
 		File tmp = new File(fileName);
 		tmp.getParentFile().mkdirs();
@@ -251,19 +267,21 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			String historyFile = this.workDir + "/" + this.folderName + "/analytics/" + 
 					this.experimentName + "/" + this.test + "/" + this.instance + "/history.log";
 			String columnsStr = this.createSnowflakeHistoryFileAndColumnList(historyFile);
+			this.setSnowflakeQueryTag("saveHistory");
 			Statement historyStmt = this.con.createStatement();
 			String historySQL = "select " + columnsStr + " " + 
 			"from table( " + 
 			"information_schema.query_history_by_session(CAST(CURRENT_SESSION() AS INTEGER), NULL, NULL, 10000)) " +
-			"where query_type='SELECT' " +
+			"where query_type = 'SELECT' AND query_tag <> 'saveHistory' " +
 			"order by start_time;";
 			ResultSet rs = historyStmt.executeQuery(historySQL);
 			this.saveResults(historyFile, rs, true);
 			historyStmt.close();
+			this.setSnowflakeQueryTag("");
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in setSnowflakeQueryTag");
+			this.logger.error("Error in saveSnowflakeHistory");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
