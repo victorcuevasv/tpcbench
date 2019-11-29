@@ -158,8 +158,10 @@ public class QueryStream implements Callable<Void> {
 					" executing iteration " + iteration + " of query " + fileName + ".");
 			ResultSet rs = stmt.executeQuery(sqlStr);
 			// Save the results.
-			if( this.parent.saveResults )
-				this.saveResults(generateResultsFileName(fileName, nStream, item), rs, !firstQuery);
+			if( this.parent.saveResults ) {
+				int tuples = this.saveResults(generateResultsFileName(fileName, nStream, item), rs, !firstQuery);
+				queryRecord.setTuples(tuples);
+			}
 			stmt.close();
 			rs.close();
 			firstQuery = false;
@@ -168,7 +170,8 @@ public class QueryStream implements Callable<Void> {
 	}
 
 	
-	private void saveResults(String resFileName, ResultSet rs, boolean append) {
+	private int saveResults(String resFileName, ResultSet rs, boolean append) {
+		int tuples = 0;
 		try {
 			File tmp = new File(resFileName);
 			tmp.getParentFile().mkdirs();
@@ -182,6 +185,7 @@ public class QueryStream implements Callable<Void> {
 					rowBuilder.append(rs.getString(i) + ", ");
 				}
 				printWriter.println(rowBuilder.toString());
+				tuples++;
 			}
 			printWriter.close();
 		}
@@ -200,6 +204,7 @@ public class QueryStream implements Callable<Void> {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+		return tuples;
 	}
 	
 	

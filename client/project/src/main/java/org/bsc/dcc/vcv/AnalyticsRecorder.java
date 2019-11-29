@@ -63,7 +63,8 @@ public class AnalyticsRecorder {
 	
 	public void header() {
 		String[] titles = {"QUERY", "SUCCESSFUL", "DURATION", "RESULTS_SIZE", "SYSTEM", 
-						   "STARTDATE_EPOCH", "STOPDATE_EPOCH", "DURATION_MS", "STARTDATE", "STOPDATE"};
+						   "STARTDATE_EPOCH", "STOPDATE_EPOCH", "DURATION_MS", "STARTDATE",
+						   "STOPDATE", "TUPLES"};
 		StringBuilder builder = new StringBuilder();
 		for(int i = 0; i < titles.length - 1; i++)
 			builder.append(String.format("%-25s|", titles[i]));
@@ -92,6 +93,7 @@ public class AnalyticsRecorder {
 		Date endDate = new Date(queryRecord.getEndTime());
 		String endDateFormatted = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(endDate);
 		builder.append(String.format("%-" + spaces + "s", endDateFormatted));
+		builder.append(String.format(colFormat, queryRecord.getTuples()));
 		this.message(builder.toString());
 	}
 	

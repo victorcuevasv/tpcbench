@@ -7,6 +7,7 @@ public class QueryRecord {
 	private long endTime;
 	private boolean successful;
 	private long resultsSize;
+	private int tuples;
 	
 	public QueryRecord() {
 		
@@ -54,6 +55,14 @@ public class QueryRecord {
 	
 	public long getResultsSize() {
 		return this.resultsSize;
+	}
+	
+	public void setTuples(int tuples) {
+		this.tuples = tuples;
+	}
+	
+	public long getTuples() {
+		return this.tuples;
 	}
 
 }

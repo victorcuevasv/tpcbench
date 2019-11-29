@@ -349,8 +349,10 @@ public class ExecuteQueries {
 			ResultSet rs = stmt.executeQuery(sqlStr);
 			// Save the results.
 			//this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, ! firstQuery);
-			if( this.saveResults )
-				this.saveResults(this.generateResultsFileName(queryFileName), rs, ! firstQuery);
+			if( this.saveResults ) {
+				int tuples = this.saveResults(this.generateResultsFileName(queryFileName), rs, ! firstQuery);
+				queryRecord.setTuples(tuples);
+			}
 			stmt.close();
 			rs.close();
 			firstQuery = false;
@@ -358,7 +360,7 @@ public class ExecuteQueries {
 		}
 	}
 
-	private void saveResults(String resFileName, ResultSet rs, boolean append) 
+	private int saveResults(String resFileName, ResultSet rs, boolean append) 
 			throws Exception {
 		File tmp = new File(resFileName);
 		tmp.getParentFile().mkdirs();
@@ -366,6 +368,7 @@ public class ExecuteQueries {
 		PrintWriter printWriter = new PrintWriter(fileWriter);
 		ResultSetMetaData metadata = rs.getMetaData();
 		int nCols = metadata.getColumnCount();
+		int tuples = 0;
 		while (rs.next()) {
 			StringBuilder rowBuilder = new StringBuilder();
 			for (int i = 1; i <= nCols - 1; i++) {
@@ -373,8 +376,10 @@ public class ExecuteQueries {
 			}
 			rowBuilder.append(rs.getString(nCols));
 			printWriter.println(rowBuilder.toString());
+			tuples++;
 		}
 		printWriter.close();
+		return tuples;
 	}
 
 	public String readFileContents(String filename) {
