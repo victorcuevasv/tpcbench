@@ -41,8 +41,8 @@ public class AnalyticsRecorderConcurrent extends AnalyticsRecorder {
 		builder.append(String.format(colFormat, startDateFormatted));
 		Date endDate = new Date(queryRecord.getEndTime());
 		String endDateFormatted = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(endDate);
-		builder.append(String.format("%-" + spaces + "s", endDateFormatted));
-		builder.append(String.format(colFormat, queryRecord.getTuples()));
+		builder.append(String.format(colFormat, endDateFormatted));
+		builder.append(String.format("%-" + spaces + "s", queryRecord.getTuples()));
 		this.message(builder.toString());
 	}
 
