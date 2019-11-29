@@ -239,7 +239,7 @@ public class ExecuteQueries {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in setSnowflakeQueryTag");
+			this.logger.error("Error in saveSnowflakeHistory");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -272,11 +272,7 @@ public class ExecuteQueries {
 			QueryRecord queryRecord = new QueryRecord(nQuery);
 			this.logger.info("\nExecuting query: " + fileName + "\n" + sqlStr);
 			try {
-				if( this.system.startsWith("snowflake") )
-					this.setSnowflakeQueryTag("q" + nQuery);
 				this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
-				if( this.system.startsWith("snowflake") )
-					this.setSnowflakeQueryTag("");
 				if( this.saveResults ) {
 					String queryResultsFileName = this.generateResultsFileName(fileName);
 					File resultsFile = new File(queryResultsFileName);
@@ -346,7 +342,11 @@ public class ExecuteQueries {
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
 			System.out.println("Executing iteration " + iteration + " of query " + queryFileName + ".");
+			if( this.system.startsWith("snowflake") )
+				this.setSnowflakeQueryTag("q" + queryRecord.getQuery() + "_" + iteration);
 			ResultSet rs = stmt.executeQuery(sqlStr);
+			if( this.system.startsWith("snowflake") )
+				this.setSnowflakeQueryTag("");
 			// Save the results.
 			//this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, ! firstQuery);
 			if( this.saveResults ) {
