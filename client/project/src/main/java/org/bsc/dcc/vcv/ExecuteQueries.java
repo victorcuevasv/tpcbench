@@ -231,7 +231,7 @@ public class ExecuteQueries {
 			"from table( " + 
 			"information_schema.query_history_by_session(CAST(CURRENT_SESSION() AS INTEGER), NULL, NULL, 10000)) " +
 			"where query_type = 'SELECT' AND query_tag <> 'saveHistory' " +
-			"order by start_time;";
+			"order by end_time;";
 			ResultSet rs = historyStmt.executeQuery(historySQL);
 			this.saveResults(historyFile, rs, true);
 			historyStmt.close();
@@ -351,7 +351,7 @@ public class ExecuteQueries {
 			//this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, ! firstQuery);
 			if( this.saveResults ) {
 				int tuples = this.saveResults(this.generateResultsFileName(queryFileName), rs, ! firstQuery);
-				queryRecord.setTuples(tuples);
+				queryRecord.setTuples(queryRecord.getTuples() + tuples);
 			}
 			stmt.close();
 			rs.close();

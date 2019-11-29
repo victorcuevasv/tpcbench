@@ -156,15 +156,11 @@ public class QueryStream implements Callable<Void> {
 				queryRecord.setStartTime(System.currentTimeMillis());
 			System.out.println("Stream " + nStream + " item " + item + 
 					" executing iteration " + iteration + " of query " + fileName + ".");
-			if( this.parent.system.startsWith("snowflake") )
-				this.setSnowflakeQueryTag("s" + nStream + "i" + item + "q" + queryRecord.getQuery() + "_" + iteration);
 			ResultSet rs = stmt.executeQuery(sqlStr);
-			if( this.parent.system.startsWith("snowflake") )
-				this.setSnowflakeQueryTag("");
 			// Save the results.
 			if( this.parent.saveResults ) {
 				int tuples = this.saveResults(generateResultsFileName(fileName, nStream, item), rs, !firstQuery);
-				queryRecord.setTuples(tuples);
+				queryRecord.setTuples(queryRecord.getTuples() + tuples);
 			}
 			stmt.close();
 			rs.close();
@@ -218,21 +214,6 @@ public class QueryStream implements Callable<Void> {
 			int temp = array[i];
 			array[i] = array[randPos];
 			array[randPos] = temp;
-		}
-	}
-	
-	
-	private void setSnowflakeQueryTag(String tag) {
-		try {
-			Statement sessionStmt = this.con.createStatement();
-			sessionStmt.executeUpdate("ALTER SESSION SET QUERY_TAG = '" + tag + "'");
-			sessionStmt.close();
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			this.logger.error("Error in setSnowflakeQueryTag");
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
 

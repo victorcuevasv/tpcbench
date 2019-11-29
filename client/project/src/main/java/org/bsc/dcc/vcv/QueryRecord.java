@@ -61,7 +61,7 @@ public class QueryRecord {
 		this.tuples = tuples;
 	}
 	
-	public long getTuples() {
+	public int getTuples() {
 		return this.tuples;
 	}
 
