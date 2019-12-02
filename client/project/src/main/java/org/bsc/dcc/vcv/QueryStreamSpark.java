@@ -182,15 +182,17 @@ public class QueryStreamSpark implements Callable<Void> {
 			// Save the results.
 			//dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + 
 			//nStream + "_" + noExtFileName);
-			if( this.parent.saveResults )
-				this.saveResults(generateResultsFileName(noExtFileName, nStream, item), dataset, ! firstQuery);
+			if( this.parent.saveResults ) {
+				int tuples = this.saveResults(generateResultsFileName(noExtFileName, nStream, item), dataset, ! firstQuery);
+				queryRecord.setTuples(queryRecord.getTuples() + tuples);
+			}
 			firstQuery = false;
 			iteration++;
 		}
 	}
 	
 	
-	private void saveResults(String resFileName, Dataset<Row> dataset, boolean append) throws Exception {
+	private int saveResults(String resFileName, Dataset<Row> dataset, boolean append) throws Exception {
 		File temp = new File(resFileName);
 		temp.getParentFile().mkdirs();
 		FileWriter fileWriter = new FileWriter(resFileName, append);
@@ -200,6 +202,7 @@ public class QueryStreamSpark implements Callable<Void> {
 		for (String s : list)
 			printWriter.println(s);
 		printWriter.close();
+		return list.size();
 	}
 	
 	

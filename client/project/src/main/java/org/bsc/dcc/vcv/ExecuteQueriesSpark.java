@@ -189,8 +189,10 @@ public class ExecuteQueriesSpark {
 			System.out.println("Executing iteration " + iteration + " of query " + queryFileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
-			if( this.saveResults )
-				this.saveResults(this.generateResultsFileName(queryFileName), dataset, ! firstQuery);
+			if( this.saveResults ) {
+				int tuples = this.saveResults(this.generateResultsFileName(queryFileName), dataset, ! firstQuery);
+				queryRecord.setTuples(queryRecord.getTuples() + tuples);
+			}
 			firstQuery = false;
 			iteration++;
 		}
@@ -236,7 +238,8 @@ public class ExecuteQueriesSpark {
 	    return size.get();
 	}
 	
-	private void saveResults(String resFileName, Dataset<Row> dataset, boolean append) {
+	private int saveResults(String resFileName, Dataset<Row> dataset, boolean append) {
+		int tuples = 0;
 		try {
 			File tmp = new File(resFileName);
 			tmp.getParentFile().mkdirs();
@@ -246,6 +249,7 @@ public class ExecuteQueriesSpark {
 			for(String s: list)
 				printWriter.println(s);
 			printWriter.close();
+			tuples = list.size();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -253,6 +257,7 @@ public class ExecuteQueriesSpark {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+		return tuples;
 	}
 	
 
