@@ -24,7 +24,7 @@ public class CompareResults {
 	 * args[2] left range of the queries (1..99) default 1
 	 * args[3] right range of the queries (1..99) default 99
 	 * args[4] check column values (true/false) default false
-	 * args[5] check top rows (1..n) default 100
+	 * args[5] check top rows (-1, 1..n) default 100, negative value to ignore
 	 */
 	
 	public static void main(String[] args) {
@@ -77,7 +77,9 @@ public class CompareResults {
 			System.out.println("Equal result tuple count for query " + nQuery + 
 					": 1 -> " + results1.size() + " 2 -> " + results2.size());
 			for(int i = 0; i < results1.size(); i++) {
-				if( (i + 1) > this.checkTopRows )
+				if( this.checkTopRows == 0 )
+					break;
+				else if( this.checkTopRows > -1 && (i + 1) > this.checkTopRows )
 					break;
 				this.compareLines(results1.get(i), results2.get(i));
 			}
