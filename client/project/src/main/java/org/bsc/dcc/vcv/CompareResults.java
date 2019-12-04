@@ -11,24 +11,28 @@ import java.util.StringTokenizer;
 public class CompareResults {
 
 	private final boolean checkColValues;
+	private final int checkTopRows;
 	
-	public CompareResults(boolean checkColValues) {
+	public CompareResults(boolean checkColValues, int checkTopRows) {
 		this.checkColValues = checkColValues;
+		this.checkTopRows = checkTopRows;
 	}
 	
 	/*
 	 * args[0] directory of the results of the first system
 	 * args[1] directory of the results of the second system
-	 * args[2] optional, left range of the queries
-	 * args[3] optional, right range of the queries
-	 * args[4] optional, check column values
+	 * args[2] left range of the queries (1..99) default 1
+	 * args[3] right range of the queries (1..99) default 99
+	 * args[4] check column values (true/false) default false
+	 * args[5] check top rows (1..n) default 100
 	 */
 	
 	public static void main(String[] args) {
 		int left = args.length > 2 ? Integer.parseInt(args[2]) : 1;
 		int right = args.length > 3 ? Integer.parseInt(args[3]) : 99;
 		boolean checkColValues =  args.length > 4 ? Boolean.parseBoolean(args[4]) : false;
-		CompareResults app = new CompareResults(checkColValues);
+		int checkTopRows = args.length > 5 ? Integer.parseInt(args[5]) : 100;
+		CompareResults app = new CompareResults(checkColValues, checkTopRows);
 		app.execute(args[0], args[1], left, right);
 		
 	}
@@ -73,6 +77,8 @@ public class CompareResults {
 			System.out.println("Equal result tuple count for query " + nQuery + 
 					": 1 -> " + results1.size() + " 2 -> " + results2.size());
 			for(int i = 0; i < results1.size(); i++) {
+				if( (i + 1) > this.checkTopRows )
+					break;
 				this.compareLines(results1.get(i), results2.get(i));
 			}
 		}
