@@ -20,8 +20,8 @@ public class CompareResults {
 	
 	public static void main(String[] args) {
 		CompareResults app = new CompareResults();
-		int left = args.length > 2 ? Integer.parseInt(args[3]) : 1;
-		int right = args.length > 3 ? Integer.parseInt(args[4]) : 99;
+		int left = args.length > 2 ? Integer.parseInt(args[2]) : 1;
+		int right = args.length > 3 ? Integer.parseInt(args[3]) : 99;
 		app.execute(args[0], args[1], left, right);
 		
 	}
