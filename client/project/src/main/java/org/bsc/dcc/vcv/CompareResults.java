@@ -10,18 +10,25 @@ import java.util.StringTokenizer;
 
 public class CompareResults {
 
+	private final boolean checkColValues;
+	
+	public CompareResults(boolean checkColValues) {
+		this.checkColValues = checkColValues;
+	}
 	
 	/*
 	 * args[0] directory of the results of the first system
 	 * args[1] directory of the results of the second system
 	 * args[2] optional, left range of the queries
 	 * args[3] optional, right range of the queries
+	 * args[4] optional, check column values
 	 */
 	
 	public static void main(String[] args) {
-		CompareResults app = new CompareResults();
 		int left = args.length > 2 ? Integer.parseInt(args[2]) : 1;
 		int right = args.length > 3 ? Integer.parseInt(args[3]) : 99;
+		boolean checkColValues =  args.length > 4 ? Boolean.parseBoolean(args[4]) : false;
+		CompareResults app = new CompareResults(checkColValues);
 		app.execute(args[0], args[1], left, right);
 		
 	}
@@ -139,7 +146,7 @@ public class CompareResults {
 				else {
 					boolean s1isNum = this.isNumeric(s1);
 					boolean s2isNum = this.isNumeric(s2);
-					if( s1isNum && s2isNum ) {
+					if( s1isNum && s2isNum && this.checkColValues) {
 						double s1d = Double.parseDouble(s1);
 						double s2d = Double.parseDouble(s2);
 						if( this.compare(s1d, s2d, 0.1) )
@@ -148,6 +155,8 @@ public class CompareResults {
 							linesEq = false;
 						}
 					}
+					else if(this.checkColValues)
+						linesEq =  false;
 				}
 			} 
 		}
