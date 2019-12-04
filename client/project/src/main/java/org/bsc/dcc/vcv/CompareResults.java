@@ -14,19 +14,23 @@ public class CompareResults {
 	/*
 	 * args[0] directory of the results of the first system
 	 * args[1] directory of the results of the second system
+	 * args[2] optional, left range of the queries
+	 * args[3] optional, right range of the queries
 	 */
 	
 	public static void main(String[] args) {
 		CompareResults app = new CompareResults();
-		app.execute(args[0], args[1]);
+		int left = args.length > 2 ? Integer.parseInt(args[3]) : 1;
+		int right = args.length > 3 ? Integer.parseInt(args[4]) : 99;
+		app.execute(args[0], args[1], left, right);
 		
 	}
 	
 	
-	private void execute(String dir1, String dir2) {
+	private void execute(String dir1, String dir2, int left, int right) {
 		List<String> dir1List = listFileNames(dir1);
 		List<String> dir2List = listFileNames(dir2);
-		for(int i = 1; i <= 99; i++) {
+		for(int i = left; i <= right; i++) {
 			String dir1FileName = dir1List.get(i - 1);
 			String dir2FileName = dir2List.get(i - 1);
 			this.compareFiles(dir1, dir1FileName, dir2, dir2FileName, i);
