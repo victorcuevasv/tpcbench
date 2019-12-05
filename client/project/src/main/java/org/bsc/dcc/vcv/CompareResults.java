@@ -69,20 +69,14 @@ public class CompareResults {
 		String fileName2NoExt = fileName2.substring(0, fileName2.indexOf('.'));
 		this.saveProcessedResults(results1, dirName1 + "/" + fileName1NoExt + "_p.txt");
 		this.saveProcessedResults(results2, dirName2 + "/" + fileName2NoExt + "_p.txt");
-		if( results1.size() != results2.size() ) {
-			System.out.println("Different result tuple count for query " + nQuery + 
+		System.out.println("Tuple count for query " + nQuery + 
 					": 1 -> " + results1.size() + " 2 -> " + results2.size());
-		}
-		else {
-			System.out.println("Equal result tuple count for query " + nQuery + 
-					": 1 -> " + results1.size() + " 2 -> " + results2.size());
-			for(int i = 0; i < results1.size(); i++) {
-				if( this.checkTopRows == 0 )
-					break;
-				else if( this.checkTopRows > -1 && (i + 1) > this.checkTopRows )
-					break;
-				this.compareLines(results1.get(i), results2.get(i));
-			}
+		for(int i = 0; i < results1.size(); i++) {
+			if( this.checkTopRows == 0 )
+				break;
+			else if( this.checkTopRows > -1 && (i + 1) > this.checkTopRows )
+				break;
+			this.compareLines(results1.get(i), results2.get(i));
 		}
 	}
 	
