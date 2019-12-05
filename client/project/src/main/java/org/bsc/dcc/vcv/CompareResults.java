@@ -76,7 +76,7 @@ public class CompareResults {
 				break;
 			else if( this.checkTopRows > -1 && (i + 1) > this.checkTopRows )
 				break;
-			this.compareLines(results1.get(i), results2.get(i));
+			this.compareLines(results1.get(i), results2.get(i), i + 1);
 		}
 	}
 	
@@ -131,7 +131,8 @@ public class CompareResults {
 	}
 	
 	
-	private void compareLines(String line1, String line2) {
+	private void compareLines(String line1, String line2, int n) {
+		System.out.println("Comparing result " + n);
 		List<String> cols1 = this.lineToList(line1);
 		List<String> cols2 = this.lineToList(line2);
 		boolean linesEq = true;
