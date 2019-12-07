@@ -24,7 +24,7 @@ public class CompareResults {
 	 * args[2] left range of the queries (1..99) default 1
 	 * args[3] right range of the queries (1..99) default 99
 	 * args[4] check column values (true/false) default false
-	 * args[5] check top rows (-1, 1..n) default 100, negative value to ignore
+	 * args[5] check top n rows (-1, 1..n) default 100, negative value to ignore
 	 */
 	
 	public static void main(String[] args) {

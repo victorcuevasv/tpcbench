@@ -22,10 +22,10 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #$1 scale factor (positive integer)
 #$2 experiment instance number (positive integer)
 
-#if [ $# -lt 2 ]; then
-#    echo "${yel}Usage: bash runclient_compareResults.sh <results dir 1> <results dir 2>${end}"
-#    exit 0
-#fi
+if [ $# -lt 4 ]; then
+    echo "${yel}Usage: bash runclient_compareResults.sh <left range> <right range> <check column values> <check top n rows>${end}"     
+    exit 0
+fi
 
 #Execute the Java project with Maven on the client builder container running in the docker-compose setup. 
 
