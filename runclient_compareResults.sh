@@ -36,7 +36,7 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 --volume $DIR/client/project:/project \
 --entrypoint mvn clientbuilder:dev \
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.CompareResults" \
--Dexec.args="/data/DatabricksResults1TB /data/SnowflakeResults1TB" \
+-Dexec.args="/data/DatabricksResults1TB /data/SnowflakeResults1TB $1 $2 $3 $4" \
 -f /project/pom.xml
 
 
