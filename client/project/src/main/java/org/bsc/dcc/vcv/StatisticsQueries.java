@@ -79,11 +79,19 @@ public class StatisticsQueries {
 	private String createDistinctValuesStmt(String tableName, List<String> columns) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("with table_stats as( \n");
-		for(String column : columns) {
-			builder.append("(select '" + column + "' as col_name, count(distinct(" + 
+		for(int i = 0; i < columns.size(); i++) {
+			String column = columns.get(i);
+			//Do not use the union for the last column.
+			if( i < columns.size() - 1 )
+				builder.append("(select '" + column + "' as col_name, count(distinct(" + 
 					column + ")) as dist_value_count from " + 
 					tableName + ") union \n");
+			else
+				builder.append("(select '" + column + "' as col_name, count(distinct(" + 
+						column + ")) as dist_value_count from " + 
+						tableName + ") \n");
 		}
+		builder.append(") \n");
 		builder.append("select * from table_stats \n");
 		builder.append("order by col_name \n");
 		return builder.toString();
