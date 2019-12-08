@@ -54,6 +54,7 @@ public class CompareResults {
 		String[] filesArray = dirFile.list(null);
 		List<String> filesList = new ArrayList<String>(Arrays.asList(filesArray));
 		List<String> filesListSorted = filesList.stream().
+				filter(f -> f.contains(".txt"))
 				map(JarQueriesReaderAsZipFile::extractNumber).
 				sorted().
 				map(n -> "query" + n + ".txt").
