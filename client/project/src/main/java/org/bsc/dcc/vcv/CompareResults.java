@@ -68,8 +68,8 @@ public class CompareResults {
 		List<String> results2 = this.readResults(dirName2 + "/" + fileName2);
 		String fileName1NoExt = fileName1.substring(0, fileName1.indexOf('.'));
 		String fileName2NoExt = fileName2.substring(0, fileName2.indexOf('.'));
-		this.saveProcessedResults(results1, dirName1 + "/" + fileName1NoExt + "_p.txt");
-		this.saveProcessedResults(results2, dirName2 + "/" + fileName2NoExt + "_p.txt");
+		this.saveProcessedResults(results1, dirName1 + "/processed/" + fileName1NoExt + "_p.txt");
+		this.saveProcessedResults(results2, dirName2 + "/processed/" + fileName2NoExt + "_p.txt");
 		System.out.println("Tuple count for query " + nQuery + 
 					": 1 -> " + results1.size() + " 2 -> " + results2.size());
 		for(int i = 0; i < results1.size(); i++) {
