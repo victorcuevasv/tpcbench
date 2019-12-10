@@ -33,7 +33,6 @@ public class QueryWorker implements Callable<Void> {
 			try {
 				QueryRecordConcurrent queryRecord = this.queriesQueue.take();
 				this.executeQuery(queryRecord);
-				this.parent.atomicCounter.incrementAndGet();
 			}
 			catch (InterruptedException e) {
 				e.printStackTrace();

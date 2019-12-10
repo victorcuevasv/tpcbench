@@ -19,6 +19,7 @@ public class QueryResultsCollector implements Runnable {
 		for(int i = 1; i <= this.totalQueries; i++) {
 			try {
 				QueryRecordConcurrent queryRecord = resultsQueue.take();
+				((ExecuteQueriesConcurrent)this.parent).atomicCounter.incrementAndGet();
 				System.out.println(queryRecord.toString());
 			}
 			catch (InterruptedException e) {
