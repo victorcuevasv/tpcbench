@@ -24,6 +24,7 @@ public class QueryRecordConcurrent extends QueryRecord {
 		int spaces = 25;
 		String colFormat = "%-" + spaces + "s|";
 		StringBuilder builder = new StringBuilder();
+		builder.append(String.format(colFormat, getStream()));
 		builder.append(String.format(colFormat, getQuery()));
 		builder.append(String.format(colFormat, isSuccessful()));
 		long durationMs = getEndTime() - getStartTime();

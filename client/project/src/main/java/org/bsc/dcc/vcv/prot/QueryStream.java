@@ -33,8 +33,7 @@ public class QueryStream implements Callable<Void> {
 	
 	
 	private void executeQuery(int nStream, int nQuery, int item) {
-		QueryRecordConcurrent queryRecord = null;
-		queryRecord = new QueryRecordConcurrent(nStream, nQuery);
+		QueryRecordConcurrent queryRecord = new QueryRecordConcurrent(nStream, nQuery);
 		queryRecord.setStartTime(System.currentTimeMillis());
 		try {
 			TimeUnit.SECONDS.sleep((long)(Math.random() * 10.0));
