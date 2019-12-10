@@ -22,7 +22,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 
 	public ExecuteQueriesConcurrent(String[] args) {
 		this.nStreams = Integer.parseInt(args[0]);
-		this.nWorkers = Integer.parseInt(args[0]);
+		this.nWorkers = Integer.parseInt(args[1]);
 		this.streamsExecutor = Executors.newFixedThreadPool(this.POOL_SIZE);
 		this.workersExecutor = Executors.newFixedThreadPool(this.POOL_SIZE);
 		this.queriesQueue = new LinkedBlockingQueue<QueryRecordConcurrent>(this.nWorkers * 2);
@@ -59,7 +59,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.streamsExecutor.shutdown();
 		for(int i = 0; i < this.nWorkers; i++) {
 			QueryWorker worker = new QueryWorker(i, this.queriesQueue, this.resultsQueue, this, totalQueries);
-			this.streamsExecutor.submit(worker);
+			this.workersExecutor.submit(worker);
 		}
 		this.streamsExecutor.shutdown();
 	}
