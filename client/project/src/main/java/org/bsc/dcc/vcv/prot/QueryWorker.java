@@ -31,7 +31,9 @@ public class QueryWorker implements Callable<Void> {
 	public Void call() {
 		while( this.parent.atomicCounter.get() < this.totalQueries  ) {
 			try {
-				QueryRecordConcurrent queryRecord = this.queriesQueue.take();
+				QueryRecordConcurrent queryRecord = this.queriesQueue.poll(5L, TimeUnit.SECONDS);
+				if( queryRecord == null )
+					break;
 				this.executeQuery(queryRecord);
 			}
 			catch (InterruptedException e) {
