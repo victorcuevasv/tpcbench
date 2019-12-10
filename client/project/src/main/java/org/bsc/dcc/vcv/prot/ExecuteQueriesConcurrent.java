@@ -61,7 +61,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			QueryWorker worker = new QueryWorker(i, this.queriesQueue, this.resultsQueue, this, totalQueries);
 			this.workersExecutor.submit(worker);
 		}
-		this.streamsExecutor.shutdown();
+		this.workersExecutor.shutdown();
 	}
 
 
