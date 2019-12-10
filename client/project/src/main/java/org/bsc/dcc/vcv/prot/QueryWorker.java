@@ -39,6 +39,7 @@ public class QueryWorker implements Callable<Void> {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("Exiting while in QueryWorker " + this.nWorker);
 		return null;
 	}
 	
