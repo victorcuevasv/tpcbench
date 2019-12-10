@@ -22,8 +22,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #$1 scale factor (positive integer)
 #$2 experiment instance number (positive integer)
 
-if [ $# -lt 1 ]; then
-    echo "${yel}Usage: bash runclient_concurrency_mock.sh <n streams>${end}"     
+if [ $# -lt 2 ]; then
+    echo "${yel}Usage: bash runclient_concurrency_mock.sh <n streams> <n workers>${end}"     
     exit 0
 fi
 
@@ -36,6 +36,6 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 --volume $DIR/client/project:/project \
 --entrypoint mvn clientbuilder:dev \
 exec:java -Dexec.mainClass="org.bsc.dcc.vcv.prot.ExecuteQueriesConcurrent" \
--Dexec.args="$1" \
+-Dexec.args="$1 $2" \
 -f /project/pom.xml
 
