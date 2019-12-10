@@ -25,6 +25,7 @@ public class QueryResultsCollector implements Runnable {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("atomicCounter: " + ((ExecuteQueriesConcurrent)this.parent).atomicCounter.get());
 	}
 	
 }

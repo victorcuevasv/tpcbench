@@ -46,7 +46,7 @@ public class QueryWorker implements Callable<Void> {
 	private void executeQuery(QueryRecordConcurrent queryRecord) {
 		queryRecord.setStartTime(System.currentTimeMillis());
 		try {
-			TimeUnit.SECONDS.sleep((long)(Math.random() * 10.0));
+			TimeUnit.MILLISECONDS.sleep((long)(Math.random() * 100.0));
 		}
 		catch (InterruptedException e) {
 			e.printStackTrace();
