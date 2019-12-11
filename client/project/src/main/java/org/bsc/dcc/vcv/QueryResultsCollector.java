@@ -2,6 +2,7 @@ package org.bsc.dcc.vcv;
 
 import java.util.concurrent.BlockingQueue;
 
+
 public class QueryResultsCollector implements Runnable {
 	
 	private final int totalQueries;
@@ -22,6 +23,8 @@ public class QueryResultsCollector implements Runnable {
 		for(int i = 1; i <= this.totalQueries; i++) {
 			try {
 				QueryRecordConcurrent queryRecord = resultsQueue.take();
+				//Only has an effect on the limited concurrency variant.
+				this.parent.incrementAtomicCounter();
 				this.analyticsRecorder.record(queryRecord);
 			}
 			catch (InterruptedException e) {

@@ -6,4 +6,6 @@ public interface ConcurrentExecutor {
 	
 	public void saveSnowflakeHistory();
 	
+	public void incrementAtomicCounter();
+	
 }

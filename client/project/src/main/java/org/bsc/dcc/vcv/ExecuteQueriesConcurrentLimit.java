@@ -16,13 +16,14 @@ import java.util.stream.Collectors;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
 
-public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
+public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
@@ -33,9 +34,11 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private final JarQueriesReaderAsZipFile queriesReader;
 	private final JarStreamsReaderAsZipFile streamsReader;
 	private final AnalyticsRecorderConcurrent recorder;
-	private final ExecutorService executor;
+	private final ExecutorService streamsExecutor;
+	private final ExecutorService workersExecutor;
+	private final BlockingQueue<QueryRecordConcurrent> queriesQueue;
 	private final BlockingQueue<QueryRecordConcurrent> resultsQueue;
-	private static final int POOL_SIZE = 100;
+	private static final int POOL_SIZE = 150;
 	private final Random random;
 	final String workDir;
 	final String dbName;
@@ -57,6 +60,8 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	final int[][] matrix;
 	private final boolean useCachedResultSnowflake = false;
 	private final int maxConcurrencySnowflake = 8;
+	private final int nWorkers = 4;
+	AtomicInteger atomicCounter;
 	
 	/**
 	 * @param args
@@ -83,7 +88,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	 * args[16] use multiple connections (true|false)
 	 * 
 	 */
-	public ExecuteQueriesConcurrent(String[] args) {
+	public ExecuteQueriesConcurrentLimit(String[] args) {
 		this.workDir = args[0];
 		this.dbName = args[1];
 		this.folderName = args[2];
@@ -107,8 +112,11 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.matrix = this.streamsReader.getFileAsMatrix(this.streamsReader.getFiles().get(0));
 		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.folderName,
 				this.experimentName, this.system, this.test, this.instance);
-		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
+		this.streamsExecutor = Executors.newFixedThreadPool(this.POOL_SIZE);
+		this.workersExecutor = Executors.newFixedThreadPool(this.POOL_SIZE);
+		this.queriesQueue = new LinkedBlockingQueue<QueryRecordConcurrent>(this.nWorkers * 2);
 		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
+		this.atomicCounter = new AtomicInteger(0);
 		try {
 			if( ! this.multiple )
 				this.con = this.createConnection(this.system, this.hostname, this.dbName);
@@ -294,7 +302,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
 		}
-		ExecuteQueriesConcurrent prog = new ExecuteQueriesConcurrent(args);
+		ExecuteQueriesConcurrentLimit prog = new ExecuteQueriesConcurrentLimit(args);
 		prog.executeStreams();
 	}
 	
@@ -310,26 +318,31 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
 		for(int i = 0; i < this.nStreams; i++) {
-			QueryStream stream = null;
+			QueryStreamLimit stream = new QueryStreamLimit(i, this.queriesQueue, this);
+			this.streamsExecutor.submit(stream);
+		}
+		this.streamsExecutor.shutdown();
+		for(int i = 0; i < this.nWorkers; i++) {
+			QueryWorkerLimit worker = null;
 			if( ! this.multiple ) {
-				stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT,
-						nQueries, this.random, this);
+				worker = new QueryWorkerLimit(i, this.queriesQueue, this.resultsQueue, this.con, queriesHT,
+						totalQueries, this.random, this);
 			}
 			else {
 				Connection con = this.createConnection(this.system, this.hostname, this.dbName);
-				stream = new QueryStream(i, this.resultsQueue, con, queriesHT,
-						nQueries, this.random, this);
+				worker = new QueryWorkerLimit(i, this.queriesQueue, this.resultsQueue, con, queriesHT,
+						totalQueries, this.random, this);
 			}
-			this.executor.submit(stream);
+			this.workersExecutor.submit(worker);
 		}
-		this.executor.shutdown();
+		this.workersExecutor.shutdown();
 	}
 	
 	
 	public HashMap<Integer, String> createQueriesHT(List<String> files, JarQueriesReaderAsZipFile queriesReader) {
 		HashMap<Integer, String> queriesHT = new HashMap<Integer, String>();
 		for(String file : files) {
-			int nQuery = ExecuteQueriesConcurrent.extractNumber(file);
+			int nQuery = ExecuteQueriesConcurrentLimit.extractNumber(file);
 			String sqlStr = queriesReader.getFile(file);
 			queriesHT.put(nQuery, sqlStr);
 		}
@@ -396,8 +409,9 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		printWriter.close();
 	}
 	
+	
 	public void incrementAtomicCounter() {
-		
+		this.atomicCounter.incrementAndGet();
 	}
 
 }

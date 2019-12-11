@@ -21,7 +21,7 @@ public class QueryRecord {
 		this.query = query;
 	}
 	
-	public long getQuery() {
+	public int getQuery() {
 		return this.query;
 	}
 	
