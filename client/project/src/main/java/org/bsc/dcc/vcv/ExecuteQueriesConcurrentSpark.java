@@ -199,7 +199,13 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	public void saveSnowflakeHistory() {
 		
 	}
+	
+	
+	public void incrementAtomicCounter() {
+		
+	}
 
+	
 }
 
 
