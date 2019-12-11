@@ -66,6 +66,8 @@ public class QueryWorkerLimit implements Callable<Void> {
 				if( queryRecord == null )
 					break;
 				String sqlStr = this.queriesHT.get(queryRecord.getQuery());
+				if(sqlStr == null)
+					continue;
 				this.executeQuery(queryRecord.getStream(), queryRecord.getQuery(), sqlStr, 
 						queryRecord.getItem());
 			}
