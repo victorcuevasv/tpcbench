@@ -3,6 +3,7 @@ package org.bsc.dcc.vcv.prot;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 
 public class QueryStream implements Callable<Void> {
@@ -26,6 +27,13 @@ public class QueryStream implements Callable<Void> {
 		int[] queries = StreamsTable.matrix[this.nStream];
 		for(int i = 0; i < queries.length; i++ ) {
 			this.executeQuery(this.nStream, queries[i], i);
+			//Add a pause to avoid all of the queries of this stream from filling the queue.
+			try {
+				TimeUnit.MILLISECONDS.sleep((long)(Math.random() * 10.0));
+			}
+			catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		return null;
 	}
