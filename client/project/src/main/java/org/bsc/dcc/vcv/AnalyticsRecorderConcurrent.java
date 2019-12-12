@@ -11,7 +11,7 @@ public class AnalyticsRecorderConcurrent extends AnalyticsRecorder {
 	}
 	
 	public void header() {
-		String[] titles = {"STREAM", "QUERY", "SUCCESSFUL", "DURATION", "RESULTS_SIZE", "SYSTEM", 
+		String[] titles = {"STREAM", "ITEM", "QUERY", "SUCCESSFUL", "DURATION", "RESULTS_SIZE", "SYSTEM", 
 				   "STARTDATE_EPOCH", "STOPDATE_EPOCH", "DURATION_MS", "STARTDATE", "STOPDATE",
 				   "TUPLES"};
 		StringBuilder builder = new StringBuilder();
@@ -26,6 +26,7 @@ public class AnalyticsRecorderConcurrent extends AnalyticsRecorder {
 		String colFormat = "%-" + spaces + "s|";
 		StringBuilder builder = new StringBuilder();
 		builder.append(String.format(colFormat, queryRecord.getStream()));
+		builder.append(String.format(colFormat, queryRecord.getItem()));
 		builder.append(String.format(colFormat, queryRecord.getQuery()));
 		builder.append(String.format(colFormat, queryRecord.isSuccessful()));
 		long durationMs = queryRecord.getEndTime() - queryRecord.getStartTime();
