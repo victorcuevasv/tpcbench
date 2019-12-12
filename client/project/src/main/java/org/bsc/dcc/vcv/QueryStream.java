@@ -100,7 +100,7 @@ public class QueryStream implements Callable<Void> {
 			if( this.parent.system.equals("prestoemr") ) {
 				this.setPrestoDefaultSessionOpts();
 			}
-			queryRecord = new QueryRecordConcurrent(nStream, nQuery);
+			queryRecord = new QueryRecordConcurrent(nStream, nQuery, item);
 			// Execute the query or queries.
 			this.executeQueryMultipleCalls(nStream, fileName, sqlStr, queryRecord, item);
 			// Record the results file size.

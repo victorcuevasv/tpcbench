@@ -129,7 +129,7 @@ public class QueryStreamSpark implements Callable<Void> {
 		QueryRecordConcurrent queryRecord = null;
 		String noExtFileName = "query" + nQuery;
 		try {
-			queryRecord = new QueryRecordConcurrent(nStream, nQuery);
+			queryRecord = new QueryRecordConcurrent(nStream, nQuery, item);
 			// Execute the query or queries.
 			this.executeQueryMultipleCalls(nStream, noExtFileName, sqlStr, queryRecord, item);
 			// Record the results file size.
