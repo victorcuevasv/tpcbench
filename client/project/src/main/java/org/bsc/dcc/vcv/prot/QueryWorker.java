@@ -50,7 +50,7 @@ public class QueryWorker implements Callable<Void> {
 	
 	private void executeQuery(QueryRecordConcurrent queryRecord) {
 		try {
-			TimeUnit.MILLISECONDS.sleep((long)(Math.random() * 10000.0));
+			TimeUnit.MILLISECONDS.sleep((long)(Math.random() * 1000.0));
 		}
 		catch (InterruptedException e) {
 			e.printStackTrace();
