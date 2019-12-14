@@ -1,10 +1,13 @@
 package org.bsc.dcc.vcv.prot;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.Semaphore;
 
 
 public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
@@ -17,6 +20,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private static final int POOL_SIZE = 150;
 	private final int nStreams;
 	private final int nWorkers;
+	private final List<Semaphore> semaphores;
 	AtomicInteger atomicCounter;
 	
 
@@ -25,9 +29,10 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.nWorkers = Integer.parseInt(args[1]);
 		this.streamsExecutor = Executors.newFixedThreadPool(this.POOL_SIZE);
 		this.workersExecutor = Executors.newFixedThreadPool(this.POOL_SIZE);
-		this.queriesQueue = new LinkedBlockingQueue<QueryRecordConcurrent>(this.nWorkers * 2);
+		this.queriesQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 		this.atomicCounter = new AtomicInteger(0);
+		this.semaphores = new ArrayList<Semaphore>();
 	}
 	
 	/*
@@ -47,18 +52,23 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private void executeStreams() {
 		int nQueries = StreamsTable.matrix[0].length;
 		int totalQueries = nQueries * this.nStreams;
+		for(int i = 0; i < this.nStreams; i++) {
+			Semaphore semaphore = new Semaphore(1);
+			this.semaphores.add(semaphore);
+		}
 		QueryResultsCollector resultsCollector = new QueryResultsCollector(totalQueries, 
 				this.resultsQueue, this);
 		ExecutorService resultsCollectorExecutor = Executors.newSingleThreadExecutor();
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
 		for(int i = 0; i < this.nStreams; i++) {
-			QueryStream stream = new QueryStream(i, this.queriesQueue, this);
+			QueryStream stream = new QueryStream(i, this.queriesQueue, this, this.semaphores.get(i));
 			this.streamsExecutor.submit(stream);
 		}
 		this.streamsExecutor.shutdown();
 		for(int i = 0; i < this.nWorkers; i++) {
-			QueryWorker worker = new QueryWorker(i, this.queriesQueue, this.resultsQueue, this, totalQueries);
+			QueryWorker worker = new QueryWorker(i, this.queriesQueue, this.resultsQueue, this,
+					totalQueries, this.semaphores);
 			this.workersExecutor.submit(worker);
 		}
 		this.workersExecutor.shutdown();

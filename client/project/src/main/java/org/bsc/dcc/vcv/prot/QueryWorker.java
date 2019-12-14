@@ -1,9 +1,11 @@
 package org.bsc.dcc.vcv.prot;
 
 
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Semaphore;
 
 
 public class QueryWorker implements Callable<Void> {
@@ -14,16 +16,18 @@ public class QueryWorker implements Callable<Void> {
 	private final int nWorker;
 	private final int totalQueries;
 	private final ExecuteQueriesConcurrent parent;
+	private final List<Semaphore> semaphores;
 
 	
 	public QueryWorker(int nWorker, BlockingQueue<QueryRecordConcurrent> queriesQueue,
 			BlockingQueue<QueryRecordConcurrent> resultsQueue, 
-			ExecuteQueriesConcurrent parent, int totalQueries) {
+			ExecuteQueriesConcurrent parent, int totalQueries, List<Semaphore> semaphores) {
 		this.nWorker = nWorker;
 		this.queriesQueue = queriesQueue;
 		this.resultsQueue = resultsQueue;
 		this.parent = parent;
 		this.totalQueries = totalQueries;
+		this.semaphores = semaphores;
 	}
 
 	
@@ -45,7 +49,6 @@ public class QueryWorker implements Callable<Void> {
 	
 	
 	private void executeQuery(QueryRecordConcurrent queryRecord) {
-		queryRecord.setStartTime(System.currentTimeMillis());
 		try {
 			TimeUnit.MILLISECONDS.sleep((long)(Math.random() * 10000.0));
 		}
@@ -59,6 +62,7 @@ public class QueryWorker implements Callable<Void> {
 			queryRecord.setSuccessful(true);
 			queryRecord.setEndTime(System.currentTimeMillis());
 			this.resultsQueue.add(queryRecord);
+			this.semaphores.get(queryRecord.getStream()).release();
 		}
 	}
 
