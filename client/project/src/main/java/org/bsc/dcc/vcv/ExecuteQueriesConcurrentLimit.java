@@ -327,7 +327,8 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
 		for(int i = 0; i < this.nStreams; i++) {
-			QueryStreamLimit stream = new QueryStreamLimit(i, this.queriesQueue, this, this.semaphores.get(i));
+			QueryStreamLimit stream = new QueryStreamLimit(i, this.queriesQueue, this,
+					this.semaphores.get(i), queriesHT);
 			this.streamsExecutor.submit(stream);
 		}
 		this.streamsExecutor.shutdown();

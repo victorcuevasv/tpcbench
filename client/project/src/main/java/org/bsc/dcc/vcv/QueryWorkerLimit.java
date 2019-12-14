@@ -69,9 +69,8 @@ public class QueryWorkerLimit implements Callable<Void> {
 				QueryRecordConcurrent queryRecord = this.queriesQueue.poll(10L, TimeUnit.SECONDS);
 				if( queryRecord == null )
 					break;
+				//It is assumed that the query is available in the hash table.
 				String sqlStr = this.queriesHT.get(queryRecord.getQuery());
-				if(sqlStr == null)
-					continue;
 				this.executeQuery(queryRecord.getStream(), queryRecord.getQuery(), sqlStr, 
 						queryRecord.getItem());
 			}

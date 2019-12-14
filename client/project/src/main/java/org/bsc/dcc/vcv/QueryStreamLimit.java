@@ -1,5 +1,6 @@
 package org.bsc.dcc.vcv;
 
+import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Semaphore;
@@ -16,14 +17,16 @@ public class QueryStreamLimit implements Callable<Void> {
 	private final int nStream;
 	private final ExecuteQueriesConcurrentLimit parent;
 	private final Semaphore semaphore;
+	private final HashMap<Integer, String> queriesHT;
 
 	
 	public QueryStreamLimit(int nStream, BlockingQueue<QueryRecordConcurrent> queriesQueue,
-			ExecuteQueriesConcurrentLimit parent, Semaphore semaphore) {
+			ExecuteQueriesConcurrentLimit parent, Semaphore semaphore, HashMap<Integer, String> queriesHT) {
 		this.nStream = nStream;
 		this.queriesQueue = queriesQueue;
 		this.parent = parent;
 		this.semaphore = semaphore;
+		this.queriesHT = queriesHT;
 	}
 
 	
@@ -42,6 +45,10 @@ public class QueryStreamLimit implements Callable<Void> {
 			//continue;
 			//if( Arrays.binarySearch(impalaKit, queries[i]) < 0 )
 			//	continue;
+			//Only send the query to the queue if it is found in the hash table.
+			String sqlStr = this.queriesHT.get(queries[i]);
+			if( sqlStr == null )
+				continue;
 			try {
 				this.semaphore.acquire();
 			}
