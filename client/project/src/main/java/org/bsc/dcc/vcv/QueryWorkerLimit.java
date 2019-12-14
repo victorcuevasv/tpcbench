@@ -13,6 +13,8 @@ import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Semaphore;
+import java.util.List;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
@@ -33,12 +35,13 @@ public class QueryWorkerLimit implements Callable<Void> {
 	private final ExecuteQueriesConcurrentLimit parent;
 	private final int nWorker;
 	private final int totalQueries;
+	private final List<Semaphore> semaphores;
 
 	
 	public QueryWorkerLimit(int nWorker, BlockingQueue<QueryRecordConcurrent> queriesQueue,
 			BlockingQueue<QueryRecordConcurrent> resultsQueue, Connection con,
 			HashMap<Integer, String> queriesHT, int totalQueries, Random random,
-			ExecuteQueriesConcurrentLimit parent) {
+			ExecuteQueriesConcurrentLimit parent, List<Semaphore> semaphores) {
 		this.nWorker = nWorker;
 		this.queriesQueue = queriesQueue;
 		this.resultsQueue = resultsQueue;
@@ -47,6 +50,7 @@ public class QueryWorkerLimit implements Callable<Void> {
 		this.totalQueries = totalQueries;
 		this.random = random;
 		this.parent = parent;
+		this.semaphores = semaphores;
 	}
 	
 	
@@ -126,6 +130,7 @@ public class QueryWorkerLimit implements Callable<Void> {
 		finally {
 			queryRecord.setEndTime(System.currentTimeMillis());
 			this.resultsQueue.add(queryRecord);
+			this.semaphores.get(queryRecord.getStream()).release();
 		}
 	}
 	

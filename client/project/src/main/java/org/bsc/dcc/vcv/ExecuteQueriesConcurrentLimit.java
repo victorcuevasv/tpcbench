@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Random;
 import java.sql.DriverManager;
 import java.io.*;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
@@ -19,6 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
@@ -38,6 +41,7 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 	private final ExecutorService workersExecutor;
 	private final BlockingQueue<QueryRecordConcurrent> queriesQueue;
 	private final BlockingQueue<QueryRecordConcurrent> resultsQueue;
+	private final List<Semaphore> semaphores;
 	private static final int POOL_SIZE = 150;
 	private final Random random;
 	final String workDir;
@@ -114,8 +118,9 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 				this.experimentName, this.system, this.test, this.instance);
 		this.streamsExecutor = Executors.newFixedThreadPool(this.POOL_SIZE);
 		this.workersExecutor = Executors.newFixedThreadPool(this.POOL_SIZE);
-		this.queriesQueue = new LinkedBlockingQueue<QueryRecordConcurrent>(this.nWorkers * 2);
+		this.queriesQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
+		this.semaphores = new ArrayList<Semaphore>();
 		this.atomicCounter = new AtomicInteger(0);
 		try {
 			if( ! this.multiple )
@@ -312,13 +317,17 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 		HashMap<Integer, String> queriesHT = createQueriesHT(files, this.queriesReader);
 		int nQueries = files.size();
 		int totalQueries = nQueries * this.nStreams;
+		for(int i = 0; i < this.nStreams; i++) {
+			Semaphore semaphore = new Semaphore(1);
+			this.semaphores.add(semaphore);
+		}
 		QueryResultsCollector resultsCollector = new QueryResultsCollector(totalQueries, 
 				this.resultsQueue, this.recorder, this);
 		ExecutorService resultsCollectorExecutor = Executors.newSingleThreadExecutor();
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
 		for(int i = 0; i < this.nStreams; i++) {
-			QueryStreamLimit stream = new QueryStreamLimit(i, this.queriesQueue, this);
+			QueryStreamLimit stream = new QueryStreamLimit(i, this.queriesQueue, this, this.semaphores.get(i));
 			this.streamsExecutor.submit(stream);
 		}
 		this.streamsExecutor.shutdown();
@@ -326,12 +335,12 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 			QueryWorkerLimit worker = null;
 			if( ! this.multiple ) {
 				worker = new QueryWorkerLimit(i, this.queriesQueue, this.resultsQueue, this.con, queriesHT,
-						totalQueries, this.random, this);
+						totalQueries, this.random, this, this.semaphores);
 			}
 			else {
 				Connection con = this.createConnection(this.system, this.hostname, this.dbName);
 				worker = new QueryWorkerLimit(i, this.queriesQueue, this.resultsQueue, con, queriesHT,
-						totalQueries, this.random, this);
+						totalQueries, this.random, this, this.semaphores);
 			}
 			this.workersExecutor.submit(worker);
 		}
