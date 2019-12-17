@@ -35,7 +35,7 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 	private Connection con;
 	private final JarQueriesReaderAsZipFile queriesReader;
 	private final JarStreamsReaderAsZipFile streamsReader;
-	private final AnalyticsRecorderConcurrent recorder;
+	private final AnalyticsRecorderConcurrentLimit recorder;
 	private final ExecutorService streamsExecutor;
 	private final ExecutorService workersExecutor;
 	private final BlockingQueue<QueryRecordConcurrent> queriesQueue;
@@ -115,7 +115,7 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
 		this.matrix = this.streamsReader.getFileAsMatrix(this.streamsReader.getFiles().get(0));
-		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.folderName,
+		this.recorder = new AnalyticsRecorderConcurrentLimit(this.workDir, this.folderName,
 				this.experimentName, this.system, this.test, this.instance);
 		this.streamsExecutor = Executors.newFixedThreadPool(this.POOL_SIZE);
 		this.workersExecutor = Executors.newFixedThreadPool(this.POOL_SIZE);

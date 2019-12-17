@@ -3,7 +3,7 @@ package org.bsc.dcc.vcv;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class AnalyticsRecorderConcurrentLimit extends AnalyticsRecorder {
+public class AnalyticsRecorderConcurrentLimit extends AnalyticsRecorderConcurrent {
 	
 	public AnalyticsRecorderConcurrentLimit(String workDir, String folderName, String experimentName,
 			String system, String test, int instance) {
