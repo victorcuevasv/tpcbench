@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 public class RunBenchmark {
 
 	
-	private static final Logger logger = LogManager.getLogger("AllLog");
+	protected static final Logger logger = LogManager.getLogger("AllLog");
 	private final String workDir;
 	private final String folderName;
 	private final String experimentName;
