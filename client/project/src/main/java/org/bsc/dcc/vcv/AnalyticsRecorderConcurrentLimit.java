@@ -26,12 +26,12 @@ public class AnalyticsRecorderConcurrentLimit extends AnalyticsRecorderConcurren
 			this.record((QueryRecordConcurrentLimit)queryRecord);
 		else
 			super.record(queryRecord);
-			
 	}
 	
 	public void record(QueryRecordConcurrentLimit queryRecord) {
 		int spaces = 25;
 		String colFormat = "%-" + spaces + "s|";
+		String colFormatLast = "%-" + spaces + "s";
 		StringBuilder builder = new StringBuilder();
 		builder.append(String.format(colFormat, queryRecord.getStream()));
 		builder.append(String.format(colFormat, queryRecord.getItem()));
@@ -51,7 +51,7 @@ public class AnalyticsRecorderConcurrentLimit extends AnalyticsRecorderConcurren
 		Date endDate = new Date(queryRecord.getEndTime());
 		String endDateFormatted = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(endDate);
 		builder.append(String.format(colFormat, endDateFormatted));
-		builder.append(String.format("%-" + spaces + "s", queryRecord.getTuples()));
+		builder.append(String.format(colFormat, queryRecord.getTuples()));
 		Date queueStartDate = new Date(queryRecord.getQueueStartTime());
 		String queueStartDateFormatted = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(queueStartDate);
 		builder.append(String.format(colFormat, queueStartDateFormatted));
@@ -60,7 +60,7 @@ public class AnalyticsRecorderConcurrentLimit extends AnalyticsRecorderConcurren
 		builder.append(String.format(colFormat, queueEndDateFormatted));
 		long queueDurationMs = queryRecord.getQueueEndTime() - queryRecord.getQueueStartTime();
 		String queueDurationFormatted = String.format("%.3f", ((double) queueDurationMs / 1000.0d));
-		builder.append(String.format(colFormat, queueDurationFormatted));
+		builder.append(String.format(colFormatLast, queueDurationFormatted));
 		this.message(builder.toString());
 	}
 
