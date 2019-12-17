@@ -75,7 +75,7 @@ docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuilderc
 --volume $DIR/../client/project:/project \
 --volume $DIR/../vols/hive:/temporal \
 --entrypoint mvn clientbuilder:dev \
-exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmark" \
+exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmarkLimit" \
 -Dexec.args="/data tpcdsdb$1gb 1pi53t9ak8siwmdi22zrjzu5fk-1b9gvp snowflakeconcurrencylimittest snowflake \
 $2 UNUSED tables _ext TPCDSDB$1GB_S3_STAGE/$1GB \
 null UNUSED false false zua56993.snowflakecomputing.com \
