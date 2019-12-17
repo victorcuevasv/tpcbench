@@ -62,8 +62,10 @@ public class QueryStreamLimit implements Callable<Void> {
 
 	
 	private void executeQuery(int nStream, int nQuery, int item) {
-		QueryRecordConcurrent queryRecord = new QueryRecordConcurrent(nStream, nQuery, item);
-		queryRecord.setStartTime(System.currentTimeMillis());
+		QueryRecordConcurrentLimit queryRecord = new QueryRecordConcurrentLimit(nStream, nQuery, item);
+		long startTime = System.currentTimeMillis();
+		queryRecord.setStartTime(startTime);
+		queryRecord.setQueueStartTime(startTime);
 		try {
 			this.queriesQueue.put(queryRecord);
 		}

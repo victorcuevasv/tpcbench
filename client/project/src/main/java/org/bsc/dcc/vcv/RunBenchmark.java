@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -79,7 +78,7 @@ public class RunBenchmark {
 	}
 	
 	
-	public void runBenchmark(String[] args) {
+	private void runBenchmark(String[] args) {
 		String[] createDatabaseArgs = this.createCreateDatabaseArgs(args);
 		String[] executeQueriesArgs = this.createExecuteQueriesArgs(args);
 		String[] executeQueriesConcurrentArgs = this.createExecuteQueriesConcurrentArgs(args);
@@ -120,7 +119,7 @@ public class RunBenchmark {
 	}
 	
 	
-	private String[] createCreateDatabaseArgs(String args[]) {
+	protected String[] createCreateDatabaseArgs(String args[]) {
 		/* 
 		args[0] main work directory
 		args[1] schema (database) name
@@ -171,7 +170,7 @@ public class RunBenchmark {
 	}
 	
 	
-	private String[] createAnalyzeTablesArgs(String args[]) {
+	protected String[] createAnalyzeTablesArgs(String args[]) {
 		/* 
 		args[0] main work directory
 		args[1] schema (database) name
@@ -199,7 +198,7 @@ public class RunBenchmark {
 	}
 	
 	
-	private String[] createExecuteQueriesArgs(String args[]) {
+	protected String[] createExecuteQueriesArgs(String args[]) {
 		/* 
 		args[0] main work directory
 		args[1] schema (database) name
@@ -242,7 +241,7 @@ public class RunBenchmark {
 	}
 	
 	
-	private String[] createExecuteQueriesDeltaZorderArgs(String args[]) {
+	protected String[] createExecuteQueriesDeltaZorderArgs(String args[]) {
 		/* 
 		args[0] main work directory
 		args[1] schema (database) name
@@ -285,7 +284,7 @@ public class RunBenchmark {
 	}
 	
 	
-	private String[] createExecuteQueriesConcurrentArgs(String args[]) {
+	protected String[] createExecuteQueriesConcurrentArgs(String args[]) {
 		/* 
 		args[0] main work directory
 		args[1] schema (database) name
@@ -334,7 +333,7 @@ public class RunBenchmark {
 	}
 	
 	
-	public void saveTestParameters(String args[], String test) {
+	protected void saveTestParameters(String args[], String test) {
 		try {
 			String paramsFileName = this.workDir + "/" + this.folderName + "/analytics/" + 
 					this.experimentName + "/" + test + "/" + this.instance + "/parameters.log";

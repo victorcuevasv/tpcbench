@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Random;
 import java.sql.DriverManager;
 import java.io.*;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.Stream;
@@ -64,7 +63,7 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 	final int[][] matrix;
 	private final boolean useCachedResultSnowflake = false;
 	private final int maxConcurrencySnowflake = 8;
-	private final int nWorkers = 4;
+	private final int nWorkers;
 	AtomicInteger atomicCounter;
 	
 	/**
@@ -89,7 +88,8 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 	 * args[14] number of streams
 	 * 
 	 * args[15] random seed
-	 * args[16] use multiple connections (true|false)
+	 * args[16] number of workers
+	 * args[17] use multiple connections (true|false)
 	 * 
 	 */
 	public ExecuteQueriesConcurrentLimit(String[] args) {
@@ -109,7 +109,8 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 		this.jarFile = args[13];
 		this.nStreams = Integer.parseInt(args[14]);
 		this.seed = Long.parseLong(args[15]);
-		this.multiple = Boolean.parseBoolean(args[16]);
+		this.nWorkers = Integer.parseInt(args[16]);
+		this.multiple = Boolean.parseBoolean(args[17]);
 		this.random = new Random(seed);
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
@@ -214,7 +215,7 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 		try {
 			Statement sessionStmt = this.con.createStatement();
 			sessionStmt.executeUpdate("ALTER SESSION SET USE_CACHED_RESULT = " + this.useCachedResultSnowflake);
-			sessionStmt.executeUpdate("ALTER WAREHOUSE SET MAX_CONCURRENCY_LEVEL = " + this.maxConcurrencySnowflake);
+			//sessionStmt.executeUpdate("ALTER WAREHOUSE SET MAX_CONCURRENCY_LEVEL = " + this.maxConcurrencySnowflake);
 			sessionStmt.close();
 		}
 		catch(Exception e) {
@@ -302,7 +303,7 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 
 	
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 17 ) {
+		if( args.length != 18 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);

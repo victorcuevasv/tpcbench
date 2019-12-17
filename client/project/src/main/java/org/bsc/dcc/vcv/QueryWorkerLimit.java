@@ -66,13 +66,14 @@ public class QueryWorkerLimit implements Callable<Void> {
 	public Void call() {
 		while( this.parent.atomicCounter.get() < this.totalQueries  ) {
 			try {
-				QueryRecordConcurrent queryRecord = this.queriesQueue.poll(10L, TimeUnit.SECONDS);
+				QueryRecordConcurrentLimit queryRecord =
+						(QueryRecordConcurrentLimit)this.queriesQueue.poll(10L, TimeUnit.SECONDS);
 				if( queryRecord == null )
 					break;
+				queryRecord.setQueueEndTime(System.currentTimeMillis());
 				//It is assumed that the query is available in the hash table.
 				String sqlStr = this.queriesHT.get(queryRecord.getQuery());
-				this.executeQuery(queryRecord.getStream(), queryRecord.getQuery(), sqlStr, 
-						queryRecord.getItem());
+				this.executeQuery(queryRecord, sqlStr);
 			}
 			catch (InterruptedException e) {
 				e.printStackTrace();
@@ -97,19 +98,18 @@ public class QueryWorkerLimit implements Callable<Void> {
 	
 	
 	// Execute the query (or queries) from the provided file.
-	private void executeQuery(int nStream, int nQuery, String sqlStr, int item) {
-		QueryRecordConcurrent queryRecord = null;
-		String fileName = "query" + nQuery;
+	private void executeQuery(QueryRecordConcurrentLimit queryRecord, String sqlStr) {
+		String fileName = "query" + queryRecord.getQuery();
 		try {
 			if( this.parent.system.equals("prestoemr") ) {
 				this.setPrestoDefaultSessionOpts();
 			}
-			queryRecord = new QueryRecordConcurrent(nStream, nQuery, item);
 			// Execute the query or queries.
-			this.executeQueryMultipleCalls(nStream, fileName, sqlStr, queryRecord, item);
+			this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
 			// Record the results file size.
 			if( this.parent.saveResults ) {
-				File resultsFile = new File(generateResultsFileName(fileName, nStream, item));
+				File resultsFile = new File(generateResultsFileName(fileName, queryRecord.getStream(), 
+						queryRecord.getItem()));
 				queryRecord.setResultsSize(resultsFile.length());
 			}
 			else
@@ -135,8 +135,8 @@ public class QueryWorkerLimit implements Callable<Void> {
 	
 
 	// Execute the queries from the provided file.
-	private void executeQueryMultipleCalls(int nStream, String fileName, String sqlStrFull,
-			QueryRecord queryRecord, int item) throws SQLException {
+	private void executeQueryMultipleCalls(String fileName, String sqlStrFull,
+			QueryRecordConcurrentLimit queryRecord) throws SQLException {
 		// Split the various queries and execute each.
 		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
 		boolean firstQuery = true;
@@ -155,18 +155,20 @@ public class QueryWorkerLimit implements Callable<Void> {
 			Statement stmt = con.createStatement();
 			if( this.parent.savePlans ) {
 				ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
-				this.saveResults(generatePlansFileName(fileName, nStream, item), planrs, !firstQuery);
+				this.saveResults(generatePlansFileName(fileName, queryRecord.getStream(), 
+						queryRecord.getItem()), planrs, !firstQuery);
 				planrs.close();
 			}
 			// Execute the query.
 			if (firstQuery)
 				queryRecord.setStartTime(System.currentTimeMillis());
-			System.out.println("Stream " + nStream + " item " + item + 
+			System.out.println("Stream " + queryRecord.getStream() + " item " + queryRecord.getItem() + 
 					" executing iteration " + iteration + " of query " + fileName + ".");
 			ResultSet rs = stmt.executeQuery(sqlStr);
 			// Save the results.
 			if( this.parent.saveResults ) {
-				int tuples = this.saveResults(generateResultsFileName(fileName, nStream, item), rs, !firstQuery);
+				int tuples = this.saveResults(generateResultsFileName(fileName, 
+						queryRecord.getStream(), queryRecord.getItem()), rs, !firstQuery);
 				queryRecord.setTuples(queryRecord.getTuples() + tuples);
 			}
 			stmt.close();
