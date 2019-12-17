@@ -131,7 +131,7 @@ public class RunBenchmarkLimit extends RunBenchmark {
 		args[16] number of workers
 		args[17] use multiple connections (true|false)
 		*/
-		String[] array = new String[17];
+		String[] array = new String[18];
 		array[0] = args[0];
 		array[1] = args[1];
 		array[2] = args[2];
