@@ -21,6 +21,14 @@ public class AnalyticsRecorderConcurrentLimit extends AnalyticsRecorderConcurren
 		this.message(builder.toString());
 	}
 	
+	public void record(QueryRecordConcurrent queryRecord) {
+		if( queryRecord instanceof QueryRecordConcurrentLimit)
+			this.record((QueryRecordConcurrentLimit)queryRecord);
+		else
+			super.record(queryRecord);
+			
+	}
+	
 	public void record(QueryRecordConcurrentLimit queryRecord) {
 		int spaces = 25;
 		String colFormat = "%-" + spaces + "s|";

@@ -46,7 +46,7 @@ public class AnalyticsRecorderConcurrent extends AnalyticsRecorder {
 		builder.append(String.format("%-" + spaces + "s", queryRecord.getTuples()));
 		this.message(builder.toString());
 	}
-
+	
 }
 
 
