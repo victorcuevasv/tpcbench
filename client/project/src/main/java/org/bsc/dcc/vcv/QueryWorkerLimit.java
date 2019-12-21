@@ -160,8 +160,6 @@ public class QueryWorkerLimit implements Callable<Void> {
 				planrs.close();
 			}
 			// Execute the query.
-			if (firstQuery)
-				queryRecord.setStartTime(System.currentTimeMillis());
 			System.out.println("Stream " + queryRecord.getStream() + " item " + queryRecord.getItem() + 
 					" executing iteration " + iteration + " of query " + fileName + ".");
 			ResultSet rs = stmt.executeQuery(sqlStr);
