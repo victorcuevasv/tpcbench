@@ -18,6 +18,46 @@ The Power and Throughput Tests are then run on the loaded data, completing the b
 
 The results of Figure \ref{fig:basicResults} show that Databricks obtains the best result by completing the benchmark in slightly less than 10 hours, which is more than 4 times faster than EMR Presto, the slowest system overall. EMR Spark is faster than its Presto counterpart, but it still takes over 16 hours, yielding the second-best time. With a time of almost exactly 17 hours, Databricks Light ranks third in total benchmark completion time.
 
+\begin{table}
+  \centering
+	\begin{tabular}{|l|l|}
+	  \hline
+		\textbf{Query} & \textbf{Modifications (carried on to all systems)} \\ \hline
+		72 & manual join re-ordering  \\ \hline
+		95 & add distinct clause \\ \hline
+	\end{tabular}
+	\caption{Query modifications for EMR Presto.}
+	\label{table:prestoModifiedQueries}
+\end{table}
+
+\begin{table}
+  \centering
+	\begin{tabular}{|l|}
+	  \hline
+		\textbf{Session configuration for all queries} \\ \hline
+		query\_max\_stage\_count: 102  \\ \hline
+		join\_reordering\_strategy: AUTOMATIC \\ \hline
+		join\_reordering\_strategy: AUTOMATIC \\ \hline
+		join\_distribution\_type: AUTOMATIC \\ \hline
+	\end{tabular}
+	\caption{Session configuration for EMR Presto.}
+	\label{table:prestoSessionConf}
+\end{table}
+
+\begin{table}
+  \centering
+	\begin{tabular}{|l|l|}
+	  \hline
+		\textbf{Query} & \textbf{Modifications (carried on to all systems)} \\ \hline
+		5, 75, 78, and 80 & join\_distribution\_type: PARTITIONED \\ \hline
+		78 and 85 & join\_reordering\_strategy: NONE \\ \hline
+		67 & task\_concurrency: 32 \\ \hline
+		18 & join\_reordering\_strategy\=ELIMINATE\_CROSS\_JOINS \\ \hline
+	\end{tabular}
+	\caption{Query-specific configuration parameters for EMR Presto.}
+	\label{table:prestoQuerySpecificConf}
+\end{table}
+
 \subsection{Results with table and column statistics}\label{statsResults}
 
 We can improve the results shown in the previous subsection and characterized as basic by collecting statistics on the data that will allow the cost-based query optimizer (CBO) of each system to generate optimized evaluation plans. The statistics considered are collected at the table and column levels. The table-level statistics correspond to table size metrics such as the number of tuples or the disk space occupied. On the other hand, column-level statistics involve computing for a given column metrics including the number of distinct values, the minimum and maximum value, and the number or proportion of null values.
@@ -44,7 +84,7 @@ In order to study in greater detail the effect of employing statistics, besides 
 
 We observe the biggest speedup with EMR Presto at 1.64, followed by Databricks at 1.19. Databricks is thus about 3 times faster than EMR Presto when using statistics in contrast to about 4 times faster with the basic results. This does not necessarily imply that the EMR Presto optimizer is more effective, since the evaluation strategies for the EMR Presto basic results could be significantly suboptimal from the start.
 
-Notably, Databricks Light and EMR Spark show reduced performance when using statistics, reflected in speedups of less than 1. In the case of EMR Spark it is important to clarify that the result in Figure \ref{fig:statsResults} was obtained with the default configuration in which the optimizer is disabled. With the optimizer enabled the total benchmark execution time rises from 17.28 hours to 27.11 hours, which corresponds to a speedup of 0.60.
+Notably, Databricks Light and EMR Spark show reduced performance when using statistics, reflected in speedups of less than 1. In the case of EMR Spark it is important to clarify that the result in Figure \ref{fig:statsResults} was obtained with the default configuration in which the optimizer is disabled. When the optimizer is enabled the total benchmark execution time rises from 17.28 hours to 27.11 hours, which corresponds to a speedup of 0.60. We can conclude that employing the EMR Spark optimizer is in general counter productive.
 
 
 
