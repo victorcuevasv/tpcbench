@@ -37,7 +37,6 @@ The results of Figure \ref{fig:basicResults} show that Databricks obtains the be
 		\textbf{Session configuration for all queries} \\ \hline
 		query\_max\_stage\_count: 102  \\ \hline
 		join\_reordering\_strategy: AUTOMATIC \\ \hline
-		join\_reordering\_strategy: AUTOMATIC \\ \hline
 		join\_distribution\_type: AUTOMATIC \\ \hline
 	\end{tabular}
 	\caption{Session configuration for EMR Presto.}
@@ -54,9 +53,15 @@ The results of Figure \ref{fig:basicResults} show that Databricks obtains the be
 		67 & task\_concurrency: 32 \\ \hline
 		18 & join\_reordering\_strategy\=ELIMINATE\_CROSS\_JOINS \\ \hline
 	\end{tabular}
-	\caption{Query-specific configuration parameters for EMR Presto.}
+	\caption{Query-specific configuration for EMR Presto.}
 	\label{table:prestoQuerySpecificConf}
 \end{table}
+
+It is important to remark that query modifications and additional configuration settings were necessary to enable the successful completion of the Power and Throughput Tests in EMR Presto. The query modifications are listed in Table \ref{table:prestoModifiedQueries}. The join order in query 72 was modified manually in order to reduce the size of intermediate results and thus avoid an out of memory error. The same problem arose for query 95, but in that case it was addressed by adding a distinct clause in an intermediate projection. Since we aim for consistency in our results, these query modifications were applied to all systems in all of the experiments presented in this report.
+
+In relation to the additional configuration settings, these take place via session level parameters and thus apply to all queries, unless they are overridden for specific queries. The session parameters are listed in Table \ref{table:prestoSessionConf}. The maximum number of stages is raised to 102, given that one of the queries produces a number of stages higher than the default. The join reordering strategy and the join distribution type are set to automatic, meaning that they will be chosen by the optimizer.
+
+A few queries required overriding the session settings in Table \ref{table:prestoSessionConf} or modifying additional parameters. Queries 5, 75, and 80 avoided errors by forcing the use of partitioned joins. For query 85 it was necessary to preclude join re-ordering. In the case of query 78 the previous two modifications were required. Query 67 completed successfully by increasing the number of concurrent tasks. It is unclear for us why this was the case, a hypothesis is that smaller tasks avoided the allocation of very large segments of memory. Finally, by forcing the elimination of cross-joins query 18 completed successfully. 
 
 \subsection{Results with table and column statistics}\label{statsResults}
 

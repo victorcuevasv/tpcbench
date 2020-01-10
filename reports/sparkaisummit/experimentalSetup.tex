@@ -24,7 +24,7 @@ Our implementation of this benchmark is based on the TPC-DS Toolkit v2.10.1rc3, 
 
 All of our experiments employ Amazon Elastic Compute Cloud (Amazon EC2) computing clusters. Specifically, i3.2xlarge instance types, which are characterized as storage optimized. These machines are equipped with 8 vCPUs (2.3 GHz Intel Xeon E5 2686 v4), 61 GiB of RAM, and a 1,900 GB NVMe SSD. The network speed supported is up to 10 Gbps. For all of the experiments presented in this report we used clusters consisting of 8 worker nodes and one master node of the aforementioned instance type.
 
-\subsection{Software configuration}
+\subsection{Software configuration}\label{subsec:softwareConf}
 
 We present the main software configuration we use for the three SUTs in Table \ref{table:softwareConf}. These configuration parameters arise from the need to avoid errors in the benchmark execution, and do not correspond to fine-tuning of the systems to improve performance, since we opt to keep the original system configurations as much as possible.
 
