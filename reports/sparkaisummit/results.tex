@@ -91,6 +91,12 @@ We observe the biggest speedup with EMR Presto at 1.64, followed by Databricks a
 
 Notably, Databricks Light and EMR Spark show reduced performance when using statistics, reflected in speedups of less than 1. In the case of EMR Spark it is important to clarify that the result in Figure \ref{fig:statsResults} was obtained with the default configuration in which the optimizer is disabled. When the optimizer is enabled the total benchmark execution time rises from 17.28 hours to 27.11 hours, which corresponds to a speedup of 0.60. We can conclude that employing the EMR Spark optimizer is in general counter productive.
 
+\subsection{Results with dynamic data partitioning}\label{statsResults}
+
+The performance of the various systems can be further improved with the use of dynamic data partitioning when loading data. The partitioning process implies splitting a given table based on the value of a particular column. It is referred to as dynamic because the user does not have to provide SQL statements with explicit values for the partitioning column. Instead, a separate file is created dynamically for each new value found in the data for the partitioning column. That file is stored in a separate folder within the S3 bucket that stores the table. By splitting the data based on the values of a particular column, when evaluating queries with conditions involving that column only a fraction of the splits may need to be accessed, which is often referred to as dynamic partition pruning.
+
+In practice, dynamic data partitioning is only beneficial for large tables. Furthermore, if the number of distinct values for the partitioning column is too large, the data loading can be slow and the whole approach counterproductive for query evaluation. In our case, we perform dynamic data partitioning only on the 7 largest tables of the TPC-DS database. The partitioning column in all cases is the surrogate key for the date, representing up to about 2,500 distinct values.
+
 
 
 
