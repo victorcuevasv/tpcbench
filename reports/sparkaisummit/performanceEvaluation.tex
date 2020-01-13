@@ -58,7 +58,15 @@ We exclude in this report the AWS S3 storage costs as well as the costs involved
 
 The lowest cost overall is achieved by Databricks using statistics and data partitioning at \$51. It is noteworthy that Databricks obtains the lowest cost despite higher costs per-node per-hour. The next best result (\$63) puts EMR Spark at the second place and is obtained using data partitioning. The best cost for EMR Presto (\$173) is over three times higher than the best cost for Databricks and higher than the costs for Databricks Light.
 
-Given the TPC-DS metric results and the associated costs incurred to achieve them we can derive a single price-performance metric to compare the various systems. The results for this price-performance metric are presented in Figure \ref{}, in this case smaller values are better.
+Given the TPC-DS metric results and the associated costs incurred to achieve them we can derive a single price-performance metric to compare the various systems. The results for this price-performance metric are presented in Figure \ref{fig:pricePerformanceSummary}, in this case smaller values are better. Essentially, the price-performance results are congruent to the monetary costs, favoring Databricks with statistics and data partitioning. EMR Spark, Databricks Light and EMR Presto are next in the ranking.
+
+\begin{figure}
+   \begin{center}
+   \scalebox{0.70}{\includegraphics[width=7.0in]{imgs/pricePerformanceSummary.pdf}}
+   \end{center}
+   \caption{Summary of price-performance for the TPC-DS benchmark at the 1 TB scale factor.}
+   \label{fig:pricePerformanceSummary}
+\end{figure}
 
 
 

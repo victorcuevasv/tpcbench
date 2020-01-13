@@ -1,3 +1,6 @@
 \section{Conclusions}\label{conclusions}
 
+Based on the experiments presented in this report we can derive the following conclusions. First, Databricks proved to be the most efficient system. The best Databricks configuration, which employed statistics and data partitioning, was about 32\% faster than the best EMR Spark configuration, which also adopted data partitioning but kept the optimizer disabled by default. When compared to EMR Presto, Databricks proved to be about 4 times faster. Taking costs into consideration, Databricks is about 20\% cheaper than EMR Spark and about 3.4 times cheaper than EMR Presto. The Databricks optimizer and its caching infrastructure proved to be crucial factors to achieve better performance.
+
+Second, although the implementation and tuning effort for Databricks was roughly comparable to that of EMR Spark, EMR Presto required significantly more work in order to be able to complete the TPC-DS benchmark. Concretely, more parameters needed to be adjusted, in some cases at the level of specific queries. Additionally, two queries had to be rewritten manually.  
 
