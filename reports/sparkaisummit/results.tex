@@ -97,6 +97,27 @@ The performance of the various systems can be further improved with the use of d
 
 In practice, dynamic data partitioning is only beneficial for large tables. Furthermore, if the number of distinct values for the partitioning column is too large, the data loading can be slow and the whole approach counterproductive for query evaluation. In our case, we perform dynamic data partitioning only on the 7 largest tables of the TPC-DS database. The partitioning column in all cases is the surrogate key for the date, representing up to about 2,500 distinct values.
 
+\begin{figure}
+   \begin{center}
+   \scalebox{0.80}{\includegraphics[width=7.0in]{imgs/partstatsResults.pdf}}
+   \end{center}
+   \caption{Results using table and column statistics plus data partitioning for the TPC-DS benchmark at the 1 TB scale factor.}
+   \label{fig:partstatsResults}
+\end{figure}
+
+Figure \ref{fig:partstatsResults} shows the results of incorporating dynamic data partitioning. Databricks again shows the best performance with a total time of around 6 hours. The second best time corresponds to EMR Spark at almost 9 hours. Due to time limitations no experiment was performed with Databricks Light. EMR Presto turned out to be significantly slower with a total time greater than 31 hours. However, the results with EMR Presto include errors and should not be regarded as valid, further details are given below.
+
+In the case of EMR Presto major issues arose in data loading as well as in query evaluation. Due to out of memory errors it was not possible to complete successfully the data loading process with EMR Presto. We opted for the alternative of using Hive running on Tez for data loading. Subsequently, 2 queries failed in the Power Test and 6 in the Throughput Test. Since the use of data partitioning was already proving to be counterproductive for EMR Presto, no further efforts were undertaken to avoid the errors.
+
+ \begin{figure}
+   \begin{center}
+   \scalebox{0.70}{\includegraphics[width=7.0in]{imgs/partstatsSpeedup.pdf}}
+   \end{center}
+   \caption{Speedup using table and column statistics as well as dynamic data partitioning for the TPC-DS benchmark at the 1 TB scale factor.}
+   \label{fig:partstatsSpeedup}
+\end{figure}
+
+We conclude our presentation of the results with dynamic data partitioning with a graph of the speedup achieved, seen in Figure \ref{fig:partstatsSpeedup}. The highest speedup corresponds to EMR Spark at 1.82, while Databricks reaches a speedup of 1.59. For EMR Presto we calculate a speedup of 1.30, but this again is in the presence of errors for some queries. While EMR Spark achieves a higher speedup than Databricks, the actual benchmark completion time for Databricks is significantly lower. The difference could be explained by the fact that the initial total time for Databricks is already subject to performance enhancements like caching.
 
 
 
