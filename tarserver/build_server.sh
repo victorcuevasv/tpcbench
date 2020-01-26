@@ -13,5 +13,5 @@ end=$'\e[0m'
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 printf "\n\n%s\n\n" "${blu}Building the apache2 server.${end}"
-docker build --force-rm -t apache2-tarserver:dev $DIR/Dockerfile
+docker build --force-rm -t apache2-tarserver:dev $DIR
 
