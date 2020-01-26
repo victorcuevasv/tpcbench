@@ -8,7 +8,7 @@ We provide first in Figure \ref{fig:totalTimesSummary} a summary of the total be
 
 \begin{figure}
    \begin{center}
-   \scalebox{0.70}{\includegraphics[width=7.0in]{imgs/totalTimesSummary.pdf}}
+   \scalebox{0.80}{\includegraphics[width=7.0in]{imgs/totalTimesSummary.pdf}}
    \end{center}
    \caption{Summary of total execution times for the TPC-DS benchmark at the 1 TB scale factor.}
    \label{fig:totalTimesSummary}
@@ -20,17 +20,17 @@ The TPC Benchmark DS defines a performance metric calculated from the execution 
 
 \begin{figure}
    \begin{center}
-   \scalebox{0.70}{\includegraphics[width=7.0in]{imgs/tpcdsMetricSummary.pdf}}
+   \scalebox{0.80}{\includegraphics[width=7.0in]{imgs/tpcdsMetricSummary.pdf}}
    \end{center}
-   \caption{Summary of total execution times for the TPC-DS benchmark at the 1 TB scale factor.}
+   \caption{Summary of the TPC-DS score metric for the TPC-DS benchmark at the 1 TB scale factor.}
    \label{fig:tpcdsMetricSummary}
 \end{figure}
 
 The scores for the TPC-DS benchmark essentially reflect the benchmark total execution times. Again the best result is achieved by Databricks using statistics and data partitioning. The next best result corresponds to EMR Spark while EMR Presto obtains the lowest scores and rank.
 
-\subsection{TPC Benchmark DS Metric}\label{summaryTpcdsMetric}
+\subsection{System costs}\label{summarySystemCosts}
 
-In order to select the best option for cloud-based big data analytics performance metrics based on query evaluation times are very useful but insufficient. It is essential for organizations to also take into consideration the monetary costs associated with those performance results. In the adoption of a cloud-based system there usually separate costs for hardware and software use. This is the case for the systems we consider in this report and these costs are summarized in Table \ref{table:systemCosts}.
+In order to select the best option for cloud-based big data analytics, performance metrics based on query evaluation times are very useful but insufficient. It is essential for organizations to also take into consideration the monetary costs associated with those performance results. In the adoption of a cloud-based system there are usually separate costs for hardware and software use. This is the case for the systems we consider in this report, and these costs are summarized in Table \ref{table:systemCosts}.
 
 \begin{table}
   \centering
@@ -50,7 +50,7 @@ We exclude in this report the AWS S3 storage costs as well as the costs involved
 
 \begin{figure}
    \begin{center}
-   \scalebox{0.70}{\includegraphics[width=7.0in]{imgs/totalCostsSummary.pdf}}
+   \scalebox{0.80}{\includegraphics[width=7.0in]{imgs/totalCostsSummary.pdf}}
    \end{center}
    \caption{Summary of total costs for the TPC-DS benchmark at the 1 TB scale factor.}
    \label{fig:totalCostsSummary}

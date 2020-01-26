@@ -45,7 +45,7 @@ In the case of Databricks and EMR Spark it was necessary to increase the broadca
 
 EMR Presto required some options to be enabled explicitly. Namely, to drop tables if they already existed, using Snappy compression for table files, and the Presto file system type to access S3 buckets. The choice of Snappy, which is used by default in Spark, obeys to the fact that it is fast while offering a decent compression ratio. The Presto file system is necessary to avoid errors frequent under concurrency and is recommended by the AWS documentation.
 
-Finally, it was of foremost importance to increase the total memory available for a given query, since some of the TPC-DS queries are memory intensive and the default proved insufficient. However, as detailed in Section \ref{}, out of memory errors still manifested at the level of individual nodes, so additional settings were required at the level of specific queries.
+Finally, it was of foremost importance to increase the total memory available for a given query, since some of the TPC-DS queries are memory intensive and the default proved insufficient. However, as detailed in Section \ref{results}, out of memory errors still manifested at the level of individual nodes, so additional settings were required at the level of specific queries.
 
 
 
