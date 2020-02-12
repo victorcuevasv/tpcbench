@@ -135,7 +135,17 @@ post_data_func()
          },
          { 
             "jar":"dbfs:/FileStore/job-jars/SparkJDBC41.jar"
-         }
+         },
+         {
+      		"maven": {
+        		"coordinates": "org.apache.logging.log4j:log4j-api:2.8.2"
+      		}
+      	 },
+      	 {
+      		"maven": {
+        		"coordinates": "org.apache.logging.log4j:log4j-core:2.8.2"
+      		}
+      	 }
       ],
       "email_notifications":{ 
 
