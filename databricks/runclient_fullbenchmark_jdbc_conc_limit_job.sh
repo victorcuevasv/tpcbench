@@ -179,7 +179,7 @@ post_data_func()
             "$ARGS29",
             
             "$ARGS30"
-         ],
+         ]
       },
       "max_concurrent_runs":1
 }
