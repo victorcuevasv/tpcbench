@@ -132,6 +132,9 @@ post_data_func()
       "libraries":[ 
          { 
             "jar":"dbfs:/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies-noz.jar"
+         },
+         { 
+            "jar":"dbfs:/FileStore/job-jars/SparkJDBC41.jar"
          }
       ],
       "email_notifications":{ 
