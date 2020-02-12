@@ -70,7 +70,7 @@ ARGS14="dbc-08fc9045-faef.cloud.databricks.com"
 #args[15] username for the connection
 ARGS15="UNUSED"
 #args[16] jar file
-ARGS16="/project/targetsparkjdbc/client-1.0-SNAPSHOT.jar"
+ARGS16="/project/target/client-1.0-SNAPSHOT.jar"
 #args[17] whether to generate statistics by analyzing tables (true/false)
 ARGS17="false"
 #args[18] if argument above is true, whether to compute statistics for columns (true/false)
@@ -131,7 +131,7 @@ post_data_func()
       },
       "libraries":[ 
          { 
-            "jar":"dbfs:/FileStore/job-jars/project/targetsparkdatabricks/client-1.0-SNAPSHOT-jar-with-dependencies-noz.jar"
+            "jar":"dbfs:/FileStore/job-jars/project/target/client-1.0-SNAPSHOT.jar"
          },
          { 
             "jar":"dbfs:/FileStore/job-jars/SparkJDBC41.jar"
