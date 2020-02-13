@@ -41,7 +41,7 @@ ARGS1="tpcdsdb$1gb_$2_deltanopartwithzorder"
 #args[2] results folder name (e.g. for Google Drive)
 ARGS2="1pi53t9ak8siwmdi22zrjzu5fk-1b9gvp"
 #args[3] experiment name (name of subfolder within the results folder)
-ARGS3="databricks61-8nodesconnections$3streams$4threads-job"
+ARGS3="databricks61-8nodesconnectionsquery$3streams$4threads-job"
 #args[4] system name (system name used within the logs)
 ARGS4="sparkdatabricksjdbc"
  
