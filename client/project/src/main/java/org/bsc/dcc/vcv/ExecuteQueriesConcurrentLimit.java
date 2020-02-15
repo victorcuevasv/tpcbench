@@ -65,6 +65,8 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 	private final int maxConcurrencySnowflake = 8;
 	private final int nWorkers;
 	AtomicInteger atomicCounter;
+	private ExecutorService queryResultsCollectorExecutor;
+	private Connection[] connectionsArray;
 	
 	/**
 	 * @param args
@@ -163,7 +165,7 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
-				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
+				"<cluster id>;AuthMech=3;UID=token;PWD=<access token>" +
 				";UseNativeQuery=1");
 			}
 			else if( system.startsWith("spark") ) {
@@ -175,7 +177,7 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 				Class.forName(snowflakeDriverName);
 				con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
 						"user=bsctest" + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
-						"&schema=" + this.dbName + "&warehouse=testwh");
+						"&schema=" + this.dbName + "&warehouse=testwhlarge");
 				this.setSnowflakeDefaultSessionOpts();
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
@@ -309,30 +311,54 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 			System.exit(1);
 		}
 		ExecuteQueriesConcurrentLimit prog = new ExecuteQueriesConcurrentLimit(args);
-		prog.executeStreams();
+		prog.doRun();
 	}
 	
 	
-	private void executeStreams() {
-		List<String> files = queriesReader.getFilesOrdered();
+	private void doRun() {
+		List<String> files = this.queriesReader.getFilesOrdered();
 		HashMap<Integer, String> queriesHT = createQueriesHT(files, this.queriesReader);
 		int nQueries = files.size();
 		int totalQueries = nQueries * this.nStreams;
+		if( this.multiple )
+			this.createConnectionsArray();
+		this.executeStreams(queriesHT, totalQueries);
+		this.launchResultsCollector(totalQueries);
+		this.executeWorkers(queriesHT, totalQueries);
+		this.awaitTermination();
+	}
+	
+	
+	private void createConnectionsArray() {
+		this.connectionsArray = new Connection[this.nWorkers];
+		for(int i = 0; i < this.nWorkers; i++) {
+			Connection con = this.createConnection(this.system, this.hostname, this.dbName);
+			this.connectionsArray[i] = con;
+		}	
+	}
+	
+	
+	private void executeStreams(HashMap<Integer, String> queriesHT, int totalQueries) {
 		for(int i = 0; i < this.nStreams; i++) {
 			Semaphore semaphore = new Semaphore(1);
 			this.semaphores.add(semaphore);
 		}
-		QueryResultsCollector resultsCollector = new QueryResultsCollector(totalQueries, 
-				this.resultsQueue, this.recorder, this);
-		ExecutorService resultsCollectorExecutor = Executors.newSingleThreadExecutor();
-		resultsCollectorExecutor.execute(resultsCollector);
-		resultsCollectorExecutor.shutdown();
 		for(int i = 0; i < this.nStreams; i++) {
 			QueryStreamLimit stream = new QueryStreamLimit(i, this.queriesQueue, this,
 					this.semaphores.get(i), queriesHT);
 			this.streamsExecutor.submit(stream);
-		}
-		this.streamsExecutor.shutdown();
+		}	
+	}
+	
+	private void launchResultsCollector(int totalQueries) {
+		QueryResultsCollector queryResultsCollector = new QueryResultsCollector(totalQueries, 
+				this.resultsQueue, this.recorder, this);
+		this.queryResultsCollectorExecutor = Executors.newSingleThreadExecutor();
+		this.queryResultsCollectorExecutor.execute(queryResultsCollector);
+	}
+	
+	
+	private void executeWorkers(HashMap<Integer, String> queriesHT, int totalQueries) {
 		for(int i = 0; i < this.nWorkers; i++) {
 			QueryWorkerLimit worker = null;
 			if( ! this.multiple ) {
@@ -340,12 +366,17 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 						totalQueries, this.random, this, this.semaphores);
 			}
 			else {
-				Connection con = this.createConnection(this.system, this.hostname, this.dbName);
-				worker = new QueryWorkerLimit(i, this.queriesQueue, this.resultsQueue, con, queriesHT,
+				worker = new QueryWorkerLimit(i, this.queriesQueue, this.resultsQueue, this.connectionsArray[i], queriesHT,
 						totalQueries, this.random, this, this.semaphores);
 			}
 			this.workersExecutor.submit(worker);
-		}
+		}	
+	}
+	
+	
+	public void awaitTermination() {
+		this.queryResultsCollectorExecutor.shutdown();
+		this.streamsExecutor.shutdown();
 		this.workersExecutor.shutdown();
 	}
 	
