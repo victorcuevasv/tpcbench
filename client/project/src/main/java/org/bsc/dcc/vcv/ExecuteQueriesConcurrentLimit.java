@@ -320,8 +320,13 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 		HashMap<Integer, String> queriesHT = createQueriesHT(files, this.queriesReader);
 		int nQueries = files.size();
 		int totalQueries = nQueries * this.nStreams;
-		if( this.multiple )
+		if( this.multiple ) {
+			long t1 = System.currentTimeMillis();
 			this.createConnectionsArray();
+			long t2 = System.currentTimeMillis();
+			double duration = (t2 - t1) / 1000.0;
+			System.out.println("Time required to open connections: " + duration + " sec.");
+		}
 		this.executeStreams(queriesHT, totalQueries);
 		this.launchResultsCollector(totalQueries);
 		this.executeWorkers(queriesHT, totalQueries);
