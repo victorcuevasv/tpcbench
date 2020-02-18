@@ -21,6 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
@@ -322,7 +324,7 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 		int totalQueries = nQueries * this.nStreams;
 		if( this.multiple ) {
 			long t1 = System.currentTimeMillis();
-			this.createConnectionsArray();
+			this.createConnectionsArrayConcurrent();
 			long t2 = System.currentTimeMillis();
 			double duration = (t2 - t1) / 1000.0;
 			System.out.println("Time required to open connections: " + duration + " sec.");
@@ -334,12 +336,36 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 	}
 	
 	
-	private void createConnectionsArray() {
+	private void createConnectionsArraySequential() {
 		this.connectionsArray = new Connection[this.nWorkers];
 		for(int i = 0; i < this.nWorkers; i++) {
 			Connection con = this.createConnection(this.system, this.hostname, this.dbName);
 			this.connectionsArray[i] = con;
 		}	
+	}
+	
+	
+	private void createConnectionsArrayConcurrent() {
+		this.connectionsArray = new Connection[this.nWorkers];
+		final List<Callable<Connection>> tasks = new ArrayList<Callable<Connection>>();
+		final String systemF = this.system;
+		final String hostnameF = this.hostname;
+		final String dbNameF = this.dbName;
+		for(int i = 0; i < this.nWorkers; i++) {
+			tasks.add(new Callable<Connection>() {
+				public Connection call() {
+					return createConnection(systemF, hostnameF, dbNameF);
+				}
+			});
+		}
+		ExecutorService executor = Executors.newFixedThreadPool(this.POOL_SIZE);
+		final List<Future<Connection>> connectionsList = executor.invokeAll(tasks);
+		int i = 0;
+		for(Future<Connection> conn : connectionsList) {
+			this.connectionsArray[i] = conn.get();
+			i++;
+		}
+		executor.shutdown();
 	}
 	
 	
@@ -354,6 +380,7 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 			this.streamsExecutor.submit(stream);
 		}	
 	}
+	
 	
 	private void launchResultsCollector(int totalQueries) {
 		QueryResultsCollector queryResultsCollector = new QueryResultsCollector(totalQueries, 
