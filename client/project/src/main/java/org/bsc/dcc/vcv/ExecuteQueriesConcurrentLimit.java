@@ -353,7 +353,7 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 		final String dbNameF = this.dbName;
 		for(int i = 0; i < this.nWorkers; i++) {
 			tasks.add(new Callable<Connection>() {
-				public Connection call() {
+				public Connection call() throws Exception {
 					return createConnection(systemF, hostnameF, dbNameF);
 				}
 			});
