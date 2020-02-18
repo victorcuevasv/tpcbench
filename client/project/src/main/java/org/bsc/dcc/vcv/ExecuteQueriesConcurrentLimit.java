@@ -346,26 +346,34 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 	
 	
 	private void createConnectionsArrayConcurrent() {
-		this.connectionsArray = new Connection[this.nWorkers];
-		final List<Callable<Connection>> tasks = new ArrayList<Callable<Connection>>();
-		final String systemF = this.system;
-		final String hostnameF = this.hostname;
-		final String dbNameF = this.dbName;
-		for(int i = 0; i < this.nWorkers; i++) {
-			tasks.add(new Callable<Connection>() {
-				public Connection call() throws Exception {
-					return createConnection(systemF, hostnameF, dbNameF);
-				}
-			});
+		try {
+			this.connectionsArray = new Connection[this.nWorkers];
+			final List<Callable<Connection>> tasks = new ArrayList<Callable<Connection>>();
+			final String systemF = this.system;
+			final String hostnameF = this.hostname;
+			final String dbNameF = this.dbName;
+			for(int i = 0; i < this.nWorkers; i++) {
+				tasks.add(new Callable<Connection>() {
+					public Connection call() {
+						return createConnection(systemF, hostnameF, dbNameF);
+					}
+				});
+			}
+			ExecutorService executor = Executors.newFixedThreadPool(this.POOL_SIZE);
+			final List<Future<Connection>> connectionsList = executor.invokeAll(tasks);
+			int i = 0;
+			for(Future<Connection> conn : connectionsList) {
+				this.connectionsArray[i] = conn.get();
+				i++;
+			}
+			executor.shutdown();
 		}
-		ExecutorService executor = Executors.newFixedThreadPool(this.POOL_SIZE);
-		final List<Future<Connection>> connectionsList = executor.invokeAll(tasks);
-		int i = 0;
-		for(Future<Connection> conn : connectionsList) {
-			this.connectionsArray[i] = conn.get();
-			i++;
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in createConnectionsArrayConcurrent");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
-		executor.shutdown();
 	}
 	
 	
