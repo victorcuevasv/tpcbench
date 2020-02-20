@@ -1,7 +1,7 @@
 #!/bin/bash 
 
 #Obtain json data
-#aws ec2 get-launch-template-data --instance-id "i-0d412d147e820bc7c" > ec2JSON.txt
+#aws ec2 get-launch-template-data --instance-id "i-0d412d147e820bc7c" --query "LaunchTemplateData" > ec2JSON.txt
 
 json_data_func()
 {
