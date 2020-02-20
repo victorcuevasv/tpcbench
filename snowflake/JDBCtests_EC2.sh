@@ -1,5 +1,8 @@
 #!/bin/bash 
 
+#Obtain json data
+#aws ec2 get-launch-template-data --instance-id "i-0d412d147e820bc7c" > ec2JSON.txt
+
 json_data_func()
 {
   cat <<EOF
@@ -81,5 +84,11 @@ json_data_func()
 EOF
 }
 
-echo "$(json_data_func)"
+#Create the template
+aws ec2 create-launch-template \
+  --launch-template-name JDBCtestsTemplate \
+  --version-description version1 \
+  --launch-template-data "$(json_data_func)"
 
+ 
+ 
