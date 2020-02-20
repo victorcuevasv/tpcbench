@@ -58,26 +58,18 @@ json_data_func()
     }, 
     "DisableApiTermination": false, 
     "InstanceType": "t2.xlarge", 
-    "NetworkInterfaces": [
-        {
-            "DeviceIndex": 0, 
-            "Description": "Primary network interface", 
-            "PrivateIpAddresses": [
-                {
-                    "Primary": true, 
-                    "PrivateIpAddress": "172.31.23.94"
-                }
-            ], 
-            "SubnetId": "subnet-01033078", 
-            "DeleteOnTermination": true, 
-            "Groups": [
-                "sg-024ebdd0a54593a56", 
-                "sg-e9663ea1"
-            ], 
-            "Ipv6Addresses": [], 
-            "AssociatePublicIpAddress": true
-        }
-    ]
+    "NetworkInterfaces":[ 
+      { 
+         "DeviceIndex":0,
+         "AssociatePublicIpAddress":true,
+         "Groups":[ 
+            "sg-024ebdd0a54593a56",
+            "sg-e9663ea1"
+         ],
+         "DeleteOnTermination":true,
+         "SubnetId": "subnet-01033078"
+      }
+   ]
 }
 EOF
 }
