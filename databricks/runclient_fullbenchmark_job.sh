@@ -31,6 +31,28 @@ BucketName="tpcds-warehouse-$1gb-$2-deltanopartwithzorder-conc"
 MountName="tpcds-warehouse-$1gb-$2-deltanopartwithzorder-conc-mnt"
 DatabaseName="tpcds_warehouse_$1gb_$2_deltanopartwithzorder_conc_db"
 
+data_mount_createdb_func()
+{
+  cat <<EOF
+{
+  "BucketName": "$BucketName",
+  "MountName": "$MountName",
+  "DatabaseName": "$DatabaseName"
+}
+EOF
+}
+
+RUN_MOUNT_CREATEDB_JOB=0
+
+if [ "$RUN_MOUNT_CREATEDB_JOB" -eq 1 ]; then
+    aws s3api create-bucket --bucket $BucketName --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
+    aws s3api put-bucket-tagging --bucket $BucketName --tagging 'TagSet=[{Key=Owner,Value=eng-benchmarking@databricks.com}]'
+    databricks jobs run-now --job-id 119 --notebook-params "$(data_mount_createdb_func)"
+    exit 0
+fi
+
+exit 0
+
 #Execute the Java project with Maven on the client builder container running in the docker-compose setup. 
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
