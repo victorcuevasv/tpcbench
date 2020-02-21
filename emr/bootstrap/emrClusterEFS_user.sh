@@ -20,6 +20,7 @@ if [ ! -d /scratch/data ]; then
 fi
 
 sudo yum install git -y
+sudo yum install jq -y
 sudo yum install docker -y
 sudo usermod -aG docker ec2-user
 sudo service docker restart
