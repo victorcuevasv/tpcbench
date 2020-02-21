@@ -19,6 +19,7 @@ if [ ! -d /scratch/data ]; then
 	sudo chown ec2-user:ec2-user -R /scratch
 fi
 
+sudo yum install git -y
 sudo yum install docker -y
 sudo usermod -aG docker ec2-user
 sudo service docker restart
