@@ -74,7 +74,7 @@ SINGLE_LINE_JSON=$(jq -c . <<<  "$(json_data_func)")
 
 #Create the template
 aws ec2 create-launch-template \
---launch-template-name JDBCtestsTemplate \
+--launch-template-name JDBCtests \
 --version-description version1 \
 --launch-template-data $SINGLE_LINE_JSON
 
