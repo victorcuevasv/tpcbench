@@ -122,7 +122,7 @@ args[25]="$3"
 #args[26] random seed
 args[26]="1954"
 #args[27] flags (11111 load|analyze|zorder|power|tput)
-args[27]="11111"
+args[27]="011111"
 
 post_data_func()
 {
