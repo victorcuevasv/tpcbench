@@ -64,10 +64,11 @@ public class RunBenchmarkSpark {
 	 * 
 	 * args[25] number of streams
 	 * args[26] random seed
+	 * args[27] flags (11111 load|analyze|zorder|power|tput)
 	 * 
 	 */
 	public static void main(String[] args) {
-		if( args.length != 27 ) {
+		if( args.length != 28 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
@@ -82,31 +83,43 @@ public class RunBenchmarkSpark {
 		String[] executeQueriesSparkArgs = this.createExecuteQueriesSparkArgs(args);
 		String[] executeQueriesConcurrentSparkArgs = this.createExecuteQueriesConcurrentSparkArgs(args);
 		try {
-			this.saveTestParameters(createDatabaseSparkArgs, "load");
-			System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
-			CreateDatabaseSpark.main(createDatabaseSparkArgs);
+			boolean doLoad = args[27].charAt(0) == '1' ? true : false;
+			if( doLoad ) {
+				this.saveTestParameters(createDatabaseSparkArgs, "load");
+				System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
+				CreateDatabaseSpark.main(createDatabaseSparkArgs);
+			}
 			boolean analyze = Boolean.parseBoolean(args[15]);
-			if( analyze ) {
+			//Redundant check for legacy compatibility.
+			boolean doAnalyze = args[27].charAt(1) == '1' ? true : false;
+			if( analyze && doAnalyze) {
 				String[] analyzeTablesSparkArgs = this.createAnalyzeTablesSparkArgs(args);
 				this.saveTestParameters(analyzeTablesSparkArgs, "analyze");
 				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
 				AnalyzeTablesSpark.main(analyzeTablesSparkArgs);
 			}
-			if( args[11].equalsIgnoreCase("delta") ) {
+			boolean doZorder = args[27].charAt(2) == '1' ? true : false;
+			if( args[11].equalsIgnoreCase("delta") && doZorder ) {
 				String[] executeQueriesSparkDeltaZorderArgs = this.createExecuteQueriesSparkDeltaZorderArgs(args);
 				this.saveTestParameters(executeQueriesSparkDeltaZorderArgs, "zorder");
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkDeltaZorderArgs);
 			}
-			this.saveTestParameters(executeQueriesSparkArgs, "power");
-			System.out.println("\n\n\nRunning the POWER test.\n\n\n");
-			ExecuteQueriesSpark.main(executeQueriesSparkArgs);
-			this.saveTestParameters(executeQueriesConcurrentSparkArgs, "tput");
-			System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
-			ExecuteQueriesConcurrentSpark.main(executeQueriesConcurrentSparkArgs);
+			boolean doPower = args[27].charAt(3) == '1' ? true : false;
+			if( doPower ) {
+				this.saveTestParameters(executeQueriesSparkArgs, "power");
+				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
+				ExecuteQueriesSpark.main(executeQueriesSparkArgs);
+			}
+			boolean doTput = args[27].charAt(4) == '1' ? true : false;
+			if( doTput ) {
+				this.saveTestParameters(executeQueriesConcurrentSparkArgs, "tput");
+				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
+				ExecuteQueriesConcurrentSpark.main(executeQueriesConcurrentSparkArgs);
+			}
 			if( this.system.equals("sparkdatabricks")  ) {
-				this.executeCommand("mkdir /dbfs/data/" + this.instance);
-				this.executeCommand("cp -r /data /dbfs/data/" + this.instance);
+				this.executeCommand("mkdir /dbfs" + args[0] + "/" + this.instance);
+				this.executeCommand("cp -r " + args[0] + " /dbfs" + args[0] + "/" + this.instance);
 			}
 		}
 		catch(Exception e) {
