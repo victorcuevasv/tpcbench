@@ -22,3 +22,9 @@ fi
 sudo yum install docker -y
 sudo usermod -aG docker ec2-user
 sudo service docker restart
+
+sudo curl -O https://bootstrap.pypa.io/get-pip.py
+sudo -u ec2-user python get-pip.py --user
+sudo rm get-pip.py
+sudo -u ec2-user /home/ec2-user/.local/bin/pip install databricks-cli
+
