@@ -93,8 +93,8 @@ args[12]="false"
 #args[13] whether to use data partitioning for the tables (true/false)
 args[13]="false"
 #args[14] jar file
-args[14]="/dbfs/FileStore/job-jars/project/target/client-1.1-SNAPSHOT.jar"
- 
+args[14]="/dbfs/FileStore/job-jars/project/targetsparkdatabricks/client-1.1-SNAPSHOT-jar-with-dependencies.jar"
+
 #args[15] whether to generate statistics by analyzing tables (true/false)
 args[15]="true"
 #args[16] if argument above is true, whether to compute statistics for columns (true/false)
@@ -154,7 +154,7 @@ post_data_func()
       },
       "libraries":[ 
          { 
-            "jar":"dbfs:/FileStore/job-jars/project/target/client-1.1-SNAPSHOT.jar"
+            "jar":"dbfs:/FileStore/job-jars/project/targetsparkdatabricks/client-1.1-SNAPSHOT-jar-with-dependencies.jar"
          }
       ],
       "email_notifications":{ 
