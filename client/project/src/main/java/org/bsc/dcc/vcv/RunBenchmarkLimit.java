@@ -73,7 +73,7 @@ public class RunBenchmarkLimit extends RunBenchmark {
 		String[] executeQueriesArgs = this.createExecuteQueriesArgs(args);
 		String[] executeQueriesConcurrentLimitArgs = this.createExecuteQueriesConcurrentLimitArgs(args);
 		try {
-			boolean doLoad = args[27].charAt(1) == '1' ? true : false;
+			boolean doLoad = args[31].charAt(1) == '1' ? true : false;
 			if( doLoad ) {
 				this.saveTestParameters(createDatabaseArgs, "load");
 				System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
@@ -82,7 +82,7 @@ public class RunBenchmarkLimit extends RunBenchmark {
 			}
 			boolean analyze = Boolean.parseBoolean(args[17]);
 			//Redundant check for legacy compatibility.
-			boolean doAnalyze = args[27].charAt(2) == '1' ? true : false;
+			boolean doAnalyze = args[31].charAt(2) == '1' ? true : false;
 			if( analyze && doAnalyze) {
 				String[] analyzeTablesArgs = this.createAnalyzeTablesArgs(args);
 				this.saveTestParameters(analyzeTablesArgs, "analyze");
@@ -90,21 +90,21 @@ public class RunBenchmarkLimit extends RunBenchmark {
 				AnalyzeTables.main(analyzeTablesArgs);
 				TimeUnit.SECONDS.sleep(5);
 			}
-			boolean doZorder = args[27].charAt(3) == '1' ? true : false;
+			boolean doZorder = args[31].charAt(3) == '1' ? true : false;
 			if( args[11].equalsIgnoreCase("delta") && doZorder ) {
 				String[] executeQueriesDeltaZorderArgs = this.createExecuteQueriesDeltaZorderArgs(args);
 				this.saveTestParameters(executeQueriesDeltaZorderArgs, "zorder");
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
 				ExecuteQueries.main(executeQueriesDeltaZorderArgs);
 			}
-			boolean doPower = args[27].charAt(4) == '1' ? true : false;
+			boolean doPower = args[31].charAt(4) == '1' ? true : false;
 			if( doPower ) {
 				this.saveTestParameters(executeQueriesArgs, "power");
 				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
 				ExecuteQueries.main(executeQueriesArgs);
 				TimeUnit.SECONDS.sleep(5);
 			}
-			boolean doTput = args[27].charAt(5) == '1' ? true : false;
+			boolean doTput = args[31].charAt(5) == '1' ? true : false;
 			if( doTput ) {
 				this.saveTestParameters(executeQueriesConcurrentLimitArgs, "tput");
 				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
