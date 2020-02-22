@@ -37,7 +37,8 @@ data_mount_createdb_func()
 {
   "BucketName": "$BucketName",
   "MountName": "$MountName",
-  "DatabaseName": "$DatabaseName"
+  "DatabaseName": "$DatabaseName",
+  "MountOrUnmount": "$1"
 }
 EOF
 }
@@ -48,11 +49,19 @@ if [ "$RUN_MOUNT_CREATEDB_JOB" -eq 1 ]; then
     aws s3api create-bucket --bucket $BucketName --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
     aws s3api put-bucket-tagging --bucket $BucketName --tagging 'TagSet=[{Key=Owner,Value=eng-benchmarking@databricks.com}]'
     aws s3api put-object --bucket $BucketName --key empty
-    databricks jobs run-now --job-id 119 --notebook-params "$(data_mount_createdb_func)"
+    databricks jobs run-now --job-id 231 --notebook-params "$(data_mount_createdb_func Mount)"
     exit 0
 fi
 
-#exit 0
+RUN_UNMOUNT_DELETEDB_JOB=0
+
+if [ "$RUN_UNMOUNT_DELETEDB_JOB" -eq 1 ]; then
+    databricks jobs run-now --job-id 231 --notebook-params "$(data_mount_createdb_func Unmount)"
+    aws s3 rb s3://$BucketName --force
+    exit 0
+fi
+
+exit 0
 
 #Execute the Java project with Maven on the client builder container running in the docker-compose setup. 
 
