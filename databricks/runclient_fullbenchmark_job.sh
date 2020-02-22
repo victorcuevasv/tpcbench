@@ -130,8 +130,8 @@ args[24]="true"
 args[25]="$3"
 #args[26] random seed
 args[26]="1954"
-#args[27] flags (11111 load|analyze|zorder|power|tput)
-args[27]="011111"
+#args[27] flags (111111 schema|load|analyze|zorder|power|tput)
+args[27]="011100"
 
 post_data_func()
 {
