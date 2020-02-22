@@ -163,7 +163,7 @@ post_data_func()
       "timeout_seconds":0,
       "spark_jar_task":{ 
          "jar_uri":"",
-         "main_class_name":"org.bsc.dcc.vcv.RunBenchmarkLimit",
+         "main_class_name":"org.bsc.dcc.vcv.RunBenchmarkSpark",
          "parameters":[ 
             "${args[0]}",
             "${args[1]}",
