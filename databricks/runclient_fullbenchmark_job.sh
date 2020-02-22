@@ -61,7 +61,7 @@ if [ "$RUN_UNMOUNT_DELETEDB_JOB" -eq 1 ]; then
     exit 0
 fi
 
-exit 0
+#exit 0
 
 #Execute the Java project with Maven on the client builder container running in the docker-compose setup. 
 
