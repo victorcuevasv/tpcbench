@@ -33,6 +33,8 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
+args=()
+
 #args[0] main work directory
 #args[1] schema (database) name
 #args[2] results folder name (e.g. for Google Drive)
