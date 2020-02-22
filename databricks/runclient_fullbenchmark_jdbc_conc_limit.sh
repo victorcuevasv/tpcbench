@@ -22,6 +22,7 @@ GROUP_ID=$(id -g)
 #$1 scale factor (positive integer)
 #$2 experiment instance number (positive integer)
 #$3 number of streams (positive integer)
+#$4 number of workers (positive integer)
 
 if [ $# -lt 4 ]; then
     echo "${yel}Usage: bash runclient_fullbenchmark.sh <scale factor> <experiment instance number> <number of streams> <number of workers>${end}"
