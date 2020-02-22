@@ -106,7 +106,9 @@ public class RunBenchmarkSpark {
 			}
 			boolean doZorder = args[27].charAt(3) == '1' ? true : false;
 			if( args[11].equalsIgnoreCase("delta") && doZorder ) {
-				String[] executeQueriesSparkDeltaZorderArgs = this.createExecuteQueriesSparkDeltaZorderArgs(args);
+				boolean noPart = args[13].equals("false");
+				String[] executeQueriesSparkDeltaZorderArgs =
+						this.createExecuteQueriesSparkDeltaZorderArgs(args, noPart);
 				this.saveTestParameters(executeQueriesSparkDeltaZorderArgs, "zorder");
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkDeltaZorderArgs);
@@ -264,7 +266,7 @@ public class RunBenchmarkSpark {
 	}
 	
 	
-	private String[] createExecuteQueriesSparkDeltaZorderArgs(String args[]) {
+	private String[] createExecuteQueriesSparkDeltaZorderArgs(String args[], boolean noPart) {
 		/* 
 		args[0] main work directory
 		args[1] schema (database) name
@@ -292,7 +294,10 @@ public class RunBenchmarkSpark {
 		
 		array[5] = "zorder";
 		array[6] = args[5];
-		array[7] = "DatabricksDeltaZorder";
+		if( noPart )
+			array[7] = "DatabricksDeltaZorderNoPart";
+		else
+			array[7] = "DatabricksDeltaZorder";
 		array[8] = args[18];
 		array[9] = args[19];
 		
