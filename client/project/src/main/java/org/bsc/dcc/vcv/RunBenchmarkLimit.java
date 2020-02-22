@@ -52,11 +52,13 @@ public class RunBenchmarkLimit extends RunBenchmark {
 	 * args[27] number of streams
 	 * args[28] random seed
 	 * args[29] number of workers
+	 * 
 	 * args[30] use multiple connections (true|false)
+	 * args[31] flags (111111 schema|load|analyze|zorder|power|tput)
 	 * 
 	 */
 	public static void main(String[] args) {
-		if( args.length != 31 ) {
+		if( args.length != 32 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
@@ -71,32 +73,44 @@ public class RunBenchmarkLimit extends RunBenchmark {
 		String[] executeQueriesArgs = this.createExecuteQueriesArgs(args);
 		String[] executeQueriesConcurrentLimitArgs = this.createExecuteQueriesConcurrentLimitArgs(args);
 		try {
-			this.saveTestParameters(createDatabaseArgs, "load");
-			System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
-			CreateDatabase.main(createDatabaseArgs);
-			TimeUnit.SECONDS.sleep(10);
+			boolean doLoad = args[27].charAt(1) == '1' ? true : false;
+			if( doLoad ) {
+				this.saveTestParameters(createDatabaseArgs, "load");
+				System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
+				CreateDatabase.main(createDatabaseArgs);
+				TimeUnit.SECONDS.sleep(5);
+			}
 			boolean analyze = Boolean.parseBoolean(args[17]);
-			if( analyze ) {
+			//Redundant check for legacy compatibility.
+			boolean doAnalyze = args[27].charAt(2) == '1' ? true : false;
+			if( analyze && doAnalyze) {
 				String[] analyzeTablesArgs = this.createAnalyzeTablesArgs(args);
 				this.saveTestParameters(analyzeTablesArgs, "analyze");
 				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
 				AnalyzeTables.main(analyzeTablesArgs);
-				TimeUnit.SECONDS.sleep(10);
+				TimeUnit.SECONDS.sleep(5);
 			}
-			if( args[11].equalsIgnoreCase("delta") ) {
+			boolean doZorder = args[27].charAt(3) == '1' ? true : false;
+			if( args[11].equalsIgnoreCase("delta") && doZorder ) {
 				String[] executeQueriesDeltaZorderArgs = this.createExecuteQueriesDeltaZorderArgs(args);
 				this.saveTestParameters(executeQueriesDeltaZorderArgs, "zorder");
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
 				ExecuteQueries.main(executeQueriesDeltaZorderArgs);
 			}
-			this.saveTestParameters(executeQueriesArgs, "power");
-			System.out.println("\n\n\nRunning the POWER test.\n\n\n");
-			ExecuteQueries.main(executeQueriesArgs);
-			TimeUnit.SECONDS.sleep(10);
-			this.saveTestParameters(executeQueriesConcurrentLimitArgs, "tput");
-			System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
-			ExecuteQueriesConcurrentLimit.main(executeQueriesConcurrentLimitArgs);
-			TimeUnit.SECONDS.sleep(10);
+			boolean doPower = args[27].charAt(4) == '1' ? true : false;
+			if( doPower ) {
+				this.saveTestParameters(executeQueriesArgs, "power");
+				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
+				ExecuteQueries.main(executeQueriesArgs);
+				TimeUnit.SECONDS.sleep(5);
+			}
+			boolean doTput = args[27].charAt(5) == '1' ? true : false;
+			if( doTput ) {
+				this.saveTestParameters(executeQueriesConcurrentLimitArgs, "tput");
+				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
+				ExecuteQueriesConcurrentLimit.main(executeQueriesConcurrentLimitArgs);
+				TimeUnit.SECONDS.sleep(5);
+			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
