@@ -98,8 +98,6 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 		try {
 			this.spark = SparkSession.builder().appName("TPC-DS Throughput Test")
-				.config("spark.sql.crossJoin.enabled", "true")
-				//.config("spark.sql.shuffle.partitions", "200")
 				.enableHiveSupport()
 				.getOrCreate();
 		}

@@ -116,7 +116,9 @@ post_data_func()
             "spark.sql.crossJoin.enabled":"true",
             "spark.databricks.optimizer.deltaTableFilesThreshold":"100",
             "spark.sql.broadcastTimeout":"7200",
-            "spark.databricks.delta.autoCompact.maxFileSize":"134217728"
+            "spark.databricks.delta.autoCompact.maxFileSize":"134217728",
+            "hive.exec.dynamic.partition.mode":"nonstrict",
+            "hive.exec.max.dynamic.partitions":"3000"
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
