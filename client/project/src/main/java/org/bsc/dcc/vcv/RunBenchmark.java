@@ -89,7 +89,7 @@ public class RunBenchmark {
 			boolean doSchema = args[27].charAt(0) == '1' ? true : false;
 			if( doSchema ) {
 				System.out.println("\n\n\nCreating the database schema.\n\n\n");
-				CreateSchemaSpark.main(createSchemaArgs);
+				CreateSchema.main(createSchemaArgs);
 			}
 			boolean doLoad = args[27].charAt(1) == '1' ? true : false;
 			if( doLoad ) {
