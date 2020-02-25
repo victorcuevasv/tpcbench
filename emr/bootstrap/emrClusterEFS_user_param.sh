@@ -18,4 +18,8 @@ if [ ! -d /scratch/$1/data/ ]; then
 	sudo mkdir -p /scratch/$1/data/
 	sudo chown $1:$1 -R /scratch/$1
 fi
+if [ ! -d /data ]; then
+	sudo mkdir -p /data
+	sudo chown $1:$1 -R /data
+fi
 
