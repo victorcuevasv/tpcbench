@@ -66,9 +66,11 @@ public class RunBenchmark {
 	 * args[28] random seed
 	 * args[29] use multiple connections (true|false)
 	 * 
+	 * args[30] flags (111111 schema|load|analyze|zorder|power|tput)
+	 * 
 	 */
 	public static void main(String[] args) {
-		if( args.length != 30 ) {
+		if( args.length != 31 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
@@ -79,36 +81,52 @@ public class RunBenchmark {
 	
 	
 	private void runBenchmark(String[] args) {
+		String[] createSchemaArgs = this.createCreateSchemaArgs(args);
 		String[] createDatabaseArgs = this.createCreateDatabaseArgs(args);
 		String[] executeQueriesArgs = this.createExecuteQueriesArgs(args);
 		String[] executeQueriesConcurrentArgs = this.createExecuteQueriesConcurrentArgs(args);
 		try {
-			this.saveTestParameters(createDatabaseArgs, "load");
-			System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
-			CreateDatabase.main(createDatabaseArgs);
-			TimeUnit.SECONDS.sleep(10);
+			boolean doSchema = args[27].charAt(0) == '1' ? true : false;
+			if( doSchema ) {
+				System.out.println("\n\n\nCreating the database schema.\n\n\n");
+				CreateSchemaSpark.main(createSchemaArgs);
+			}
+			boolean doLoad = args[27].charAt(1) == '1' ? true : false;
+			if( doLoad ) {
+				this.saveTestParameters(createDatabaseArgs, "load");
+				System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
+				CreateDatabase.main(createDatabaseArgs);
+			}
 			boolean analyze = Boolean.parseBoolean(args[17]);
-			if( analyze ) {
+			//Redundant check for legacy compatibility.
+			boolean doAnalyze = args[27].charAt(2) == '1' ? true : false;
+			if( analyze && doAnalyze) {
 				String[] analyzeTablesArgs = this.createAnalyzeTablesArgs(args);
 				this.saveTestParameters(analyzeTablesArgs, "analyze");
 				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
 				AnalyzeTables.main(analyzeTablesArgs);
-				TimeUnit.SECONDS.sleep(10);
 			}
-			if( args[11].equalsIgnoreCase("delta") ) {
-				String[] executeQueriesDeltaZorderArgs = this.createExecuteQueriesDeltaZorderArgs(args);
+			boolean doZorder = args[27].charAt(3) == '1' ? true : false;
+			if( args[11].equalsIgnoreCase("delta") && doZorder ) {
+				boolean noPart = args[13].equals("false");
+				String[] executeQueriesDeltaZorderArgs = 
+						this.createExecuteQueriesDeltaZorderArgs(args, noPart);
 				this.saveTestParameters(executeQueriesDeltaZorderArgs, "zorder");
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
 				ExecuteQueries.main(executeQueriesDeltaZorderArgs);
 			}
-			this.saveTestParameters(executeQueriesArgs, "power");
-			System.out.println("\n\n\nRunning the POWER test.\n\n\n");
-			ExecuteQueries.main(executeQueriesArgs);
-			TimeUnit.SECONDS.sleep(10);
-			this.saveTestParameters(executeQueriesConcurrentArgs, "tput");
-			System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
-			ExecuteQueriesConcurrent.main(executeQueriesConcurrentArgs);
-			TimeUnit.SECONDS.sleep(10);
+			boolean doPower = args[27].charAt(4) == '1' ? true : false;
+			if( doPower ) {
+				this.saveTestParameters(executeQueriesArgs, "power");
+				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
+				ExecuteQueries.main(executeQueriesArgs);
+			}
+			boolean doTput = args[27].charAt(5) == '1' ? true : false;
+			if( doTput ) {
+				this.saveTestParameters(executeQueriesConcurrentArgs, "tput");
+				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
+				ExecuteQueriesConcurrent.main(executeQueriesConcurrentArgs);
+			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -116,6 +134,21 @@ public class RunBenchmark {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+	}
+	
+	
+	private String[] createCreateSchemaArgs(String args[]) {
+		/* 
+		 args[0] hostname of the server
+		 args[1] system used to create the schema on the metastore
+		 args[2] schema (database) name
+		*/
+		String[] array = new String[2];
+		array[0] = args[14];
+		array[1] = args[4];
+		array[2] = args[1];
+		
+		return array;
 	}
 	
 	
@@ -241,7 +274,7 @@ public class RunBenchmark {
 	}
 	
 	
-	protected String[] createExecuteQueriesDeltaZorderArgs(String args[]) {
+	protected String[] createExecuteQueriesDeltaZorderArgs(String args[], boolean noPart) {
 		/* 
 		args[0] main work directory
 		args[1] schema (database) name
@@ -270,7 +303,10 @@ public class RunBenchmark {
 		
 		array[5] = "zorder";
 		array[6] = args[5];
-		array[7] = "DatabricksDeltaZorder";
+		if( noPart )
+			array[7] = "DatabricksDeltaZorderNoPart";
+		else
+			array[7] = "DatabricksDeltaZorder";
 		array[8] = args[20];
 		array[9] = args[21];
 		
