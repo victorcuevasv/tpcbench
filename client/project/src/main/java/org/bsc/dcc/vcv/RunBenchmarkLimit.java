@@ -92,7 +92,9 @@ public class RunBenchmarkLimit extends RunBenchmark {
 			}
 			boolean doZorder = args[31].charAt(3) == '1' ? true : false;
 			if( args[11].equalsIgnoreCase("delta") && doZorder ) {
-				String[] executeQueriesDeltaZorderArgs = this.createExecuteQueriesDeltaZorderArgs(args);
+				boolean noPart = args[13].equals("false");
+				String[] executeQueriesDeltaZorderArgs = 
+						this.createExecuteQueriesDeltaZorderArgs(args, noPart);
 				this.saveTestParameters(executeQueriesDeltaZorderArgs, "zorder");
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
 				ExecuteQueries.main(executeQueriesDeltaZorderArgs);
