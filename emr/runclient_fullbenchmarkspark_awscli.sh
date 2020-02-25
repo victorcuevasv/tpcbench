@@ -26,7 +26,7 @@ if [ $# -lt 3 ]; then
     exit 0
 fi
 
-BucketName="tpcds-warehouse-$1gb-$2-deltanopartwithzorder-conc"
+BucketName="tpcds-warehouse-sparkemr-529-$1gb-$2"
 DatabaseName="tpcds_emr529_$1gb_$2_db"
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
