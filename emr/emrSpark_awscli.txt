@@ -1,0 +1,145 @@
+aws emr create-cluster
+--termination-protected
+--applications Name=Hadoop Name=Hive Name=Spark
+--ec2-attributes '{"KeyName":"testalojakeypair","InstanceProfile":"EMR_EC2_DefaultRole","SubnetId":"subnet-01033078","EmrManagedSlaveSecurityGroup":"sg-0d6c7aa7f3a231e50","EmrManagedMasterSecurityGroup":"sg-0cefde07cc1a0a36e"}'
+--release-label emr-5.29.0
+--log-uri 's3n://bsc-emr-logs/'
+--steps '[{"Args":["spark-submit","--deploy-mode","client","--conf","spark.eventLog.enabled=true","--class","org.bsc.dcc.vcv.RunBenchmarkSpark","/mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.1-SNAPSHOT-jar-with-dependencies.jar","/mnt/efs/scratch/hadoop/data","tpcds_emr529_1gb_1_db","19aoujv0ull8kx87l4by700xikfythorv","sparkemr-529-2nodes-1gb-deltapartwithzorder-test","sparkemr","1","UNUSED","tables","_ext","s3://tpcds-datasets/1GB","s3://tpcds-warehouse-sparkemr-529-1gb-1","parquet","false","false","/mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.1-SNAPSHOT-jar-with-dependencies.jar","true","true","QueriesSpark","results","plans","true","true","all","true","true","1","1954","111011"],"Type":"CUSTOM_JAR","ActionOnFailure":"TERMINATE_CLUSTER","Jar":"command-runner.jar","Properties":"","Name":"Spark application"}]'
+--instance-groups '[{"InstanceCount":2,"InstanceGroupType":"CORE","InstanceType":"i3.2xlarge","Name":"Core - 2"},{"InstanceCount":1,"InstanceGroupType":"MASTER","InstanceType":"i3.2xlarge","Name":"Master - 1"}]'
+--configurations '[{"Classification":"spark-defaults","Properties":{"spark.driver.memory":"5692M","hive.exec.max.dynamic.partitions":"3000","hive.exec.dynamic.partition.mode":"nonstrict","spark.sql.broadcastTimeout":"7200"}}]'
+--auto-terminate
+--auto-scaling-role EMR_AutoScaling_DefaultRole
+--bootstrap-actions '[{"Path":"s3://bsc-bootstrap/emrClusterEFS_user_param.sh","Args":["hadoop"],"Name":"Custom action"}]'
+--ebs-root-volume-size 10
+--service-role EMR_DefaultRole
+--enable-debugging
+--name 'BSC-test'
+--scale-down-behavior TERMINATE_AT_TASK_COMPLETION
+--region us-west-2
+
+
+
+
+
+--ec2-attributes '{"KeyName":"testalojakeypair","InstanceProfile":"EMR_EC2_DefaultRole","SubnetId":"subnet-01033078","EmrManagedSlaveSecurityGroup":"sg-0d6c7aa7f3a231e50","EmrManagedMasterSecurityGroup":"sg-0cefde07cc1a0a36e"}'
+
+--steps '[{"Args":["spark-submit","--deploy-mode","client","--conf","spark.eventLog.enabled=true","--class","org.bsc.dcc.vcv.RunBenchmarkSpark","/mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.1-SNAPSHOT-jar-with-dependencies.jar","/mnt/efs/scratch/hadoop/data","tpcds_emr529_1gb_1_db","19aoujv0ull8kx87l4by700xikfythorv","sparkemr-529-2nodes-1gb-deltapartwithzorder-test","sparkemr","1","UNUSED","tables","_ext","s3://tpcds-datasets/1GB","s3://tpcds-warehouse-sparkemr-529-1gb-1","parquet","false","false","/mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.1-SNAPSHOT-jar-with-dependencies.jar","true","true","QueriesSpark","results","plans","true","true","all","true","true","1","1954","111011"],"Type":"CUSTOM_JAR","ActionOnFailure":"TERMINATE_CLUSTER","Jar":"command-runner.jar","Properties":"","Name":"Spark application"}]'
+
+--instance-groups '[{"InstanceCount":2,"InstanceGroupType":"CORE","InstanceType":"i3.2xlarge","Name":"Core - 2"},{"InstanceCount":1,"InstanceGroupType":"MASTER","InstanceType":"i3.2xlarge","Name":"Master - 1"}]'
+
+--configurations '[{"Classification":"spark-defaults","Properties":{"spark.driver.memory":"5692M","hive.exec.max.dynamic.partitions":"3000","hive.exec.dynamic.partition.mode":"nonstrict","spark.sql.broadcastTimeout":"7200"}}]'
+
+--bootstrap-actions '[{"Path":"s3://bsc-bootstrap/emrClusterEFS_user_param.sh","Args":["hadoop"],"Name":"Custom action"}]'
+
+
+
+
+--ec2-attributes
+{
+   "KeyName":"testalojakeypair",
+   "InstanceProfile":"EMR_EC2_DefaultRole",
+   "SubnetId":"subnet-01033078",
+   "EmrManagedSlaveSecurityGroup":"sg-0d6c7aa7f3a231e50",
+   "EmrManagedMasterSecurityGroup":"sg-0cefde07cc1a0a36e"
+}
+
+
+--steps
+[
+   {
+      "Args":[
+         "spark-submit",
+         "--deploy-mode",
+         "client",
+         "--conf",
+         "spark.eventLog.enabled=true",
+         "--class",
+         "org.bsc.dcc.vcv.RunBenchmarkSpark",
+         "/mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.1-SNAPSHOT-jar-with-dependencies.jar",
+         "/mnt/efs/scratch/hadoop/data",
+         "tpcds_emr529_1gb_1_db",
+         "19aoujv0ull8kx87l4by700xikfythorv",
+         "sparkemr-529-2nodes-1gb-deltapartwithzorder-test",
+         "sparkemr",
+         "1",
+         "UNUSED",
+         "tables",
+         "_ext",
+         "s3://tpcds-datasets/1GB",
+         "s3://tpcds-warehouse-sparkemr-529-1gb-1",
+         "parquet",
+         "false",
+         "false",
+         "/mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.1-SNAPSHOT-jar-with-dependencies.jar",
+         "true",
+         "true",
+         "QueriesSpark",
+         "results",
+         "plans",
+         "true",
+         "true",
+         "all",
+         "true",
+         "true",
+         "1",
+         "1954",
+         "111011"
+      ],
+      "Type":"CUSTOM_JAR",
+      "ActionOnFailure":"TERMINATE_CLUSTER",
+      "Jar":"command-runner.jar",
+      "Properties":"",
+      "Name":"Spark application"
+   }
+]
+
+
+--instance-groups
+[
+   {
+      "InstanceCount":2,
+      "InstanceGroupType":"CORE",
+      "InstanceType":"i3.2xlarge",
+      "Name":"Core - 2"
+   },
+   {
+      "InstanceCount":1,
+      "InstanceGroupType":"MASTER",
+      "InstanceType":"i3.2xlarge",
+      "Name":"Master - 1"
+   }
+]
+
+
+--configurations
+[
+   {
+      "Classification":"spark-defaults",
+      "Properties":{
+         "spark.driver.memory":"5692M",
+         "hive.exec.max.dynamic.partitions":"3000",
+         "hive.exec.dynamic.partition.mode":"nonstrict",
+         "spark.sql.broadcastTimeout":"7200"
+      }
+   }
+]
+
+
+--bootstrap-actions
+[
+   {
+      "Path":"s3://bsc-bootstrap/emrClusterEFS_user_param.sh",
+      "Args":[
+         "hadoop"
+      ],
+      "Name":"Custom action"
+   }
+]
+
+
+
+
+
+
+
+

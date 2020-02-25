@@ -17,7 +17,6 @@ USER_ID=$(id -u)
 #Get the user id of the user executing this script.
 GROUP_ID=$(id -g)
 
-#and used to identify the folder that holds the data.
 #$1 scale factor (positive integer)
 #$2 experiment instance number (positive integer)
 #$3 number of streams (positive integer)
@@ -69,9 +68,7 @@ if [ "$RUN_UNMOUNT_DELETEDB_JOB" -eq 1 ]; then
     exit 0
 fi
 
-#exit 0
-
-#Execute the Java project with Maven on the client builder container running in the docker-compose setup. 
+#exit 0 
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 

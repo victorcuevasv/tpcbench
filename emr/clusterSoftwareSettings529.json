@@ -1,0 +1,18 @@
+[
+  {
+    "classification": "spark-defaults",
+    "properties": {
+      "spark.sql.broadcastTimeout": "7200",
+      "spark.driver.memory": "5692M",
+      "hive.exec.dynamic.partition.mode":"nonstrict",
+      "hive.exec.max.dynamic.partitions":"3000"
+      }
+  },
+  {
+    "classification": "spark-hive-site",
+    "properties": {
+      "hive.metastore.client.factory.class": "com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"   
+    }
+  }
+]
+
