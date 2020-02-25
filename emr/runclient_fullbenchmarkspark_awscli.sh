@@ -251,16 +251,15 @@ bootstrapActions=$(jq -c . <<<  "$(bootstrap-actions_func)")
 aws emr create-cluster \
 --termination-protected \
 --applications Name=Hadoop Name=Hive Name=Spark \
---ec2-attributes \'"$ec2Attributes"\' \
+--ec2-attributes "$ec2Attributes" \
 --release-label emr-5.29.0 \
 --log-uri 's3n://bsc-emr-logs/' \
---steps \'"$steps"\' \
---instance-type i3.2xlarge \
---instance-count 3
---configurations \'"$configurations"\' \
+--steps "$steps" \
+--instance-groups "$instanceGroups" \
+--configurations "$configurations" \
 --auto-terminate \
 --auto-scaling-role EMR_AutoScaling_DefaultRole \
---bootstrap-actions \'"$bootstrapActions"\' \
+--bootstrap-actions "$bootstrapActions" \
 --ebs-root-volume-size 10 \
 --service-role EMR_DefaultRole \
 --enable-debugging \
