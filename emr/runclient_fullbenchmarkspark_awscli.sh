@@ -255,7 +255,8 @@ aws emr create-cluster \
 --release-label emr-5.29.0 \
 --log-uri 's3n://bsc-emr-logs/' \
 --steps \'"$steps"\' \
---instance-groups \'"$instanceGroups"\' \
+--instance-type i3.2xlarge \
+--instance-count 3
 --configurations \'"$configurations"\' \
 --auto-terminate \
 --auto-scaling-role EMR_AutoScaling_DefaultRole \
