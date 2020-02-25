@@ -217,7 +217,8 @@ configurations_func()
          "spark.driver.memory":"5692M",
          "hive.exec.max.dynamic.partitions":"3000",
          "hive.exec.dynamic.partition.mode":"nonstrict",
-         "spark.sql.broadcastTimeout":"7200"
+         "spark.sql.broadcastTimeout":"7200",
+         "spark.sql.crossJoin.enabled":"true"
       }
    }
 ]

@@ -83,7 +83,6 @@ public class QueryStreamSpark implements Callable<Void> {
 	public Void call() {
 		this.logger.info("\n\n\n\n\nStarting query stream: " + this.nStream + " using " + this.parent.dbName);
 		this.useDatabase(this.parent.dbName);
-		this.spark.conf().set("spark.sql.crossJoin.enabled", "true");
 		//this.logger.info(AppUtil.stringifySparkConfiguration(this.spark));
 		//Integer[] queries = this.queriesHT.keySet().toArray(new Integer[] {});
 		//Arrays.sort(queries);
