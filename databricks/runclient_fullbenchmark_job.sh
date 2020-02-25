@@ -46,9 +46,15 @@ EOF
 RUN_MOUNT_CREATEDB_JOB=0
 
 if [ "$RUN_MOUNT_CREATEDB_JOB" -eq 1 ]; then
+    #Create the bucket
     aws s3api create-bucket --bucket $BucketName --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
+    #Add the Owner tag
     aws s3api put-bucket-tagging --bucket $BucketName --tagging 'TagSet=[{Key=Owner,Value=eng-benchmarking@databricks.com}]'
+    #Block all public access for the bucket
+    aws s3api put-public-access-block --bucket $BucketName --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"  
+    #Create and empty folder to enable mounting
     aws s3api put-object --bucket $BucketName --key empty
+    #Mount the bucket on dbfs
     databricks jobs run-now --job-id 231 --notebook-params "$(data_mount_createdb_func Mount)"
     exit 0
 fi
@@ -56,7 +62,9 @@ fi
 RUN_UNMOUNT_DELETEDB_JOB=0
 
 if [ "$RUN_UNMOUNT_DELETEDB_JOB" -eq 1 ]; then
+    #Unmount the bucket
     databricks jobs run-now --job-id 231 --notebook-params "$(data_mount_createdb_func Unmount)"
+    #Delete the bucket
     aws s3 rb s3://$BucketName --force
     exit 0
 fi
