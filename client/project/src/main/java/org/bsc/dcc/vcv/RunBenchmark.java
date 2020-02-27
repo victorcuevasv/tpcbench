@@ -143,7 +143,7 @@ public class RunBenchmark {
 		 args[1] system used to create the schema on the metastore
 		 args[2] schema (database) name
 		*/
-		String[] array = new String[2];
+		String[] array = new String[3];
 		array[0] = args[14];
 		array[1] = args[4];
 		array[2] = args[1];

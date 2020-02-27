@@ -26,8 +26,8 @@ if [ $# -lt 3 ]; then
     exit 0
 fi
 
-BucketName="tpcds-warehouse-sparkemr-529-$1gb-$2"
-DatabaseName="tpcds_emr529_$1gb_$2_db"
+BucketName="tpcds-warehouse-prestoemr-529-$1gb-$2"
+DatabaseName="tpcds_prestoemr529_$1gb_$2_db"
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
@@ -62,9 +62,9 @@ args[1]="$DatabaseName"
 #args[2] results folder name (e.g. for Google Drive)
 args[2]="19aoujv0ull8kx87l4by700xikfythorv"
 #args[3] experiment name (name of subfolder within the results folder)
-args[3]="sparkemr-529-2nodes-$1gb-deltapartwithzorder-test"
+args[3]="prestoemr-529-2nodes-$1gb-test"
 #args[4] system name (system name used within the logs)
-args[4]="sparkemr"
+args[4]="prestoemr"
 
 #args[5] experiment instance number
 args[5]="$2"
@@ -85,37 +85,44 @@ args[11]="parquet"
 args[12]="false"
 #args[13] whether to use data partitioning for the tables (true/false)
 args[13]="false"
-#args[14] jar file
-args[14]="/mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.1-SNAPSHOT-jar-with-dependencies.jar"
+#args[14] hostname of the server
+args[14]="$(hostname)"
 
-#args[15] whether to generate statistics by analyzing tables (true/false)
-args[15]="true"
-#args[16] if argument above is true, whether to compute statistics for columns (true/false)
-args[16]="true"
-#args[17] queries dir within the jar
-args[17]="QueriesSpark"
-#args[18] subdirectory of work directory to store the results
-args[18]="results"
-#args[19] subdirectory of work directory to store the execution plans
-args[19]="plans"
+#args[15] username for the connection
+args[15]="$(whoami)"
+#args[16] jar file
+args[16]="/mnt/efs/FileStore/job-jars/project/targetemr/client-1.1-SNAPSHOT-jar-with-dependencies.jar"
+#args[17] whether to generate statistics by analyzing tables (true/false)
+args[17]="true"
+#args[18] if argument above is true, whether to compute statistics for columns (true/false)
+args[18]="true"
+#args[19] queries dir within the jar
+args[19]="QueriesPresto"
 
-#args[20] save power test plans (boolean)
-args[20]="true"
-#args[21] save power test results (boolean)
-args[21]="true"
-#args[22] "all" or query file
-args[22]="all"
-#args[23] save tput test plans (boolean)
+#args[20] subdirectory of work directory to store the results
+args[20]="results"
+#args[21] subdirectory of work directory to store the execution plans
+args[21]="plans"
+#args[22] save power test plans (boolean)
+args[22]="true"
+#args[23] save power test results (boolean)
 args[23]="true"
-#args[24] save tput test results (boolean)
-args[24]="true"
+#args[24] "all" or query file
+args[24]="all"
  
-#args[25] number of streams
-args[25]="$3"
-#args[26] random seed
-args[26]="1954"
-#args[27] flags (111111 schema|load|analyze|zorder|power|tput)
-args[27]="111011"
+#args[25] save tput test plans (boolean)
+args[25]="true"
+#args[26] save tput test results (boolean)
+args[26]="true"
+#args[27] number of streams
+args[27]="$3"
+#args[28] random seed
+args[28]="1954"
+#args[29] use multiple connections (true|false)
+args[29]="false"
+
+#args[30] flags (111111 schema|load|analyze|zorder|power|tput)
+args[30]="111011"
 
 ec2-attributes_func()
 {
