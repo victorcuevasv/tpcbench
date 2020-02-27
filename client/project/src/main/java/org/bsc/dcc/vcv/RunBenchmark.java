@@ -29,6 +29,7 @@ public class RunBenchmark {
 		this.instance = args[5];
 		if( args[14].equals("$(hostname)") ) {
 			args[14] = executeCommand("hostname");
+			System.out.println("Hostname: " + args[14]);
 		}
 	}
 	
