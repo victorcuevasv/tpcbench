@@ -10,4 +10,3 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 docker run --rm --user $1:$2 -v $DIR/project:/project  \
 --entrypoint mvn clientbuilder:dev -q clean package -f /project/pomSparkDatabricks.xml   
 
-
