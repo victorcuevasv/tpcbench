@@ -93,12 +93,12 @@ public class RunBenchmark {
 		String[] executeQueriesArgs = this.createExecuteQueriesArgs(args);
 		String[] executeQueriesConcurrentArgs = this.createExecuteQueriesConcurrentArgs(args);
 		try {
-			boolean doSchema = args[27].charAt(0) == '1' ? true : false;
+			boolean doSchema = args[30].charAt(0) == '1' ? true : false;
 			if( doSchema ) {
 				System.out.println("\n\n\nCreating the database schema.\n\n\n");
 				CreateSchema.main(createSchemaArgs);
 			}
-			boolean doLoad = args[27].charAt(1) == '1' ? true : false;
+			boolean doLoad = args[30].charAt(1) == '1' ? true : false;
 			if( doLoad ) {
 				this.saveTestParameters(createDatabaseArgs, "load");
 				System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
@@ -106,14 +106,14 @@ public class RunBenchmark {
 			}
 			boolean analyze = Boolean.parseBoolean(args[17]);
 			//Redundant check for legacy compatibility.
-			boolean doAnalyze = args[27].charAt(2) == '1' ? true : false;
+			boolean doAnalyze = args[30].charAt(2) == '1' ? true : false;
 			if( analyze && doAnalyze) {
 				String[] analyzeTablesArgs = this.createAnalyzeTablesArgs(args);
 				this.saveTestParameters(analyzeTablesArgs, "analyze");
 				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
 				AnalyzeTables.main(analyzeTablesArgs);
 			}
-			boolean doZorder = args[27].charAt(3) == '1' ? true : false;
+			boolean doZorder = args[30].charAt(3) == '1' ? true : false;
 			if( args[11].equalsIgnoreCase("delta") && doZorder ) {
 				boolean noPart = args[13].equals("false");
 				String[] executeQueriesDeltaZorderArgs = 
@@ -122,13 +122,13 @@ public class RunBenchmark {
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
 				ExecuteQueries.main(executeQueriesDeltaZorderArgs);
 			}
-			boolean doPower = args[27].charAt(4) == '1' ? true : false;
+			boolean doPower = args[30].charAt(4) == '1' ? true : false;
 			if( doPower ) {
 				this.saveTestParameters(executeQueriesArgs, "power");
 				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
 				ExecuteQueries.main(executeQueriesArgs);
 			}
-			boolean doTput = args[27].charAt(5) == '1' ? true : false;
+			boolean doTput = args[30].charAt(5) == '1' ? true : false;
 			if( doTput ) {
 				this.saveTestParameters(executeQueriesConcurrentArgs, "tput");
 				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
