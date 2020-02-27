@@ -53,8 +53,6 @@ if [ "$RUN_DELETE_BUCKET" -eq 1 ]; then
     exit 0
 fi
 
-exit 0 
-
 args=()
 
 #args[0] main work directory
