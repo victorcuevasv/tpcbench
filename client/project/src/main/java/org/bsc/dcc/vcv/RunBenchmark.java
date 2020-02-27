@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,6 +19,7 @@ public class RunBenchmark {
 	private final String folderName;
 	private final String experimentName;
 	private final String instance;
+	private String hostname;
 	
 	
 	public RunBenchmark(String args[]) {
@@ -24,6 +27,9 @@ public class RunBenchmark {
 		this.folderName = args[2];
 		this.experimentName = args[3];
 		this.instance = args[5];
+		if( args[14].equals("$(hostname)") ) {
+			args[14] = executeCommand(args[14]);
+		}
 	}
 	
 	
@@ -390,6 +396,30 @@ public class RunBenchmark {
 			ioe.printStackTrace();
 			this.logger.error(ioe);
 		}
+	}
+	
+	
+	private String executeCommand(String cmd) {
+		ProcessBuilder processBuilder = new ProcessBuilder();
+		processBuilder.command("bash", "-c", cmd);
+		StringBuilder builder = new StringBuilder();
+		try {
+			Process process = processBuilder.start();
+			int exitVal = process.waitFor();
+			BufferedReader input = new BufferedReader(new 
+				     InputStreamReader(process.getInputStream()));
+			String s = null;
+			while ((s = input.readLine()) != null) {
+			    builder.append(s);
+			}
+		}
+		catch(IOException ioe) {
+			ioe.printStackTrace();
+		}
+		catch(InterruptedException ie) {
+			ie.printStackTrace();
+		}
+		return builder.toString();
 	}
 
 	
