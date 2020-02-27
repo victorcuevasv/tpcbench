@@ -28,7 +28,7 @@ public class RunBenchmark {
 		this.experimentName = args[3];
 		this.instance = args[5];
 		if( args[14].equals("$(hostname)") ) {
-			args[14] = executeCommand(args[14]);
+			args[14] = executeCommand("hostname");
 		}
 	}
 	
