@@ -72,7 +72,7 @@ args[1]="$DatabaseName"
 #args[2] results folder name (e.g. for Google Drive)
 args[2]="19aoujv0ull8kx87l4by700xikfythorv"
 #args[3] experiment name (name of subfolder within the results folder)
-args[3]="prestoemr-529-2nodes-$1gb-test"
+args[3]="prestoemr-529-2nodes-$1gb"
 #args[4] system name (system name used within the logs)
 args[4]="prestoemr"
 
