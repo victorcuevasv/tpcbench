@@ -49,7 +49,7 @@ if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
 			warehouse web_page web_returns web_sales web_site)
 	for t in "${tables[@]}"
 	do
-		aws s3api put-object --bucket $BucketName --key $t
+		aws s3api put-object --bucket $BucketName --key $t/
 	done
     exit 0
 fi
