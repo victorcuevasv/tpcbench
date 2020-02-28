@@ -42,6 +42,15 @@ if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
     aws s3api put-public-access-block --bucket $BucketName --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"  
     #Create and empty folder to enable mounting
     aws s3api put-object --bucket $BucketName --key empty
+    #Create the table folders and empty folders within them
+    tables=(call_center catalog_page catalog_returns catalog_sales customer customer_address \
+			customer_demographics date_dim dbgen_version household_demographics income_band \
+			inventory item promotion reason ship_mode store store_returns store_sales time_dim \
+			warehouse web_page web_returns web_sales web_site)
+	for t in "${tables[@]}"
+	do
+		aws s3api put-object --bucket $BucketName --key $t/empty
+	done
     exit 0
 fi
 
