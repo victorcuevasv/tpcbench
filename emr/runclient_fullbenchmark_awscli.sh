@@ -154,14 +154,6 @@ steps_func()
 [
    {
       "Args":[
-         "spark-submit",
-         "--deploy-mode",
-         "client",
-         "--conf",
-         "spark.eventLog.enabled=true",
-         "--class",
-         "org.bsc.dcc.vcv.RunBenchmarkSpark",
-         "${args[14]}",
          "${args[0]}",
          "${args[1]}",
          "${args[2]}",
@@ -189,13 +181,16 @@ steps_func()
          "${args[24]}",
          "${args[25]}",
          "${args[26]}",
-         "${args[27]}"
+         "${args[27]}",
+         "${args[28]}",
+         "${args[29]}",
+         "${args[30]}"
       ],
       "Type":"CUSTOM_JAR",
       "ActionOnFailure":"TERMINATE_CLUSTER",
-      "Jar":"command-runner.jar",
+      "Jar":"/mnt/efs/FileStore/job-jars/project/targetemr/client-1.1-SNAPSHOT-jar-with-dependencies.jar",
       "Properties":"",
-      "Name":"Spark application"
+      "Name":"Custom JAR"
    }
 ]
 EOF
@@ -227,13 +222,29 @@ configurations_func()
   cat <<EOF
 [
    {
-      "Classification":"spark-defaults",
+      "Classification":"presto-connector-hive",
       "Properties":{
-         "spark.driver.memory":"5692M",
-         "hive.exec.max.dynamic.partitions":"3000",
+         "hive.allow-drop-table":"true",
+         "hive.compression-codec":"SNAPPY",
+         "hive.max-partitions-per-writers":"2500",
+         "hive.s3-file-system-type":"PRESTO"
+      }
+   },
+   {
+      "Classification":"presto-config",
+      "Properties":{
+         "experimental.spiller-spill-path":"/mnt/tmp/",
+         "experimental.max-spill-per-node":"400GB",
+         "experimental.spill-enabled":"true",
+         "query.max-memory":"240GB"
+      }
+   },
+   {
+      "Classification":"hive-site",
+      "Properties":{
+         "hive.exec.max.dynamic.partitions":"5000",
          "hive.exec.dynamic.partition.mode":"nonstrict",
-         "spark.sql.broadcastTimeout":"7200",
-         "spark.sql.crossJoin.enabled":"true"
+         "hive.exec.max.dynamic.partitions.pernode":"2500"
       }
    }
 ]
@@ -266,7 +277,7 @@ bootstrapActions=$(jq -c . <<<  "$(bootstrap-actions_func)")
 
 aws emr create-cluster \
 --termination-protected \
---applications Name=Hadoop Name=Hive Name=Spark \
+--applications Name=Hadoop Name=Hive Name=Presto \
 --ec2-attributes "$ec2Attributes" \
 --release-label emr-5.29.0 \
 --log-uri 's3n://bsc-emr-logs/' \
