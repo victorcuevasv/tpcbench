@@ -27,9 +27,10 @@ public class RunBenchmark {
 		this.folderName = args[2];
 		this.experimentName = args[3];
 		this.instance = args[5];
+		//Execute the unix command to obtain the hostname if so specified.
+		//Usually it is enough to use localhost instead.
 		if( args[14].equals("$(hostname)") || args[14].equals("$(hostname -f)") ) {
 			args[14] = executeCommand("hostname -f");
-			System.out.println("Hostname: " + args[14]);
 		}
 	}
 	
