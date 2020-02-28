@@ -96,10 +96,10 @@ args[12]="false"
 #args[13] whether to use data partitioning for the tables (true/false)
 args[13]="false"
 #args[14] hostname of the server
-args[14]="$(hostname)"
+args[14]="localhost"
 
 #args[15] username for the connection
-args[15]="$(whoami)"
+args[15]="hadoop"
 #args[16] jar file
 args[16]="/mnt/efs/FileStore/job-jars/project/targetemr/client-1.1-SNAPSHOT-jar-with-dependencies.jar"
 #args[17] whether to generate statistics by analyzing tables (true/false)
