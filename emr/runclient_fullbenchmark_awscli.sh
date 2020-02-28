@@ -49,7 +49,8 @@ if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
 			warehouse web_page web_returns web_sales web_site)
 	for t in "${tables[@]}"
 	do
-		aws s3api put-object --bucket $BucketName --key $t/
+		#Must specify through the content type that it is a directory and use the trailing slash.
+		aws s3api put-object --bucket $BucketName --content-type application/x-directory --key $t/
 	done
     exit 0
 fi
