@@ -278,7 +278,7 @@ bootstrapActions=$(jq -c . <<<  "$(bootstrap-actions_func)")
 
 aws emr create-cluster \
 --termination-protected \
---applications Name=Hadoop Name=Hive Name=Presto \
+--applications Name=Hadoop Name=Hive Name=Presto Name=Ganglia \
 --ec2-attributes "$ec2Attributes" \
 --release-label emr-5.29.0 \
 --log-uri 's3n://bsc-emr-logs/' \
