@@ -28,6 +28,7 @@ fi
 
 BucketName="tpcds-warehouse-prestoemr-529-$1gb-$2"
 DatabaseName="tpcds_prestoemr529_$1gb_$2_db"
+Nodes="8"
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
@@ -72,7 +73,7 @@ args[1]="$DatabaseName"
 #args[2] results folder name (e.g. for Google Drive)
 args[2]="19aoujv0ull8kx87l4by700xikfythorv"
 #args[3] experiment name (name of subfolder within the results folder)
-args[3]="prestoemr-529-2nodes-$1gb"
+args[3]="prestoemr-529-$Nodesnodes-$1gb"
 #args[4] system name (system name used within the logs)
 args[4]="prestoemr"
 
@@ -201,10 +202,10 @@ instance-groups_func()
   cat <<EOF
 [
    {
-      "InstanceCount":2,
+      "InstanceCount":$Nodes,
       "InstanceGroupType":"CORE",
       "InstanceType":"i3.2xlarge",
-      "Name":"Core - 2"
+      "Name":"Core - $Nodes"
    },
    {
       "InstanceCount":1,
