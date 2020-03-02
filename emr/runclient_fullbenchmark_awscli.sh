@@ -236,7 +236,7 @@ configurations_func()
       "Properties":{
          "experimental.spiller-spill-path":"/mnt/tmp/",
          "experimental.max-spill-per-node":"800GB",
-         "experimental.query-max-spill-per-node":"400GB"
+         "experimental.query-max-spill-per-node":"400GB",
          "experimental.spill-enabled":"true",
          "query.max-memory":"240GB"
       }
