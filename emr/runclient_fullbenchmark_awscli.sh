@@ -235,8 +235,8 @@ configurations_func()
       "Classification":"presto-config",
       "Properties":{
          "experimental.spiller-spill-path":"/mnt/tmp/",
-         "experimental.max-spill-per-node":"800GB",
-         "experimental.query-max-spill-per-node":"400GB",
+         "experimental.max-spill-per-node":"1400GB",
+         "experimental.query-max-spill-per-node":"700GB",
          "experimental.spill-enabled":"true",
          "query.max-memory":"240GB"
       }
@@ -244,6 +244,10 @@ configurations_func()
    {
       "Classification":"hive-site",
       "Properties":{
+         "javax.jdo.option.ConnectionURL": "jdbc:mysql://metastore.crhrootttpzi.us-west-2.rds.amazonaws.com:3306/hive?createDatabaseIfNotExist=true",
+         "javax.jdo.option.ConnectionDriverName": "org.mariadb.jdbc.Driver",
+         "javax.jdo.option.ConnectionUserName": "admin",
+         "javax.jdo.option.ConnectionPassword": "maria_db",
          "hive.exec.max.dynamic.partitions":"5000",
          "hive.exec.dynamic.partition.mode":"nonstrict",
          "hive.exec.max.dynamic.partitions.pernode":"2500"
