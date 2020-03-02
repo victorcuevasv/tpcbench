@@ -244,10 +244,10 @@ configurations_func()
    {
       "Classification":"hive-site",
       "Properties":{
-         "javax.jdo.option.ConnectionURL": "jdbc:mysql://metastore.crhrootttpzi.us-west-2.rds.amazonaws.com:3306?createDatabaseIfNotExist=true",
+         "javax.jdo.option.ConnectionURL": "jdbc:mysql://metastore.crhrootttpzi.us-west-2.rds.amazonaws.com:3306/hive?createDatabaseIfNotExist=true",
          "javax.jdo.option.ConnectionDriverName": "org.mariadb.jdbc.Driver",
-         "javax.jdo.option.ConnectionUserName": "admin",
-         "javax.jdo.option.ConnectionPassword": "maria_db",
+         "javax.jdo.option.ConnectionUserName": "hive",
+         "javax.jdo.option.ConnectionPassword": "hive",
          "hive.exec.max.dynamic.partitions":"5000",
          "hive.exec.dynamic.partition.mode":"nonstrict",
          "hive.exec.max.dynamic.partitions.pernode":"2500"
