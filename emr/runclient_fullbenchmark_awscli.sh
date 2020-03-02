@@ -302,7 +302,11 @@ aws emr create-cluster \
 --region us-west-2
 
 
-
+#Commands to create the metastore
+#Run on an EC-2 virtual machine with mysql installed (sudo yum install mysql -y)
+#username:admin, password:maria_db
+#mysql -h metastore.crhrootttpzi.us-west-2.rds.amazonaws.com -P 3306 -u admin -p
+#create database hive; grant all privileges on hive.* to 'hive'@'%' identified by 'hive'; flush privileges;
 
 
 
