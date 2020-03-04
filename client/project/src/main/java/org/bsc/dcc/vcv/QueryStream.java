@@ -50,7 +50,7 @@ public class QueryStream implements Callable<Void> {
 		((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 		((PrestoConnection)con).setSessionProperty("join_reordering_strategy", "AUTOMATIC");
 		((PrestoConnection)con).setSessionProperty("join_distribution_type", "AUTOMATIC");
-		((PrestoConnection)con).setSessionProperty("task_concurrency", "8");
+		((PrestoConnection)con).setSessionProperty("task_concurrency", "16");
 	}
 
 	

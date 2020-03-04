@@ -269,6 +269,9 @@ public class ExecuteQueries {
 			String sqlStr = this.queriesReader.getFile(fileName);
 			String nQueryStr = fileName.replaceAll("[^\\d]", "");
 			int nQuery = Integer.parseInt(nQueryStr);
+			if( this.system.equals("prestoemr") ) {
+				this.setPrestoDefaultSessionOpts();
+			}
 			QueryRecord queryRecord = new QueryRecord(nQuery);
 			this.logger.info("\nExecuting query: " + fileName + "\n" + sqlStr);
 			try {
