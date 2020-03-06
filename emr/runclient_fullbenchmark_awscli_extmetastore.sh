@@ -22,7 +22,7 @@ GROUP_ID=$(id -g)
 #$3 number of streams (positive integer)
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_fullbenchmark_awscli.sh <scale factor> <experiment instance number> <number of streams>${end}"
+    echo "${yel}Usage: bash runclient_fullbenchmark_awscliextmetastore.sh <scale factor> <experiment instance number> <number of streams>${end}"
     exit 0
 fi
 
@@ -91,7 +91,7 @@ args[9]="s3://tpcds-datasets/$1GB"
 #args[10] prefix of external location for created tables (e.g. S3 bucket), null for none
 args[10]="s3://$BucketName"
 #args[11] format for column-storage tables (PARQUET, DELTA)
-args[11]="parquet"
+args[11]="orc"
 #args[12] whether to run queries to count the tuples generated (true/false)
 args[12]="false"
 #args[13] whether to use data partitioning for the tables (true/false)

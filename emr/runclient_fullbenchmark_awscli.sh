@@ -91,7 +91,7 @@ args[9]="s3://tpcds-datasets/$1GB"
 #args[10] prefix of external location for created tables (e.g. S3 bucket), null for none
 args[10]="s3://$BucketName"
 #args[11] format for column-storage tables (PARQUET, DELTA)
-args[11]="parquet"
+args[11]="orc"
 #args[12] whether to run queries to count the tuples generated (true/false)
 args[12]="false"
 #args[13] whether to use data partitioning for the tables (true/false)
@@ -238,7 +238,9 @@ configurations_func()
          "experimental.max-spill-per-node":"1400GB",
          "experimental.query-max-spill-per-node":"700GB",
          "experimental.spill-enabled":"true",
-         "query.max-memory":"240GB"
+         "query.max-memory":"240GB",
+         "query.max-memory-per-node":"30GB",
+         "query.max-total-memory-per-node":"35GB"
       }
    },
    {
