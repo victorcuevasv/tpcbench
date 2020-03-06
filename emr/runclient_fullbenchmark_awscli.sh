@@ -240,7 +240,7 @@ configurations_func()
          "experimental.spill-enabled":"true",
          "query.max-memory":"240GB",
          "query.max-memory-per-node":"30GB",
-         "query.max-total-memory-per-node":"35GB"
+         "query.max-total-memory-per-node":"33GB"
       }
    },
    {
