@@ -55,6 +55,9 @@ printf "%s\n" "SET SESSION join_distribution_type = 'AUTOMATIC';" >> ../output/Q
 printf "%s\n%s\n" "SET SESSION join_reordering_strategy = 'ELIMINATE_CROSS_JOINS';" "$(cat ../output/QueriesPresto/query18.sql )" > ../output/QueriesPresto/query18.sql     
 printf "%s\n" "SET SESSION join_reordering_strategy = 'ELIMINATE_CROSS_JOINS';" >> ../output/QueriesPresto/query18.sql
 
+printf "%s\n%s\n" "SET SESSION spill_enabled = false;" "$(cat ../output/QueriesPresto/query30.sql )" > ../output/QueriesPresto/query30.sql     
+printf "%s\n" "SET SESSION spill_enabled = true;" >> ../output/QueriesPresto/query30.sql
+
 printf "%s\n%s\n" "SET SESSION task_concurrency = 32;" "$(cat ../output/QueriesPresto/query67.sql )" > ../output/QueriesPresto/query67.sql
 printf "%s\n%s\n" "SET SESSION spill_enabled = false;" "$(cat ../output/QueriesPresto/query67.sql )" > ../output/QueriesPresto/query67.sql     
 printf "%s\n" "SET SESSION task_concurrency = 16;" >> ../output/QueriesPresto/query67.sql
