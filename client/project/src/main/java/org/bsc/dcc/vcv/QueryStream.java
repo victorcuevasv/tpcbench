@@ -173,7 +173,7 @@ public class QueryStream implements Callable<Void> {
 	}
 
 	
-	private int saveResults(String resFileName, ResultSet rs, boolean append) {
+	private int saveResults(String resFileName, ResultSet rs, boolean append) throws SQLException {
 		int tuples = 0;
 		try {
 			File tmp = new File(resFileName);
@@ -196,6 +196,7 @@ public class QueryStream implements Callable<Void> {
 			e.printStackTrace();
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
+			throw e;
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
