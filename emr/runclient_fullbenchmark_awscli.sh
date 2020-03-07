@@ -130,7 +130,7 @@ args[27]="$3"
 #args[28] random seed
 args[28]="1954"
 #args[29] use multiple connections (true|false)
-args[29]="false"
+args[29]="true"
 
 #args[30] flags (111111 schema|load|analyze|zorder|power|tput)
 args[30]="111011"
@@ -238,9 +238,10 @@ configurations_func()
          "experimental.max-spill-per-node":"1400GB",
          "experimental.query-max-spill-per-node":"700GB",
          "experimental.spill-enabled":"true",
+         "experimental.spill-compression-enabled":"true",
          "query.max-memory":"240GB",
-         "query.max-memory-per-node":"30GB",
-         "query.max-total-memory-per-node":"33GB"
+         "query.max-memory-per-node":"28GB",
+         "query.max-total-memory-per-node":"30GB"
       }
    },
    {

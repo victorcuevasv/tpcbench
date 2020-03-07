@@ -68,8 +68,10 @@ printf "%s\n" "SET SESSION join_distribution_type = 'AUTOMATIC';" >> ../output/Q
 
 printf "%s\n%s\n" "SET SESSION join_distribution_type = 'PARTITIONED';" "$(cat ../output/QueriesPresto/query78.sql )" > ../output/QueriesPresto/query78.sql     
 printf "%s\n%s\n" "SET SESSION join_reordering_strategy = 'NONE';" "$(cat ../output/QueriesPresto/query78.sql )" > ../output/QueriesPresto/query78.sql 
+printf "%s\n%s\n" "SET SESSION spill_enabled = false;" "$(cat ../output/QueriesPresto/query78.sql )" > ../output/QueriesPresto/query78.sql
 printf "%s\n" "SET SESSION join_distribution_type = 'AUTOMATIC';" >> ../output/QueriesPresto/query78.sql
 printf "%s\n" "SET SESSION join_reordering_strategy = 'AUTOMATIC';" >> ../output/QueriesPresto/query78.sql
+printf "%s\n" "SET SESSION spill_enabled = true;" >> ../output/QueriesPresto/query78.sql
 
 printf "%s\n%s\n" "SET SESSION join_distribution_type = 'PARTITIONED';" "$(cat ../output/QueriesPresto/query80.sql )" > ../output/QueriesPresto/query80.sql     
 printf "%s\n" "SET SESSION join_distribution_type = 'AUTOMATIC';" >> ../output/QueriesPresto/query80.sql
