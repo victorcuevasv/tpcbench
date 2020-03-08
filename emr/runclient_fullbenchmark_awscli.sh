@@ -237,8 +237,8 @@ configurations_func()
          "experimental.spiller-spill-path":"/mnt/tmp/",
          "experimental.max-spill-per-node":"1400GB",
          "experimental.query-max-spill-per-node":"700GB",
-         "experimental.spill-enabled":"true",
-         "experimental.spill-compression-enabled":"true",
+         "experimental.spill-enabled":"false",
+         "experimental.spill-compression-enabled":"false",
          "query.max-memory":"240GB",
          "query.max-memory-per-node":"28GB",
          "query.max-total-memory-per-node":"30GB"
