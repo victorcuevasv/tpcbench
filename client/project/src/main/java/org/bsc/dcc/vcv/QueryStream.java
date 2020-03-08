@@ -193,8 +193,10 @@ public class QueryStream implements Callable<Void> {
 			printWriter.close();
 		}
 		catch (SQLException e) {
+			System.out.println("Error for " + resFileName);
 			e.printStackTrace();
 			this.logger.error(e);
+			this.logger.error("Error for " + resFileName + "\n");
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 			throw e;
 		}
