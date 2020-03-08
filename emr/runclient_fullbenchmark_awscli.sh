@@ -238,7 +238,7 @@ configurations_func()
          "experimental.max-spill-per-node":"1400GB",
          "experimental.query-max-spill-per-node":"700GB",
          "experimental.spill-enabled":"false",
-         "experimental.spill-compression-enabled":"false",
+         "experimental.spill-compression-enabled":"true",
          "query.max-memory":"240GB",
          "query.max-memory-per-node":"27GB",
          "query.max-total-memory-per-node":"29GB"
