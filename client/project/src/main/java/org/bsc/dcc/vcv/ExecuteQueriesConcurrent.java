@@ -194,6 +194,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		((PrestoConnection)con).setSessionProperty("join_reordering_strategy", "AUTOMATIC");
 		((PrestoConnection)con).setSessionProperty("join_distribution_type", "AUTOMATIC");
 		((PrestoConnection)con).setSessionProperty("task_concurrency", "16");
+		((PrestoConnection)con).setSessionProperty("spill_enabled", "false");
 	}
 	
 	
