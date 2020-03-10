@@ -27,7 +27,8 @@ if [ $# -lt 3 ]; then
 fi
 
 BucketName="tpcds-warehouse-sparkemr-529-$1gb-$2"
-DatabaseName="tpcds_emr529_$1gb_$2_db"
+DatabaseName="tpcds_sparkemr_529_$1gb_$2_db"
+Nodes="8"
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
@@ -62,7 +63,7 @@ args[1]="$DatabaseName"
 #args[2] results folder name (e.g. for Google Drive)
 args[2]="19aoujv0ull8kx87l4by700xikfythorv"
 #args[3] experiment name (name of subfolder within the results folder)
-args[3]="sparkemr-529-2nodes-$1gb-deltapartwithzorder-test"
+args[3]="sparkemr-529-${Nodes}nodes-$1gb-test"
 #args[4] system name (system name used within the logs)
 args[4]="sparkemr"
 
@@ -78,13 +79,13 @@ args[8]="_ext"
 args[9]="s3://tpcds-datasets/$1GB"
 
 #args[10] prefix of external location for created tables (e.g. S3 bucket), null for none
-args[10]="s3://tpcds-warehouse-sparkemr-529-$1gb-$2"
+args[10]="s3://$BucketName"
 #args[11] format for column-storage tables (PARQUET, DELTA)
 args[11]="parquet"
 #args[12] whether to run queries to count the tuples generated (true/false)
 args[12]="false"
 #args[13] whether to use data partitioning for the tables (true/false)
-args[13]="false"
+args[13]="true"
 #args[14] jar file
 args[14]="/mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.1-SNAPSHOT-jar-with-dependencies.jar"
 
@@ -189,10 +190,10 @@ instance-groups_func()
   cat <<EOF
 [
    {
-      "InstanceCount":2,
+      "InstanceCount":$Nodes,
       "InstanceGroupType":"CORE",
       "InstanceType":"i3.2xlarge",
-      "Name":"Core - 2"
+      "Name":"Core - $Nodes"
    },
    {
       "InstanceCount":1,
