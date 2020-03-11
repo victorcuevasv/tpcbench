@@ -59,6 +59,7 @@ json_data_func()
          "DeviceIndex":0,
          "AssociatePublicIpAddress":true,
          "Groups":[ 
+            "sg-055942b6fc39efed8",
             "sg-024ebdd0a54593a56",
             "sg-e9663ea1"
          ],
