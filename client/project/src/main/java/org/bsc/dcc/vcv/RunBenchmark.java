@@ -185,7 +185,7 @@ public class RunBenchmark {
 		args[17] username for the connection
 		args[18] jar file
 		*/
-		String[] array = new String[18];
+		String[] array = new String[19];
 		array[0] = args[0];
 		array[1] = args[1];
 		array[2] = args[2];
