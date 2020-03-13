@@ -184,7 +184,7 @@ public class CreateDatabase {
 
 	
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 18 ) {
+		if( args.length != 19 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
