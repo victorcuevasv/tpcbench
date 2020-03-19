@@ -180,11 +180,12 @@ public class RunBenchmark {
 		args[13] whether to run queries to count the tuples generated (true/false)
 		args[14] whether to use data partitioning for the tables (true/false)
 		
-		args[15] hostname of the server
-		args[16] username for the connection
-		args[17] jar file
+		args[15] whether to use bucketing for Hive and Presto
+		args[16] hostname of the server
+		args[17] username for the connection
+		args[18] jar file
 		*/
-		String[] array = new String[18];
+		String[] array = new String[19];
 		array[0] = args[0];
 		array[1] = args[1];
 		array[2] = args[2];
@@ -203,9 +204,10 @@ public class RunBenchmark {
 		array[13] = args[12];
 		array[14] = args[13];
 		
-		array[15] = args[14];
-		array[16] = args[15];
-		array[17] = args[16];
+		array[15] = "true";
+		array[16] = args[14];
+		array[17] = args[15];
+		array[18] = args[16];
 		
 		return array;
 	}

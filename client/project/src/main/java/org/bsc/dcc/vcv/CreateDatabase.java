@@ -27,26 +27,31 @@ public class CreateDatabase {
 	private Connection con;
 	private final JarCreateTableReaderAsZipFile createTableReader;
 	private final AnalyticsRecorder recorder;
+	
 	private final String workDir;
 	private final String dbName;
 	private final String folderName;
 	private final String experimentName;
 	private final String system;
+	
 	private final String test;
 	private final int instance;
 	private final String genDataDir;
 	private final String subDir;
 	private final String suffix;
+	
 	private final Optional<String> extTablePrefixRaw;
 	private final Optional<String> extTablePrefixCreated;
 	private final String format;
 	private final boolean doCount;
+	private final boolean partition;
+	
+	private final boolean bucketing;
 	private final String hostname;
 	private final String username;
 	private final String jarFile;
 	
-	private final boolean partition;
-	//When data partitioning is used, Presto has to be replaced by Hive.
+	//When data partitioning or bucketing is used, Presto has to be replaced by Hive.
 	//This variable keeps track of that case.
 	private String systemRunning;
 	
@@ -71,9 +76,10 @@ public class CreateDatabase {
 	 * args[13] whether to run queries to count the tuples generated (true/false)
 	 * args[14] whether to use data partitioning for the tables (true/false)
 	 * 
-	 * args[15] hostname of the server
-	 * args[16] username for the connection
-	 * args[17] jar file
+	 * args[15] whether to use bucketing for Hive and Presto
+	 * args[16] hostname of the server
+	 * args[17] username for the connection
+	 * args[18] jar file
 	 * 
 	 */
 	// Open the connection (the server address depends on whether the program is
@@ -96,9 +102,10 @@ public class CreateDatabase {
 		this.format = args[12];
 		this.doCount = Boolean.parseBoolean(args[13]);
 		this.partition = Boolean.parseBoolean(args[14]);
-		this.hostname = args[15];
-		this.username = args[16];
-		this.jarFile = args[17];
+		this.bucketing = Boolean.parseBoolean(args[15]);
+		this.hostname = args[16];
+		this.username = args[17];
+		this.jarFile = args[18];
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.subDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
 				this.system, this.test, this.instance);
@@ -107,7 +114,8 @@ public class CreateDatabase {
 			//IMPORTANT.
 			//Use Hive instead of Presto due to out of memory errors when using partitioning.
 			//The logs would still be organized as if Presto was used.
-			if( this.system.equals("hive") || ( this.partition && this.system.startsWith("presto") ) ) {
+			if( this.system.equals("hive") || 
+					( ( this.partition || this.bucketing ) && this.system.startsWith("presto") ) ) {
 			//if( this.system.equals("hive") ) {
 				Class.forName(driverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" + this.hostname + 
@@ -176,7 +184,7 @@ public class CreateDatabase {
 
 	
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 18 ) {
+		if( args.length != 19 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
@@ -305,7 +313,11 @@ public class CreateDatabase {
 			String intSqlCreate = null;
 			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark") ) {
 				//For Hive the partition attribute should NOT be included in the create table attributes list.
-				incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", true);
+				incIntSqlCreate = null;
+				if( this.partition )
+					incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", true);
+				else
+					incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", false);
 				intSqlCreate = internalCreateTableHive(incIntSqlCreate, tableName, extTablePrefixCreated, format);
 			}
 			else if( this.systemRunning.startsWith("presto") ) {
@@ -333,6 +345,12 @@ public class CreateDatabase {
 					List<String> columns = extractColumnNames(incIntSqlCreate);
 					insertSql = createPartitionInsertStmt(tableName, columns, suffix, "INSERT OVERWRITE TABLE " + 
 							tableName + " PARTITION (" + partitionAtt + ")");
+				}
+				else if( this.bucketing && Arrays.asList(Bucketing.tables).contains(tableName) ) {
+					//The bucketing attribute is NOT removed from the attributes list in the create table
+					//statement for Hive, the columns should be inserted normally.
+					//So the insert statement does not need to be modified.
+					;
 				}
 			}
 			else if( this.systemRunning.startsWith("presto") ) {
@@ -449,6 +467,13 @@ public class CreateDatabase {
 			if( pos != -1 )
 				//Use for Hive format.
 				builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + " integer) \n" );
+		}
+		else if( this.bucketing ) {
+			int pos = Arrays.asList(Bucketing.tables).indexOf(tableName);
+			if( pos != -1 )
+				//Use for Hive format.
+				builder.append("CLUSTERED BY (" + Bucketing.bucketKeys[pos] + ") INTO " +
+						Bucketing.bucketCount[pos] + " BUCKETS \n" );
 		}
 		// Add the stored as statement.
 		if( extTablePrefixCreated.isPresent() ) {
