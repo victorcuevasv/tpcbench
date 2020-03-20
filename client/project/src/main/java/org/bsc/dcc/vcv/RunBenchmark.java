@@ -29,8 +29,8 @@ public class RunBenchmark {
 		this.instance = args[5];
 		//Execute the unix command to obtain the hostname if so specified.
 		//Usually it is enough to use localhost instead.
-		if( args[14].equals("$(hostname)") || args[14].equals("$(hostname -f)") ) {
-			args[14] = executeCommand("hostname -f");
+		if( args[15].equals("$(hostname)") || args[15].equals("$(hostname -f)") ) {
+			args[15] = executeCommand("hostname -f");
 		}
 	}
 	
@@ -54,31 +54,32 @@ public class RunBenchmark {
 	 * args[11] format for column-storage tables (PARQUET, DELTA)
 	 * args[12] whether to run queries to count the tuples generated (true/false)
 	 * args[13] whether to use data partitioning for the tables (true/false)
-	 * args[14] hostname of the server
+	 * args[14] whether to use bucketing for Hive and Presto
 	 * 
-	 * args[15] username for the connection
-	 * args[16] jar file
-	 * args[17] whether to generate statistics by analyzing tables (true/false)
-	 * args[18]	if argument above is true, whether to compute statistics for columns (true/false)
-	 * args[19] queries dir within the jar
+	 * args[15] hostname of the server
+	 * args[16] username for the connection
+	 * args[17] jar file
+	 * args[18] whether to generate statistics by analyzing tables (true/false)
+	 * args[19]	if argument above is true, whether to compute statistics for columns (true/false)
 	 * 
-	 * args[20] subdirectory of work directory to store the results
-	 * args[21] subdirectory of work directory to store the execution plans
-	 * args[22] save power test plans (boolean)
-	 * args[23] save power test results (boolean)
-	 * args[24] "all" or query file
+	 * args[20] queries dir within the jar
+	 * args[21] subdirectory of work directory to store the results
+	 * args[22] subdirectory of work directory to store the execution plans
+	 * args[23] save power test plans (boolean)
+	 * args[24] save power test results (boolean)
 	 * 
-	 * args[25] save tput test plans (boolean)
-	 * args[26] save tput test results (boolean)
-	 * args[27] number of streams
-	 * args[28] random seed
-	 * args[29] use multiple connections (true|false)
+	 * args[25] "all" or query file
+	 * args[26] save tput test plans (boolean)
+	 * args[27] save tput test results (boolean)
+	 * args[28] number of streams
+	 * args[29] random seed
 	 * 
-	 * args[30] flags (111111 schema|load|analyze|zorder|power|tput)
+	 * args[30] use multiple connections (true|false)
+	 * args[31] flags (111111 schema|load|analyze|zorder|power|tput)
 	 * 
 	 */
 	public static void main(String[] args) {
-		if( args.length != 31 ) {
+		if( args.length != 32 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
@@ -94,12 +95,12 @@ public class RunBenchmark {
 		String[] executeQueriesArgs = this.createExecuteQueriesArgs(args);
 		String[] executeQueriesConcurrentArgs = this.createExecuteQueriesConcurrentArgs(args);
 		try {
-			boolean doSchema = args[30].charAt(0) == '1' ? true : false;
+			boolean doSchema = args[31].charAt(0) == '1' ? true : false;
 			if( doSchema ) {
 				System.out.println("\n\n\nCreating the database schema.\n\n\n");
 				CreateSchema.main(createSchemaArgs);
 			}
-			boolean doLoad = args[30].charAt(1) == '1' ? true : false;
+			boolean doLoad = args[31].charAt(1) == '1' ? true : false;
 			if( doLoad ) {
 				this.saveTestParameters(createDatabaseArgs, "load");
 				System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
@@ -107,14 +108,14 @@ public class RunBenchmark {
 			}
 			boolean analyze = Boolean.parseBoolean(args[17]);
 			//Redundant check for legacy compatibility.
-			boolean doAnalyze = args[30].charAt(2) == '1' ? true : false;
+			boolean doAnalyze = args[31].charAt(2) == '1' ? true : false;
 			if( analyze && doAnalyze) {
 				String[] analyzeTablesArgs = this.createAnalyzeTablesArgs(args);
 				this.saveTestParameters(analyzeTablesArgs, "analyze");
 				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
 				AnalyzeTables.main(analyzeTablesArgs);
 			}
-			boolean doZorder = args[30].charAt(3) == '1' ? true : false;
+			boolean doZorder = args[31].charAt(3) == '1' ? true : false;
 			if( args[11].equalsIgnoreCase("delta") && doZorder ) {
 				boolean noPart = args[13].equals("false");
 				String[] executeQueriesDeltaZorderArgs = 
@@ -123,13 +124,13 @@ public class RunBenchmark {
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
 				ExecuteQueries.main(executeQueriesDeltaZorderArgs);
 			}
-			boolean doPower = args[30].charAt(4) == '1' ? true : false;
+			boolean doPower = args[31].charAt(4) == '1' ? true : false;
 			if( doPower ) {
 				this.saveTestParameters(executeQueriesArgs, "power");
 				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
 				ExecuteQueries.main(executeQueriesArgs);
 			}
-			boolean doTput = args[30].charAt(5) == '1' ? true : false;
+			boolean doTput = args[31].charAt(5) == '1' ? true : false;
 			if( doTput ) {
 				this.saveTestParameters(executeQueriesConcurrentArgs, "tput");
 				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
@@ -152,7 +153,7 @@ public class RunBenchmark {
 		 args[2] schema (database) name
 		*/
 		String[] array = new String[3];
-		array[0] = args[14];
+		array[0] = args[15];
 		array[1] = args[4];
 		array[2] = args[1];
 		
@@ -204,10 +205,10 @@ public class RunBenchmark {
 		array[13] = args[12];
 		array[14] = args[13];
 		
-		array[15] = "true";
-		array[16] = args[14];
-		array[17] = args[15];
-		array[18] = args[16];
+		array[15] = args[14];
+		array[16] = args[15];
+		array[17] = args[16];
+		array[18] = args[17];
 		
 		return array;
 	}
@@ -234,8 +235,8 @@ public class RunBenchmark {
 		
 		array[5] = "analyze";
 		array[6] = args[5];
-		array[7] = args[18];
-		array[8] = args[14];
+		array[7] = args[19];
+		array[8] = args[15];
 		
 		return array;
 	}
@@ -270,15 +271,15 @@ public class RunBenchmark {
 		
 		array[5] = "power";
 		array[6] = args[5];
-		array[7] = args[19];
-		array[8] = args[20];
-		array[9] = args[21];
+		array[7] = args[20];
+		array[8] = args[21];
+		array[9] = args[22];
 		
-		array[10] = args[22];
-		array[11] = args[23];
-		array[12] = args[14];
-		array[13] = args[16];
-		array[14] = args[24];
+		array[10] = args[23];
+		array[11] = args[24];
+		array[12] = args[15];
+		array[13] = args[17];
+		array[14] = args[25];
 		
 		return array;
 	}
@@ -317,13 +318,13 @@ public class RunBenchmark {
 			array[7] = "DatabricksDeltaZorderNoPart";
 		else
 			array[7] = "DatabricksDeltaZorder";
-		array[8] = args[20];
-		array[9] = args[21];
+		array[8] = args[21];
+		array[9] = args[22];
 		
 		array[10] = "false";
 		array[11] = "false";
-		array[12] = args[14];
-		array[13] = args[16];
+		array[12] = args[15];
+		array[13] = args[17];
 		array[14] = "all";
 		
 		return array;
@@ -362,18 +363,18 @@ public class RunBenchmark {
 		
 		array[5] = "tput";
 		array[6] = args[5];
-		array[7] = args[19];
-		array[8] = args[20];
-		array[9] = args[21];
+		array[7] = args[20];
+		array[8] = args[21];
+		array[9] = args[22];
 		
-		array[10] = args[25];
-		array[11] = args[26];
-		array[12] = args[14];
-		array[13] = args[16];
-		array[14] = args[27];
+		array[10] = args[26];
+		array[11] = args[27];
+		array[12] = args[15];
+		array[13] = args[17];
+		array[14] = args[28];
 		
-		array[15] = args[28];
-		array[16] = args[29];
+		array[15] = args[29];
+		array[16] = args[30];
 		
 		return array;
 	}

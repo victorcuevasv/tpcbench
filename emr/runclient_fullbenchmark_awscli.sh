@@ -96,44 +96,47 @@ args[11]="orc"
 args[12]="false"
 #args[13] whether to use data partitioning for the tables (true/false)
 args[13]="false"
-#args[14] hostname of the server
-args[14]="localhost"
+#args[14] whether to use bucketing for Hive and Presto
+args[14] = "true"
 
-#args[15] username for the connection
-args[15]="hadoop"
-#args[16] jar file
-args[16]="/mnt/efs/FileStore/job-jars/project/targetemr/client-1.1-SNAPSHOT-jar-with-dependencies.jar"
-#args[17] whether to generate statistics by analyzing tables (true/false)
-args[17]="true"
-#args[18] if argument above is true, whether to compute statistics for columns (true/false)
+#args[15] hostname of the server
+args[15]="localhost"
+
+#args[16] username for the connection
+args[16]="hadoop"
+#args[17] jar file
+args[17]="/mnt/efs/FileStore/job-jars/project/targetemr/client-1.1-SNAPSHOT-jar-with-dependencies.jar"
+#args[18] whether to generate statistics by analyzing tables (true/false)
 args[18]="true"
-#args[19] queries dir within the jar
-args[19]="QueriesPresto"
+#args[19] if argument above is true, whether to compute statistics for columns (true/false)
+args[19]="true"
+#args[20] queries dir within the jar
+args[20]="QueriesPresto"
 
-#args[20] subdirectory of work directory to store the results
-args[20]="results"
-#args[21] subdirectory of work directory to store the execution plans
-args[21]="plans"
-#args[22] save power test plans (boolean)
-args[22]="true"
-#args[23] save power test results (boolean)
+#args[21] subdirectory of work directory to store the results
+args[21]="results"
+#args[22] subdirectory of work directory to store the execution plans
+args[22]="plans"
+#args[23] save power test plans (boolean)
 args[23]="true"
-#args[24] "all" or query file
-args[24]="all"
+#args[24] save power test results (boolean)
+args[24]="true"
+#args[25] "all" or query file
+args[25]="all"
  
-#args[25] save tput test plans (boolean)
-args[25]="true"
-#args[26] save tput test results (boolean)
+#args[26] save tput test plans (boolean)
 args[26]="true"
-#args[27] number of streams
-args[27]="$3"
-#args[28] random seed
-args[28]="1954"
-#args[29] use multiple connections (true|false)
-args[29]="true"
+#args[27] save tput test results (boolean)
+args[27]="true"
+#args[28] number of streams
+args[28]="$3"
+#args[29] random seed
+args[29]="1954"
+#args[30] use multiple connections (true|false)
+args[30]="true"
 
-#args[30] flags (111111 schema|load|analyze|zorder|power|tput)
-args[30]="111011"
+#args[31] flags (111111 schema|load|analyze|zorder|power|tput)
+args[31]="111011"
 
 ec2-attributes_func()
 {
