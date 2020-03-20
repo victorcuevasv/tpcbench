@@ -97,7 +97,7 @@ args[12]="false"
 #args[13] whether to use data partitioning for the tables (true/false)
 args[13]="false"
 #args[14] whether to use bucketing for Hive and Presto
-args[14] = "true"
+args[14]="true"
 
 #args[15] hostname of the server
 args[15]="localhost"
@@ -105,7 +105,7 @@ args[15]="localhost"
 #args[16] username for the connection
 args[16]="hadoop"
 #args[17] jar file
-args[17]="/mnt/efs/FileStore/job-jars/project/targetemr/client-1.1-SNAPSHOT-jar-with-dependencies.jar"
+args[17]="/mnt/efs/FileStore/job-jars/project/targetemr/client-1.2-SNAPSHOT-jar-with-dependencies.jar"
 #args[18] whether to generate statistics by analyzing tables (true/false)
 args[18]="true"
 #args[19] if argument above is true, whether to compute statistics for columns (true/false)
@@ -192,7 +192,7 @@ steps_func()
       ],
       "Type":"CUSTOM_JAR",
       "ActionOnFailure":"TERMINATE_CLUSTER",
-      "Jar":"/mnt/efs/FileStore/job-jars/project/targetemr/client-1.1-SNAPSHOT-jar-with-dependencies.jar",
+      "Jar":"/mnt/efs/FileStore/job-jars/project/targetemr/client-1.2-SNAPSHOT-jar-with-dependencies.jar",
       "Properties":"",
       "Name":"Custom JAR"
    }
