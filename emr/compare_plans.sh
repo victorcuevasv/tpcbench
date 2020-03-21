@@ -24,6 +24,8 @@ for i in {1..99} ;
 do
 	n1=$(dot -Tplain $1/query${i}.txt 2>/dev/null  | sed -ne 's/^node \([^ ]\+\).*$/\1/p' | wc -l)
 	n2=$(dot -Tplain $2/query${i}.txt 2>/dev/null  | sed -ne 's/^node \([^ ]\+\).*$/\1/p' | wc -l)
-	printf "%s,%s,%s\n" $i $n1 $n2
+	if [[ $n1 != $n2 ]] ; then
+		printf "%s,%s,%s\n" $i $n1 $n2
+	fi
 done
 
