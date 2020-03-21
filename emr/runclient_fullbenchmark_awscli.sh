@@ -101,7 +101,6 @@ args[14]="true"
 
 #args[15] hostname of the server
 args[15]="localhost"
-
 #args[16] username for the connection
 args[16]="hadoop"
 #args[17] jar file
@@ -110,9 +109,9 @@ args[17]="/mnt/efs/FileStore/job-jars/project/targetemr/client-1.2-SNAPSHOT-jar-
 args[18]="true"
 #args[19] if argument above is true, whether to compute statistics for columns (true/false)
 args[19]="true"
+
 #args[20] queries dir within the jar
 args[20]="QueriesPresto"
-
 #args[21] subdirectory of work directory to store the results
 args[21]="results"
 #args[22] subdirectory of work directory to store the execution plans
@@ -121,9 +120,9 @@ args[22]="plans"
 args[23]="true"
 #args[24] save power test results (boolean)
 args[24]="true"
+
 #args[25] "all" or query file
-args[25]="all"
- 
+args[25]="all" 
 #args[26] save tput test plans (boolean)
 args[26]="true"
 #args[27] save tput test results (boolean)
@@ -132,11 +131,24 @@ args[27]="true"
 args[28]="$3"
 #args[29] random seed
 args[29]="1954"
+
 #args[30] use multiple connections (true|false)
 args[30]="true"
-
 #args[31] flags (111111 schema|load|analyze|zorder|power|tput)
 args[31]="111011"
+
+function json_string_list() {
+    declare array=("$@")
+    declare list=""
+    for w in "${array[@]}"
+    do
+        list+="\"$w\", "
+    done
+    #Remove the last comma and space
+    echo ${list%??}
+}
+
+paramsStr=$(json_string_list "${args[@]}")
 
 ec2-attributes_func()
 {
@@ -158,37 +170,7 @@ steps_func()
 [
    {
       "Args":[
-         "${args[0]}",
-         "${args[1]}",
-         "${args[2]}",
-         "${args[3]}",
-         "${args[4]}",
-         "${args[5]}",
-         "${args[6]}",
-         "${args[7]}",
-         "${args[8]}",
-         "${args[9]}",
-         "${args[10]}",
-         "${args[11]}",
-         "${args[12]}",
-         "${args[13]}",
-         "${args[14]}",
-         "${args[15]}",
-         "${args[16]}",
-         "${args[17]}",
-         "${args[18]}",
-         "${args[19]}",
-         "${args[20]}",
-         "${args[21]}",
-         "${args[22]}",
-         "${args[23]}",
-         "${args[24]}",
-         "${args[25]}",
-         "${args[26]}",
-         "${args[27]}",
-         "${args[28]}",
-         "${args[29]}",
-         "${args[30]}"
+		$paramsStr
       ],
       "Type":"CUSTOM_JAR",
       "ActionOnFailure":"TERMINATE_CLUSTER",
