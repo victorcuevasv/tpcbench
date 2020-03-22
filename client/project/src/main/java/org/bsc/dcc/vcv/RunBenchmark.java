@@ -106,7 +106,7 @@ public class RunBenchmark {
 				System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
 				CreateDatabase.main(createDatabaseArgs);
 			}
-			boolean analyze = Boolean.parseBoolean(args[17]);
+			boolean analyze = Boolean.parseBoolean(args[18]);
 			//Redundant check for legacy compatibility.
 			boolean doAnalyze = args[31].charAt(2) == '1' ? true : false;
 			if( analyze && doAnalyze) {
