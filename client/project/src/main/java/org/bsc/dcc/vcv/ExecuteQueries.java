@@ -337,7 +337,10 @@ public class ExecuteQueries {
 			// Obtain the plan for the query.
 			Statement stmt = con.createStatement();
 			if( this.savePlans ) {
-				ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
+				String explainStr = "EXPLAIN ";
+				if( this.system.startsWith("presto") )
+					explainStr += "(FORMAT GRAPHVIZ) ";
+				ResultSet planrs = stmt.executeQuery(explainStr + sqlStr);
 				//this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs, ! firstQuery);
 				this.saveResults(this.generatePlansFileName(queryFileName), planrs, ! firstQuery);
 				planrs.close();

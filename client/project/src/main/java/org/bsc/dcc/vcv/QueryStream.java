@@ -150,7 +150,10 @@ public class QueryStream implements Callable<Void> {
 			// Obtain the plan for the query.
 			Statement stmt = con.createStatement();
 			if( this.parent.savePlans ) {
-				ResultSet planrs = stmt.executeQuery("EXPLAIN " + sqlStr);
+				String explainStr = "EXPLAIN ";
+				if( this.parent.system.startsWith("presto") )
+					explainStr += "(FORMAT GRAPHVIZ) ";
+				ResultSet planrs = stmt.executeQuery(explainStr + sqlStr);
 				this.saveResults(generatePlansFileName(fileName, nStream, item), planrs, !firstQuery);
 				planrs.close();
 			}

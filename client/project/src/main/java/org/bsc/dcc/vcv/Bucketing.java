@@ -8,7 +8,7 @@ public static final String[] tables = {"catalog_returns", "catalog_sales", "inve
 public static final String[] bucketKeys = {"cr_returned_date_sk", "cs_sold_date_sk", "inv_date_sk", "sr_returned_date_sk",
 		"ss_sold_date_sk", "wr_returned_date_sk", "ws_sold_date_sk"};
 
-public static final int[] bucketCount = {8, 8, 8, 8, 8, 8, 8};
+public static final int[] bucketCount = {500, 500, 250, 500, 500, 500, 500};
 
 }
 
