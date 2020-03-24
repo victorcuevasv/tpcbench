@@ -26,45 +26,43 @@ if [ $# -lt 3 ]; then
     exit 0
 fi
 
-BucketName="tpcds-warehouse-$1gb-$2-deltanopartwithzorder-conc"
-MountName="tpcds-warehouse-$1gb-$2-deltanopartwithzorder-conc-mnt"
-DatabaseName="tpcds_warehouse_$1gb_$2_deltanopartwithzorder_conc_db"
+BucketNameWarehouse="tpcds-warehouse-delta-$1gb-$2-experimental"
+MountNameWarehouse="${BucketNameWarehouse}-mnt"
+BucketNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
+MountNameResults="${BucketNameResults}"
+DatabaseName="tpcds_warehouse_delta_$1gb_$2_experimental_db"
+Nodes="2"
 
-data_mount_createdb_func()
+data_mount_buckets_func()
 {
   cat <<EOF
 {
-  "BucketName": "$BucketName",
-  "MountName": "$MountName",
-  "DatabaseName": "$DatabaseName",
-  "MountOrUnmount": "$1"
+  "URLEncodedParams": "${BucketNameWarehouse}=${MountNameWarehouse}&${BucketNameResults}=${MountNameResults}"
 }
 EOF
 }
 
-RUN_MOUNT_CREATEDB_JOB=0
+RUN_CREATE_BUCKET=0
 
-if [ "$RUN_MOUNT_CREATEDB_JOB" -eq 1 ]; then
-    #Create the bucket
-    aws s3api create-bucket --bucket $BucketName --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
+if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
+    #Create the warehouse bucket
+    aws s3api create-bucket --bucket $BucketNameWarehouse --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
     #Add the Owner tag
-    aws s3api put-bucket-tagging --bucket $BucketName --tagging 'TagSet=[{Key=Owner,Value=eng-benchmarking@databricks.com}]'
-    #Block all public access for the bucket
-    aws s3api put-public-access-block --bucket $BucketName --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"  
+    aws s3api put-bucket-tagging --bucket $BucketNameWarehouse --tagging 'TagSet=[{Key=Owner,Value=eng-benchmarking@databricks.com}]'
+    #Block all public access for the warehouse bucket
+    aws s3api put-public-access-block --bucket $BucketNameWarehouse --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"  
     #Create and empty folder to enable mounting
-    aws s3api put-object --bucket $BucketName --key empty
-    #Mount the bucket on dbfs
-    databricks jobs run-now --job-id 231 --notebook-params "$(data_mount_createdb_func Mount)"
+    aws s3api put-object --bucket $BucketNameWarehouse --key empty
+    #Mount the buckets on dbfs. The results bucket is assummed to already exist.
+    databricks jobs run-now --job-id 235 --notebook-params "$(data_mount_buckets_func)"
     exit 0
 fi
 
-RUN_UNMOUNT_DELETEDB_JOB=0
+RUN_DELETE_BUCKET=0
 
-if [ "$RUN_UNMOUNT_DELETEDB_JOB" -eq 1 ]; then
-    #Unmount the bucket
-    databricks jobs run-now --job-id 231 --notebook-params "$(data_mount_createdb_func Unmount)"
+if [ "$RUN_DELETE_BUCKET" -eq 1 ]; then
     #Delete the bucket
-    aws s3 rb s3://$BucketName --force
+    aws s3 rb s3://$BucketNameWarehouse --force
     exit 0
 fi
 
@@ -81,9 +79,9 @@ args[0]="/data"
 #args[1] schema (database) name
 args[1]="$DatabaseName"
 #args[2] results folder name (e.g. for Google Drive)
-args[2]="19aoujv0ull8kx87l4by700xikfythorv"
+args[2]="$BucketNameResults"
 #args[3] experiment name (name of subfolder within the results folder)
-args[3]="dbr63-4nodes-$1gb-deltanopartwithzorder-createdb"
+args[3]="tpcds-delta-$1gb-$2-experimental"
 #args[4] system name (system name used within the logs)
 args[4]="sparkdatabricks"
 
@@ -99,7 +97,7 @@ args[8]="_ext"
 args[9]="dbfs:/mnt/tpcdsbucket/$1GB"
 
 #args[10] prefix of external location for created tables (e.g. S3 bucket), null for none
-args[10]="dbfs:/mnt/$MountName"
+args[10]="dbfs:/mnt/$MountNameWarehouse"
 #args[11] format for column-storage tables (PARQUET, DELTA)
 args[11]="delta"
 #args[12] whether to run queries to count the tuples generated (true/false)
@@ -107,7 +105,7 @@ args[12]="false"
 #args[13] whether to use data partitioning for the tables (true/false)
 args[13]="false"
 #args[14] jar file
-args[14]="/dbfs/FileStore/job-jars/project/targetsparkdatabricks/client-1.1-SNAPSHOT-jar-with-dependencies.jar"
+args[14]="/dbfs/FileStore/job-jars/project/targetsparkdatabricks/client-1.2-SNAPSHOT-jar-with-dependencies.jar"
 
 #args[15] whether to generate statistics by analyzing tables (true/false)
 args[15]="true"
@@ -136,7 +134,20 @@ args[25]="$3"
 #args[26] random seed
 args[26]="1954"
 #args[27] flags (111111 schema|load|analyze|zorder|power|tput)
-args[27]="011100"
+args[27]="111011"
+
+function json_string_list() {
+    declare array=("$@")
+    declare list=""
+    for w in "${array[@]}"
+    do
+        list+="\"$w\", "
+    done
+    #Remove the last comma and space
+    echo ${list%??}
+}
+
+paramsStr=$(json_string_list "${args[@]}")
 
 post_data_func()
 {
@@ -164,11 +175,11 @@ post_data_func()
             "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDjxM9WRCj8vI0aDAVhVi3DkibIaChqwjshgcPvXcth5l1cWxBZLkDdL1CCLSAbUGGL+HX79FL7L46wBCOHTJ2hhd7tjxxDG7IeH/G2Q1wPsTMt7Vpswc8Ijp6BKzbqAJS9HJAq9VPjh0x39gPd2x4vHiRpudKA+RFvTQ1jWRz0nTxI/eteZWB03jrPQxbZFo5v/29VDTwRlDBraC5q3hblfXAUk8cWQkhlFz2XagPNzsigVsY/zJvIJ/zW5ZpPI5El2VK3CEGjqbg5qt7QnIiRydly3N2eWHDIwZM3nfAMYdWig+65U8LOy9NC8J6dk8v/ZlstoOLNNm5+LSkmj9b7 pristine@al-1001"   
          ],
          "enable_elastic_disk":false,
-         "num_workers":4
+         "num_workers":$Nodes
       },
       "libraries":[ 
          { 
-            "jar":"dbfs:/FileStore/job-jars/project/targetsparkdatabricks/client-1.1-SNAPSHOT-jar-with-dependencies.jar"
+            "jar":"dbfs:/FileStore/job-jars/project/targetsparkdatabricks/client-1.2-SNAPSHOT-jar-with-dependencies.jar"
          }
       ],
       "email_notifications":{ 
@@ -179,39 +190,7 @@ post_data_func()
          "jar_uri":"",
          "main_class_name":"org.bsc.dcc.vcv.RunBenchmarkSpark",
          "parameters":[ 
-            "${args[0]}",
-            "${args[1]}",
-            "${args[2]}",
-            "${args[3]}",
-            "${args[4]}",
-            
-            "${args[5]}",
-            "${args[6]}",
-            "${args[7]}",
-            "${args[8]}",
-            "${args[9]}",
-            
-            "${args[10]}",
-            "${args[11]}",
-            "${args[12]}",
-            "${args[13]}",
-            "${args[14]}",
-            
-            "${args[15]}",
-            "${args[16]}",
-            "${args[17]}",
-            "${args[18]}",
-            "${args[19]}",
-            
-            "${args[20]}",
-            "${args[21]}",
-            "${args[22]}",
-            "${args[23]}",
-            "${args[24]}",
-            
-            "${args[25]}",
-            "${args[26]}",
-            "${args[27]}"
+			$paramsStr
          ]
       },
       "max_concurrent_runs":1
@@ -221,7 +200,7 @@ EOF
 
 
 curl -X POST \
--H "Authorization: Bearer $(echo $DATABRICKS_TOKEN)" \
+-H "Authorization: Bearer $DATABRICKS_TOKEN" \
 -H "Content-Type: application/json" \
 -d "$(post_data_func)" \
 https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/jobs/create
