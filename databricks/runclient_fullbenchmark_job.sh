@@ -72,6 +72,7 @@ wait_for_run_termination() {
 RUN_CREATE_BUCKET=0
 
 if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
+    echo "${blu}Creating the warehouse bucket.${blu}"
     #Create the warehouse bucket
     aws s3api create-bucket --bucket $BucketNameWarehouse --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
     #Add the Owner tag
@@ -81,6 +82,7 @@ if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
     #Create and empty folder to enable mounting
     aws s3api put-object --bucket $BucketNameWarehouse --key empty
     #Mount the buckets on dbfs. The results bucket is assummed to already exist.
+    echo "${blu}Mounting the warehouse and results buckets.${blu}"
     jsonMountRun=$(databricks jobs run-now --job-id 235 --notebook-params "$(data_mount_buckets_func Mount)")
     #Example json output of command above.
     #{
@@ -98,10 +100,12 @@ RUN_DELETE_BUCKET=0
 
 if [ "$RUN_DELETE_BUCKET" -eq 1 ]; then
     #Unmount the warehouse and results buckets.
+    echo "${blu}Unmounting the buckets.${blu}"
     jsonUnmountRun=$(databricks jobs run-now --job-id 235 --notebook-params "$(data_mount_buckets_func Unmount)")
     unmount_run_id=$(jq -j '.run_id')
     wait_for_run_termination $unmount_run_id 120
     #Delete the warehouse bucket.
+    echo "${blu}Deleting the warehouse bucket.${blu}"
     aws s3 rb s3://$BucketNameWarehouse --force
     exit 0
 fi
