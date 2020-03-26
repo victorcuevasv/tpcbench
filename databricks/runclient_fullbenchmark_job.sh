@@ -82,7 +82,7 @@ if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
     #Create and empty folder to enable mounting
     aws s3api put-object --bucket $BucketNameWarehouse --key empty
     #Mount the buckets on dbfs. The results bucket is assummed to already exist.
-    echo "${blu}Mounting the warehouse and results buckets.${blu}"
+    echo "${blu}Mounting the warehouse and results buckets.${end}"
     jsonMountRun=$(databricks jobs run-now --job-id 235 --notebook-params "$(data_mount_buckets_func Mount)")
     #Example json output of command above.
     #{
@@ -92,7 +92,7 @@ if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
 	#Extract the run_id
 	mount_run_id=$(jq -j '.run_id')
 	#Poll the run status until termination.
-	echo "${blu}Waiting for the completion of run ${mount_run_id}.${blu}"
+	echo "${blu}Waiting for the completion of run ${mount_run_id}.${end}"
 	wait_for_run_termination $mount_run_id 120
     exit 0
 fi
@@ -104,10 +104,10 @@ if [ "$RUN_DELETE_BUCKET" -eq 1 ]; then
     echo "${blu}Unmounting the buckets.${blu}"
     jsonUnmountRun=$(databricks jobs run-now --job-id 235 --notebook-params "$(data_mount_buckets_func Unmount)")
     unmount_run_id=$(jq -j '.run_id')
-    echo "${blu}Waiting for the completion of run ${unmount_run_id}.${blu}"
+    echo "${blu}Waiting for the completion of run ${unmount_run_id}.${end}"
     wait_for_run_termination $unmount_run_id 120
     #Delete the warehouse bucket.
-    echo "${blu}Deleting the warehouse bucket.${blu}"
+    echo "${blu}Deleting the warehouse bucket.${end}"
     aws s3 rb s3://$BucketNameWarehouse --force
     exit 0
 fi
