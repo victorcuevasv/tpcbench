@@ -72,7 +72,7 @@ wait_for_run_termination() {
 RUN_CREATE_BUCKET=0
 
 if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
-    echo "${blu}Creating the warehouse bucket.${blu}"
+    echo "${blu}Creating the warehouse bucket.${end}"
     #Create the warehouse bucket
     aws s3api create-bucket --bucket $BucketNameWarehouse --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
     #Add the Owner tag
