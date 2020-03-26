@@ -28,9 +28,9 @@ fi
 
 Timestamp=$(date +%s)
 BucketNameWarehouse="tpcds-warehouse-delta-$1gb-$2-experimental"
-MountNameWarehouse="${BucketNameWarehouse}-${Timestamp}"
+MountNameWarehouse="${BucketNameWarehouse}"
 BucketNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
-MountNameResults="${BucketNameResults}-${Timestamp}"
+MountNameResults="${BucketNameResults}"
 DatabaseName="tpcds_warehouse_delta_$1gb_$2_experimental_db"
 Nodes="2"
 
