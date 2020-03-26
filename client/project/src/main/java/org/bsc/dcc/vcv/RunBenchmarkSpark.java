@@ -126,8 +126,9 @@ public class RunBenchmarkSpark {
 				ExecuteQueriesConcurrentSpark.main(executeQueriesConcurrentSparkArgs);
 			}
 			if( this.system.equals("sparkdatabricks")  ) {
-				this.executeCommand("mkdir /dbfs" + args[0] + "/" + this.instance);
-				this.executeCommand("cp -r " + args[0] + " /dbfs" + args[0] + "/" + this.instance);
+				//this.executeCommand("mkdir /dbfs" + args[0] + "/" + this.instance);
+				//this.executeCommand("cp -r " + args[0] + " /dbfs" + args[0] + "/" + this.instance);
+				this.executeCommand("cp -r " + args[0] + "/* /dbfs/mnt/" + args[2] + "/");
 			}
 		}
 		catch(Exception e) {
