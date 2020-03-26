@@ -26,21 +26,48 @@ if [ $# -lt 3 ]; then
     exit 0
 fi
 
+Timestamp=$(date +%s)
 BucketNameWarehouse="tpcds-warehouse-delta-$1gb-$2-experimental"
-MountNameWarehouse="${BucketNameWarehouse}-mnt"
+MountNameWarehouse="${BucketNameWarehouse}-${Timestamp}"
 BucketNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
-MountNameResults="${BucketNameResults}"
+MountNameResults="${BucketNameResults}-${Timestamp}"
 DatabaseName="tpcds_warehouse_delta_$1gb_$2_experimental_db"
 Nodes="2"
 
+#$1 Mount/Unmount
 data_mount_buckets_func()
 {
   cat <<EOF
 {
-  "URLEncodedParams": "${BucketNameWarehouse}=${MountNameWarehouse}&${BucketNameResults}=${MountNameResults}"
+  "URLEncodedParams": "${BucketNameWarehouse}=${MountNameWarehouse}&${BucketNameResults}=${MountNameResults}",
+  "MountOrUnmount":"$1"
 }
 EOF
 }
+
+#Get the state (RUNNING, TERMINATED) of a job run via its run_id using the Jobs REST API.
+#$1 run_id
+get_run_state() {
+   declare jsonStr=$(curl -s -n \
+   -H "Authorization: Bearer $DATABRICKS_TOKEN" \
+   https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/jobs/runs/get?run_id=$1)
+
+   declare state=$(jq -j '.state.life_cycle_state'  <<<  "$jsonStr")
+   echo $state
+}
+
+#Wait until the state of a job run is TERMINATED by polling using the Jobs REST API.
+#$1 run_id
+#$2 pause in seconds for polling
+wait_for_run_termination() {
+   declare state=$(get_run_state $1)
+   while [ $state != "TERMINATED"  ] ;
+   do
+      sleep $2
+      state=$(get_run_state $1)
+   done
+}
+
 
 RUN_CREATE_BUCKET=0
 
@@ -54,14 +81,27 @@ if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
     #Create and empty folder to enable mounting
     aws s3api put-object --bucket $BucketNameWarehouse --key empty
     #Mount the buckets on dbfs. The results bucket is assummed to already exist.
-    databricks jobs run-now --job-id 235 --notebook-params "$(data_mount_buckets_func)"
+    jsonMountRun=$(databricks jobs run-now --job-id 235 --notebook-params "$(data_mount_buckets_func Mount)")
+    #Example json output of command above.
+    #{
+    #  "number_in_job": 16,
+  	#  "run_id": 606
+	#}
+	#Extract the run_id
+	mount_run_id=$(jq -j '.run_id')
+	#Poll the run status until termination.
+	wait_for_run_termination $mount_run_id 120
     exit 0
 fi
 
 RUN_DELETE_BUCKET=0
 
 if [ "$RUN_DELETE_BUCKET" -eq 1 ]; then
-    #Delete the bucket
+    #Unmount the warehouse and results buckets.
+    jsonUnmountRun=$(databricks jobs run-now --job-id 235 --notebook-params "$(data_mount_buckets_func Unmount)")
+    unmount_run_id=$(jq -j '.run_id')
+    wait_for_run_termination $unmount_run_id 120
+    #Delete the warehouse bucket.
     aws s3 rb s3://$BucketNameWarehouse --force
     exit 0
 fi
