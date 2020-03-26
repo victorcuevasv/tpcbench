@@ -94,6 +94,7 @@ if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
 	#Poll the run status until termination.
 	echo "${blu}Waiting for the completion of run ${mount_run_id}.${end}"
 	wait_for_run_termination $mount_run_id 120
+	echo "${blu}Execution complete.${end}"
     exit 0
 fi
 
@@ -109,6 +110,7 @@ if [ "$RUN_DELETE_BUCKET" -eq 1 ]; then
     #Delete the warehouse bucket.
     echo "${blu}Deleting the warehouse bucket.${end}"
     aws s3 rb s3://$BucketNameWarehouse --force
+    echo "${blu}Execution complete.${end}"
     exit 0
 fi
 
