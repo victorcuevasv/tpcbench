@@ -45,7 +45,9 @@ public class CreateSchemaSpark {
 		}
 		CreateSchemaSpark prog = new CreateSchemaSpark(args[0]);
 		prog.createSchema(args[0], args[1]);
-		prog.closeConnection();
+		if( ! args[0].equals("sparkdatabricks") ) {
+			prog.closeConnection();
+		}
 	}
 
 	private void createSchema(String system, String dbName) {
