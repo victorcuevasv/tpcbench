@@ -45,60 +45,6 @@ data_mount_buckets_func()
 EOF
 }
 
-#Get the state (RUNNING, TERMINATED) of a job run via its run_id using the Jobs REST API.
-#$1 run_id
-get_run_state() {
-   declare jsonStr=$(curl -s -n \
-   -H "Authorization: Bearer $DATABRICKS_TOKEN" \
-   https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/jobs/runs/get?run_id=$1)
-
-   declare state=$(jq -j '.state.life_cycle_state'  <<<  "$jsonStr")
-   echo $state
-}
-
-#Wait until the state of a job run is TERMINATED by polling using the Jobs REST API.
-#$1 run_id
-#$2 pause in seconds for polling
-wait_for_run_termination() {
-   declare state=$(get_run_state $1)
-   while [ $state != "TERMINATED"  ] ;
-   do
-      sleep $2
-      state=$(get_run_state $1)
-   done
-}
-
-RUN_CREATE_BUCKET=0
-
-if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
-    echo "${blu}Creating the warehouse bucket.${end}"
-    #Create the warehouse bucket
-    aws s3api create-bucket --bucket $BucketNameWarehouse --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
-    #Add the Owner tag
-    aws s3api put-bucket-tagging --bucket $BucketNameWarehouse --tagging 'TagSet=[{Key=Owner,Value=eng-benchmarking@databricks.com}]'
-    #Block all public access for the warehouse bucket
-    aws s3api put-public-access-block --bucket $BucketNameWarehouse --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"  
-    #Create and empty folder to enable mounting
-    aws s3api put-object --bucket $BucketNameWarehouse --key empty
-    #Mount the buckets on dbfs. The results bucket is assummed to already exist.
-    echo "${blu}Mounting the warehouse and results buckets.${end}"
-    jsonMountRun=$(databricks jobs run-now --job-id 235 --notebook-params "$(data_mount_buckets_func Mount)")
-    #Example json output of command above.
-    #{
-    #  "number_in_job": 16,
-  	#  "run_id": 606
-	#}
-	#Extract the run_id
-	mount_run_id=$(jq -j '.run_id' <<< "$jsonMountRun")
-	#Poll the run status until termination.
-	echo "${blu}Waiting for the completion of run ${mount_run_id}.${end}"
-	wait_for_run_termination $mount_run_id 120
-	echo "${blu}Execution complete.${end}"
-    exit 0
-fi
-
-#exit 0 
-
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 
 JOB_NAME="Run TPC-DS Benchmark"
@@ -229,16 +175,32 @@ post_data_func()
 EOF
 }
 
+#Get the state (RUNNING, TERMINATED) of a job run via its run_id using the Jobs REST API.
+#$1 run_id
+get_run_state() {
+   declare jsonStr=$(curl -s -n \
+   -H "Authorization: Bearer $DATABRICKS_TOKEN" \
+   https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/jobs/runs/get?run_id=$1)
 
-#curl -X POST \
-#-H "Authorization: Bearer $DATABRICKS_TOKEN" \
-#-H "Content-Type: application/json" \
-#-d "$(post_data_func)" \
-#https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/jobs/create
+   declare state=$(jq -j '.state.life_cycle_state'  <<<  "$jsonStr")
+   echo $state
+}
+
+#Wait until the state of a job run is TERMINATED by polling using the Jobs REST API.
+#$1 run_id
+#$2 pause in seconds for polling
+wait_for_run_termination() {
+   declare state=$(get_run_state $1)
+   while [ $state != "TERMINATED"  ] ;
+   do
+      sleep $2
+      state=$(get_run_state $1)
+   done
+}
 
 #Create a job using the Jobs REST API.
 create_job() {
-   declare jsonStr=$(curl -X POST \
+   declare jsonStr=$(curl -s -X POST \
 	-H "Authorization: Bearer $DATABRICKS_TOKEN" \
 	-H "Content-Type: application/json" \
 	-d "$(post_data_func)" \
@@ -249,14 +211,47 @@ create_job() {
    echo $state
 }
 
-echo "${blu}Creating job for benchmark execution.${end}"
-job_id=$(create_job)
-echo "${blu}Created job with id ${job_id} and starting its execution.${end}"
-jsonJobRun=$(databricks jobs run-now --job-id $job_id)
-job_run_id=$(jq -j '.run_id' <<< "$jsonJobRun")
-echo "${blu}Waiting for the completion of run ${job_run_id}.${end}"
-wait_for_run_termination $job_run_id 120
-echo "${blu}Benchmark running job completed.${end}"
+RUN_CREATE_BUCKET=0
+
+if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
+    echo "${blu}Creating the warehouse bucket.${end}"
+    #Create the warehouse bucket
+    aws s3api create-bucket --bucket $BucketNameWarehouse --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
+    #Add the Owner tag
+    aws s3api put-bucket-tagging --bucket $BucketNameWarehouse --tagging 'TagSet=[{Key=Owner,Value=eng-benchmarking@databricks.com}]'
+    #Block all public access for the warehouse bucket
+    aws s3api put-public-access-block --bucket $BucketNameWarehouse --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"  
+    #Create and empty folder to enable mounting
+    aws s3api put-object --bucket $BucketNameWarehouse --key empty
+    #Mount the buckets on dbfs. The results bucket is assummed to already exist.
+    echo "${blu}Mounting the warehouse and results buckets.${end}"
+    jsonMountRun=$(databricks jobs run-now --job-id 235 --notebook-params "$(data_mount_buckets_func Mount)")
+    #Example json output of command above.
+    #{
+    #  "number_in_job": 16,
+  	#  "run_id": 606
+	#}
+	#Extract the run_id
+	mount_run_id=$(jq -j '.run_id' <<< "$jsonMountRun")
+	#Poll the run status until termination.
+	echo "${blu}Waiting for the completion of run ${mount_run_id}.${end}"
+	wait_for_run_termination $mount_run_id 120
+	echo "${blu}Execution complete.${end}"
+    exit 0
+fi
+
+RUN_CREATE_AND_RUN_JOB=0
+
+if [ "$RUN_CREATE_AND_RUN_JOB" -eq 1 ]; then
+	echo "${blu}Creating job for benchmark execution.${end}"
+	job_id=$(create_job)
+	echo "${blu}Created job with id ${job_id} and starting its execution.${end}"
+	jsonJobRun=$(databricks jobs run-now --job-id $job_id)
+	job_run_id=$(jq -j '.run_id' <<< "$jsonJobRun")
+	echo "${blu}Waiting for the completion of run ${job_run_id}.${end}"
+	wait_for_run_termination $job_run_id 120
+	echo "${blu}Benchmark running job completed.${end}"
+fi
 
 RUN_DELETE_BUCKET=0
 
