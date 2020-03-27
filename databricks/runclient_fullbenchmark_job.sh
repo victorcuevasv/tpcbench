@@ -68,7 +68,6 @@ wait_for_run_termination() {
    done
 }
 
-
 RUN_CREATE_BUCKET=0
 
 if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
@@ -95,22 +94,6 @@ if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
 	echo "${blu}Waiting for the completion of run ${mount_run_id}.${end}"
 	wait_for_run_termination $mount_run_id 120
 	echo "${blu}Execution complete.${end}"
-    exit 0
-fi
-
-RUN_DELETE_BUCKET=0
-
-if [ "$RUN_DELETE_BUCKET" -eq 1 ]; then
-    #Unmount the warehouse and results buckets.
-    echo "${blu}Unmounting the buckets.${blu}"
-    jsonUnmountRun=$(databricks jobs run-now --job-id 235 --notebook-params "$(data_mount_buckets_func Unmount)")
-    unmount_run_id=$(jq -j '.run_id' <<< "$jsonUnmountRun")
-    echo "${blu}Waiting for the completion of run ${unmount_run_id}.${end}"
-    wait_for_run_termination $unmount_run_id 120
-    #Delete the warehouse bucket.
-    echo "${blu}Deleting the warehouse bucket.${end}"
-    aws s3 rb s3://$BucketNameWarehouse --force
-    echo "${blu}Execution complete.${end}"
     exit 0
 fi
 
@@ -247,12 +230,49 @@ EOF
 }
 
 
-curl -X POST \
--H "Authorization: Bearer $DATABRICKS_TOKEN" \
--H "Content-Type: application/json" \
--d "$(post_data_func)" \
-https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/jobs/create
+#curl -X POST \
+#-H "Authorization: Bearer $DATABRICKS_TOKEN" \
+#-H "Content-Type: application/json" \
+#-d "$(post_data_func)" \
+#https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/jobs/create
 
+#Create a job using the Jobs REST API.
+create_job() {
+   declare jsonStr=$(curl -X POST \
+	-H "Authorization: Bearer $DATABRICKS_TOKEN" \
+	-H "Content-Type: application/json" \
+	-d "$(post_data_func)" \
+	https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/jobs/create)
+	#Example output.
+	#{"job_id":236}
+   declare state=$(jq -j '.job_id'  <<<  "$jsonStr")
+   echo $state
+}
+
+echo "${blu}Creating job for benchmark execution.${end}"
+job_id=$(create_job)
+echo "${blu}Created job with id ${job_id} and starting its execution.${end}"
+jsonJobRun=$(databricks jobs run-now --job-id $job_id)
+job_run_id=$(jq -j '.run_id' <<< "$jsonJobRun")
+echo "${blu}Waiting for the completion of run ${job_run_id}.${end}"
+wait_for_run_termination $job_run_id 120
+echo "${blu}Benchmark running job completed.${end}"
+
+RUN_DELETE_BUCKET=0
+
+if [ "$RUN_DELETE_BUCKET" -eq 1 ]; then
+    #Unmount the warehouse and results buckets.
+    echo "${blu}Unmounting the buckets.${blu}"
+    jsonUnmountRun=$(databricks jobs run-now --job-id 235 --notebook-params "$(data_mount_buckets_func Unmount)")
+    unmount_run_id=$(jq -j '.run_id' <<< "$jsonUnmountRun")
+    echo "${blu}Waiting for the completion of run ${unmount_run_id}.${end}"
+    wait_for_run_termination $unmount_run_id 120
+    #Delete the warehouse bucket.
+    echo "${blu}Deleting the warehouse bucket.${end}"
+    aws s3 rb s3://$BucketNameWarehouse --force
+    echo "${blu}Execution complete.${end}"
+    exit 0
+fi
 
 
 
