@@ -26,44 +26,23 @@ if [ $# -lt 3 ]; then
     exit 0
 fi
 
-BucketName="tpcds-warehouse-sparkemr-529-$1gb-$2"
-DatabaseName="tpcds_sparkemr_529_$1gb_$2_db"
-Nodes="8"
-
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
-RUN_CREATE_BUCKET=0
-
-if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
-    #Create the bucket
-    aws s3api create-bucket --bucket $BucketName --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
-    #Add the Owner tag
-    aws s3api put-bucket-tagging --bucket $BucketName --tagging 'TagSet=[{Key=Owner,Value=eng-benchmarking@databricks.com}]'
-    #Block all public access for the bucket
-    aws s3api put-public-access-block --bucket $BucketName --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"  
-    #Create and empty folder to enable mounting
-    aws s3api put-object --bucket $BucketName --key empty
-    exit 0
-fi
-
-RUN_DELETE_BUCKET=0
-
-if [ "$RUN_DELETE_BUCKET" -eq 1 ]; then
-    #Delete the bucket
-    aws s3 rb s3://$BucketName --force
-    exit 0
-fi
+BucketNameWarehouse="tpcds-warehouse-sparkemr-529-$1gb-$2"
+BucketNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
+DatabaseName="tpcds_sparkemr_529_$1gb_$2_db"
+Nodes="2"
 
 args=()
 
 #args[0] main work directory
-args[0]="/mnt/efs/scratch/hadoop/data"
+args[0]="/data"
 #args[1] schema (database) name
 args[1]="$DatabaseName"
 #args[2] results folder name (e.g. for Google Drive)
-args[2]="19aoujv0ull8kx87l4by700xikfythorv"
+args[2]="$BucketNameResults"
 #args[3] experiment name (name of subfolder within the results folder)
-args[3]="sparkemr-529-${Nodes}nodes-$1gb-test"
+args[3]="sparkemr-529-${Nodes}nodes-$1gb-experimental"
 #args[4] system name (system name used within the logs)
 args[4]="sparkemr"
 
@@ -79,7 +58,7 @@ args[8]="_ext"
 args[9]="s3://tpcds-datasets/$1GB"
 
 #args[10] prefix of external location for created tables (e.g. S3 bucket), null for none
-args[10]="s3://$BucketName"
+args[10]="s3://$BucketNameWarehouse"
 #args[11] format for column-storage tables (PARQUET, DELTA)
 args[11]="parquet"
 #args[12] whether to run queries to count the tuples generated (true/false)
@@ -87,7 +66,7 @@ args[12]="false"
 #args[13] whether to use data partitioning for the tables (true/false)
 args[13]="true"
 #args[14] jar file
-args[14]="/mnt/efs/FileStore/job-jars/project/targetsparkdatabricks/client-1.1-SNAPSHOT-jar-with-dependencies.jar"
+args[14]="/mnt/tpcds-jars/client-1.2-SNAPSHOT-jar-with-dependencies.jar"
 
 #args[15] whether to generate statistics by analyzing tables (true/false)
 args[15]="true"
@@ -118,6 +97,19 @@ args[26]="1954"
 #args[27] flags (111111 schema|load|analyze|zorder|power|tput)
 args[27]="111011"
 
+function json_string_list() {
+    declare array=("$@")
+    declare list=""
+    for w in "${array[@]}"
+    do
+        list+="\"$w\", "
+    done
+    #Remove the last comma and space
+    echo ${list%??}
+}
+
+paramsStr=$(json_string_list "${args[@]}")
+
 ec2-attributes_func()
 {
   cat <<EOF
@@ -146,34 +138,7 @@ steps_func()
          "--class",
          "org.bsc.dcc.vcv.RunBenchmarkSpark",
          "${args[14]}",
-         "${args[0]}",
-         "${args[1]}",
-         "${args[2]}",
-         "${args[3]}",
-         "${args[4]}",
-         "${args[5]}",
-         "${args[6]}",
-         "${args[7]}",
-         "${args[8]}",
-         "${args[9]}",
-         "${args[10]}",
-         "${args[11]}",
-         "${args[12]}",
-         "${args[13]}",
-         "${args[14]}",
-         "${args[15]}",
-         "${args[16]}",
-         "${args[17]}",
-         "${args[18]}",
-         "${args[19]}",
-         "${args[20]}",
-         "${args[21]}",
-         "${args[22]}",
-         "${args[23]}",
-         "${args[24]}",
-         "${args[25]}",
-         "${args[26]}",
-         "${args[27]}"
+         $paramsStr
       ],
       "Type":"CUSTOM_JAR",
       "ActionOnFailure":"TERMINATE_CLUSTER",
@@ -230,9 +195,11 @@ bootstrap-actions_func()
   cat <<EOF
 [
    {
-      "Path":"s3://bsc-bootstrap/emrClusterEFS_user_param.sh",
+      "Path":"s3://bsc-bootstrap/s3fs/emr_init.sh",
       "Args":[
-         "hadoop"
+         "hadoop",
+         "$AWS_ACCESS_KEY",
+         "$AWS_SECRET_KEY"
       ],
       "Name":"Custom action"
    }
@@ -247,36 +214,56 @@ instanceGroups=$(jq -c . <<<  "$(instance-groups_func)")
 configurations=$(jq -c . <<<  "$(configurations_func)")
 bootstrapActions=$(jq -c . <<<  "$(bootstrap-actions_func)")
 
+#Create warehouse bucket.
 
-aws emr create-cluster \
---termination-protected \
---applications Name=Hadoop Name=Hive Name=Spark \
---ec2-attributes "$ec2Attributes" \
---release-label emr-5.29.0 \
---log-uri 's3n://bsc-emr-logs/' \
---steps "$steps" \
---instance-groups "$instanceGroups" \
---configurations "$configurations" \
---auto-terminate \
---auto-scaling-role EMR_AutoScaling_DefaultRole \
---bootstrap-actions "$bootstrapActions" \
---ebs-root-volume-size 10 \
---service-role EMR_DefaultRole \
---enable-debugging \
---name 'BSC-test' \
---scale-down-behavior TERMINATE_AT_TASK_COMPLETION \
---region us-west-2
+RUN_CREATE_BUCKET=0
 
+if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
+    #Create the bucket
+    aws s3api create-bucket --bucket $BucketNameWarehouse --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
+    #Add the Owner tag
+    aws s3api put-bucket-tagging --bucket $BucketNameWarehouse --tagging 'TagSet=[{Key=Owner,Value=eng-benchmarking@databricks.com}]'
+    #Block all public access for the bucket
+    aws s3api put-public-access-block --bucket $BucketNameWarehouse --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"  
+    #Create and empty folder to enable mounting
+    aws s3api put-object --bucket $BucketNameWarehouse --key empty
+    #exit 0
+fi
 
+#Create the cluster and run the benchmark.
 
+RUN_CREATE_CLUSTER=0
 
+if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
+    aws emr create-cluster \
+	--termination-protected \
+	--applications Name=Hadoop Name=Hive Name=Spark \
+	--ec2-attributes "$ec2Attributes" \
+	--release-label emr-5.29.0 \
+	--log-uri 's3n://bsc-emr-logs/' \
+	--steps "$steps" \
+	--instance-groups "$instanceGroups" \
+	--configurations "$configurations" \
+	--auto-terminate \
+	--auto-scaling-role EMR_AutoScaling_DefaultRole \
+	--bootstrap-actions "$bootstrapActions" \
+	--ebs-root-volume-size 10 \
+	--service-role EMR_DefaultRole \
+	--enable-debugging \
+	--name 'BSC-test' \
+	--scale-down-behavior TERMINATE_AT_TASK_COMPLETION \
+	--region us-west-2
+    #exit 0
+fi
 
+#Delete the warehouse bucket.
 
+RUN_DELETE_BUCKET=0
 
-
-
-
-
-
+if [ "$RUN_DELETE_BUCKET" -eq 1 ]; then
+    #Delete the bucket
+    aws s3 rb s3://$BucketNameWarehouse --force
+    #exit 0
+fi
 
 
