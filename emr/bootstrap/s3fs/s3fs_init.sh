@@ -12,6 +12,8 @@ make -C ./s3fs-fuse
 sudo make -C ./s3fs-fuse install
 echo $2:$3 > /home/$1/.passwd-s3fs
 chmod 600 /home/$1/.passwd-s3fs
+sudo chown $1:$1 /home/$1/.passwd-s3fs
 mkdir /home/$1/s3-drive
+sudo chown $1:$1 -R /home/$1/s3-drive
 s3fs tpcds-temporal /home/$1/s3-drive
 
