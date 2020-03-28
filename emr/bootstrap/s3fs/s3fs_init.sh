@@ -15,5 +15,5 @@ chmod 600 /home/$1/.passwd-s3fs
 sudo chown $1:$1 /home/$1/.passwd-s3fs
 mkdir /home/$1/s3-drive
 sudo chown $1:$1 -R /home/$1/s3-drive
-sudo -u username "s3fs tpcds-temporal /home/$1/s3-drive"
+sudo -u $1 "s3fs tpcds-temporal /home/$1/s3-drive"
 
