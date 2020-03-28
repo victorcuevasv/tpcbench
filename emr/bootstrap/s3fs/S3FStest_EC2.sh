@@ -3,7 +3,7 @@
 #Obtain json data
 #aws ec2 get-launch-template-data --instance-id "i-0d412d147e820bc7c" --query "LaunchTemplateData" > ec2JSON.txt
 
-encodedScript=$(cat s3fs_init.sh | base64)
+encodedScript=$(base64 --wrap=0 s3fs_init.sh)
 
 json_data_func()
 {
@@ -76,7 +76,7 @@ SINGLE_LINE_JSON=$(jq -c . <<<  "$(json_data_func)")
 
 #Create the template
 aws ec2 create-launch-template \
---launch-template-name JDBCtests \
+--launch-template-name S3FStest \
 --version-description version1 \
 --launch-template-data $SINGLE_LINE_JSON
 

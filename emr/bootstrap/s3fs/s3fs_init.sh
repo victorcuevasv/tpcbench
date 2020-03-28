@@ -10,8 +10,8 @@ git clone https://github.com/s3fs-fuse/s3fs-fuse
 (cd s3fs-fuse && ./configure --prefix=/usr --with-openssl)
 make -C ./s3fs-fuse
 sudo make -C ./s3fs-fuse install
-echo $2:$3 > ~/.passwd-s3fs
-chmod 600 ~/.passwd-s3fs
-mkdir ~/s3-drive
-s3fs tpcds-temporal ~/s3-drive
+echo $2:$3 > /home/$1/.passwd-s3fs
+chmod 600 /home/$1/.passwd-s3fs
+mkdir /home/$1/s3-drive
+s3fs tpcds-temporal /home/$1/s3-drive
 
