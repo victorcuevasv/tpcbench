@@ -66,7 +66,7 @@ args[12]="false"
 #args[13] whether to use data partitioning for the tables (true/false)
 args[13]="true"
 #args[14] jar file
-args[14]="/mnt/tpcds-jars/client-1.2-SNAPSHOT-jar-with-dependencies.jar"
+args[14]="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-jar-with-dependencies.jar"
 
 #args[15] whether to generate statistics by analyzing tables (true/false)
 args[15]="true"
