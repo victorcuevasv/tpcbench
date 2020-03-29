@@ -207,6 +207,25 @@ bootstrap-actions_func()
 EOF
 }
 
+#Get the state (RUNNING, TERMINATED) of a job run via its run_id using the Jobs REST API.
+#$1 run_id
+get_run_state() {
+   declare jsonStr=$(aws emr describe-cluster --cluster-id $1)
+   declare state=$(jq -j '.Cluster.Status.State'  <<<  "$jsonStr")
+   echo $state
+}
+
+#Wait until the state of a job run is TERMINATED by polling using the Jobs REST API.
+#$1 run_id
+#$2 pause in seconds for polling
+wait_for_run_termination() {
+   declare state=$(get_run_state $1)
+   while [ $state != "TERMINATED"  ] ;
+   do
+      sleep $2
+      state=$(get_run_state $1)
+   done
+}
 
 ec2Attributes=$(jq -c . <<<  "$(ec2-attributes_func)")
 steps=$(jq -c . <<<  "$(steps_func)")
@@ -219,6 +238,7 @@ bootstrapActions=$(jq -c . <<<  "$(bootstrap-actions_func)")
 RUN_CREATE_BUCKET=0
 
 if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
+    echo "${blu}Creating bucket ${BucketNameWarehouse}.${end}"
     #Create the bucket
     aws s3api create-bucket --bucket $BucketNameWarehouse --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
     #Add the Owner tag
@@ -233,9 +253,11 @@ fi
 #Create the cluster and run the benchmark.
 
 RUN_CREATE_CLUSTER=0
+jsonCluster=""
+cluster_id=""
 
 if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
-    aws emr create-cluster \
+    jsonCluster=$(aws emr create-cluster \
 	--termination-protected \
 	--applications Name=Hadoop Name=Hive Name=Spark \
 	--ec2-attributes "$ec2Attributes" \
@@ -252,8 +274,23 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	--enable-debugging \
 	--name 'BSC-test' \
 	--scale-down-behavior TERMINATE_AT_TASK_COMPLETION \
-	--region us-west-2
+	--region us-west-2)
     #exit 0
+    #Example output.
+	#{
+    #	"ClusterId": "j-I7ZKG7UYDEDA",
+    #	"ClusterArn": "arn:aws:elasticmapreduce:us-west-2:384416317380:cluster/j-I7ZKG7UYDEDA"
+	#}
+	cluster_id=$(jq -j '.ClusterId'  <<<  "$jsonCluster")
+	echo "${blu}Created cluster with id ${cluster_id}.${end}"
+fi
+
+WAIT_FOR_TERMINATION=0
+
+if [ "$WAIT_FOR_TERMINATION" -eq 1 ]; then
+	echo "${blu}Waiting for the completion of cluster ${cluster_id}.${end}"
+	wait_for_run_termination $cluster_id 120
+	echo "${blu}Execution complete.${end}"
 fi
 
 #Delete the warehouse bucket.
@@ -261,6 +298,7 @@ fi
 RUN_DELETE_BUCKET=0
 
 if [ "$RUN_DELETE_BUCKET" -eq 1 ]; then
+    echo "${blu}Deleting bucket ${BucketNameWarehouse}.${end}"
     #Delete the bucket
     aws s3 rb s3://$BucketNameWarehouse --force
     #exit 0
