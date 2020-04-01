@@ -234,7 +234,7 @@ bootstrapActions=$(jq -c . <<<  "$(bootstrap-actions_func)")
 
 #Create the cluster and run the benchmark.
 
-RUN_CREATE_CLUSTER=0
+RUN_CREATE_CLUSTER=1
 jsonCluster=""
 cluster_id=""
 
