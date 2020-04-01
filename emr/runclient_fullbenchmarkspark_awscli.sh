@@ -28,8 +28,8 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
-BucketNameWarehouse="tpcds-warehouse-sparkemr-529-$1gb-$2"
-BucketNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
+DirNameWarehouse="tpcds-warehouse-sparkemr-529-$1gb-$2"
+DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
 DatabaseName="tpcds_sparkemr_529_$1gb_$2_db"
 Nodes="2"
 
@@ -40,7 +40,7 @@ args[0]="/data"
 #args[1] schema (database) name
 args[1]="$DatabaseName"
 #args[2] results folder name (e.g. for Google Drive)
-args[2]="$BucketNameResults"
+args[2]="$DirNameResults"
 #args[3] experiment name (name of subfolder within the results folder)
 args[3]="sparkemr-529-${Nodes}nodes-$1gb-experimental"
 #args[4] system name (system name used within the logs)
@@ -58,7 +58,7 @@ args[8]="_ext"
 args[9]="s3://tpcds-datasets/$1GB"
 
 #args[10] prefix of external location for created tables (e.g. S3 bucket), null for none
-args[10]="s3://$BucketNameWarehouse"
+args[10]="s3://tpcds-warehouses-test/$DirNameWarehouse"
 #args[11] format for column-storage tables (PARQUET, DELTA)
 args[11]="parquet"
 #args[12] whether to run queries to count the tuples generated (true/false)
@@ -84,7 +84,7 @@ args[20]="true"
 #args[21] save power test results (boolean)
 args[21]="true"
 #args[22] "all" or query file
-args[22]="all"
+args[22]="query2.sql"
 #args[23] save tput test plans (boolean)
 args[23]="true"
 #args[24] save tput test results (boolean)
@@ -95,7 +95,7 @@ args[25]="$3"
 #args[26] random seed
 args[26]="1954"
 #args[27] flags (111111 schema|load|analyze|zorder|power|tput)
-args[27]="111011"
+args[27]="111010"
 
 function json_string_list() {
     declare array=("$@")
@@ -198,8 +198,7 @@ bootstrap-actions_func()
       "Path":"s3://bsc-bootstrap/s3fs/emr_init.sh",
       "Args":[
          "hadoop",
-         "$AWS_ACCESS_KEY",
-         "$AWS_SECRET_KEY"
+         "tpcds-jars,tpcds-results-test"
       ],
       "Name":"Custom action"
    }
@@ -232,23 +231,6 @@ steps=$(jq -c . <<<  "$(steps_func)")
 instanceGroups=$(jq -c . <<<  "$(instance-groups_func)")
 configurations=$(jq -c . <<<  "$(configurations_func)")
 bootstrapActions=$(jq -c . <<<  "$(bootstrap-actions_func)")
-
-#Create warehouse bucket.
-
-RUN_CREATE_BUCKET=0
-
-if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
-    echo "${blu}Creating bucket ${BucketNameWarehouse}.${end}"
-    #Create the bucket
-    aws s3api create-bucket --bucket $BucketNameWarehouse --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
-    #Add the Owner tag
-    aws s3api put-bucket-tagging --bucket $BucketNameWarehouse --tagging 'TagSet=[{Key=Owner,Value=eng-benchmarking@databricks.com}]'
-    #Block all public access for the bucket
-    aws s3api put-public-access-block --bucket $BucketNameWarehouse --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"  
-    #Create and empty folder to enable mounting
-    aws s3api put-object --bucket $BucketNameWarehouse --key empty
-    #exit 0
-fi
 
 #Create the cluster and run the benchmark.
 
@@ -285,7 +267,7 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	echo "${blu}Created cluster with id ${cluster_id}.${end}"
 fi
 
-WAIT_FOR_TERMINATION=0
+WAIT_FOR_TERMINATION=1
 
 if [ "$WAIT_FOR_TERMINATION" -eq 1 ]; then
 	echo "${blu}Waiting for the completion of cluster ${cluster_id}.${end}"
@@ -293,14 +275,14 @@ if [ "$WAIT_FOR_TERMINATION" -eq 1 ]; then
 	echo "${blu}Execution complete.${end}"
 fi
 
-#Delete the warehouse bucket.
+#Delete the warehouse directory.
 
-RUN_DELETE_BUCKET=0
+RUN_DELETE_WAREHOUSE=0
 
-if [ "$RUN_DELETE_BUCKET" -eq 1 ]; then
-    echo "${blu}Deleting bucket ${BucketNameWarehouse}.${end}"
+if [ "$RUN_DELETE_WAREHOUSE" -eq 1 ]; then
+    echo "${blu}Deleting the warehouse directory ${DirNameWarehouse}.${end}"
     #Delete the bucket
-    aws s3 rb s3://$BucketNameWarehouse --force
+    aws s3 rb s3://tpcds-warehouses-test/$DirNameWarehouse --force
     #exit 0
 fi
 
