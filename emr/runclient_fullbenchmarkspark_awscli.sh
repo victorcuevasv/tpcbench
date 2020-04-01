@@ -275,7 +275,7 @@ RUN_DELETE_WAREHOUSE=0
 if [ "$RUN_DELETE_WAREHOUSE" -eq 1 ]; then
     echo "${blu}Deleting the warehouse directory ${DirNameWarehouse}.${end}"
     #Delete the bucket
-    aws s3 rb s3://tpcds-warehouses-test/$DirNameWarehouse --force
+    aws s3 rm --recursive s3://tpcds-warehouses-test/$DirNameWarehouse --force
     #exit 0
 fi
 
