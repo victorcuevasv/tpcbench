@@ -2,7 +2,7 @@
 
 #User to own the directories.
 mUSER="ec2-user"
-#Buckets to mount.
+#Buckets to mount. It is assumed an IAM role enabling access to them is associated with the machine.
 buckets=("tpcds-jars" "tpcds-results-test")
 
 #Install s3fs

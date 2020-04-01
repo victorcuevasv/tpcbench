@@ -1,8 +1,7 @@
 #!/bin/bash
 
 #$1 username to own the directory
-#$2 AWS_ACCESS_KEY
-#$3 AWS_SECRET_KEY
+#$2 buckets to mount as comma separated list
 
 sudo yum install -y gcc libstdc++-devel gcc-c++ fuse fuse-devel curl-devel libxml2-devel mailcap automake openssl-devel git
 git clone https://github.com/s3fs-fuse/s3fs-fuse
@@ -14,10 +13,17 @@ echo $2:$3 > /home/$1/.passwd-s3fs
 chmod 600 /home/$1/.passwd-s3fs
 sudo chown $1:$1 /home/$1/.passwd-s3fs
 
-#Mount the bucket holding the benchmark application jar.
-sudo mkdir /mnt/tpcds-jars
-sudo chown $1:$1 -R /mnt/tpcds-jars
-sudo -u $1 s3fs tpcds-jars /mnt/tpcds-jars
+#Get the list of buckets as an array, replace the commas by spaces
+#and then interpret the string as an array.
+buckets=(${2//,/ })
+#Mount the buckets.
+for bucket in "${buckets[@]}" ; do
+	mkdir /mnt/$bucket
+	sudo chown $1:$1 -R /mnt/$bucket
+	sudo -u $1 s3fs -o iam_role="tpcds-mount" -o url="https://s3-us-west-2.amazonaws.com" \
+	-o endpoint=us-west-2 -o dbglevel=info -o curldbg \
+	-o use_cache=/tmp $bucket /mnt/$bucket
+done
 
 if [ ! -d /data ]; then
 	sudo mkdir -p /data
