@@ -20,7 +20,7 @@ buckets=(${2//,/ })
 for bucket in "${buckets[@]}" ; do
 	mkdir /mnt/$bucket
 	sudo chown $1:$1 -R /mnt/$bucket
-	sudo -u $1 s3fs -o iam_role="tpcds-mount" -o url="https://s3-us-west-2.amazonaws.com" \
+	sudo -u $1 s3fs -o iam_role="EMR_EC2_DefaultRole" -o url="https://s3-us-west-2.amazonaws.com" \
 	-o endpoint=us-west-2 -o dbglevel=info -o curldbg \
 	-o use_cache=/tmp $bucket /mnt/$bucket
 done
