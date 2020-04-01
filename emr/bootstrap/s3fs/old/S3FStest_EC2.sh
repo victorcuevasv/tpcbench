@@ -54,9 +54,6 @@ json_data_func()
         "GroupName": "", 
         "AvailabilityZone": "us-west-2b"
     }, 
-    "IamInstanceProfile": {
-        "Arn": "arn:aws:iam::384416317380:instance-profile/tpcds-mount"
-    },
     "DisableApiTermination": false, 
     "InstanceType": "t2.xlarge", 
     "NetworkInterfaces":[ 
