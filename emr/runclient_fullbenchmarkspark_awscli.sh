@@ -10,13 +10,6 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
-#Get the user name of the user executing this script.
-USER_NAME=$(whoami)
-#Get the user id of the user executing this script.
-USER_ID=$(id -u)
-#Get the user id of the user executing this script.
-GROUP_ID=$(id -g)
-
 #$1 scale factor (positive integer)
 #$2 experiment instance number (positive integer)
 #$3 number of streams (positive integer)
