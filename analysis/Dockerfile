@@ -7,8 +7,8 @@ RUN apt-get update \
 
 RUN install2.r ggplot2 dplyr
 
-#COPY conf/install_packages.R /install_packages.R
+COPY conf/install_packages.R /install_packages.R
 
-#RUN Rscript /install_packages.R
+RUN Rscript /install_packages.R
 
 
