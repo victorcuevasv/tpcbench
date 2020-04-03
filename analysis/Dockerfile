@@ -5,10 +5,10 @@ RUN apt-get update \
     libz-dev \
     libxml2-dev
 
-RUN install2.r haven xml2 rio ggplot2 dplyr gridExtra
+RUN install2.r ggplot2 dplyr
 
-COPY conf/install_packages.R /install_packages.R
+#COPY conf/install_packages.R /install_packages.R
 
-RUN Rscript /install_packages.R
+#RUN Rscript /install_packages.R
 
 
