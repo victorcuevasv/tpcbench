@@ -6,8 +6,8 @@ library("ggplot2")
 library("stringr")
 library("dplyr")
 
-Sys.setenv("AWS_ACCESS_KEY_ID" = "",
-           "AWS_SECRET_ACCESS_KEY" = "",
+Sys.setenv("AWS_ACCESS_KEY_ID" = "AKIAVTAH7P7CJ7LOM5UH",
+           "AWS_SECRET_ACCESS_KEY" = "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",
            "AWS_DEFAULT_REGION" = "us-west-2")
 
 saveS3ObjectToFile <- function(s3objURL, outFile) {
@@ -40,6 +40,7 @@ calculateStats <- function(analytics, dataframe, label, experiment, test, instan
     totalDurationSec <- sum(analytics$DURATION)
   totalDurationHour <- totalDurationSec / 3600.0
   dataframe[nrow(dataframe) + 1,] = list(label, test, instance, totalDurationSec, totalDurationHour)
+  #Reasign the updated copy to the external variable outputDF
   outputDF <<- dataframe
 }
 
@@ -61,28 +62,36 @@ createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, me
     theme(plot.margin=margin(t = 10, r = 5, b = 5, l = 5, unit = "pt"))
 }
 
+processExperiments <- function(dataframe, experiments, labels, tests, instances) {
+  i <- 1
+  for(experiment in experiments) {
+    for(test in tests) {
+      for(instance in instances) {
+        s3Suffix <- paste0(experiment, "/", test, "/", instance, "/analytics.log")
+        s3objURL <- paste0(s3Prefix, s3Suffix)
+        if( object_exists(s3objURL) ) {
+          dataFile <- "/home/rstudio/Documents/data.txt"
+          saveS3ObjectToFile(s3objURL, dataFile)
+          processAnalyticsFile(dataFile, dataframe, labels[[i]], experiment, test, instance)
+          #Update the local variable dataframe with the modified external variable outputDF
+          dataframe <- outputDF
+        }
+      }
+    }
+    i <- i + 1
+  }
+}
+
 # Map metrics to descriptions for the y-axis.
 metricsLabel<-new.env()
-metricsLabel[["TOTAL_DURATION_HOUR"]] <- "Total"
-metricsLabel[["TOTAL_DURATION_SEC"]] <- "Total"
 metricsLabel[["AVG_TOTAL_DURATION_HOUR"]] <- "Total"
-
 metricsUnit<-new.env()
-metricsUnit[["TOTAL_DURATION_HOUR"]] <- "hr."
-metricsUnit[["TOTAL_DURATION_SEC"]] <- "sec."
 metricsUnit[["AVG_TOTAL_DURATION_HOUR"]] <- "hr."
-
 metricsDigits<-new.env()
-metricsDigits[["TOTAL_DURATION_HOUR"]] <- 2
-metricsDigits[["TOTAL_DURATION_SEC"]] <- 2
 metricsDigits[["AVG_TOTAL_DURATION_HOUR"]] <- 2
-
 metricsYaxisLimit<-new.env()
-metricsYaxisLimit[["TOTAL_DURATION_HOUR"]] <- 1.0
-metricsYaxisLimit[["TOTAL_DURATION_SEC"]] <- 9000
 metricsYaxisLimit[["AVG_TOTAL_DURATION_HOUR"]] <- 50.0
 
-#metric <- "TOTAL_DURATION_HOUR"
 metric <- "AVG_TOTAL_DURATION_HOUR"
 
 
@@ -101,27 +110,13 @@ labels <- list('5.29 500 buck', '5.29 8 buck', '5.29', '5.29 part', '5.26', '5.2
 tests <- list('analyze', 'load', 'power', 'tput')
 instances <- list('1', '2', '3')
 
-i <- 1
-for(experiment in experiments) {
-  for(test in tests) {
-    for(instance in instances) {
-      s3Suffix <- paste0(experiment, "/", test, "/", instance, "/analytics.log")
-      s3objURL <- paste0(s3Prefix, s3Suffix)
-      if( object_exists(s3objURL) ) {
-        dataFile <- "/home/rstudio/Documents/data.txt"
-        saveS3ObjectToFile(s3objURL, dataFile)
-        processAnalyticsFile(dataFile, outputDF, labels[[i]], experiment, test, instance)
-      }
-    }
-  }
-  i <- i + 1
-}
+processExperiments(outputDF, experiments, labels, tests, instances)
 
 outputDFsummarized <- outputDF %>%
   group_by(SYSTEM, TEST) %>%
   summarize(AVG_TOTAL_DURATION_HOUR = mean(TOTAL_DURATION_HOUR, na.rm = TRUE))
 
-#print(outputDFsummarized)
+#print(outputDFsummarized,n=nrow(outputDFsummarized))
 
 createPlotFromDataframe(outputDFsummarized, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
 
