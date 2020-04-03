@@ -6,8 +6,8 @@ library("ggplot2")
 library("stringr")
 library("dplyr")
 
-Sys.setenv("AWS_ACCESS_KEY_ID" = "AKIAVTAH7P7CJ7LOM5UH",
-           "AWS_SECRET_ACCESS_KEY" = "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",
+Sys.setenv("AWS_ACCESS_KEY_ID" = "",
+           "AWS_SECRET_ACCESS_KEY" = "",
            "AWS_DEFAULT_REGION" = "us-west-2")
 
 saveS3ObjectToFile <- function(s3objURL, outFile) {
@@ -29,7 +29,7 @@ processAnalyticsFile <- function(inFile, dataframe, label, experiment, test, ins
   analytics$DURATION <- as.numeric(analytics$DURATION)
   analytics$RESULTS_SIZE <- as.numeric(analytics$RESULTS_SIZE)
   #analytics$TUPLES <- as.numeric(analytics$TUPLES)
-  calculateStats(analytics, dataframe, label, experiment, test, instance)
+  return(calculateStats(analytics, dataframe, label, experiment, test, instance))
 }
 
 calculateStats <- function(analytics, dataframe, label, experiment, test, instance) {
@@ -40,8 +40,7 @@ calculateStats <- function(analytics, dataframe, label, experiment, test, instan
     totalDurationSec <- sum(analytics$DURATION)
   totalDurationHour <- totalDurationSec / 3600.0
   dataframe[nrow(dataframe) + 1,] = list(label, test, instance, totalDurationSec, totalDurationHour)
-  #Reasign the updated copy to the external variable outputDF
-  outputDF <<- dataframe
+  return(dataframe)
 }
 
 createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title){
@@ -72,14 +71,13 @@ processExperiments <- function(dataframe, experiments, labels, tests, instances)
         if( object_exists(s3objURL) ) {
           dataFile <- "/home/rstudio/Documents/data.txt"
           saveS3ObjectToFile(s3objURL, dataFile)
-          processAnalyticsFile(dataFile, dataframe, labels[[i]], experiment, test, instance)
-          #Update the local variable dataframe with the modified external variable outputDF
-          dataframe <- outputDF
+          dataframe <- processAnalyticsFile(dataFile, dataframe, labels[[i]], experiment, test, instance)
         }
       }
     }
     i <- i + 1
   }
+  return(dataframe)
 }
 
 # Map metrics to descriptions for the y-axis.
@@ -94,10 +92,9 @@ metricsYaxisLimit[["AVG_TOTAL_DURATION_HOUR"]] <- 50.0
 
 metric <- "AVG_TOTAL_DURATION_HOUR"
 
-
 s3Prefix <- "s3://presto-comp/analytics/"
 #Create a new dataframe to hold the aggregate results.
-outputDF <- data.frame(SYSTEM=character(),
+df <- data.frame(SYSTEM=character(),
                        TEST=character(),
                        INSTANCE=character(),
                        TOTAL_DURATION_SEC=double(),
@@ -110,13 +107,13 @@ labels <- list('5.29 500 buck', '5.29 8 buck', '5.29', '5.29 part', '5.26', '5.2
 tests <- list('analyze', 'load', 'power', 'tput')
 instances <- list('1', '2', '3')
 
-processExperiments(outputDF, experiments, labels, tests, instances)
+df <- processExperiments(df, experiments, labels, tests, instances)
 
-outputDFsummarized <- outputDF %>%
+df <- df %>%
   group_by(SYSTEM, TEST) %>%
   summarize(AVG_TOTAL_DURATION_HOUR = mean(TOTAL_DURATION_HOUR, na.rm = TRUE))
 
-#print(outputDFsummarized,n=nrow(outputDFsummarized))
+#print(df, n=nrow(df))
 
-createPlotFromDataframe(outputDFsummarized, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
+createPlotFromDataframe(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
 
