@@ -25,5 +25,5 @@ docker run --rm --privileged \
 -v $DIR/Documents:/home/rstudio/Documents  \
 -v $DIR/Output:/home/rstudio/Output  \
 --entrypoint /bin/bash rstudio:dev -c \
-"mkdir -p /home/rstudio/s3buckets/$1; s3fs $1 /home/rstudio/s3buckets/$1; Rscript /home/rstudio/Documents/$3 $1 $2"        
+"mkdir -p /home/rstudio/s3buckets/$1; s3fs $1 /home/rstudio/s3buckets/$1; Rscript /home/rstudio/Documents/$3 $1 $2 $4"        
  
