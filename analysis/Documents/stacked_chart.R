@@ -36,7 +36,7 @@ calculateStats <- function(analytics, dataframe, label, experiment, test, instan
 }
 
 createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title){
-  ggplot(data=dataf, aes(x=SYSTEM, y=get(metric), fill=TEST), width=7, height=7) + 
+  plot <- ggplot(data=dataf, aes(x=SYSTEM, y=get(metric), fill=TEST), width=7, height=7) + 
     geom_bar(stat="identity", position = position_stack(reverse = T)) + 
     #It may be necessary to use fun.y in some environments.
     #geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = SYSTEM), stat = 'summary', fun.y = sum, vjust = -1, size=6) +     
@@ -51,6 +51,7 @@ createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, me
     theme(legend.position = "bottom") + 
     theme(legend.text=element_text(size=14)) + 
     theme(plot.margin=margin(t = 10, r = 5, b = 5, l = 5, unit = "pt"))
+  return(plot)
 }
 
 processExperimentsS3 <- function(dataframe, experiments, labels, tests, instances) {
@@ -164,5 +165,9 @@ df <- df %>%
 
 print(df, n=nrow(df))
 
-#createPlotFromDataframe(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
+plot <- createPlotFromDataframe(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
+
+png("/home/rstudio/Documents/stacked_bar_chart.png", width=1500, height=400, res=120)
+print(plot)
+dev.off()
 
