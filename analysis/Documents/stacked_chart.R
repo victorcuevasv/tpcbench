@@ -68,6 +68,19 @@ processExperiments <- function(dataframe, experiments, labels, tests, instances)
   return(dataframe)
 }
 
+list.dirs <- function(path=".", pattern=NULL, all.dirs=FALSE,
+                      full.names=FALSE, ignore.case=FALSE) {
+  # use full.names=TRUE to pass to file.info
+  all <- list.files(path, pattern, all.dirs,
+                    full.names=TRUE, recursive=FALSE, ignore.case)
+  dirs <- all[file.info(all)$isdir]
+  # determine whether to return full names or just dir names
+  if(isTRUE(full.names))
+    return(dirs)
+  else
+    return(basename(dirs))
+}
+
 # Map metrics to descriptions for the y-axis.
 metricsLabel<-new.env()
 metricsLabel[["AVG_TOTAL_DURATION_HOUR"]] <- "Total"
@@ -81,6 +94,13 @@ metricsYaxisLimit[["AVG_TOTAL_DURATION_HOUR"]] <- 50.0
 metric <- "AVG_TOTAL_DURATION_HOUR"
 
 s3Prefix <- "s3://presto-comp/analytics/"
+
+args <- commandArgs(TRUE)
+
+dirName <- paste0("/home/rstudio/s3buckets/", args[1], args[2])
+
+print(list.dirs(dirName))
+
 #Create a new dataframe to hold the aggregate results.
 df <- data.frame(SYSTEM=character(),
                        TEST=character(),
@@ -95,13 +115,13 @@ labels <- list('5.29 500 buck', '5.29 8 buck', '5.29', '5.29 part', '5.26', '5.2
 tests <- list('analyze', 'load', 'power', 'tput')
 instances <- list('1', '2', '3')
 
-df <- processExperiments(df, experiments, labels, tests, instances)
+#df <- processExperiments(df, experiments, labels, tests, instances)
 
-df <- df %>%
-  group_by(SYSTEM, TEST) %>%
-  summarize(AVG_TOTAL_DURATION_HOUR = mean(TOTAL_DURATION_HOUR, na.rm = TRUE))
+#df <- df %>%
+#  group_by(SYSTEM, TEST) %>%
+#  summarize(AVG_TOTAL_DURATION_HOUR = mean(TOTAL_DURATION_HOUR, na.rm = TRUE))
 
 #print(df, n=nrow(df))
 
-createPlotFromDataframe(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
+#createPlotFromDataframe(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
 
