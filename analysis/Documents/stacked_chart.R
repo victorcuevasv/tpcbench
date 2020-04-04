@@ -72,16 +72,14 @@ processExperimentsS3 <- function(dataframe, experiments, labels, tests, instance
   return(dataframe)
 }
 
-processExperiments <- function(dataframe, experiments, labels, tests, instances) {
+processExperiments <- function(dirName, dataframe, experiments, labels, tests, instances) {
   i <- 1
   for(experiment in experiments) {
     for(test in tests) {
       for(instance in instances) {
-        s3Suffix <- paste0(experiment, "/", test, "/", instance, "/analytics.log")
-        s3objURL <- paste0(s3Prefix, s3Suffix)
-        if( object_exists(s3objURL) ) {
-          dataFile <- "/home/rstudio/Documents/data.txt"
-          saveS3ObjectToFile(s3objURL, dataFile)
+        fileSuffix <- paste0(experiment, "/", test, "/", instance, "/analytics.log")
+        dataFile <- paste0(dirName, fileSuffix)
+        if( file.exists(dataFile) ) {
           dataframe <- processAnalyticsFile(dataFile, dataframe, labels[[i]], experiment, test, instance)
         }
       }
@@ -131,7 +129,7 @@ metricsYaxisLimit[["AVG_TOTAL_DURATION_HOUR"]] <- 50.0
 
 metric <- "AVG_TOTAL_DURATION_HOUR"
 
-s3Prefix <- "s3://presto-comp/analytics/"
+#s3Prefix <- "s3://presto-comp/analytics/"
 
 args <- commandArgs(TRUE)
 
@@ -139,13 +137,13 @@ dirName <- paste0("/home/rstudio/s3buckets/", args[1], "/", args[2])
 
 experiments <- list.dirs(dirName)
 
-print(experiments)
+#print(experiments)
 
 labelsDF <- readLabelsAsDataframe(paste0("/home/rstudio/Documents/", args[3]))
 
 labels <- createLabelsList(labelsDF, experiments)
 
-print(labels)
+#print(labels)
 
 #Create a new dataframe to hold the aggregate results.
 df <- data.frame(SYSTEM=character(),
@@ -158,13 +156,13 @@ df <- data.frame(SYSTEM=character(),
 tests <- list('analyze', 'load', 'power', 'tput')
 instances <- list('1', '2', '3')
 
-#df <- processExperiments(df, experiments, labels, tests, instances)
+df <- processExperiments(dirName, df, experiments, labels, tests, instances)
 
-#df <- df %>%
-#  group_by(SYSTEM, TEST) %>%
-#  summarize(AVG_TOTAL_DURATION_HOUR = mean(TOTAL_DURATION_HOUR, na.rm = TRUE))
+df <- df %>%
+  group_by(SYSTEM, TEST) %>%
+  summarize(AVG_TOTAL_DURATION_HOUR = mean(TOTAL_DURATION_HOUR, na.rm = TRUE))
 
-#print(df, n=nrow(df))
+print(df, n=nrow(df))
 
 #createPlotFromDataframe(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
 
