@@ -5,7 +5,7 @@ mUSER="ec2-user"
 #Buckets to mount. It is assumed an IAM role enabling access to them is associated with the machine.
 buckets=("tpcds-jars" "tpcds-results-test")
 
-#Install s3fs
+#Install s3fs.
 sudo yum install -y gcc libstdc++-devel gcc-c++ fuse fuse-devel curl-devel libxml2-devel mailcap automake openssl-devel git
 git clone https://github.com/s3fs-fuse/s3fs-fuse
 (cd s3fs-fuse && ./autogen.sh)
@@ -21,4 +21,9 @@ for bucket in "${buckets[@]}" ; do
 	-o endpoint=us-west-2 -o dbglevel=info -o curldbg \
 	-o use_cache=/tmp $bucket /home/$mUSER/$bucket
 done
+
+#Install docker.
+sudo yum install docker -y
+sudo usermod -aG docker ec2-user
+sudo service docker restart
 
