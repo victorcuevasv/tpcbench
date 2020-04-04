@@ -6,6 +6,18 @@ library("ggplot2")
 library("stringr")
 library("dplyr")
 
+Sys.setenv("AWS_ACCESS_KEY_ID" = "",
+           "AWS_SECRET_ACCESS_KEY" = "",
+           "AWS_DEFAULT_REGION" = "us-west-2")
+
+saveS3ObjectToFile <- function(s3objURL, outFile) {
+  s3obj <- get_object(s3objURL)
+  charObj <- rawToChar(s3obj)
+  sink(outFile)
+  cat (charObj)
+  sink()
+}
+
 processAnalyticsFile <- function(inFile, dataframe, label, experiment, test, instance) {
   analytics <- import(inFile, format="psv", colClasses="character")
   #Convert the character colums to numeric values where needed.
