@@ -97,7 +97,7 @@ s3Prefix <- "s3://presto-comp/analytics/"
 
 args <- commandArgs(TRUE)
 
-dirName <- paste0("/home/rstudio/s3buckets/", args[1], args[2])
+dirName <- paste0("/home/rstudio/s3buckets/", args[1], "/", args[2])
 
 print(list.dirs(dirName))
 
