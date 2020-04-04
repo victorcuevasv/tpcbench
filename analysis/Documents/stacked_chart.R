@@ -104,8 +104,18 @@ list.dirs <- function(path=".", pattern=NULL, all.dirs=FALSE,
     return(basename(dirs))
 }
 
-readLabels <- function(inFile) {
-  labels <- import(inFile, format="csv", colClasses="character")
+readLabelsAsDataframe <- function(inFile) {
+  labelsDF <- import(inFile, format="csv", colClasses="character")
+  return(labelsDF)
+}
+
+createLabelsList <- function(labelsDF, experiments) {
+  labels <- list()
+  i <- 1
+  for(experiment in experiments) {
+    labels[[i]] <- labelsDF$LABEL[labelsDF$EXPERIMENT == experiment]
+    i <- i + 1
+  }
   return(labels)
 }
 
@@ -131,7 +141,9 @@ experiments <- list.dirs(dirName)
 
 print(experiments)
 
-labels <- readLabels(paste0("/home/rstudio/Documents/", args[3]))
+labelsDF <- readLabelsAsDataframe(paste0("/home/rstudio/Documents/", args[3]))
+
+labels <- createLabelsList(labelsDF, experiments)
 
 print(labels)
 
