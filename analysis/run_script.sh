@@ -11,10 +11,11 @@ end=$'\e[0m'
 #$1 s3 bucket to mount
 #$2 s3 prefix for experiment files
 #$3 script to execute
+#$4 input text file (e.g. labels)
 
 
-if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash run_script.sh <bucket to mount> <s3 prefix> <script to run>${end}"
+if [ $# -lt 4 ]; then
+    echo "${yel}Usage: bash run_script.sh <bucket to mount> <s3 prefix> <script to run> <input text file>${end}"
     exit 0
 fi
 

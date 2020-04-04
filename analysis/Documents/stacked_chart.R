@@ -1,3 +1,7 @@
+#args[1] bucket to mount
+#args[2] s3 prefix for experiment files
+#args[3] csv file with experiment labels (base name, should be located in Documents)
+
 options(repr.plot.width=1500, repr.plot.height=400)
 
 library("aws.s3")
@@ -49,6 +53,25 @@ createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, me
     theme(plot.margin=margin(t = 10, r = 5, b = 5, l = 5, unit = "pt"))
 }
 
+processExperimentsS3 <- function(dataframe, experiments, labels, tests, instances) {
+  i <- 1
+  for(experiment in experiments) {
+    for(test in tests) {
+      for(instance in instances) {
+        s3Suffix <- paste0(experiment, "/", test, "/", instance, "/analytics.log")
+        s3objURL <- paste0(s3Prefix, s3Suffix)
+        if( object_exists(s3objURL) ) {
+          dataFile <- "/home/rstudio/Documents/data.txt"
+          saveS3ObjectToFile(s3objURL, dataFile)
+          dataframe <- processAnalyticsFile(dataFile, dataframe, labels[[i]], experiment, test, instance)
+        }
+      }
+    }
+    i <- i + 1
+  }
+  return(dataframe)
+}
+
 processExperiments <- function(dataframe, experiments, labels, tests, instances) {
   i <- 1
   for(experiment in experiments) {
@@ -81,6 +104,11 @@ list.dirs <- function(path=".", pattern=NULL, all.dirs=FALSE,
     return(basename(dirs))
 }
 
+readLabels <- function(inFile) {
+  labels <- import(inFile, format="csv", colClasses="character")
+  return(labels)
+}
+
 # Map metrics to descriptions for the y-axis.
 metricsLabel<-new.env()
 metricsLabel[["AVG_TOTAL_DURATION_HOUR"]] <- "Total"
@@ -99,7 +127,13 @@ args <- commandArgs(TRUE)
 
 dirName <- paste0("/home/rstudio/s3buckets/", args[1], "/", args[2])
 
-print(list.dirs(dirName))
+experiments <- list.dirs(dirName)
+
+print(experiments)
+
+labels <- readLabels(paste0("/home/rstudio/Documents/", args[3]))
+
+print(labels)
 
 #Create a new dataframe to hold the aggregate results.
 df <- data.frame(SYSTEM=character(),
@@ -109,9 +143,6 @@ df <- data.frame(SYSTEM=character(),
                        TOTAL_DURATION_HOUR=double(),
                        stringsAsFactors=FALSE)
 
-experiments <- list('prestoemr-529-500bucket', 'prestoemr-529-8bucket', 'prestoemr-529', 'prestoemr-529part', 'prestoemr220',
-                    'prestoemr220nostats', 'prestoemr220part')
-labels <- list('5.29 500 buck', '5.29 8 buck', '5.29', '5.29 part', '5.26', '5.26 no stats', '5.26 part' )
 tests <- list('analyze', 'load', 'power', 'tput')
 instances <- list('1', '2', '3')
 
