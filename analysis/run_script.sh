@@ -8,7 +8,7 @@ GROUP_ID=$(id -g)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 
-docker run --rm --user $USER_ID:$GROUP_ID \
+docker run --rm --privileged --user $USER_ID:$GROUP_ID \
 -v $DIR/Documents:/home/rstudio/Documents  \
 -v $DIR/Output:/home/rstudio/Output  \
 -v $HOME/tpcds-results-test:/home/rstudio/tpcds-results-test  \
