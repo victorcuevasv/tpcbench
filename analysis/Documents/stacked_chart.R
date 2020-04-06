@@ -9,6 +9,7 @@ library("rio")
 library("ggplot2")
 library("stringr")
 library("dplyr")
+library("EnvStats")
 
 processAnalyticsFile <- function(inFile, dataframe, label, experiment, test, instance) {
   analytics <- import(inFile, format="psv", colClasses="character")
@@ -31,7 +32,10 @@ calculateStats <- function(analytics, dataframe, label, experiment, test, instan
   else
     totalDurationSec <- sum(analytics$DURATION)
   totalDurationHour <- totalDurationSec / 3600.0
-  dataframe[nrow(dataframe) + 1,] = list(label, test, instance, totalDurationSec, totalDurationHour)
+  averageDurationSec <- mean(analytics$DURATION)
+  geomeanDurationSec <- geoMean(analytics$DURATION)
+  dataframe[nrow(dataframe) + 1,] = list(label, test, instance, totalDurationSec, totalDurationHour, 
+                                         averageDurationSec, geomeanDurationSec)
   return(dataframe)
 }
 
@@ -39,13 +43,13 @@ createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, me
   plot <- ggplot(data=dataf, aes(x=SYSTEM, y=get(metric), fill=TEST), width=7, height=7) + 
     geom_bar(stat="identity", position = position_stack(reverse = T)) + 
     #It may be necessary to use fun.y in some environments.
-    #geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = SYSTEM), stat = 'summary', fun.y = sum, vjust = -1, size=6) +     
-    geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = SYSTEM), stat = 'summary', fun = sum, vjust = -1, size=6) +    
+    geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = SYSTEM), stat = 'summary', fun = sum, vjust = -0.1, size=6) +     
     theme(axis.title.x=element_blank()) + 
     theme(axis.text=element_text(size=16), axis.title=element_text(size=18)) +
     #The str_wrap function makes the name of the column appear on multiple lines instead of just one
     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) + 
     scale_y_continuous(paste0(metricsLabel[[metric]], " ", " (", metricsUnit[[metric]], ")"), limits=c(0,metricsYaxisLimit[[metric]])) + 
+    #scale_y_continuous(paste0(metricsLabel[[metric]], " ", " (", metricsUnit[[metric]], ")")) + 
     #Use the line below to specify the colors manually -must provide enough colors-
     scale_fill_manual(name="", values=c("#5e3c99", "#b2abd2", "#fdb863", "#e66101"), labels=c('load', 'analyze', 'power', 'tput')) + 
     theme(legend.position = "bottom") + 
@@ -126,7 +130,7 @@ metricsUnit[["AVG_TOTAL_DURATION_HOUR"]] <- "hr."
 metricsDigits<-new.env()
 metricsDigits[["AVG_TOTAL_DURATION_HOUR"]] <- 2
 metricsYaxisLimit<-new.env()
-metricsYaxisLimit[["AVG_TOTAL_DURATION_HOUR"]] <- 50.0
+metricsYaxisLimit[["AVG_TOTAL_DURATION_HOUR"]] <- 30.0
 
 metric <- "AVG_TOTAL_DURATION_HOUR"
 
@@ -156,6 +160,8 @@ df <- data.frame(SYSTEM=character(),
                        INSTANCE=character(),
                        TOTAL_DURATION_SEC=double(),
                        TOTAL_DURATION_HOUR=double(),
+                       AVERAGE_DURATION_SEC=double(),
+                       GEOMEAN_DURATION_SEC=double(),
                        stringsAsFactors=FALSE)
 
 tests <- list('analyze', 'load', 'power', 'tput')
@@ -165,13 +171,17 @@ df <- processExperiments(dirName, df, experiments, labels, tests, instances)
 
 df <- df %>%
   group_by(SYSTEM, TEST) %>%
-  summarize(AVG_TOTAL_DURATION_HOUR = mean(TOTAL_DURATION_HOUR, na.rm = TRUE))
+  summarize(AVG_TOTAL_DURATION_HOUR = mean(TOTAL_DURATION_HOUR, na.rm = TRUE),
+            AVG_DURATION_SEC = mean(AVERAGE_DURATION_SEC, na.rm = TRUE),
+            GEOMEAN_DURATION_SEC = mean(GEOMEAN_DURATION_SEC, na.rm = TRUE))
 
-print(df, n=nrow(df))
+#print(df, n=nrow(df))
+
+export(df, "/home/rstudio/Documents/experiments.xlsx")
 
 plot <- createPlotFromDataframe(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
 
-png("/home/rstudio/Documents/stacked_bar_chart.png", width=1500, height=400, res=120)
+png("/home/rstudio/Documents/stacked_bar_chart.png", width=1500, height=500, res=120)
 print(plot)
 dev.off()
 
