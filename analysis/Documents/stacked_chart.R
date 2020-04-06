@@ -103,16 +103,16 @@ list.dirs <- function(path=".", pattern=NULL, all.dirs=FALSE,
     return(basename(dirs))
 }
 
-readLabelsAsDataframe <- function(inFile) {
-  labelsDF <- import(inFile, format="csv", colClasses="character")
-  return(labelsDF)
+readExperimentsAsDataframe <- function(inFile) {
+  experimentsDF <- import(inFile, format="csv", colClasses="character")
+  return(experimentsDF)
 }
 
-createLabelsList <- function(labelsDF, experiments) {
+createLabelsList <- function(experimentsDF, experimentsList) {
   labels <- list()
   i <- 1
-  for(experiment in experiments) {
-    labels[[i]] <- labelsDF$LABEL[labelsDF$EXPERIMENT == experiment]
+  for(experiment in experimentsList) {
+    labels[[i]] <- experimentsDF$LABEL[experimentsDF$EXPERIMENT == experiment]
     i <- i + 1
   }
   return(labels)
@@ -136,13 +136,17 @@ args <- commandArgs(TRUE)
 
 dirName <- paste0("/home/rstudio/s3buckets/", args[1], "/", args[2])
 
-experiments <- list.dirs(dirName)
+experimentsDF <- readExperimentsAsDataframe(paste0("/home/rstudio/Documents/", args[3]))
+
+#Option 1: use all of the subdirectories found in the directory.
+#experiments <- list.dirs(dirName)
+
+#Option 2: use only the experiments listed in the provided file.
+experiments <- as.list(experimentsDF$EXPERIMENT)
 
 #print(experiments)
 
-labelsDF <- readLabelsAsDataframe(paste0("/home/rstudio/Documents/", args[3]))
-
-labels <- createLabelsList(labelsDF, experiments)
+labels <- createLabelsList(experimentsDF, experiments)
 
 #print(labels)
 
