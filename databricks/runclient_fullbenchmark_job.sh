@@ -23,7 +23,7 @@ printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
 Nodes="2"
 MajorVersion="6"
-MinorVersion="5"
+MinorVersion="4"
 Tag="experimental"
 DirNameWarehouse="tpcds-warehouse-sparkdatabricks-${MajorVersion}${MinorVersion}-$1gb-$2${Tag}"
 DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
