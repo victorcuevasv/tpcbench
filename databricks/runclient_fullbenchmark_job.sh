@@ -218,7 +218,7 @@ fi
 
 #Delete the warehouse directory.
 
-RUN_DELETE_BUCKET=0
+RUN_DELETE_WAREHOUSE=0
 
 if [ "$RUN_DELETE_WAREHOUSE" -eq 1 ]; then
     echo "${blu}Deleting the warehouse directory ${DirNameWarehouse}.${end}"
