@@ -97,7 +97,10 @@ public class AnalyzeTablesSpark {
 				"store_sales", "time_dim", "warehouse", "web_page", "web_returns",
 				"web_sales", "web_site"};
 		for(int i = 0; i < tables.length; i++) {
-			analyzeTable(tables[i], this.computeForCols, i);
+			// Use i + 1 for index to match the order in the load test.
+			// Note in the tables array above that the dbgen_version table
+			// is not included, since it is skipped in the load test.
+			analyzeTable(tables[i], this.computeForCols, i + 1);
 		}
 		this.recorder.close();
 	}

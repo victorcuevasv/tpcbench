@@ -126,7 +126,12 @@ public class CreateDatabaseSpark {
 		int i = 1;
 		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
-			//if( fileName.equals("store_sales.sql") )
+			// Skip the dbgen_version table since its time attribute is not
+			// compatible with Hive.
+			if( fileName.equals("dbgen_version.sql") ) {
+				System.out.println("Skipping: " + fileName);
+				continue;
+			}
 			createTable(fileName, sqlCreate, i);
 			i++;
 		}
@@ -164,12 +169,6 @@ public class CreateDatabaseSpark {
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, suffix, false);
 			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName, genDataDir, extTablePrefixRaw);
 			saveCreateTableFile("textfile", tableName, extSqlCreate);
-			// Skip the dbgen_version table since its time attribute is not
-			// compatible with Hive.
-			if (tableName.equals("dbgen_version")) {
-				System.out.println("Skipping: " + tableName);
-				return;
-			}
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.dropTable("drop table if exists " + tableName + suffix);
