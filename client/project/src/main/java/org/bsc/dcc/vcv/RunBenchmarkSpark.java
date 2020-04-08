@@ -128,7 +128,7 @@ public class RunBenchmarkSpark {
 			if( this.system.equals("sparkdatabricks")  ) {
 				//this.executeCommand("mkdir /dbfs" + args[0] + "/" + this.instance);
 				//this.executeCommand("cp -r " + args[0] + " /dbfs" + args[0] + "/" + this.instance);
-				this.executeCommand("cp -r " + args[0] + "/" + args[2] + "/* /dbfs/mnt/" + args[2] + "/");
+				this.executeCommand("cp -r " + args[0] + "/" + args[2] + "/* /dbfs/mnt/tpcds-results-test/" + args[2] + "/");
 			}
 			else if( this.system.equals("sparkemr")  ) {
 				this.executeCommand("mkdir -p /mnt/tpcds-results-test/" + args[2]);
