@@ -23,9 +23,11 @@ processAnalyticsFile <- function(inFile, experiment, test, instance) {
                        stringsAsFactors=FALSE)
 
   analytics <- import(inFile, format="psv", colClasses="character")
-  #Remove TUPLE and ITEM columns if they exist.
-  analytics <- select(analytics, -TUPLES)
-  analytics <- select(analytics, -ITEM)
+  #Remove TUPLES and ITEM columns if they exist.
+  if( "TUPLES" %in% colnames(analytics) )
+  	analytics <- select(analytics, -TUPLES)
+  if( "ITEM" %in% colnames(analytics) )
+  	analytics <- select(analytics, -ITEM)
   export(analytics, inFile, format="psv")
 }
 
