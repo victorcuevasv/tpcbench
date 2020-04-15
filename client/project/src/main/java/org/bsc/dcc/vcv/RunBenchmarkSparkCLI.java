@@ -49,9 +49,9 @@ public class RunBenchmarkSparkCLI {
 		this.instance = this.commandLine.getOptionValue("instance-number");
 		this.system = this.commandLine.getOptionValue("system-name");
 		this.flags = this.commandLine.getOptionValue("execution-flags");
-		this.analyze = this.commandLine.getOptionValue("use-row-stats");
+		this.analyze = Boolean.parseBoolean(this.commandLine.getOptionValue("use-row-stats"));
 		this.format = this.commandLine.getOptionValue("table-format");
-		this.usePartitioning = this.commandLine.getOptionValue("use-partitioning");
+		this.usePartitioning = Boolean.parseBoolean(this.commandLine.getOptionValue("use-partitioning"));
 	}
 	
 	
