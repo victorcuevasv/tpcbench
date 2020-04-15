@@ -85,7 +85,7 @@ public class ExecuteQueriesSparkCLI {
 		String savePlansStr = this.commandLine.getOptionValue("save-power-plans");
 		this.savePlans = Boolean.parseBoolean(savePlansStr);
 		String saveResultsStr = this.commandLine.getOptionValue("save-power-results");
-		this.saveResults = Boolean.parseBoolean(saveResults);
+		this.saveResults = Boolean.parseBoolean(saveResultsStr);
 		this.jarFile = this.commandLine.getOptionValue("jar-file");
 		this.querySingleOrAll = this.commandLine.getOptionValue("all-or-query-file");
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
