@@ -97,9 +97,11 @@ public class RunBenchmarkSparkCLI {
 			}
 			boolean doPower = this.flags.charAt(4) == '1' ? true : false;
 			if( doPower ) {
-				this.saveTestParameters(args, "power");
+				String[] executeQueriesSparkArgs =
+						this.createExecuteQueriesSparkArgs(args);
+				this.saveTestParameters(executeQueriesSparkArgs, "power");
 				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
-				ExecuteQueriesSpark.main(args);
+				ExecuteQueriesSpark.main(executeQueriesSparkArgs);
 			}
 			boolean doTput = this.flags.charAt(5) == '1' ? true : false;
 			if( doTput ) {
@@ -123,6 +125,15 @@ public class RunBenchmarkSparkCLI {
 		}
 	}
 	
+	
+	private String[] createExecuteQueriesSparkArgs(String args[]) {
+		String[] array = new String[args.length + 2];
+		System.arraycopy(args, 0, array, 0, args.length);
+		array[array.length - 2] = "--tpcds-test=power";
+		array[array.length - 1] = "--queries-dir-in-jar=QueriesSpark";
+		return array;
+	}
+
 	
 	private String[] createExecuteQueriesSparkDeltaZorderArgs(String args[]) {
 		String[] array = new String[args.length + 2];
