@@ -31,25 +31,19 @@ public class RunBenchmarkSparkCLI {
 			Options options = runOptions.getOptions();
 			CommandLineParser parser = new DefaultParser();
 			this.commandLine = parser.parse(options, args);
-			this.workDir = this.commandLine.getOptionValue("main-work-dir");
-			this.resultsDir = this.commandLine.getOptionValue("results-dir");
-			this.experimentName = this.commandLine.getOptionValue("experiment-name");
-			this.instance = this.commandLine.getOptionValue("instance-number");
-			this.system = this.commandLine.getOptionValue("system-name");
 		}
 		catch(Exception e) {
-			this.commandLine = null;
-			this.workDir = null;
-			this.resultsDir = null;
-			this.experimentName = null;
-			this.instance = null;
-			this.system = null;
 			e.printStackTrace();
 			this.logger.error("Error in RunBenchmarkSparkCLI constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 			throw e;
 		}
+		this.workDir = this.commandLine.getOptionValue("main-work-dir");
+		this.resultsDir = this.commandLine.getOptionValue("results-dir");
+		this.experimentName = this.commandLine.getOptionValue("experiment-name");
+		this.instance = this.commandLine.getOptionValue("instance-number");
+		this.system = this.commandLine.getOptionValue("system-name");
 	}
 	
 	
