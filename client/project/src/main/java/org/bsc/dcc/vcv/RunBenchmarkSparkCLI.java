@@ -22,6 +22,10 @@ public class RunBenchmarkSparkCLI {
 	private final String experimentName;
 	private final String instance;
 	private final String system;
+	private final String flags;
+	private final Boolean analyze;
+	private final String format;
+	private final Boolean usePartitioning;
 	private final CommandLine commandLine;
 	
 	
@@ -44,6 +48,10 @@ public class RunBenchmarkSparkCLI {
 		this.experimentName = this.commandLine.getOptionValue("experiment-name");
 		this.instance = this.commandLine.getOptionValue("instance-number");
 		this.system = this.commandLine.getOptionValue("system-name");
+		this.flags = this.commandLine.getOptionValue("execution-flags");
+		this.analyze = this.commandLine.getOptionValue("use-row-stats");
+		this.format = this.commandLine.getOptionValue("table-format");
+		this.usePartitioning = this.commandLine.getOptionValue("use-partitioning");
 	}
 	
 	
@@ -60,60 +68,51 @@ public class RunBenchmarkSparkCLI {
 	
 	
 	private void runBenchmark(String[] args) {
-		String[] createSchemaSparkArgs = this.createCreateSchemaSparkArgs(args);
-		String[] createDatabaseSparkArgs = this.createCreateDatabaseSparkArgs(args);
-		String[] executeQueriesSparkArgs = this.createExecuteQueriesSparkArgs(args);
-		String[] executeQueriesConcurrentSparkArgs = this.createExecuteQueriesConcurrentSparkArgs(args);
 		try {
-			boolean doSchema = args[27].charAt(0) == '1' ? true : false;
+			boolean doSchema = this.flags.charAt(0) == '1' ? true : false;
 			if( doSchema ) {
 				System.out.println("\n\n\nCreating the database schema.\n\n\n");
-				CreateSchemaSpark.main(createSchemaSparkArgs);
+				CreateSchemaSpark.main(args);
 			}
-			boolean doLoad = args[27].charAt(1) == '1' ? true : false;
+			boolean doLoad = this.flags.charAt(1) == '1' ? true : false;
 			if( doLoad ) {
-				this.saveTestParameters(createDatabaseSparkArgs, "load");
+				this.saveTestParameters(args, "load");
 				System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
-				CreateDatabaseSpark.main(createDatabaseSparkArgs);
+				CreateDatabaseSpark.main(args);
 			}
-			boolean analyze = Boolean.parseBoolean(args[15]);
 			//Redundant check for legacy compatibility.
-			boolean doAnalyze = args[27].charAt(2) == '1' ? true : false;
-			if( analyze && doAnalyze) {
-				String[] analyzeTablesSparkArgs = this.createAnalyzeTablesSparkArgs(args);
-				this.saveTestParameters(analyzeTablesSparkArgs, "analyze");
+			boolean doAnalyze = this.flags.charAt(2) == '1' ? true : false;
+			if( this.analyze && doAnalyze) {
+				this.saveTestParameters(args, "analyze");
 				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
-				AnalyzeTablesSpark.main(analyzeTablesSparkArgs);
+				AnalyzeTablesSpark.main(args);
 			}
-			boolean doZorder = args[27].charAt(3) == '1' ? true : false;
-			if( args[11].equalsIgnoreCase("delta") && doZorder ) {
-				boolean noPart = args[13].equals("false");
+			boolean doZorder = this.flags.charAt(3) == '1' ? true : false;
+			if( this.format.equalsIgnoreCase("delta") && doZorder ) {
 				String[] executeQueriesSparkDeltaZorderArgs =
-						this.createExecuteQueriesSparkDeltaZorderArgs(args, noPart);
+						this.createExecuteQueriesSparkDeltaZorderArgs(args);
 				this.saveTestParameters(executeQueriesSparkDeltaZorderArgs, "zorder");
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkDeltaZorderArgs);
 			}
-			boolean doPower = args[27].charAt(4) == '1' ? true : false;
+			boolean doPower = this.flags.charAt(4) == '1' ? true : false;
 			if( doPower ) {
-				this.saveTestParameters(executeQueriesSparkArgs, "power");
+				this.saveTestParameters(args, "power");
 				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
-				ExecuteQueriesSpark.main(executeQueriesSparkArgs);
+				ExecuteQueriesSpark.main(args);
 			}
-			boolean doTput = args[27].charAt(5) == '1' ? true : false;
+			boolean doTput = this.flags.charAt(5) == '1' ? true : false;
 			if( doTput ) {
-				this.saveTestParameters(executeQueriesConcurrentSparkArgs, "tput");
+				this.saveTestParameters(args, "tput");
 				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
-				ExecuteQueriesConcurrentSpark.main(executeQueriesConcurrentSparkArgs);
+				ExecuteQueriesConcurrentSpark.main(args);
 			}
 			if( this.system.equals("sparkdatabricks")  ) {
-				//this.executeCommand("mkdir /dbfs" + args[0] + "/" + this.instance);
-				//this.executeCommand("cp -r " + args[0] + " /dbfs" + args[0] + "/" + this.instance);
-				this.executeCommand("cp -r " + args[0] + "/" + args[2] + "/* /dbfs/mnt/tpcds-results-test/" + args[2] + "/");
+				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /dbfs/mnt/tpcds-results-test/" + this.resultsDir + "/");
 			}
 			else if( this.system.equals("sparkemr")  ) {
-				this.executeCommand("mkdir -p /mnt/tpcds-results-test/" + args[2]);
-				this.executeCommand("cp -r " + args[0] + "/" + args[2] + "/* /mnt/tpcds-results-test/" + args[2] + "/");
+				this.executeCommand("mkdir -p /mnt/tpcds-results-test/" + this.resultsDir);
+				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /mnt/tpcds-results-test/" + this.resultsDir + "/");
 			}
 		}
 		catch(Exception e) {
@@ -124,217 +123,15 @@ public class RunBenchmarkSparkCLI {
 		}
 	}
 	
-
-	private String[] createCreateSchemaSparkArgs(String args[]) {
-		/* 
-		args[0] system used to create the schema on the metastore
-		args[1] schema (database) name
-		*/
-		String[] array = new String[2];
-		array[0] = args[4];
-		array[1] = args[1];
-		
-		return array;
-	}
 	
-	
-	private String[] createCreateDatabaseSparkArgs(String args[]) {
-		/* 
-		args[0] main work directory
-		args[1] schema (database) name
-		args[2] results folder name (e.g. for Google Drive)
-		args[3] experiment name (name of subfolder within the results folder)
-		args[4] system name (system name used within the logs)
-		
-		args[5] test name (i.e. load)
-		args[6] experiment instance number
-		args[7] directory for generated data raw files
-		args[8] subdirectory within the jar that contains the create table files
-		args[9] suffix used for intermediate table text files
-		
-		args[10] prefix of external location for raw data tables (e.g. S3 bucket), null for none
-		args[11] prefix of external location for created tables (e.g. S3 bucket), null for none
-		args[12] format for column-storage tables (PARQUET, DELTA)
-		args[13] whether to run queries to count the tuples generated (true/false)
-		args[14] whether to use data partitioning for the tables (true/false)
-		
-		args[15] jar file
-		*/
-		String[] array = new String[16];
-		array[0] = args[0];
-		array[1] = args[1];
-		array[2] = args[2];
-		array[3] = args[3];
-		array[4] = args[4];
-		
-		array[5] = "load";
-		array[6] = args[5];
-		array[7] = args[6];
-		array[8] = args[7];
-		array[9] = args[8];
-		
-		array[10] = args[9];
-		array[11] = args[10];
-		array[12] = args[11];
-		array[13] = args[12];
-		array[14] = args[13];
-		
-		array[15]= args[14];
-		
-		return array;
-	}
-	
-	
-	private String[] createAnalyzeTablesSparkArgs(String args[]) {
-		/* 
-		args[0] main work directory
-		args[1] schema (database) name
-		args[2] results folder name (e.g. for Google Drive)
-		args[3] experiment name (name of subfolder within the results folder)
-		args[4] system name (system name used within the logs)
-		args[5] test name (i.e. analyze)
-		args[6] experiment instance number
-		args[7] compute statistics for columns (true/false)
-		*/
-		String[] array = new String[8];
-		array[0] = args[0];
-		array[1] = args[1];
-		array[2] = args[2];
-		array[3] = args[3];
-		array[4] = args[4];
-		
-		array[5] = "analyze";
-		array[6] = args[5];
-		array[7] = args[16];
-		
-		return array;
-	}
-	
-	
-	private String[] createExecuteQueriesSparkArgs(String args[]) {
-		/* 
-		args[0] main work directory
-		args[1] schema (database) name
-		args[2] results folder name (e.g. for Google Drive)
-		args[3] experiment name (name of subfolder within the results folder)
-		args[4] system name (system name used within the logs)
-		
-		args[5] test name (e.g. power)
-		args[6] experiment instance number
-		args[7] queries dir within the jar
-		args[8] subdirectory of work directory to store the results
-		args[9] subdirectory of work directory to store the execution plans
-		
-		args[10] save plans (boolean)
-		args[11] save results (boolean)
-		args[12] jar file
-		args[13] "all" or query file
-		*/
-		String[] array = new String[14];
-		array[0] = args[0];
-		array[1] = args[1];
-		array[2] = args[2];
-		array[3] = args[3];
-		array[4] = args[4];
-		
-		array[5] = "power";
-		array[6] = args[5];
-		array[7] = args[17];
-		array[8] = args[18];
-		array[9] = args[19];
-		
-		array[10] = args[20];
-		array[11] = args[21];
-		array[12] = args[14];
-		array[13] = args[22];
-		
-		return array;
-	}
-	
-	
-	private String[] createExecuteQueriesSparkDeltaZorderArgs(String args[], boolean noPart) {
-		/* 
-		args[0] main work directory
-		args[1] schema (database) name
-		args[2] results folder name (e.g. for Google Drive)
-		args[3] experiment name (name of subfolder within the results folder)
-		args[4] system name (system name used within the logs)
-		
-		args[5] test name (e.g. power)
-		args[6] experiment instance number
-		args[7] queries dir within the jar
-		args[8] subdirectory of work directory to store the results
-		args[9] subdirectory of work directory to store the execution plans
-		
-		args[10] save plans (boolean)
-		args[11] save results (boolean)
-		args[12] jar file
-		args[13] "all" or query file
-		*/
-		String[] array = new String[14];
-		array[0] = args[0];
-		array[1] = args[1];
-		array[2] = args[2];
-		array[3] = args[3];
-		array[4] = args[4];
-		
-		array[5] = "zorder";
-		array[6] = args[5];
-		if( noPart )
-			array[7] = "DatabricksDeltaZorderNoPart";
+	private String[] createExecuteQueriesSparkDeltaZorderArgs(String args[]) {
+		String[] array = new String[args.length + 2];
+		System.arraycopy(args, 0, array, 0, args.length);
+		array[array.length - 2] = "--tpcds-test=zorder";
+		if( ! this.usePartitioning )
+			array[array.length - 1] = "--queries-dir-in-jar=DatabricksDeltaZorderNoPart";
 		else
-			array[7] = "DatabricksDeltaZorder";
-		array[8] = args[18];
-		array[9] = args[19];
-		
-		array[10] = "false";
-		array[11] = "false";
-		array[12] = args[14];
-		array[13] = "all";
-		
-		return array;
-	}
-	
-	
-	private String[] createExecuteQueriesConcurrentSparkArgs(String args[]) {
-		/* 
-		args[0] main work directory
-		args[1] schema (database) name
-		args[2] results folder name (e.g. for Google Drive)
-		args[3] experiment name (name of subfolder within the results folder)
-		args[4] system name (system name used within the logs)
-		
-		args[5] test name (e.g. power)
-		args[6] experiment instance number
-		args[7] queries dir within the jar
-		args[8] subdirectory of work directory to store the results
-		args[9] subdirectory of work directory to store the execution plans
-
-		args[10] save plans (boolean)
-		args[11] save results (boolean)
-		args[12] jar file
-		args[13] number of streams
-		args[14] random seed
-		*/
-		String[] array = new String[15];
-		array[0] = args[0];
-		array[1] = args[1];
-		array[2] = args[2];
-		array[3] = args[3];
-		array[4] = args[4];
-		
-		array[5] = "tput";
-		array[6] = args[5];
-		array[7] = args[17];
-		array[8] = args[18];
-		array[9] = args[19];
-		
-		array[10] = args[23];
-		array[11] = args[24];
-		array[12] = args[14];
-		array[13] = args[25];
-		array[14] = args[26];
-		
+			array[array.length - 1] = "--queries-dir-in-jar=DatabricksDeltaZorder";
 		return array;
 	}
 	
@@ -349,7 +146,7 @@ public class RunBenchmarkSparkCLI {
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			int counter = 0;
 			for(int i = 0; i < args.length; i++) {
-				printWriter.println("args[" + i + "] = " + args[i]);
+				printWriter.println(args[i]);
 				if( counter % 5 == 0 )
 					printWriter.println();
 				counter++;

@@ -61,16 +61,19 @@ public class RunBenchmarkSparkOptions {
 		options.addOption( Option.builder().longOpt( "use-column-stats" )
 				.desc( "whether to generate column statistics by analyzing tables" )
 				.hasArg(true).required(true).type(Boolean.class).build() );
+		options.addOption( Option.builder().longOpt( "tpcds-test" )
+				.desc( "indicate a specific test to run when needed" )
+				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "queries-dir-in-jar" )
 				.desc( "queries dir within the jar" )
 				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "results-subdir" )
 				.desc( "subdirectory of work directory to store the results" )
 				.hasArg(true).required(false).build() );
+		
 		options.addOption( Option.builder().longOpt( "plans-subdir" )
 				.desc( "subdirectory of work directory to store the execution plans" )
 				.hasArg(true).required(false).build() );
-		
 		options.addOption( Option.builder().longOpt( "save-power-plans" )
 				.desc( "save power test plans" )
 				.hasArg(true).required(false).type(Boolean.class).build() );
@@ -83,10 +86,10 @@ public class RunBenchmarkSparkOptions {
 		options.addOption( Option.builder().longOpt( "save-tput-plans" )
 				.desc( "save tput test plans" )
 				.hasArg(true).required(false).type(Boolean.class).build() );
+		
 		options.addOption( Option.builder().longOpt( "save-tput-results" )
 				.desc( "save tput test results" )
 				.hasArg(true).required(false).type(Boolean.class).build() );
-		
 		options.addOption( Option.builder().longOpt( "number-of-streams" )
 				.desc( "number of streams for the throughput test" )
 				.hasArg(true).required(true).type(Integer.class).build() );
