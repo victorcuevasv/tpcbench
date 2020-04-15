@@ -27,7 +27,7 @@ public class RunBenchmarkSparkCLI {
 	
 	public RunBenchmarkSparkCLI(String args[]) throws Exception {
 		try {
-			RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
+			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
 			Options options = runOptions.getOptions();
 			CommandLineParser parser = new DefaultParser();
 			this.commandLine = parser.parse(options, args);
