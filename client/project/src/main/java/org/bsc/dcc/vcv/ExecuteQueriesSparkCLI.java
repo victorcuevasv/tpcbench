@@ -51,6 +51,7 @@ public class ExecuteQueriesSparkCLI {
 	private final boolean saveResults;
 	private final String jarFile;
 	private final String querySingleOrAll;
+	private final CommandLine commandLine;
 	
 
 	public ExecuteQueriesSparkCLI(String[] args) throws Exception {
