@@ -75,7 +75,8 @@ public class CreateDatabaseSparkCLI {
 		this.experimentName = this.commandLine.getOptionValue("experiment-name");
 		this.system = this.commandLine.getOptionValue("system-name");
 		this.test = this.commandLine.getOptionValue("tpcds-test", "load");
-		this.instance = this.commandLine.getOptionValue("instance-number");
+		String instanceStr = this.commandLine.getOptionValue("instance-number");
+		this.instance = Integer.parseInt(instanceStr);
 		this.rawDataDir = this.commandLine.getOptionValue("raw-data-dir", "UNUSED");
 		this.createTableDir = this.commandLine.getOptionValue("create-table-dir", "tables");
 		this.suffix = this.commandLine.getOptionValue("text-file-suffix", "_ext");
