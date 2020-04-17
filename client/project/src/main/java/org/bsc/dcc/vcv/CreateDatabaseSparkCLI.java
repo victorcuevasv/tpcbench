@@ -83,7 +83,7 @@ public class CreateDatabaseSparkCLI {
 		this.extTablePrefixRaw = Optional.ofNullable(this.commandLine.getOptionValue("ext-raw-data-location"));
 		this.extTablePrefixCreated = Optional.ofNullable(this.commandLine.getOptionValue("ext-tables-location"));
 		this.format = this.commandLine.getOptionValue("table-format");
-		String doCountStr = this.commandLine.getOptionValue("count-queries");
+		String doCountStr = this.commandLine.getOptionValue("count-queries", "false");
 		this.doCount = Boolean.parseBoolean(doCountStr);
 		String partitionStr = this.commandLine.getOptionValue("use-partitioning");
 		this.partition = Boolean.parseBoolean(partitionStr);

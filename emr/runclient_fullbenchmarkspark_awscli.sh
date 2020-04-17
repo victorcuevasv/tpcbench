@@ -25,70 +25,45 @@ DirNameWarehouse="tpcds-warehouse-sparkemr-529-$1gb-$2"
 DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
 DatabaseName="tpcds_sparkemr_529_$1gb_$2_db"
 Nodes="2"
+JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-jar-with-dependencies.jar"
 
 args=()
 
 #args[0] main work directory
-args[0]="/data"
+args[0]="--main-work-dir=/data"
 #args[1] schema (database) name
-args[1]="$DatabaseName"
+args[1]="--schema-name=$DatabaseName"
 #args[2] results folder name (e.g. for Google Drive)
-args[2]="$DirNameResults"
+args[2]="--results-dir=$DirNameResults"
 #args[3] experiment name (name of subfolder within the results folder)
-args[3]="sparkemr-529-${Nodes}nodes-$1gb-experimental"
+args[3]="--experiment-name=sparkemr-529-${Nodes}nodes-$1gb-experimental"
 #args[4] system name (system name used within the logs)
-args[4]="sparkemr"
+args[4]="--system-name=sparkemr"
 
 #args[5] experiment instance number
-args[5]="$2"
-#args[6] directory for generated data raw files
-args[6]="UNUSED"
-#args[7] subdirectory within the jar that contains the create table files
-args[7]="tables"
-#args[8] suffix used for intermediate table text files
-args[8]="_ext"
-#args[9] prefix of external location for raw data tables (e.g. S3 bucket), null for none
-args[9]="s3://tpcds-datasets/$1GB"
+args[5]="--instance-number=$2"
+#args[6] prefix of external location for raw data tables (e.g. S3 bucket), null for none
+args[6]="--ext-raw-data-location=s3://tpcds-datasets/$1GB"
+#args[7] prefix of external location for created tables (e.g. S3 bucket), null for none
+args[7]="--ext-tables-location=s3://tpcds-warehouses-test/$DirNameWarehouse"
+#args[8] format for column-storage tables (PARQUET, DELTA)
+args[8]="--table-format=parquet"
+#args[9] whether to use data partitioning for the tables (true/false)
+args[9]="--use-partitioning=true"
 
-#args[10] prefix of external location for created tables (e.g. S3 bucket), null for none
-args[10]="s3://tpcds-warehouses-test/$DirNameWarehouse"
-#args[11] format for column-storage tables (PARQUET, DELTA)
-args[11]="parquet"
-#args[12] whether to run queries to count the tuples generated (true/false)
-args[12]="false"
-#args[13] whether to use data partitioning for the tables (true/false)
-args[13]="true"
-#args[14] jar file
-args[14]="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-jar-with-dependencies.jar"
+#args[10] jar file
+args[10]="--jar-file=$JarFile"
+#args[11] whether to generate statistics by analyzing tables (true/false)
+args[11]="--use-row-stats=true"
+#args[12] if argument above is true, whether to compute statistics for columns (true/false)
+args[12]="--use-column-stats=true"
+#args[13] "all" or query file
+args[13]="--all-or-query-file=query2.sql" 
+#args[14] number of streams
+args[14]="--number-of-streams=$3"
 
-#args[15] whether to generate statistics by analyzing tables (true/false)
-args[15]="true"
-#args[16] if argument above is true, whether to compute statistics for columns (true/false)
-args[16]="true"
-#args[17] queries dir within the jar
-args[17]="QueriesSpark"
-#args[18] subdirectory of work directory to store the results
-args[18]="results"
-#args[19] subdirectory of work directory to store the execution plans
-args[19]="plans"
-
-#args[20] save power test plans (boolean)
-args[20]="true"
-#args[21] save power test results (boolean)
-args[21]="true"
-#args[22] "all" or query file
-args[22]="query2.sql"
-#args[23] save tput test plans (boolean)
-args[23]="true"
-#args[24] save tput test results (boolean)
-args[24]="true"
- 
-#args[25] number of streams
-args[25]="$3"
-#args[26] random seed
-args[26]="1954"
-#args[27] flags (111111 schema|load|analyze|zorder|power|tput)
-args[27]="111010"
+#args[15] flags (111111 schema|load|analyze|zorder|power|tput)
+args[15]="--execution-flags=111011"
 
 function json_string_list() {
     declare array=("$@")
@@ -130,7 +105,7 @@ steps_func()
          "spark.eventLog.enabled=true",
          "--class",
          "org.bsc.dcc.vcv.RunBenchmarkSpark",
-         "${args[14]}",
+         "$JarFile",
          $paramsStr
       ],
       "Type":"CUSTOM_JAR",
