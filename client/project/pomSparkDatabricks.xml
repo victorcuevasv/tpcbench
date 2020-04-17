@@ -105,7 +105,7 @@
               				<goal>shade</goal>
             			</goals>
             			<configuration>
-            				<finalName>${project.arifactId}-${project.version}-shaded</finalName>
+            				<finalName>${project.artifactId}-${project.version}-shaded</finalName>
               				<relocations>
                 				<relocation>
                   					<pattern>org.apache.commons.cli</pattern>
