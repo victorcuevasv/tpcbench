@@ -141,7 +141,7 @@ public class ExecuteQueriesConcurrentSparkCLI implements ConcurrentExecutor {
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
 		for(int i = 0; i < nStreams; i++) {
-			QueryStreamSpark stream = new QueryStreamSpark(i, this.resultsQueue, this.spark,
+			QueryStreamSparkCLI stream = new QueryStreamSparkCLI(i, this.resultsQueue, this.spark,
 					queriesHT, nQueries, random, this);
 			this.executor.submit(stream);
 		}
