@@ -48,7 +48,7 @@ public class QueryStreamSparkCLI implements Callable<Void> {
 	private final ExecuteQueriesConcurrentSparkCLI parent;
 
 	
-	public QueryStreamSpark(int nStream, BlockingQueue<QueryRecordConcurrent> resultsQueue,
+	public QueryStreamSparkCLI(int nStream, BlockingQueue<QueryRecordConcurrent> resultsQueue,
 			SparkSession spark, HashMap<Integer, String> queriesHT, int nQueries, Random random,
 			ExecuteQueriesConcurrentSparkCLI parent) {
 		this.nStream = nStream;
