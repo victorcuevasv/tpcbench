@@ -72,20 +72,20 @@ public class RunBenchmarkSparkCLI {
 			boolean doSchema = this.flags.charAt(0) == '1' ? true : false;
 			if( doSchema ) {
 				System.out.println("\n\n\nCreating the database schema.\n\n\n");
-				CreateSchemaSpark.main(args);
+				CreateSchemaSparkCLI.main(args);
 			}
 			boolean doLoad = this.flags.charAt(1) == '1' ? true : false;
 			if( doLoad ) {
 				this.saveTestParameters(args, "load");
 				System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
-				CreateDatabaseSpark.main(args);
+				CreateDatabaseSparkCLI.main(args);
 			}
 			//Redundant check for legacy compatibility.
 			boolean doAnalyze = this.flags.charAt(2) == '1' ? true : false;
 			if( this.analyze && doAnalyze) {
 				this.saveTestParameters(args, "analyze");
 				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
-				AnalyzeTablesSpark.main(args);
+				AnalyzeTablesSparkCLI.main(args);
 			}
 			boolean doZorder = this.flags.charAt(3) == '1' ? true : false;
 			if( this.format.equalsIgnoreCase("delta") && doZorder ) {
@@ -93,7 +93,7 @@ public class RunBenchmarkSparkCLI {
 						this.createExecuteQueriesSparkDeltaZorderArgs(args);
 				this.saveTestParameters(executeQueriesSparkDeltaZorderArgs, "zorder");
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
-				ExecuteQueriesSpark.main(executeQueriesSparkDeltaZorderArgs);
+				ExecuteQueriesSparkCLI.main(executeQueriesSparkDeltaZorderArgs);
 			}
 			boolean doPower = this.flags.charAt(4) == '1' ? true : false;
 			if( doPower ) {
@@ -101,13 +101,13 @@ public class RunBenchmarkSparkCLI {
 						this.createExecuteQueriesSparkArgs(args);
 				this.saveTestParameters(executeQueriesSparkArgs, "power");
 				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
-				ExecuteQueriesSpark.main(executeQueriesSparkArgs);
+				ExecuteQueriesSparkCLI.main(executeQueriesSparkArgs);
 			}
 			boolean doTput = this.flags.charAt(5) == '1' ? true : false;
 			if( doTput ) {
 				this.saveTestParameters(args, "tput");
 				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
-				ExecuteQueriesConcurrentSpark.main(args);
+				ExecuteQueriesConcurrentSparkCLI.main(args);
 			}
 			if( this.system.equals("sparkdatabricks")  ) {
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /dbfs/mnt/tpcds-results-test/" + this.resultsDir + "/");
