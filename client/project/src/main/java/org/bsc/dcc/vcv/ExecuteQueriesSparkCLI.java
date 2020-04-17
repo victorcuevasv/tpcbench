@@ -66,7 +66,7 @@ public class ExecuteQueriesSparkCLI {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in ExecuteQueriesSpark constructor.");
+			this.logger.error("Error in ExecuteQueriesSparkCLI constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 			throw e;
@@ -80,11 +80,11 @@ public class ExecuteQueriesSparkCLI {
 		String instanceStr = this.commandLine.getOptionValue("instance-number");
 		this.instance = Integer.parseInt(instanceStr);
 		this.queriesDir = this.commandLine.getOptionValue("queries-dir-in-jar", "QueriesSpark");
-		this.resultsSubDir = this.commandLine.getOptionValue("results-subdir");
-		this.plansSubDir = this.commandLine.getOptionValue("plans-subdir");
-		String savePlansStr = this.commandLine.getOptionValue("save-power-plans");
+		this.resultsSubDir = this.commandLine.getOptionValue("results-subdir", "results");
+		this.plansSubDir = this.commandLine.getOptionValue("plans-subdir", "plans");
+		String savePlansStr = this.commandLine.getOptionValue("save-power-plans", "true");
 		this.savePlans = Boolean.parseBoolean(savePlansStr);
-		String saveResultsStr = this.commandLine.getOptionValue("save-power-results");
+		String saveResultsStr = this.commandLine.getOptionValue("save-power-results", "true");
 		this.saveResults = Boolean.parseBoolean(saveResultsStr);
 		this.jarFile = this.commandLine.getOptionValue("jar-file");
 		this.querySingleOrAll = this.commandLine.getOptionValue("all-or-query-file");
@@ -95,7 +95,6 @@ public class ExecuteQueriesSparkCLI {
 
 
 	public static void main(String[] args) {
-		
 		ExecuteQueriesSparkCLI application = null;
 		try {
 			application = new ExecuteQueriesSparkCLI(args);
