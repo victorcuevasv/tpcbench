@@ -94,6 +94,27 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-shade-plugin</artifactId>
+        		<version>3.2.3</version>
+        		<executions>
+          			<execution>
+            			<phase>package</phase>
+            			<goals>
+              				<goal>shade</goal>
+            			</goals>
+            			<configuration>
+              				<relocations>
+                				<relocation>
+                  					<pattern>org.codehaus.plexus.util</pattern>
+                  					<shadedPattern>org.shaded.plexus.util</shadedPattern>
+                				</relocation>
+              				</relocations>
+            			</configuration>
+          			</execution>
+        		</executions>
+      		</plugin>
 		</plugins>
 	</build>
 </project>
