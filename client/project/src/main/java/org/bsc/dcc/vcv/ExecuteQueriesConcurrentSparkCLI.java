@@ -48,8 +48,8 @@ public class ExecuteQueriesConcurrentSparkCLI implements ConcurrentExecutor {
 	final String test;
 	final int instance;
 	final String queriesDir;
-	final String resultsDir;
-	final String plansDir;
+	final String resultsSubDir;
+	final String plansSubDir;
 	final boolean savePlans;
 	final boolean saveResults;
 	final private String jarFile;
