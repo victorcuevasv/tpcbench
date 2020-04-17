@@ -5,7 +5,7 @@
 	<groupId>org.bsc.dcc.vcv</groupId>
 	<artifactId>client</artifactId>
 	<packaging>jar</packaging>
-	<version>1.2-SNAPSHOT</version>
+	<version>1.2-SNAPSHOT-SHADED</version>
 	<name>client</name>
 	<url>http://maven.apache.org</url>
 	<dependencies>
@@ -60,13 +60,8 @@
 						<goals>
 							<goal>single</goal>
 						</goals>
-				</execution> 
+					</execution> 
 				</executions>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef> 
-					</descriptorRefs>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
