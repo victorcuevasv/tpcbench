@@ -117,7 +117,7 @@ public class QueryStreamSparkCLI implements Callable<Void> {
 	
 	
 	private String generatePlansFileName(String fileName, int nStream, int item) {
-		return this.parent.workDir + "/" + this.parent.resultsDir + "/" + this.parent.plansDir + 
+		return this.parent.workDir + "/" + this.parent.resultsDir + "/" + this.parent.plansSubDir + 
 				"/" + this.parent.experimentName + "/" + this.parent.test + "/" + this.parent.instance + "/" + 
 				nStream + "_" + item + "_" + fileName + ".txt";
 	}
