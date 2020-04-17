@@ -107,8 +107,8 @@
             			<configuration>
               				<relocations>
                 				<relocation>
-                  					<pattern>org.codehaus.plexus.util</pattern>
-                  					<shadedPattern>org.shaded.plexus.util</shadedPattern>
+                  					<pattern>org.apache.commons.cli</pattern>
+                  					<shadedPattern>org.shaded.commons.cli</shadedPattern>
                 				</relocation>
               				</relocations>
             			</configuration>
