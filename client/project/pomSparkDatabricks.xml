@@ -60,8 +60,13 @@
 						<goals>
 							<goal>single</goal>
 						</goals>
-					</execution> 
+				</execution> 
 				</executions>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef> 
+					</descriptorRefs>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
