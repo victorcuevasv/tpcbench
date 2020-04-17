@@ -105,10 +105,11 @@
               				<goal>shade</goal>
             			</goals>
             			<configuration>
+            				<finalName>${project.arifactId}-${project.version}-shaded</finalName>
               				<relocations>
                 				<relocation>
                   					<pattern>org.apache.commons.cli</pattern>
-                  					<shadedPattern>org.shaded.commons.cli</shadedPattern>
+                  					<shadedPattern>shaded.org.apache.commons.cli</shadedPattern>
                 				</relocation>
               				</relocations>
             			</configuration>
