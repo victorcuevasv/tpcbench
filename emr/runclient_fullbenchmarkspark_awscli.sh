@@ -104,7 +104,7 @@ steps_func()
          "--conf",
          "spark.eventLog.enabled=true",
          "--class",
-         "org.bsc.dcc.vcv.RunBenchmarkSpark",
+         "org.bsc.dcc.vcv.RunBenchmarkSparkCLI",
          "$JarFile",
          $paramsStr
       ],
