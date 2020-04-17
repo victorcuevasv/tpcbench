@@ -25,7 +25,7 @@ DirNameWarehouse="tpcds-warehouse-sparkemr-529-$1gb-$2"
 DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
 DatabaseName="tpcds_sparkemr_529_$1gb_$2_db"
 Nodes="2"
-JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-jar-with-dependencies.jar"
+JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
 
 args=()
 
