@@ -11,8 +11,8 @@ import org.apache.commons.cli.DefaultParser;
 
 public class CreateSchemaSparkCLI extends CreateSchemaSpark {
 
-	private static final Logger logger = LogManager.getLogger("AllLog");
-	private SparkSession spark;
+	//private static final Logger logger = LogManager.getLogger("AllLog");
+	//private SparkSession spark;
 	//private final String system;
 	//private final String dbName;
 	private final CommandLine commandLine;

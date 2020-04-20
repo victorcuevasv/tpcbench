@@ -6,10 +6,10 @@ import org.apache.spark.sql.SparkSession;
 
 public class CreateSchemaSpark {
 
-	private static final Logger logger = LogManager.getLogger("AllLog");
-	private final String system;
-	private final String dbName;
-	private SparkSession spark;
+	protected static final Logger logger = LogManager.getLogger("AllLog");
+	protected final String system;
+	protected final String dbName;
+	protected SparkSession spark;
 
 	public CreateSchemaSpark() {
 		
@@ -56,7 +56,7 @@ public class CreateSchemaSpark {
 		//}
 	}
 
-	private void createSchema() {
+	protected void createSchema() {
 		try {
 			System.out.println("Creating schema (database) " + this.dbName + " with " + this.system);
 			this.logger.info("Creating schema (database) " + this.dbName + " with " + this.system);
@@ -70,7 +70,7 @@ public class CreateSchemaSpark {
 		}
 	}
 	
-	public void closeConnection() {
+	protected void closeConnection() {
 		try {
 			this.spark.stop();
 		}
