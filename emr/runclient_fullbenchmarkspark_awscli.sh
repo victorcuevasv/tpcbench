@@ -49,7 +49,7 @@ args[7]="--ext-tables-location=s3://tpcds-warehouses-test/$DirNameWarehouse"
 #args[8] format for column-storage tables (PARQUET, DELTA)
 args[8]="--table-format=parquet"
 #args[9] whether to use data partitioning for the tables (true/false)
-args[9]="--use-partitioning=true"
+args[9]="--use-partitioning=false"
 
 #args[10] jar file
 args[10]="--jar-file=$JarFile"
