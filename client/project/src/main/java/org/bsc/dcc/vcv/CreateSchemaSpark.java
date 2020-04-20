@@ -7,15 +7,21 @@ import org.apache.spark.sql.SparkSession;
 public class CreateSchemaSpark {
 
 	private static final Logger logger = LogManager.getLogger("AllLog");
+	private final String system;
+	private final String dbName;
 	private SparkSession spark;
 
-	public CreateSchemaSpark(String system) {
+	public CreateSchemaSpark() {
+		
+	}
+	
+	public CreateSchemaSpark(String[] args) {
+		this.system = args[0];
+		this.dbName = args[1];
 		try {
-			if( system.equals("sparkdatabricks") ) {
+			if( this.system.equals("sparkdatabricks") ) {
 				this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
-						//	.enableHiveSupport()
 						.getOrCreate();
-				//this.logger.info(SparkUtil.stringifySparkConfiguration(this.spark));
 			}
 			else {
 				this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
@@ -43,18 +49,18 @@ public class CreateSchemaSpark {
 			logger.error("Insufficient arguments.");
 			System.exit(1);
 		}
-		CreateSchemaSpark prog = new CreateSchemaSpark(args[0]);
-		prog.createSchema(args[0], args[1]);
-		if( ! args[0].equals("sparkdatabricks") ) {
-			prog.closeConnection();
-		}
+		CreateSchemaSpark prog = new CreateSchemaSpark(args);
+		prog.createSchema();
+		//if( ! args[0].equals("sparkdatabricks") ) {
+		//	prog.closeConnection();
+		//}
 	}
 
-	private void createSchema(String system, String dbName) {
+	private void createSchema() {
 		try {
-			System.out.println("Creating schema (database) " + dbName + " with " + system);
-			this.logger.info("Creating schema (database) " + dbName + " with " + system);
-			this.spark.sql("CREATE DATABASE " + dbName);
+			System.out.println("Creating schema (database) " + this.dbName + " with " + this.system);
+			this.logger.info("Creating schema (database) " + this.dbName + " with " + this.system);
+			this.spark.sql("CREATE DATABASE " + this.dbName);
 			System.out.println("Schema (database) created.");
 			this.logger.info("Schema (database) created.");
 		}

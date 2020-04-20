@@ -158,7 +158,7 @@ public class RunBenchmarkSparkCLI {
 			int counter = 0;
 			for(int i = 0; i < args.length; i++) {
 				printWriter.println(args[i]);
-				if( counter % 5 == 0 )
+				if( (counter + 1) % 5 == 0 )
 					printWriter.println();
 				counter++;
 			}

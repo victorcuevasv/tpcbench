@@ -9,15 +9,16 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
-public class CreateSchemaSparkCLI {
+public class CreateSchemaSparkCLI extends CreateSchemaSpark {
 
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private SparkSession spark;
-	private final String system;
-	private final String dbName;
+	//private final String system;
+	//private final String dbName;
 	private final CommandLine commandLine;
 
 	public CreateSchemaSparkCLI(String[] args) throws Exception {
+		super();
 		try {
 			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
 			Options options = runOptions.getOptions();
@@ -26,9 +27,7 @@ public class CreateSchemaSparkCLI {
 			String system = this.commandLine.getOptionValue("system-name");
 			if( system.equals("sparkdatabricks") ) {
 				this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
-						//	.enableHiveSupport()
 						.getOrCreate();
-				//this.logger.info(SparkUtil.stringifySparkConfiguration(this.spark));
 			}
 			else {
 				this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
@@ -59,6 +58,7 @@ public class CreateSchemaSparkCLI {
 		application.createSchema();
 	}
 
+	/*
 	private void createSchema() {
 		try {
 			System.out.println("Creating schema (database) " + this.dbName + " with " + this.system);
@@ -66,9 +66,9 @@ public class CreateSchemaSparkCLI {
 			this.spark.sql("CREATE DATABASE " + this.dbName);
 			System.out.println("Schema (database) created.");
 			this.logger.info("Schema (database) created.");
-			if( ! this.system.equals("sparkdatabricks") ) {
-				this.closeConnection();
-			}
+			//if( ! this.system.equals("sparkdatabricks") ) {
+			//	this.closeConnection();
+			//}
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -85,6 +85,7 @@ public class CreateSchemaSparkCLI {
 			this.logger.error(e);
 		}
 	}
+	*/
 
 }
 
