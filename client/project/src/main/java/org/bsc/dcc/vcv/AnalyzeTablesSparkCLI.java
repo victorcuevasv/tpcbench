@@ -54,7 +54,6 @@ public class AnalyzeTablesSparkCLI {
 		this.resultsDir = this.commandLine.getOptionValue("results-dir");
 		this.experimentName = this.commandLine.getOptionValue("experiment-name");
 		this.system = this.commandLine.getOptionValue("system-name");
-		
 		this.test = this.commandLine.getOptionValue("tpcds-test", "analyze");
 		String instanceStr = this.commandLine.getOptionValue("instance-number");
 		this.instance = Integer.parseInt(instanceStr);

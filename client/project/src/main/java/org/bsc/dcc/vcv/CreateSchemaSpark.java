@@ -74,7 +74,7 @@ public class CreateSchemaSpark {
 			}
 			catch(Exception e) {
 				e.printStackTrace();
-				logger.error("Error in CreateDatabaseSparkCLI main.");
+				logger.error("Error in CreateSchemaSpark main.");
 				logger.error(e);
 				logger.error(AppUtil.stringifyStackTrace(e));
 				System.exit(1);

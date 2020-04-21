@@ -85,7 +85,7 @@ public class RunBenchmarkSparkCLI {
 			if( this.analyze && doAnalyze) {
 				this.saveTestParameters(args, "analyze");
 				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
-				AnalyzeTablesSparkCLI.main(args);
+				AnalyzeTablesSpark.main(args);
 			}
 			boolean doZorder = this.flags.charAt(3) == '1' ? true : false;
 			if( this.format.equalsIgnoreCase("delta") && doZorder ) {

@@ -3,29 +3,57 @@ package org.bsc.dcc.vcv;
 import java.io.*;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Encoders;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 
 public class AnalyzeTablesSpark {
-
 	
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private SparkSession spark;
 	private final AnalyticsRecorder recorder;
 	private final String workDir;
 	private final String dbName;
-	private final String folderName;
+	private final String resultsDir;
 	private final String experimentName;
 	private final String system;
 	private final String test;
 	private final int instance;
 	private final boolean computeForCols;
 
+	public AnalyzeTablesSpark(CommandLine commandLine) {
+		try {
+			this.spark = SparkSession.builder().appName("TPC-DS Database Table Analysis")
+						.enableHiveSupport()
+						.getOrCreate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in AnalyzeTablesSparkCLI constructor.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		this.workDir = commandLine.getOptionValue("main-work-dir");
+		this.dbName = commandLine.getOptionValue("schema-name");
+		this.resultsDir = commandLine.getOptionValue("results-dir");
+		this.experimentName = commandLine.getOptionValue("experiment-name");
+		this.system = commandLine.getOptionValue("system-name");
+		this.test = commandLine.getOptionValue("tpcds-test", "analyze");
+		String instanceStr = commandLine.getOptionValue("instance-number");
+		this.instance = Integer.parseInt(instanceStr);
+		String computeForColsStr = commandLine.getOptionValue("use-column-stats");
+		this.computeForCols = Boolean.parseBoolean(computeForColsStr);
+		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
+				this.system, this.test, this.instance);
+	}
 	
 	/**
 	 * @param args
@@ -42,15 +70,20 @@ public class AnalyzeTablesSpark {
 	 * 
 	 */
 	public AnalyzeTablesSpark(String[] args) {
+		if( args.length != 8 ) {
+			System.out.println("Incorrect number of arguments: "  + args.length);
+			logger.error("Incorrect number of arguments: " + args.length);
+			System.exit(1);
+		}
 		this.workDir = args[0];
 		this.dbName = args[1];
-		this.folderName = args[2];
+		this.resultsDir = args[2];
 		this.experimentName = args[3];
 		this.system = args[4];
 		this.test = args[5];
 		this.instance = Integer.parseInt(args[6]);
 		this.computeForCols = Boolean.parseBoolean(args[7]);
-		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		try {
 			if( this.system.equals("sparkdatabricks") ) {
@@ -75,14 +108,29 @@ public class AnalyzeTablesSpark {
 
 	
 	public static void main(String[] args) {
-		if( args.length != 8 ) {
-			System.out.println("Incorrect number of arguments: "  + args.length);
-			logger.error("Incorrect number of arguments: " + args.length);
-			System.exit(1);
+		AnalyzeTablesSpark application = null;
+		//Check is GNU-like options are used.
+		boolean gnuOptions = args[0].contains("--") ? true : false;
+		if( ! gnuOptions )
+			application = new AnalyzeTablesSpark(args);
+		else {
+			CommandLine commandLine = null;
+			try {
+				RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
+				Options options = runOptions.getOptions();
+				CommandLineParser parser = new DefaultParser();
+				commandLine = parser.parse(options, args);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				logger.error("Error in AnalyzeTablesSpark main.");
+				logger.error(e);
+				logger.error(AppUtil.stringifyStackTrace(e));
+				System.exit(1);
+			}
+			application = new AnalyzeTablesSpark(commandLine);
 		}
-		boolean computeForCols = Boolean.parseBoolean(args[2]);
-		AnalyzeTablesSpark prog = new AnalyzeTablesSpark(args);
-		prog.analyzeTables();
+		application.analyzeTables();
 		//prog.closeConnection();
 	}
 	
