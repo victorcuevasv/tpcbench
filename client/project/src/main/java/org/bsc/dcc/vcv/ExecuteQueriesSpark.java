@@ -53,10 +53,6 @@ public class ExecuteQueriesSpark {
 
 	public ExecuteQueriesSpark(CommandLine commandLine) {
 		try {
-			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
-			Options options = runOptions.getOptions();
-			CommandLineParser parser = new DefaultParser();
-			this.commandLine = parser.parse(options, args);
 			this.spark = SparkSession.builder().appName("TPC-DS Sequential Query Execution")
 				.enableHiveSupport()
 				.getOrCreate();
