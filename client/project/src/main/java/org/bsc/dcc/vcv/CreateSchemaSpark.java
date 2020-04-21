@@ -19,6 +19,7 @@ public class CreateSchemaSpark {
 	public CreateSchemaSpark(CommandLine commandLine) {
 		try {
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
+						.enableHiveSupport()
 						.getOrCreate();
 		}
 		catch(Exception e) {
