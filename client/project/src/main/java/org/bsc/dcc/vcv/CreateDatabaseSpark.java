@@ -20,6 +20,11 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Encoders;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 
 
 public class CreateDatabaseSpark {
@@ -45,6 +50,42 @@ public class CreateDatabaseSpark {
 	private final boolean partition;
 	private final String jarFile;
 	
+	public CreateDatabaseSpark(CommandLine commandLine) {
+		try {
+
+			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
+					.enableHiveSupport()
+					.getOrCreate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in CreateDatabaseSpark constructor.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		this.workDir = this.commandLine.getOptionValue("main-work-dir");
+		this.dbName = this.commandLine.getOptionValue("schema-name");
+		this.resultsDir = this.commandLine.getOptionValue("results-dir");
+		this.experimentName = this.commandLine.getOptionValue("experiment-name");
+		this.system = this.commandLine.getOptionValue("system-name");
+		this.test = this.commandLine.getOptionValue("tpcds-test", "load");
+		String instanceStr = this.commandLine.getOptionValue("instance-number");
+		this.instance = Integer.parseInt(instanceStr);
+		this.rawDataDir = this.commandLine.getOptionValue("raw-data-dir", "UNUSED");
+		this.createTableDir = this.commandLine.getOptionValue("create-table-dir", "tables");
+		this.suffix = this.commandLine.getOptionValue("text-file-suffix", "_ext");
+		this.extTablePrefixRaw = Optional.ofNullable(this.commandLine.getOptionValue("ext-raw-data-location"));
+		this.extTablePrefixCreated = Optional.ofNullable(this.commandLine.getOptionValue("ext-tables-location"));
+		this.format = this.commandLine.getOptionValue("table-format");
+		String doCountStr = this.commandLine.getOptionValue("count-queries", "false");
+		this.doCount = Boolean.parseBoolean(doCountStr);
+		String partitionStr = this.commandLine.getOptionValue("use-partitioning");
+		this.partition = Boolean.parseBoolean(partitionStr);
+		this.jarFile = this.commandLine.getOptionValue("jar-file");
+		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
+		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
+				this.system, this.test, this.instance);
+	}
 	
 	/**
 	 * @param args
@@ -71,6 +112,11 @@ public class CreateDatabaseSpark {
 	 * 
 	 */
 	public CreateDatabaseSpark(String[] args) {
+		if( args.length != 16 ) {
+			System.out.println("Incorrect number of arguments: "  + args.length);
+			this.logger.error("Incorrect number of arguments: " + args.length);
+			System.exit(1);
+		}
 		this.workDir = args[0];
 		this.dbName = args[1];
 		this.folderName = args[2];
@@ -107,13 +153,29 @@ public class CreateDatabaseSpark {
 
 
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 16 ) {
-			System.out.println("Incorrect number of arguments: "  + args.length);
-			logger.error("Incorrect number of arguments: " + args.length);
-			System.exit(1);
+		CreateDatabaseSpark application = null;
+		//Check is GNU-like options are used.
+		boolean gnuOptions = args[0].contains("--") ? true : false;
+		if( ! gnuOptions )
+			application = new CreateDatabaseSpark(args);
+		else {
+			CommandLine commandLine = null;
+			try {
+				RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
+				Options options = runOptions.getOptions();
+				CommandLineParser parser = new DefaultParser();
+				commandLine = parser.parse(options, args);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				logger.error("Error in CreateDatabaseSpark main.");
+				logger.error(e);
+				logger.error(AppUtil.stringifyStackTrace(e));
+				System.exit(1);
+			}
+			application = new CreateDatabaseSpark(commandLine);
 		}
-		CreateDatabaseSpark prog = new CreateDatabaseSpark(args);
-		prog.createTables();
+		application.createTables();
 	}
 	
 	

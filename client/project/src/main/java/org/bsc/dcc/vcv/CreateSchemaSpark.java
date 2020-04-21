@@ -81,9 +81,9 @@ public class CreateSchemaSpark {
 			application = new CreateSchemaSpark(commandLine);
 		}
 		application.createSchema();
-		if( ! application.system.equals("sparkdatabricks") ) {
-			application.closeConnection();
-		}
+		//if( ! application.system.equals("sparkdatabricks") ) {
+		//	application.closeConnection();
+		//}
 	}
 
 	private void createSchema() {

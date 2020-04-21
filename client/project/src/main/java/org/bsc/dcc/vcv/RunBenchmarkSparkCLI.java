@@ -78,7 +78,7 @@ public class RunBenchmarkSparkCLI {
 			if( doLoad ) {
 				this.saveTestParameters(args, "load");
 				System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
-				CreateDatabaseSparkCLI.main(args);
+				CreateDatabaseSpark.main(args);
 			}
 			//Redundant check for legacy compatibility.
 			boolean doAnalyze = this.flags.charAt(2) == '1' ? true : false;
