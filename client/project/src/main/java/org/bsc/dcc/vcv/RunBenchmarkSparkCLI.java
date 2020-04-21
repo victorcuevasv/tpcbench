@@ -93,7 +93,7 @@ public class RunBenchmarkSparkCLI {
 						this.createExecuteQueriesSparkDeltaZorderArgs(args);
 				this.saveTestParameters(executeQueriesSparkDeltaZorderArgs, "zorder");
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
-				ExecuteQueriesSparkCLI.main(executeQueriesSparkDeltaZorderArgs);
+				ExecuteQueriesSpark.main(executeQueriesSparkDeltaZorderArgs);
 			}
 			boolean doPower = this.flags.charAt(4) == '1' ? true : false;
 			if( doPower ) {
@@ -101,7 +101,7 @@ public class RunBenchmarkSparkCLI {
 						this.createExecuteQueriesSparkArgs(args);
 				this.saveTestParameters(executeQueriesSparkArgs, "power");
 				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
-				ExecuteQueriesSparkCLI.main(executeQueriesSparkArgs);
+				ExecuteQueriesSpark.main(executeQueriesSparkArgs);
 			}
 			boolean doTput = this.flags.charAt(5) == '1' ? true : false;
 			if( doTput ) {

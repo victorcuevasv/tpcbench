@@ -16,7 +16,6 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.SparkSession;
@@ -24,7 +23,11 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.Encoders;
-
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 
 public class ExecuteQueriesSpark {
 	
@@ -35,18 +38,56 @@ public class ExecuteQueriesSpark {
 	private final JarQueriesReaderAsZipFile queriesReader;
 	private final String workDir;
 	private final String dbName;
-	private final String folderName;
+	private final String resultsDir;
 	private final String experimentName;
 	private final String system;
 	private final String test;
 	private final int instance;
 	private final String queriesDir;
-	private final String resultsDir;
-	private final String plansDir;
+	private final String resultsSubDir;
+	private final String plansSubDir;
 	private final boolean savePlans;
 	private final boolean saveResults;
 	private final String jarFile;
+	private final String querySingleOrAll;
 
+	public ExecuteQueriesSpark(CommandLine commandLine) {
+		try {
+			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
+			Options options = runOptions.getOptions();
+			CommandLineParser parser = new DefaultParser();
+			this.commandLine = parser.parse(options, args);
+			this.spark = SparkSession.builder().appName("TPC-DS Sequential Query Execution")
+				.enableHiveSupport()
+				.getOrCreate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueriesSpark constructor.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		this.workDir = commandLine.getOptionValue("main-work-dir");
+		this.dbName = commandLine.getOptionValue("schema-name");
+		this.resultsDir = commandLine.getOptionValue("results-dir");
+		this.experimentName = commandLine.getOptionValue("experiment-name");
+		this.system = commandLine.getOptionValue("system-name");
+		this.test = commandLine.getOptionValue("tpcds-test", "power");
+		String instanceStr = commandLine.getOptionValue("instance-number");
+		this.instance = Integer.parseInt(instanceStr);
+		this.queriesDir = commandLine.getOptionValue("queries-dir-in-jar", "QueriesSpark");
+		this.resultsSubDir = commandLine.getOptionValue("results-subdir", "results");
+		this.plansSubDir = commandLine.getOptionValue("plans-subdir", "plans");
+		String savePlansStr = commandLine.getOptionValue("save-power-plans", "true");
+		this.savePlans = Boolean.parseBoolean(savePlansStr);
+		String saveResultsStr = commandLine.getOptionValue("save-power-results", "true");
+		this.saveResults = Boolean.parseBoolean(saveResultsStr);
+		this.jarFile = commandLine.getOptionValue("jar-file");
+		this.querySingleOrAll = commandLine.getOptionValue("all-or-query-file");
+		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
+		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
+				this.system, this.test, this.instance);
+	}
 	
 	/**
 	 * @param args
@@ -70,21 +111,27 @@ public class ExecuteQueriesSpark {
 	 * 
 	 */
 	public ExecuteQueriesSpark(String[] args) {
+		if( args.length != 14 ) {
+			System.out.println("Incorrect number of arguments: "  + args.length);
+			logger.error("Incorrect number of arguments: " + args.length);
+			System.exit(1);
+		}
 		this.workDir = args[0];
 		this.dbName = args[1];
-		this.folderName = args[2];
+		this.resultsDir = args[2];
 		this.experimentName = args[3];
 		this.system = args[4];
 		this.test = args[5];
 		this.instance = Integer.parseInt(args[6]);
 		this.queriesDir = args[7];
-		this.resultsDir = args[8];
-		this.plansDir = args[9];
+		this.resultsSubDir = args[8];
+		this.plansSubDir = args[9];
 		this.savePlans = Boolean.parseBoolean(args[10]);
 		this.saveResults = Boolean.parseBoolean(args[11]);
 		this.jarFile = args[12];
+		this.querySingleOrAll = args[13];
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
-		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		try {
 			this.spark = SparkSession.builder().appName("TPC-DS Sequential Query Execution")
@@ -99,24 +146,38 @@ public class ExecuteQueriesSpark {
 		}
 	}
 
-
 	public static void main(String[] args) {
-		if( args.length != 14 ) {
-			System.out.println("Incorrect number of arguments: "  + args.length);
-			logger.error("Incorrect number of arguments: " + args.length);
-			System.exit(1);
+		ExecuteQueriesSpark application = null;
+		//Check is GNU-like options are used.
+		boolean gnuOptions = args[0].contains("--") ? true : false;
+		if( ! gnuOptions )
+			application = new ExecuteQueriesSpark(args);
+		else {
+			CommandLine commandLine = null;
+			try {
+				RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
+				Options options = runOptions.getOptions();
+				CommandLineParser parser = new DefaultParser();
+				commandLine = parser.parse(options, args);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				logger.error("Error in CreateSchemaSpark main.");
+				logger.error(e);
+				logger.error(AppUtil.stringifyStackTrace(e));
+				System.exit(1);
+			}
+			application = new ExecuteQueriesSpark(commandLine);
 		}
-		ExecuteQueriesSpark prog = new ExecuteQueriesSpark(args);
-		String querySingleOrAllByNull = args[args.length-1].equalsIgnoreCase("all") ? null : args[args.length-1];
-		prog.executeQueries(querySingleOrAllByNull);
+		application.executeQueries();
 	}
 	
-	public void executeQueries(String querySingleOrAllByNull) {
+	public void executeQueries() {
 		this.spark.sql("USE " + dbName);
 		this.recorder.header();
 		for (final String fileName : this.queriesReader.getFilesOrdered()) {
-			if( querySingleOrAllByNull != null ) {
-				if( ! fileName.equals(querySingleOrAllByNull) )
+			if( ! this.querySingleOrAll.equals("all") ) {
+				if( ! fileName.equals(this.querySingleOrAll) )
 					continue;
 			}
 			String sqlStr = this.queriesReader.getFile(fileName);
@@ -152,14 +213,14 @@ public class ExecuteQueriesSpark {
 	
 	private String generateResultsFileName(String queryFileName) {
 		String noExtFileName = queryFileName.substring(0, queryFileName.indexOf('.'));
-		return this.workDir + "/" + this.folderName + "/" + this.resultsDir + "/" + this.experimentName + 
+		return this.workDir + "/" + this.resultsDir + "/" + this.resultsSubDir + "/" + this.experimentName + 
 				"/" + this.test + "/" + this.instance + "/" + noExtFileName + ".txt";
 	}
 	
 	
 	private String generatePlansFileName(String queryFileName) {
 		String noExtFileName = queryFileName.substring(0, queryFileName.indexOf('.'));
-		return this.workDir + "/" + this.folderName + "/" + this.plansDir + "/" + this.experimentName + 
+		return this.workDir + "/" + this.resultsDir + "/" + this.plansSubDir + "/" + this.experimentName + 
 				"/" + this.test + "/" + this.instance + "/" + noExtFileName + ".txt";
 	}
 	
@@ -177,17 +238,17 @@ public class ExecuteQueriesSpark {
 					" of query " + queryFileName + ".");
 			// Obtain the plan for the query.
 			Dataset<Row> planDataset = null;
-			if( this.savePlans )
+			if( this.test.equals("power") && this.savePlans )
 				planDataset = this.spark.sql("EXPLAIN " + sqlStr);
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
-			if( this.savePlans )
+			if( this.test.equals("power") && this.savePlans )
 				this.saveResults(this.generatePlansFileName(queryFileName), planDataset, ! firstQuery);
 			// Execute the query.
 			System.out.println("Executing iteration " + iteration + " of query " + queryFileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
-			if( this.saveResults ) {
+			if( this.test.equals("power") && this.saveResults ) {
 				int tuples = this.saveResults(this.generateResultsFileName(queryFileName), dataset, ! firstQuery);
 				queryRecord.setTuples(queryRecord.getTuples() + tuples);
 			}
