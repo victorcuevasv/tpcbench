@@ -74,8 +74,8 @@ public class CreateDatabaseSpark {
 		this.rawDataDir = commandLine.getOptionValue("raw-data-dir", "UNUSED");
 		this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
 		this.suffix = commandLine.getOptionValue("text-file-suffix", "_ext");
-		this.extTablePrefixRaw = Optional.ofNullable(this.commandLine.getOptionValue("ext-raw-data-location"));
-		this.extTablePrefixCreated = Optional.ofNullable(this.commandLine.getOptionValue("ext-tables-location"));
+		this.extTablePrefixRaw = Optional.ofNullable(commandLine.getOptionValue("ext-raw-data-location"));
+		this.extTablePrefixCreated = Optional.ofNullable(commandLine.getOptionValue("ext-tables-location"));
 		this.format = commandLine.getOptionValue("table-format");
 		String doCountStr = commandLine.getOptionValue("count-queries", "false");
 		this.doCount = Boolean.parseBoolean(doCountStr);
