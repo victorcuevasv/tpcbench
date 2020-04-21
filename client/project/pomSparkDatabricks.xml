@@ -79,6 +79,7 @@
 						<exclude>org/bsc/dcc/vcv/CompareResults.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabase.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateSchema.java</exclude>
+						<exclude>org/bsc/dcc/vcv/CreateSchemaSparkCLI.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueries.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesConcurrent.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesConcurrentLimit.java</exclude>
