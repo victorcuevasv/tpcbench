@@ -63,7 +63,7 @@ args[13]="--all-or-query-file=query2.sql"
 args[14]="--number-of-streams=$3"
 
 #args[15] flags (111111 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=110000"
+args[15]="--execution-flags=111000"
 
 function json_string_list() {
     declare array=("$@")
