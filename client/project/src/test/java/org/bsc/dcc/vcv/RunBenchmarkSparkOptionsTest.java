@@ -56,5 +56,26 @@ public class RunBenchmarkSparkOptionsTest {
     	assertDoesNotThrow(() -> parser.parse(options, args));
     }
     
+    @Test
+    public void testBooleanArguments() {
+    	String[] args = new String[] {
+    			"--main-work-dir=/data", "--schema-name=tpcds_sparkemr_529_1gb_1_db", 
+    			"--results-dir=1odwczxc3jftmhmvahdl7tz32dyyw0pen",
+    			"--experiment-name=sparkemr-529-2nodes-1gb-experimental", 
+    			"--system-name=sparkemr", "--instance-number=1", 
+    			"--table-format=parquet", "--use-partitioning=false", 
+    			"--jar-file=/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-jar-with-dependencies.jar",
+    			"--use-row-stats=true", "--use-column-stats=true", "--all-or-query-file=all", 
+    			"--number-of-streams=1"
+    	};
+    	RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
+    	Options options = runOptions.getOptions();
+    	CommandLineParser parser = new DefaultParser();
+    	CommandLine commandLine = parser.parse(options, args);
+    	String partitionStr = commandLine.getOptionValue("use-partitioning");
+		boolean partition = Boolean.parseBoolean(partitionStr);
+    	assertFalse(partition);
+    }
+    
 }
 
