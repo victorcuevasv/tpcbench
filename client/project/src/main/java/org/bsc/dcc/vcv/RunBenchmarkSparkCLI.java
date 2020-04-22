@@ -107,7 +107,7 @@ public class RunBenchmarkSparkCLI {
 			if( doTput ) {
 				this.saveTestParameters(args, "tput");
 				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
-				ExecuteQueriesConcurrentSparkCLI.main(args);
+				ExecuteQueriesConcurrentSpark.main(args);
 			}
 			if( this.system.equals("sparkdatabricks")  ) {
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /dbfs/mnt/tpcds-results-test/" + this.resultsDir + "/");

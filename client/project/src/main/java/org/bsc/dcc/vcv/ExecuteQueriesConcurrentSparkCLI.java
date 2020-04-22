@@ -57,7 +57,6 @@ public class ExecuteQueriesConcurrentSparkCLI implements ConcurrentExecutor {
 	final private long seed;
 	private final CommandLine commandLine;
 	
-	
 	public ExecuteQueriesConcurrentSparkCLI(String[] args) throws Exception {
 		try {
 			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
