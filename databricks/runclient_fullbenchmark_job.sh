@@ -29,7 +29,7 @@ DirNameWarehouse="tpcds-warehouse-sparkdatabricks-${MajorVersion}${MinorVersion}
 DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
 DatabaseName="tpcds_warehouse_sparkdatabricks_${MajorVersion}${MinorVersion}_$1gb_$2${Tag}"
 DirNameExperiment="tpcds-sparkdatabricks-${MajorVersion}${MinorVersion}-$1gb-$2${Tag}"
-JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
+JarFile="/dbfs/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 
