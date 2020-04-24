@@ -29,6 +29,7 @@ DirNameWarehouse="tpcds-warehouse-sparkdatabricks-${MajorVersion}${MinorVersion}
 DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
 DatabaseName="tpcds_warehouse_sparkdatabricks_${MajorVersion}${MinorVersion}_$1gb_$2${Tag}"
 DirNameExperiment="tpcds-sparkdatabricks-${MajorVersion}${MinorVersion}-$1gb-$2${Tag}"
+JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 
@@ -37,66 +38,40 @@ JOB_NAME="Run TPC-DS Benchmark"
 args=()
 
 #args[0] main work directory
-args[0]="/data"
+args[0]="--main-work-dir=/data"
 #args[1] schema (database) name
-args[1]="$DatabaseName"
+args[1]="--schema-name=$DatabaseName"
 #args[2] results folder name (e.g. for Google Drive)
-args[2]="$DirNameResults"
+args[2]="--results-dir=$DirNameResults"
 #args[3] experiment name (name of subfolder within the results folder)
-args[3]="$DirNameExperiment"
+args[3]="--experiment-name=$DirNameExperiment"
 #args[4] system name (system name used within the logs)
-args[4]="sparkdatabricks"
+args[4]="--system-name=sparkdatabricks"
 
 #args[5] experiment instance number
-args[5]="$2"
-#args[6] directory for generated data raw files
-args[6]="UNUSED"
-#args[7] subdirectory within the jar that contains the create table files
-args[7]="tables"
-#args[8] suffix used for intermediate table text files
-args[8]="_ext"
-#args[9] prefix of external location for raw data tables (e.g. S3 bucket), null for none
-args[9]="dbfs:/mnt/tpcdsbucket/$1GB"
+args[5]="--instance-number=$2"
+#args[6] prefix of external location for raw data tables (e.g. S3 bucket), null for none
+args[6]="--ext-raw-data-location=dbfs:/mnt/tpcdsbucket/$1GB"
+#args[7] prefix of external location for created tables (e.g. S3 bucket), null for none
+args[7]="--ext-tables-location=dbfs:/mnt/tpcds-warehouses-test/$DirNameWarehouse"
+#args[8] format for column-storage tables (PARQUET, DELTA)
+args[8]="--table-format=parquet"
+#args[9] whether to use data partitioning for the tables (true/false)
+args[9]="--use-partitioning=false"
 
-#args[10] prefix of external location for created tables (e.g. S3 bucket), null for none
-args[10]="dbfs:/mnt/tpcds-warehouses-test/$DirNameWarehouse"
-#args[11] format for column-storage tables (PARQUET, DELTA)
-args[11]="delta"
-#args[12] whether to run queries to count the tuples generated (true/false)
-args[12]="false"
-#args[13] whether to use data partitioning for the tables (true/false)
-args[13]="false"
-#args[14] jar file
-args[14]="/dbfs/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-jar-with-dependencies.jar"
+#args[10] jar file
+args[10]="--jar-file=$JarFile"
+#args[11] whether to generate statistics by analyzing tables (true/false)
+args[11]="--use-row-stats=true"
+#args[12] if argument above is true, whether to compute statistics for columns (true/false)
+args[12]="--use-column-stats=true"
+#args[13] "all" or query file
+args[13]="--all-or-query-file=query2.sql" 
+#args[14] number of streams
+args[14]="--number-of-streams=$3"
 
-#args[15] whether to generate statistics by analyzing tables (true/false)
-args[15]="true"
-#args[16] if argument above is true, whether to compute statistics for columns (true/false)
-args[16]="true"
-#args[17] queries dir within the jar
-args[17]="QueriesSpark"
-#args[18] subdirectory of work directory to store the results
-args[18]="results"
-#args[19] subdirectory of work directory to store the execution plans
-args[19]="plans"
-
-#args[20] save power test plans (boolean)
-args[20]="true"
-#args[21] save power test results (boolean)
-args[21]="true"
-#args[22] "all" or query file
-args[22]="query2.sql"
-#args[23] save tput test plans (boolean)
-args[23]="true"
-#args[24] save tput test results (boolean)
-args[24]="true"
- 
-#args[25] number of streams
-args[25]="$3"
-#args[26] random seed
-args[26]="1954"
-#args[27] flags (111111 schema|load|analyze|zorder|power|tput)
-args[27]="111010"
+#args[15] flags (111111 schema|load|analyze|zorder|power|tput)
+args[15]="--execution-flags=111011"
 
 function json_string_list() {
     declare array=("$@")
@@ -141,7 +116,7 @@ post_data_func()
       },
       "libraries":[ 
          { 
-            "jar":"dbfs:/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-jar-with-dependencies.jar"
+            "jar":"$JarFile"
          }
       ],
       "email_notifications":{ 
@@ -150,7 +125,7 @@ post_data_func()
       "timeout_seconds":0,
       "spark_jar_task":{ 
          "jar_uri":"",
-         "main_class_name":"org.bsc.dcc.vcv.RunBenchmarkSpark",
+         "main_class_name":"org.bsc.dcc.vcv.RunBenchmarkSparkCLI",
          "parameters":[ 
 			$paramsStr
          ]
