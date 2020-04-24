@@ -110,6 +110,7 @@ public class RunBenchmarkSparkCLI {
 				ExecuteQueriesConcurrentSpark.main(args);
 			}
 			if( this.system.equals("sparkdatabricks")  ) {
+				this.executeCommand("mkdir -p /dbfs/mnt/tpcds-results-test/" + this.resultsDir);
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /dbfs/mnt/tpcds-results-test/" + this.resultsDir + "/");
 			}
 			else if( this.system.equals("sparkemr")  ) {
