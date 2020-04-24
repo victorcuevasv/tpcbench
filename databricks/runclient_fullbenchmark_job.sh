@@ -29,7 +29,8 @@ DirNameWarehouse="tpcds-warehouse-sparkdatabricks-${MajorVersion}${MinorVersion}
 DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
 DatabaseName="tpcds_warehouse_sparkdatabricks_${MajorVersion}${MinorVersion}_$1gb_$2${Tag}"
 DirNameExperiment="tpcds-sparkdatabricks-${MajorVersion}${MinorVersion}-$1gb-$2${Tag}"
-JarFile="/dbfs/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
+#Note that /dbfs or dbfs: is not included, these are added later
+JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 
@@ -60,7 +61,7 @@ args[8]="--table-format=parquet"
 args[9]="--use-partitioning=false"
 
 #args[10] jar file
-args[10]="--jar-file=$JarFile"
+args[10]="--jar-file=/mnt/$JarFile"
 #args[11] whether to generate statistics by analyzing tables (true/false)
 args[11]="--use-row-stats=true"
 #args[12] if argument above is true, whether to compute statistics for columns (true/false)
@@ -116,7 +117,7 @@ post_data_func()
       },
       "libraries":[ 
          { 
-            "jar":"$JarFile"
+            "jar":"dbfs:$JarFile"
          }
       ],
       "email_notifications":{ 
