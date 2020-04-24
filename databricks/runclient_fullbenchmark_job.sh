@@ -61,7 +61,7 @@ args[8]="--table-format=parquet"
 args[9]="--use-partitioning=false"
 
 #args[10] jar file
-args[10]="--jar-file=/mnt/$JarFile"
+args[10]="--jar-file=/dbfs/$JarFile"
 #args[11] whether to generate statistics by analyzing tables (true/false)
 args[11]="--use-row-stats=true"
 #args[12] if argument above is true, whether to compute statistics for columns (true/false)
