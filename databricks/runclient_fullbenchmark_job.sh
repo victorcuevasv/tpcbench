@@ -56,9 +56,9 @@ args[6]="--ext-raw-data-location=dbfs:/mnt/tpcdsbucket/$1GB"
 #args[7] prefix of external location for created tables (e.g. S3 bucket), null for none
 args[7]="--ext-tables-location=dbfs:/mnt/tpcds-warehouses-test/$DirNameWarehouse"
 #args[8] format for column-storage tables (PARQUET, DELTA)
-args[8]="--table-format=parquet"
+args[8]="--table-format=delta"
 #args[9] whether to use data partitioning for the tables (true/false)
-args[9]="--use-partitioning=false"
+args[9]="--use-partitioning=true"
 
 #args[10] jar file
 args[10]="--jar-file=/dbfs/$JarFile"
@@ -72,7 +72,7 @@ args[13]="--all-or-query-file=query2.sql"
 args[14]="--number-of-streams=$3"
 
 #args[15] flags (111111 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=111011"
+args[15]="--execution-flags=111111"
 
 function json_string_list() {
     declare array=("$@")
