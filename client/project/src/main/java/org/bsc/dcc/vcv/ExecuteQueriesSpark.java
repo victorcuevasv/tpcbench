@@ -80,6 +80,9 @@ public class ExecuteQueriesSpark {
 		this.saveResults = Boolean.parseBoolean(saveResultsStr);
 		this.jarFile = commandLine.getOptionValue("jar-file");
 		this.querySingleOrAll = commandLine.getOptionValue("all-or-query-file");
+		//If running the zorder test, force the execution of all queries
+		if( this.test.equals("zorder") && ! this.querySingleOrAll.equals("all") )
+			this.querySingleOrAll = "all";
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
@@ -126,6 +129,9 @@ public class ExecuteQueriesSpark {
 		this.saveResults = Boolean.parseBoolean(args[11]);
 		this.jarFile = args[12];
 		this.querySingleOrAll = args[13];
+		//If running the zorder test, force the execution of all queries
+		if( this.test.equals("zorder") && ! this.querySingleOrAll.equals("all") )
+			this.querySingleOrAll = "all";
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
@@ -158,7 +164,7 @@ public class ExecuteQueriesSpark {
 			}
 			catch(Exception e) {
 				e.printStackTrace();
-				logger.error("Error in CreateSchemaSpark main.");
+				logger.error("Error in ExecuteQueriesSpark main.");
 				logger.error(e);
 				logger.error(AppUtil.stringifyStackTrace(e));
 				System.exit(1);
