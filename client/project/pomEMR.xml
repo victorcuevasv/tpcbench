@@ -106,34 +106,7 @@
         				<testExclude>org/bsc/dcc/vcv/RunBenchmarkSparkOptionsTest.java</testExclude>
       				</testExcludes>
 				</configuration>
-				<!--  
-				<executions>
-    				<execution>
-      					<id>default-testCompile</id>
-      					<phase>test-compile</phase>
-      					<configuration>
-        					<testExcludes>
-          						<exclude>org/bsc/dcc/vcv/RunBenchmarkSparkOptionsTest.java</exclude>
-        					</testExcludes>
-      					</configuration> 
-      					<goals>
-        					<goal>testCompile</goal>
-      					</goals>
-    				</execution>                  
-  				</executions>
-  				-->
 			</plugin>
-			<!--  
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>org/bsc/dcc/vcv/RunBenchmarkSparkOptionsTest.java</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
         		<artifactId>maven-shade-plugin</artifactId>
