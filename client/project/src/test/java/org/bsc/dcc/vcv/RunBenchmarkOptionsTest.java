@@ -46,7 +46,7 @@ public class RunBenchmarkOptionsTest {
     			"--experiment-name=prestoemr-529-2nodes-1gb-experimental", 
     			"--system-name=prestoemr", "--instance-number=1", 
     			"--table-format=parquet", "--use-partitioning=false",
-    			//"--server-hostname=localhost", "--connection-username=hadoop", 
+    			"--server-hostname=localhost", "--connection-username=hadoop", 
     			"--jar-file=/mnt/tpcds-jars/targetemr/client-1.2-SNAPSHOT-jar-with-dependencies.jar",
     			"--use-row-stats=true", "--use-column-stats=true", "--all-or-query-file=all", 
     			"--number-of-streams=1"
