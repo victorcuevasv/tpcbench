@@ -90,6 +90,7 @@
 						<exclude>org/bsc/dcc/vcv/QueryWorkerLimit.java</exclude>
 						<exclude>org/bsc/dcc/vcv/RunBenchmark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/RunBenchmarkOptions.java</exclude>
+						<exclude>org/bsc/dcc/vcv/RunBenchmarkOptionsTest.java</exclude>
 						<exclude>org/bsc/dcc/vcv/RunBenchmarkLimit.java</exclude>
 						<exclude>org/bsc/dcc/vcv/SnowflakeHistory.java</exclude>
 						<exclude>org/bsc/dcc/vcv/StatisticsQueries.java</exclude>
