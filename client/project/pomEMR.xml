@@ -99,9 +99,17 @@
 						<exclude>org/bsc/dcc/vcv/RunBenchmarkSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/RunBenchmarkSparkCLI.java</exclude>
 						<exclude>org/bsc/dcc/vcv/RunBenchmarkSparkOptions.java</exclude>
-						<exclude>org/bsc/dcc/vcv/RunBenchmarkSparkOptionsTest.java</exclude>
 						<exclude>org/bsc/dcc/vcv/SnowflakeHistory.java</exclude>
 						<exclude>org/bsc/dcc/vcv/SparkUtil.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>org/bsc/dcc/vcv/RunBenchmarkSparkOptionsTest.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
