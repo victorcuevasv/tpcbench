@@ -79,10 +79,11 @@ public class ExecuteQueriesSpark {
 		String saveResultsStr = commandLine.getOptionValue("save-power-results", "true");
 		this.saveResults = Boolean.parseBoolean(saveResultsStr);
 		this.jarFile = commandLine.getOptionValue("jar-file");
-		this.querySingleOrAll = commandLine.getOptionValue("all-or-query-file");
 		//If running the zorder test, force the execution of all queries
-		if( this.test.equals("zorder") && ! this.querySingleOrAll.equals("all") )
+		if( this.test.equals("zorder") )
 			this.querySingleOrAll = "all";
+		else
+			this.querySingleOrAll = commandLine.getOptionValue("all-or-query-file");
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
@@ -128,10 +129,11 @@ public class ExecuteQueriesSpark {
 		this.savePlans = Boolean.parseBoolean(args[10]);
 		this.saveResults = Boolean.parseBoolean(args[11]);
 		this.jarFile = args[12];
-		this.querySingleOrAll = args[13];
 		//If running the zorder test, force the execution of all queries
-		if( this.test.equals("zorder") && ! this.querySingleOrAll.equals("all") )
+		if( this.test.equals("zorder") )
 			this.querySingleOrAll = "all";
+		else
+			this.querySingleOrAll = args[13];
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
