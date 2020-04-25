@@ -102,7 +102,11 @@
 						<exclude>org/bsc/dcc/vcv/SnowflakeHistory.java</exclude>
 						<exclude>org/bsc/dcc/vcv/SparkUtil.java</exclude>
 					</excludes>
+					<testExcludes>
+        				<testExclude>org/bsc/dcc/vcv/RunBenchmarkSparkOptionsTest.java</testExclude>
+      				</testExcludes>
 				</configuration>
+				<!--  
 				<executions>
     				<execution>
       					<id>default-testCompile</id>
@@ -117,6 +121,7 @@
       					</goals>
     				</execution>                  
   				</executions>
+  				-->
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
