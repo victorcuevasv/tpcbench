@@ -109,7 +109,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<excludes>
-						<exclude>org/bsc/dcc/vcv/RunBenchmarkSparkOptionsTest.java</exclude>
+						<exclude>**/RunBenchmarkSparkOptionsTest.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
