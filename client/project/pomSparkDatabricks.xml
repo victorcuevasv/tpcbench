@@ -90,11 +90,13 @@
 						<exclude>org/bsc/dcc/vcv/QueryWorkerLimit.java</exclude>
 						<exclude>org/bsc/dcc/vcv/RunBenchmark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/RunBenchmarkOptions.java</exclude>
-						<exclude>org/bsc/dcc/vcv/RunBenchmarkOptionsTest.java</exclude>
 						<exclude>org/bsc/dcc/vcv/RunBenchmarkLimit.java</exclude>
 						<exclude>org/bsc/dcc/vcv/SnowflakeHistory.java</exclude>
 						<exclude>org/bsc/dcc/vcv/StatisticsQueries.java</exclude>
 					</excludes>
+					<testExcludes>
+        				<testExclude>org/bsc/dcc/vcv/RunBenchmarkOptionsTest.java</testExclude>
+      				</testExcludes>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -118,6 +120,16 @@
           			</execution>
         		</executions>
       		</plugin>
+      		<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M4</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.0.0-M4</version>
+            </plugin>
 		</plugins>
 	</build>
 </project>
