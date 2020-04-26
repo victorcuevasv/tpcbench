@@ -89,11 +89,10 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.multiple = Boolean.parseBoolean(multipleStr);
 		this.hostname = commandLine.getOptionValue("server-hostname");
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
+		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
 		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.resultsDir,
 				this.experimentName, this.system, this.test, this.instance);
 		this.matrix = this.streamsReader.getFileAsMatrix(this.streamsReader.getFiles().get(0));
-		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.resultsDir,
-				this.experimentName, this.system, this.test, this.instance);
 		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
 		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 		try {
