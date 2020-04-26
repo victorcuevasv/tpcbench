@@ -34,38 +34,6 @@ JarFile="/mnt/tpcds-jars/targetemr/client-1.2-SNAPSHOT-SHADED.jar"
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
-RUN_CREATE_BUCKET=0
-
-if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
-    #Create the bucket
-    aws s3api create-bucket --bucket $DirNameWarehouse --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
-    #Add the Owner tag
-    aws s3api put-bucket-tagging --bucket $DirNameWarehouse --tagging 'TagSet=[{Key=Owner,Value=eng-benchmarking@databricks.com}]'
-    #Block all public access for the bucket
-    aws s3api put-public-access-block --bucket $DirNameWarehouse --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"  
-    #Create and empty folder to enable mounting
-    aws s3api put-object --bucket $DirNameWarehouse --key empty
-    #Create the table folders
-    tables=(call_center catalog_page catalog_returns catalog_sales customer customer_address \
-			customer_demographics date_dim dbgen_version household_demographics income_band \
-			inventory item promotion reason ship_mode store store_returns store_sales time_dim \
-			warehouse web_page web_returns web_sales web_site)
-	for t in "${tables[@]}"
-	do
-		#Must specify through the content type that it is a directory and use the trailing slash.
-		aws s3api put-object --bucket $DirNameWarehouse --content-type application/x-directory --key $t/
-	done
-    exit 0
-fi
-
-RUN_DELETE_BUCKET=0
-
-if [ "$RUN_DELETE_BUCKET" -eq 1 ]; then
-    #Delete the bucket
-    aws s3 rb s3://$DirNameWarehouse --force
-    exit 0
-fi
-
 args=()
 
 #main work directory
@@ -230,6 +198,37 @@ bootstrap-actions_func()
 EOF
 }
 
+RUN_CREATE_BUCKET=1
+
+if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
+    #Create the bucket
+    aws s3api create-bucket --bucket $DirNameWarehouse --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
+    #Add the Owner tag
+    aws s3api put-bucket-tagging --bucket $DirNameWarehouse --tagging 'TagSet=[{Key=Owner,Value=eng-benchmarking@databricks.com}]'
+    #Block all public access for the bucket
+    aws s3api put-public-access-block --bucket $DirNameWarehouse --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"  
+    #Create and empty folder to enable mounting
+    aws s3api put-object --bucket $DirNameWarehouse --key empty
+    #Create the table folders
+    tables=(call_center catalog_page catalog_returns catalog_sales customer customer_address \
+			customer_demographics date_dim dbgen_version household_demographics income_band \
+			inventory item promotion reason ship_mode store store_returns store_sales time_dim \
+			warehouse web_page web_returns web_sales web_site)
+	for t in "${tables[@]}"
+	do
+		#Must specify through the content type that it is a directory and use the trailing slash.
+		aws s3api put-object --bucket $DirNameWarehouse --content-type application/x-directory --key $t/
+	done
+    exit 0
+fi
+
+RUN_DELETE_BUCKET=0
+
+if [ "$RUN_DELETE_BUCKET" -eq 1 ]; then
+    #Delete the bucket
+    aws s3 rb s3://$DirNameWarehouse --force
+    exit 0
+fi
 
 ec2Attributes=$(jq -c . <<<  "$(ec2-attributes_func)")
 steps=$(jq -c . <<<  "$(steps_func)")
