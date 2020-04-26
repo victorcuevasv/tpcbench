@@ -365,9 +365,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 				logger.error(AppUtil.stringifyStackTrace(e));
 				System.exit(1);
 			}
-			finally {
-				application = new ExecuteQueriesConcurrent(commandLine);
-			}
+			application = new ExecuteQueriesConcurrent(commandLine);
 		}
 		application.executeStreams();
 	}

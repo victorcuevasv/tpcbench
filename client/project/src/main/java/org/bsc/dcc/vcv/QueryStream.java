@@ -80,14 +80,14 @@ public class QueryStream implements Callable<Void> {
 
 	
 	private String generateResultsFileName(String fileName, int nStream, int item) {
-		return this.parent.workDir + "/" + this.parent.folderName + "/" + this.parent.resultsDir + 
+		return this.parent.workDir + "/" + this.parent.resultsDir + "/" + this.parent.resultsSubDir + 
 				"/" + this.parent.experimentName + "/" + this.parent.test + "/" + this.parent.instance + "/" + 
 				nStream + "_" + item + "_" + fileName + ".txt";
 	}
 	
 	
 	private String generatePlansFileName(String fileName, int nStream, int item) {
-		return this.parent.workDir + "/" + this.parent.folderName + "/" + this.parent.plansDir + 
+		return this.parent.workDir + "/" + this.parent.resultsDir + "/" + this.parent.plansSubDir + 
 				"/" + this.parent.experimentName + "/" + this.parent.test + "/" + this.parent.instance + "/" + 
 				nStream + "_" + item + "_" + fileName + ".txt";
 	}
