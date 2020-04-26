@@ -9,10 +9,14 @@ import java.sql.Statement;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 
 public class AnalyzeTables {
 
@@ -24,7 +28,7 @@ public class AnalyzeTables {
 	private final AnalyticsRecorder recorder;
 	private final String workDir;
 	private final String dbName;
-	private final String folderName;
+	private final String resultsDir;
 	private final String experimentName;
 	private final String system;
 	private final String test;
@@ -32,7 +36,25 @@ public class AnalyzeTables {
 	private final boolean computeForCols;
 	private final String hostname;
 	
+	
+	public AnalyzeTables(CommandLine commandLine) {
+		this.workDir = commandLine.getOptionValue("main-work-dir");
+		this.dbName = commandLine.getOptionValue("schema-name");
+		this.resultsDir = commandLine.getOptionValue("results-dir");
+		this.experimentName = commandLine.getOptionValue("experiment-name");
+		this.system = commandLine.getOptionValue("system-name");
+		this.test = commandLine.getOptionValue("tpcds-test", "analyze");
+		String instanceStr = commandLine.getOptionValue("instance-number");
+		this.instance = Integer.parseInt(instanceStr);
+		String computeForColsStr = commandLine.getOptionValue("use-column-stats");
+		this.computeForCols = Boolean.parseBoolean(computeForColsStr);
+		this.hostname = commandLine.getOptionValue("server-hostname");
+		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
+				this.system, this.test, this.instance);
+		this.openConnection();
+	}
 
+	
 	/**
 	 * @param args
 	 * 
@@ -51,17 +73,27 @@ public class AnalyzeTables {
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
 	public AnalyzeTables(String[] args) {
+		if( args.length != 9 ) {
+			System.out.println("Incorrect number of arguments: "  + args.length);
+			logger.error("Incorrect number of arguments: " + args.length);
+			System.exit(1);
+		}
 		this.workDir = args[0];
 		this.dbName = args[1];
-		this.folderName = args[2];
+		this.resultsDir = args[2];
 		this.experimentName = args[3];
 		this.system = args[4];
 		this.test = args[5];
 		this.instance = Integer.parseInt(args[6]);
 		this.computeForCols = Boolean.parseBoolean(args[7]);
 		this.hostname = args[8];
-		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
+		this.openConnection();
+	}
+
+	
+	private void openConnection() {
 		try {
 			String driverName = "";
 			if( this.system.equals("hive") ) {
@@ -78,7 +110,7 @@ public class AnalyzeTables {
 			}
 			else if( this.system.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
-				con = DriverManager.getConnection("jdbc:presto://" + 
+				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8889/hive/" + this.dbName, "hive", "");
 				((PrestoConnection)this.con).setSessionProperty("query_max_stage_count", "102");
 			}
@@ -92,8 +124,8 @@ public class AnalyzeTables {
 			}
 			else if( system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
-				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10015/" + dbName, "hive", "");
+				this.con = DriverManager.getConnection("jdbc:hive2://" +
+						this.hostname + ":10015/" + this.dbName, "hive", "");
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
@@ -114,17 +146,33 @@ public class AnalyzeTables {
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
-
-
-	public static void main(String[] args) throws SQLException {
-		if( args.length != 9 ) {
-			System.out.println("Incorrect number of arguments: "  + args.length);
-			logger.error("Incorrect number of arguments: " + args.length);
-			System.exit(1);
+	
+	
+	public static void main(String[] args) {
+		AnalyzeTables application = null;
+		//Check is GNU-like options are used.
+		boolean gnuOptions = args[0].contains("--") ? true : false;
+		if( ! gnuOptions )
+			application = new AnalyzeTables(args);
+		else {
+			CommandLine commandLine = null;
+			try {
+				RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
+				Options options = runOptions.getOptions();
+				CommandLineParser parser = new DefaultParser();
+				commandLine = parser.parse(options, args);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				logger.error("Error in AnalyzeTables main.");
+				logger.error(e);
+				logger.error(AppUtil.stringifyStackTrace(e));
+				System.exit(1);
+			}
+			application = new AnalyzeTables(commandLine);
 		}
-		AnalyzeTables prog = new AnalyzeTables(args);
-		prog.analyzeTables();
-		prog.closeConnection();
+		application.analyzeTables();
+		//prog.closeConnection();
 	}
 	
 	
