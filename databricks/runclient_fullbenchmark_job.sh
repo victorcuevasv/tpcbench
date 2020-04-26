@@ -14,9 +14,8 @@ end=$'\e[0m'
 #$2 experiment instance number (positive integer)
 #$3 number of streams (positive integer)
 
-if [ -n "$DATABRICKS_TOKEN" ]
-then
-	echo "${yel}The environment variable DATABRICKS_TOKEN is not defined.${end}"
+if [ -z "$DATABRICKS_TOKEN" ]; then
+    echo "${yel}The environment variable DATABRICKS_TOKEN is not defined.${end}"
     exit 0
 fi
 
