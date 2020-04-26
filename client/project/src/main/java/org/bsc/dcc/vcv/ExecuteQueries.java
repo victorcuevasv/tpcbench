@@ -75,6 +75,7 @@ public class ExecuteQueries {
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
+		this.openConnection();
 	}
 	
 	
