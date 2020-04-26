@@ -214,14 +214,6 @@ if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
     #exit 0
 fi
 
-RUN_DELETE_BUCKET=0
-
-if [ "$RUN_DELETE_BUCKET" -eq 1 ]; then
-    #Delete the bucket
-    aws s3 rb s3://$DirNameWarehouse --force
-    exit 0
-fi
-
 ec2Attributes=$(jq -c . <<<  "$(ec2-attributes_func)")
 steps=$(jq -c . <<<  "$(steps_func)")
 instanceGroups=$(jq -c . <<<  "$(instance-groups_func)")
