@@ -74,7 +74,7 @@
 							<appendAssemblyId>false</appendAssemblyId>
 							<archive>
             					<manifest>
-              						<mainClass>org.bsc.dcc.vcv.RunBenchmark</mainClass>
+              						<mainClass>org.bsc.dcc.vcv.RunBenchmarkCLI</mainClass>
             					</manifest>
           					</archive>
 						</configuration>
