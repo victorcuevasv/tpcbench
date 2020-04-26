@@ -15,6 +15,11 @@ import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 
 public class CreateDatabase {
 
@@ -30,14 +35,14 @@ public class CreateDatabase {
 	
 	private final String workDir;
 	private final String dbName;
-	private final String folderName;
+	private final String resultsDir;
 	private final String experimentName;
 	private final String system;
 	
 	private final String test;
 	private final int instance;
-	private final String genDataDir;
-	private final String subDir;
+	private final String rawDataDir;
+	private final String createTableDir;
 	private final String suffix;
 	
 	private final Optional<String> extTablePrefixRaw;
@@ -54,6 +59,37 @@ public class CreateDatabase {
 	//When data partitioning or bucketing is used, Presto has to be replaced by Hive.
 	//This variable keeps track of that case.
 	private String systemRunning;
+	
+	public CreateDatabase(CommandLine commandLine) {
+		this.workDir = commandLine.getOptionValue("main-work-dir");
+		this.dbName = commandLine.getOptionValue("schema-name");
+		this.resultsDir = commandLine.getOptionValue("results-dir");
+		this.experimentName = commandLine.getOptionValue("experiment-name");
+		this.system = commandLine.getOptionValue("system-name");
+		this.test = commandLine.getOptionValue("tpcds-test", "load");
+		String instanceStr = commandLine.getOptionValue("instance-number");
+		this.instance = Integer.parseInt(instanceStr);
+		this.rawDataDir = commandLine.getOptionValue("raw-data-dir", "UNUSED");
+		this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
+		this.suffix = commandLine.getOptionValue("text-file-suffix", "_ext");
+		this.extTablePrefixRaw = Optional.ofNullable(commandLine.getOptionValue("ext-raw-data-location"));
+		this.extTablePrefixCreated = Optional.ofNullable(commandLine.getOptionValue("ext-tables-location"));
+		this.format = commandLine.getOptionValue("table-format");
+		String doCountStr = commandLine.getOptionValue("count-queries", "false");
+		this.doCount = Boolean.parseBoolean(doCountStr);
+		String partitionStr = commandLine.getOptionValue("use-partitioning");
+		this.partition = Boolean.parseBoolean(partitionStr);
+		String bucketingStr = commandLine.getOptionValue("use-bucketing");
+		this.bucketing = Boolean.parseBoolean(bucketingStr);
+		this.hostname = commandLine.getOptionValue("server-hostname");
+		this.username = commandLine.getOptionValue("connection-username");
+		this.jarFile = commandLine.getOptionValue("jar-file");
+		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
+		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
+				this.system, this.test, this.instance);
+		this.systemRunning = this.system;
+		this.openConnection();
+	}
 	
 	/**
 	 * @param args
@@ -85,15 +121,20 @@ public class CreateDatabase {
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
 	public CreateDatabase(String[] args) {
+		if( args.length != 19 ) {
+			System.out.println("Incorrect number of arguments: "  + args.length);
+			logger.error("Incorrect number of arguments: " + args.length);
+			System.exit(1);
+		}
 		this.workDir = args[0];
 		this.dbName = args[1];
-		this.folderName = args[2];
+		this.resultsDir = args[2];
 		this.experimentName = args[3];
 		this.system = args[4];
 		this.test = args[5];
 		this.instance = Integer.parseInt(args[6]);
-		this.genDataDir = args[7];
-		this.subDir = args[8];
+		this.rawDataDir = args[7];
+		this.createTableDir = args[8];
 		this.suffix = args[9];
 		this.extTablePrefixRaw = Optional.ofNullable(
 				args[10].equalsIgnoreCase("null") ? null : args[10]);
@@ -106,10 +147,14 @@ public class CreateDatabase {
 		this.hostname = args[16];
 		this.username = args[17];
 		this.jarFile = args[18];
-		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.subDir);
-		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
+		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		this.systemRunning = this.system;
+		this.openConnection();
+	}
+	
+	private void openConnection() {
 		try {
 			//IMPORTANT.
 			//Use Hive instead of Presto due to out of memory errors when using partitioning.
@@ -128,7 +173,6 @@ public class CreateDatabase {
 				//		this.hostname + ":8080/hive/" + this.dbName, "hive", "");
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8080/hive/" + this.dbName, this.username, "");
-				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
 			else if( this.system.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
@@ -181,19 +225,32 @@ public class CreateDatabase {
 			System.exit(1);
 		}
 	}
-
 	
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 19 ) {
-			System.out.println("Incorrect number of arguments: "  + args.length);
-			logger.error("Incorrect number of arguments: " + args.length);
-			System.exit(1);
+		CreateDatabase application = null;
+		//Check is GNU-like options are used.
+		boolean gnuOptions = args[0].contains("--") ? true : false;
+		if( ! gnuOptions )
+			application = new CreateDatabase(args);
+		else {
+			CommandLine commandLine = null;
+			try {
+				RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
+				Options options = runOptions.getOptions();
+				CommandLineParser parser = new DefaultParser();
+				commandLine = parser.parse(options, args);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				logger.error("Error in CreateDatabase main.");
+				logger.error(e);
+				logger.error(AppUtil.stringifyStackTrace(e));
+				System.exit(1);
+			}
+			application = new CreateDatabase(commandLine);
 		}
-		CreateDatabase prog = new CreateDatabase(args);
-		prog.createTables();
-		prog.closeConnection();
+		application.createTables();
 	}
-	
 	
 	private void createTables() {
 		this.recorder.header();
@@ -212,7 +269,6 @@ public class CreateDatabase {
 			i++;
 		}
 	}
-
 	
 	private void createTableSnowflake(String sqlCreateFilename, String sqlCreate, int index) {
 		QueryRecord queryRecord = null;
@@ -238,8 +294,8 @@ public class CreateDatabase {
 			stmt.execute(snowflakeSqlCreate);
 			//Upload the .dat files to the table stage, which is created by default.
 			String putSql = null;
-			if( ! this.genDataDir.equals("UNUSED") ) {
-				putSql = "PUT file://" + this.genDataDir + "/" + tableName + "/*.dat @%" + tableName;
+			if( ! this.rawDataDir.equals("UNUSED") ) {
+				putSql = "PUT file://" + this.rawDataDir + "/" + tableName + "/*.dat @%" + tableName;
 				saveCreateTableFile("snowflakeput", tableName, putSql);
 				stmt.execute(putSql);
 			}
@@ -273,7 +329,6 @@ public class CreateDatabase {
 		}
 	}
 	
-	
 	// To create each table from the .dat file, an external table is first created.
 	// Then a parquet table is created and data is inserted into it from the
 	// external table.
@@ -290,10 +345,10 @@ public class CreateDatabase {
 					! this.systemRunning.startsWith("presto"), suffix, false);
 			String extSqlCreate = null;
 			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark"))
-				extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, genDataDir, 
+				extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, rawDataDir, 
 						extTablePrefixRaw);
 			else if( this.systemRunning.startsWith("presto") )
-				extSqlCreate = externalCreateTablePresto(incExtSqlCreate, tableName, genDataDir,
+				extSqlCreate = externalCreateTablePresto(incExtSqlCreate, tableName, rawDataDir,
 						extTablePrefixRaw);
 			saveCreateTableFile("textfile", tableName, extSqlCreate);
 			// Skip the dbgen_version table since its time attribute is not
@@ -379,7 +434,6 @@ public class CreateDatabase {
 			}
 		}
 	}
-
 	
 	// Generate an incomplete SQL create statement to be completed for the texfile
 	// external and
@@ -424,10 +478,9 @@ public class CreateDatabase {
 		return builder.toString().replace("integer", "int    ");
 	}
 
-	
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an external textfile table in Hive.
-	private String externalCreateTableHive(String incompleteSqlCreate, String tableName, String genDataDir,
+	private String externalCreateTableHive(String incompleteSqlCreate, String tableName, String rawDataDir,
 			Optional<String> extTablePrefixRaw) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
@@ -436,14 +489,13 @@ public class CreateDatabase {
 		if( extTablePrefixRaw.isPresent() )
 			builder.append("LOCATION '" + extTablePrefixRaw.get() + "/" + tableName + "' \n");
 		else
-			builder.append("LOCATION '" + genDataDir + "/" + tableName + "' \n");
+			builder.append("LOCATION '" + rawDataDir + "/" + tableName + "' \n");
 		return builder.toString();
 	}
 	
-	
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an external textfile table in Presto.
-	private String externalCreateTablePresto(String incompleteSqlCreate, String tableName, String genDataDir,
+	private String externalCreateTablePresto(String incompleteSqlCreate, String tableName, String rawDataDir,
 			Optional<String> extTablePrefixRaw) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
@@ -451,10 +503,9 @@ public class CreateDatabase {
 		if( extTablePrefixRaw.isPresent() )
 			builder.append("external_location = '" + extTablePrefixRaw.get() + "/" + tableName + "' ) \n");
 		else
-			builder.append("external_location = '" + genDataDir + "/" + tableName + "' ) \n");
+			builder.append("external_location = '" + rawDataDir + "/" + tableName + "' ) \n");
 		return builder.toString();
 	}
-
 	
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an internal parquet table in Hive.
@@ -496,7 +547,6 @@ public class CreateDatabase {
 		return builder.toString();
 	}
 	
-	
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an internal parquet table in Presto.
 	private String internalCreateTablePresto(String incompleteSqlCreate, String tableName,
@@ -535,7 +585,6 @@ public class CreateDatabase {
 		return builder.toString();
 	}
 	
-	
 	private List<String> extractColumnNames(String sqlStr) {
 		List<String> list = new ArrayList<String>();
 		BufferedReader reader = null;
@@ -557,7 +606,6 @@ public class CreateDatabase {
 		}
 		return list;
 	}
-	
 	
 	private String shiftPartitionColumn(String sqlStr, String partitionAtt) {
 		ArrayList<String> list = new ArrayList<String>();
@@ -593,11 +641,10 @@ public class CreateDatabase {
 		}
 		return builder.toString();
 	}
-
 	
 	public void saveCreateTableFile(String suffix, String tableName, String sqlCreate) {
 		try {
-			String createTableFileName = this.workDir + "/" + this.folderName + "/" + this.subDir +
+			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + this.createTableDir +
 											suffix + "/" + this.experimentName + "/" + this.instance +
 											"/" + tableName + ".sql";
 			File temp = new File(createTableFileName);
@@ -612,7 +659,6 @@ public class CreateDatabase {
 			this.logger.error(ioe);
 		}
 	}
-
 	
 	private void countRowsQuery(Statement stmt, String tableName) {
 		try {
@@ -628,7 +674,6 @@ public class CreateDatabase {
 			this.logger.error(e);
 		}
 	}
-
 	
 	public String readFileContents(String filename) {
 		BufferedReader inBR = null;
@@ -648,7 +693,6 @@ public class CreateDatabase {
 		}
 		return retVal;
 	}
-	
 	
 	public void closeConnection() {
 		try {
