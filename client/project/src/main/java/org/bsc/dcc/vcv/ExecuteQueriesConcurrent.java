@@ -21,6 +21,11 @@ import java.util.concurrent.Executors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 
 public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 
@@ -39,14 +44,14 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private final Random random;
 	final String workDir;
 	final String dbName;
-	final String folderName;
+	final String resultsDir;
 	final String experimentName;
 	final String system;
 	final String test;
 	final int instance;
 	final String queriesDir;
-	final String resultsDir;
-	final String plansDir;
+	final String resultsSubDir;
+	final String plansSubDir;
 	final boolean savePlans;
 	final boolean saveResults;
 	final private String hostname;
@@ -57,6 +62,45 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	final int[][] matrix;
 	private final boolean useCachedResultSnowflake = false;
 	private final int maxConcurrencySnowflake = 8;
+	
+	public ExecuteQueriesConcurrent(CommandLine commandLine) {
+		this.workDir = commandLine.getOptionValue("main-work-dir");
+		this.dbName = commandLine.getOptionValue("schema-name");
+		this.resultsDir = commandLine.getOptionValue("results-dir");
+		this.experimentName = commandLine.getOptionValue("experiment-name");
+		this.system = commandLine.getOptionValue("system-name");
+		this.test = commandLine.getOptionValue("tpcds-test", "tput");
+		String instanceStr = commandLine.getOptionValue("instance-number");
+		this.instance = Integer.parseInt(instanceStr);
+		this.queriesDir = commandLine.getOptionValue("queries-dir-in-jar", "QueriesSpark");
+		this.resultsSubDir = commandLine.getOptionValue("results-subdir", "results");
+		this.plansSubDir = commandLine.getOptionValue("plans-subdir", "plans");
+		String savePlansStr = commandLine.getOptionValue("save-tput-plans", "false");
+		this.savePlans = Boolean.parseBoolean(savePlansStr);
+		String saveResultsStr = commandLine.getOptionValue("save-tput-results", "true");
+		this.saveResults = Boolean.parseBoolean(saveResultsStr);
+		this.jarFile = commandLine.getOptionValue("jar-file");
+		String nStreamsStr = commandLine.getOptionValue("number-of-streams"); 
+		this.nStreams = Integer.parseInt(nStreamsStr);
+		String seedStr = commandLine.getOptionValue("random-seed", "1954"); 
+		this.seed = Long.parseLong(seedStr);
+		this.random = new Random(seed);
+		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
+		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.resultsDir,
+				this.experimentName, this.system, this.test, this.instance);
+		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
+		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
+		try {
+			if( ! this.multiple )
+				this.con = this.createConnection(this.system, this.hostname, this.dbName);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueriesConcurrent constructor.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+	}
 	
 	/**
 	 * @param args
@@ -84,16 +128,21 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	 * 
 	 */
 	public ExecuteQueriesConcurrent(String[] args) {
+		if( args.length != 17 ) {
+			System.out.println("Incorrect number of arguments: "  + args.length);
+			logger.error("Incorrect number of arguments: " + args.length);
+			System.exit(1);
+		}
 		this.workDir = args[0];
 		this.dbName = args[1];
-		this.folderName = args[2];
+		this.resultsDir = args[2];
 		this.experimentName = args[3];
 		this.system = args[4];
 		this.test = args[5];
 		this.instance = Integer.parseInt(args[6]);
 		this.queriesDir = args[7];
-		this.resultsDir = args[8];
-		this.plansDir = args[9];
+		this.resultsSubDir = args[8];
+		this.plansSubDir = args[9];
 		this.savePlans = Boolean.parseBoolean(args[10]);
 		this.saveResults = Boolean.parseBoolean(args[11]);
 		this.hostname = args[12];
@@ -105,7 +154,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
 		this.matrix = this.streamsReader.getFileAsMatrix(this.streamsReader.getFiles().get(0));
-		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.folderName,
+		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.resultsDir,
 				this.experimentName, this.system, this.test, this.instance);
 		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
 		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
@@ -265,7 +314,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	
 	public void saveSnowflakeHistory() {
 		try {
-			String historyFile = this.workDir + "/" + this.folderName + "/analytics/" + 
+			String historyFile = this.workDir + "/" + this.resultsDir + "/analytics/" + 
 					this.experimentName + "/" + this.test + "/" + this.instance + "/history.log";
 			String columnsStr = this.createSnowflakeHistoryFileAndColumnList(historyFile);
 			this.setSnowflakeQueryTag("saveHistory");
@@ -289,14 +338,30 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 
 	
-	public static void main(String[] args) throws SQLException {
-		if( args.length != 17 ) {
-			System.out.println("Incorrect number of arguments: "  + args.length);
-			logger.error("Incorrect number of arguments: " + args.length);
-			System.exit(1);
+	public static void main(String[] args) {
+		ExecuteQueriesConcurrent application = null;
+		//Check is GNU-like options are used.
+		boolean gnuOptions = args[0].contains("--") ? true : false;
+		if( ! gnuOptions )
+			application = new ExecuteQueriesConcurrent(args);
+		else {
+			CommandLine commandLine = null;
+			try {
+				RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
+				Options options = runOptions.getOptions();
+				CommandLineParser parser = new DefaultParser();
+				commandLine = parser.parse(options, args);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				logger.error("Error in ExecuteQueriesConcurrent main.");
+				logger.error(e);
+				logger.error(AppUtil.stringifyStackTrace(e));
+				System.exit(1);
+			}
+			application = new ExecuteQueriesConcurrent(commandLine);
 		}
-		ExecuteQueriesConcurrent prog = new ExecuteQueriesConcurrent(args);
-		prog.executeStreams();
+		application.executeStreams();
 	}
 	
 	
