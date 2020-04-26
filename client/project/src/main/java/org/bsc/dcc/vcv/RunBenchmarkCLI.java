@@ -29,11 +29,12 @@ public class RunBenchmarkCLI {
 	private final Boolean usePartitioning;
 	
 	public RunBenchmarkCLI(String args[]) throws Exception {
+		CommandLine commandLine = null;
 		try {
 			RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
 			Options options = runOptions.getOptions();
 			CommandLineParser parser = new DefaultParser();
-			this.commandLine = parser.parse(options, args);
+			commandLine = parser.parse(options, args);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -42,15 +43,15 @@ public class RunBenchmarkCLI {
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 			throw e;
 		}
-		this.workDir = this.commandLine.getOptionValue("main-work-dir");
-		this.resultsDir = this.commandLine.getOptionValue("results-dir");
-		this.experimentName = this.commandLine.getOptionValue("experiment-name");
-		this.instance = this.commandLine.getOptionValue("instance-number");
-		this.system = this.commandLine.getOptionValue("system-name");
-		this.flags = this.commandLine.getOptionValue("execution-flags");
-		this.analyze = Boolean.parseBoolean(this.commandLine.getOptionValue("use-row-stats"));
-		this.format = this.commandLine.getOptionValue("table-format");
-		this.usePartitioning = Boolean.parseBoolean(this.commandLine.getOptionValue("use-partitioning"));
+		this.workDir = commandLine.getOptionValue("main-work-dir");
+		this.resultsDir = commandLine.getOptionValue("results-dir");
+		this.experimentName = commandLine.getOptionValue("experiment-name");
+		this.instance = commandLine.getOptionValue("instance-number");
+		this.system = commandLine.getOptionValue("system-name");
+		this.flags = commandLine.getOptionValue("execution-flags");
+		this.analyze = Boolean.parseBoolean(commandLine.getOptionValue("use-row-stats"));
+		this.format = commandLine.getOptionValue("table-format");
+		this.usePartitioning = Boolean.parseBoolean(commandLine.getOptionValue("use-partitioning"));
 	}
 	
 	public static void main(String[] args) {
