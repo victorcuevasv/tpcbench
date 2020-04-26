@@ -65,12 +65,12 @@ args[11]="--use-row-stats=true"
 #if argument above is true, whether to compute statistics for columns (true/false)
 args[12]="--use-column-stats=true"
 #"all" or query file
-args[13]="--all-or-query-file=query2.sql" 
+args[13]="--all-or-query-file=all" 
 #number of streams
 args[14]="--number-of-streams=$3"
 
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=111011"
+args[15]="--execution-flags=110000"
 #whether to use bucketing for Hive and Presto
 args[16]="--use-bucketing=false"
 #hostname of the server
@@ -232,7 +232,7 @@ aws emr create-cluster \
 --steps "$steps" \
 --instance-groups "$instanceGroups" \
 --configurations "$configurations" \
---auto-terminate \
+#--auto-terminate \
 --auto-scaling-role EMR_AutoScaling_DefaultRole \
 --bootstrap-actions "$bootstrapActions" \
 --ebs-root-volume-size 10 \
