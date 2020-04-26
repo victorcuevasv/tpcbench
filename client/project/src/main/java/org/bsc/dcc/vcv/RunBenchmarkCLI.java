@@ -87,19 +87,19 @@ public class RunBenchmarkCLI {
 			}
 			boolean doZorder = this.flags.charAt(3) == '1' ? true : false;
 			if( this.format.equalsIgnoreCase("delta") && doZorder ) {
-				String[] executeQueriesSparkDeltaZorderArgs =
+				String[] executeQueriesDeltaZorderArgs =
 						this.createExecuteQueriesDeltaZorderArgs(args);
-				this.saveTestParameters(executeQueriesSparkDeltaZorderArgs, "zorder");
+				this.saveTestParameters(executeQueriesDeltaZorderArgs, "zorder");
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
-				ExecuteQueries.main(executeQueriesSparkDeltaZorderArgs);
+				ExecuteQueries.main(executeQueriesDeltaZorderArgs);
 			}
 			boolean doPower = this.flags.charAt(4) == '1' ? true : false;
 			if( doPower ) {
-				String[] executeQueriesSparkArgs =
+				String[] executeQueriesArgs =
 						this.createExecuteQueriesArgs(args);
-				this.saveTestParameters(executeQueriesSparkArgs, "power");
+				this.saveTestParameters(executeQueriesArgs, "power");
 				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
-				ExecuteQueriesSpark.main(executeQueriesSparkArgs);
+				ExecuteQueries.main(executeQueriesArgs);
 			}
 			boolean doTput = this.flags.charAt(5) == '1' ? true : false;
 			if( doTput ) {
