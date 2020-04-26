@@ -70,7 +70,7 @@ args[13]="--all-or-query-file=all"
 args[14]="--number-of-streams=$3"
 
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=110000"
+args[15]="--execution-flags=111011"
 #whether to use bucketing for Hive and Presto
 args[16]="--use-bucketing=false"
 #hostname of the server
@@ -222,6 +222,7 @@ instanceGroups=$(jq -c . <<<  "$(instance-groups_func)")
 configurations=$(jq -c . <<<  "$(configurations_func)")
 bootstrapActions=$(jq -c . <<<  "$(bootstrap-actions_func)")
 
+#Delete the --auto-terminate line to avoid the cluster termination.
 
 aws emr create-cluster \
 --termination-protected \
@@ -232,7 +233,7 @@ aws emr create-cluster \
 --steps "$steps" \
 --instance-groups "$instanceGroups" \
 --configurations "$configurations" \
-#--auto-terminate \
+--auto-terminate \
 --auto-scaling-role EMR_AutoScaling_DefaultRole \
 --bootstrap-actions "$bootstrapActions" \
 --ebs-root-volume-size 10 \
