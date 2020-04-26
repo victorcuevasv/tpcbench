@@ -85,7 +85,13 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		String seedStr = commandLine.getOptionValue("random-seed", "1954"); 
 		this.seed = Long.parseLong(seedStr);
 		this.random = new Random(seed);
+		String multipleStr = commandLine.getOptionValue("multiple-connections", "false"); 
+		this.multiple = Boolean.parseBoolean(multipleStr);
+		this.hostname = commandLine.getOptionValue("server-hostname");
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
+		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.resultsDir,
+				this.experimentName, this.system, this.test, this.instance);
+		this.matrix = this.streamsReader.getFileAsMatrix(this.streamsReader.getFiles().get(0));
 		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.resultsDir,
 				this.experimentName, this.system, this.test, this.instance);
 		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
