@@ -122,6 +122,11 @@ public class ExecuteQueries {
 		this.saveResults = Boolean.parseBoolean(args[11]);
 		this.hostname = args[12];
 		this.jarFile = args[13];
+		//If running the zorder test, force the execution of all queries
+		if( this.test.equals("zorder") )
+			this.querySingleOrAll = "all";
+		else
+			this.querySingleOrAll = args[14];
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 						this.system, this.test, this.instance);
@@ -395,7 +400,7 @@ public class ExecuteQueries {
 			}
 			// Obtain the plan for the query.
 			Statement stmt = con.createStatement();
-			if( this.savePlans ) {
+			if( this.test.equals("power") &&  this.savePlans ) {
 				String explainStr = "EXPLAIN ";
 				if( this.system.startsWith("presto") )
 					explainStr += "(FORMAT GRAPHVIZ) ";
@@ -415,7 +420,7 @@ public class ExecuteQueries {
 				this.setSnowflakeQueryTag("");
 			// Save the results.
 			//this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, ! firstQuery);
-			if( this.saveResults ) {
+			if( this.test.equals("power") &&  this.saveResults ) {
 				int tuples = this.saveResults(this.generateResultsFileName(queryFileName), rs, ! firstQuery);
 				queryRecord.setTuples(queryRecord.getTuples() + tuples);
 			}
