@@ -77,6 +77,8 @@ args[16]="--use-bucketing=false"
 args[17]="--server-hostname=localhost"
 #username for the connection
 args[18]="--connection-username=hadoop"
+#queries dir within the jar
+args[19]="--queries-dir-in-jar=QueriesPresto"
 
 function json_string_list() {
     declare array=("$@")
