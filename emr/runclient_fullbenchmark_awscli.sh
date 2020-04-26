@@ -70,7 +70,7 @@ args[13]="--all-or-query-file=query2.sql"
 args[14]="--number-of-streams=$3"
 
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=111011"
+args[15]="--execution-flags=110000"
 #whether to use bucketing for Hive and Presto
 args[16]="--use-bucketing=false"
 #hostname of the server
