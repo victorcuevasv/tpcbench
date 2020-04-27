@@ -174,17 +174,18 @@ public class RunBenchmarkCLI {
 	
 	private String executeCommand(String cmd) {
 		ProcessBuilder processBuilder = new ProcessBuilder();
+		processBuilder.redirectErrorStream(true);
 		processBuilder.command("bash", "-c", cmd);
 		StringBuilder builder = new StringBuilder();
 		try {
 			Process process = processBuilder.start();
-			int exitVal = process.waitFor();
 			BufferedReader input = new BufferedReader(new 
 				     InputStreamReader(process.getInputStream()));
 			String s = null;
 			while ((s = input.readLine()) != null) {
 			    builder.append(s);
 			}
+			int exitVal = process.waitFor();
 		}
 		catch(IOException ioe) {
 			ioe.printStackTrace();
