@@ -115,6 +115,7 @@ public class RunBenchmarkCLI {
 				this.executeCommand("sleep 30");
 				this.executeCommand("mkdir -p /mnt/tpcds-results-test/" + this.resultsDir);
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /mnt/tpcds-results-test/" + this.resultsDir + "/");
+				this.executeCommand("sleep 30");
 			}
 		}
 		catch(Exception e) {
