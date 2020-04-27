@@ -396,7 +396,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			this.executor.submit(stream);
 		}
 		this.executor.shutdown();
-		/*Thread doWait = new Thread(new Runnable() {
+		Thread doWait = new Thread(new Runnable() {
 			public void run() {
 				try {
 		            latch.await();
@@ -407,9 +407,9 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			}
 		});
 		doWait.start();
-		*/
+		doWait.join();
 		//try {
-            latch.await();
+        //    latch.await();
         //}
 		//catch (InterruptedException e) {
         //    e.printStackTrace();
