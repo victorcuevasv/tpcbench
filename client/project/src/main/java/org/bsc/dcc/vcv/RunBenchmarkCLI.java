@@ -105,23 +105,17 @@ public class RunBenchmarkCLI {
 			if( doTput ) {
 				this.saveTestParameters(args, "tput");
 				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
-				this.executeCommand("date > /data/tput1.txt");
 				ExecuteQueriesConcurrent.main(args);
-				this.executeCommand("date > /data/tput2.txt");
 			}
 			if( this.system.equals("sparkdatabricks")  ) {
 				this.executeCommand("mkdir -p /dbfs/mnt/tpcds-results-test/" + this.resultsDir);
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /dbfs/mnt/tpcds-results-test/" + this.resultsDir + "/");
 			}
 			else if( this.system.equals("sparkemr") || this.system.equals("prestoemr")  ) {
-				this.executeCommand("date > /data/date1.txt");
 				//this.executeCommand("aws s3 cp --recursive " + this.workDir + "/" + this.resultsDir + "/ " +
 				//		"s3://tpcds-results-test/" + this.resultsDir + "/");
-				//this.executeCommand("sleep 300");
 				this.executeCommand("mkdir -p /mnt/tpcds-results-test/" + this.resultsDir);
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /mnt/tpcds-results-test/" + this.resultsDir + "/");
-				//this.executeCommand("sleep 300");
-				this.executeCommand("date > /data/date2.txt");
 			}
 		}
 		catch(Exception e) {
