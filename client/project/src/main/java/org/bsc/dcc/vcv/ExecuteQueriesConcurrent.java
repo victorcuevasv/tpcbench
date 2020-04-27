@@ -407,7 +407,12 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			}
 		});
 		doWait.start();
-		doWait.join();
+		try {
+			doWait.join();
+        }
+		catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 		//try {
         //    latch.await();
         //}
