@@ -112,10 +112,12 @@ public class RunBenchmarkCLI {
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /dbfs/mnt/tpcds-results-test/" + this.resultsDir + "/");
 			}
 			else if( this.system.equals("sparkemr") || this.system.equals("prestoemr")  ) {
-				this.executeCommand("sleep 30");
-				this.executeCommand("mkdir -p /mnt/tpcds-results-test/" + this.resultsDir);
-				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /mnt/tpcds-results-test/" + this.resultsDir + "/");
-				this.executeCommand("sleep 300");
+				this.executeCommand("aws s3 cp --recursive " + this.workDir + "/" + this.resultsDir + "/ " +
+						"s3://tpcds-results-test/" + this.resultsDir + "/");
+				//this.executeCommand("sleep 300");
+				//this.executeCommand("mkdir -p /mnt/tpcds-results-test/" + this.resultsDir);
+				//this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /mnt/tpcds-results-test/" + this.resultsDir + "/");
+				//this.executeCommand("sleep 300");
 			}
 		}
 		catch(Exception e) {
