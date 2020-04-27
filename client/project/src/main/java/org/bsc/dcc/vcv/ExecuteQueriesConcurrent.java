@@ -408,12 +408,12 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		});
 		doWait.start();
 		*/
-		try {
+		//try {
             latch.await();
-        }
-		catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        //}
+		//catch (InterruptedException e) {
+        //    e.printStackTrace();
+        //}
 	}
 	
 	
