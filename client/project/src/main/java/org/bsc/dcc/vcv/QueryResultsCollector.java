@@ -9,7 +9,6 @@ public class QueryResultsCollector implements Runnable {
 	private final BlockingQueue<QueryRecordConcurrent> resultsQueue;
 	private final AnalyticsRecorderConcurrent analyticsRecorder;
 	private final ConcurrentExecutor parent;
-	private final CountDownLatch latch;
 	
 	public QueryResultsCollector(int totalQueries, BlockingQueue<QueryRecordConcurrent> resultsQueue,
 			AnalyticsRecorderConcurrent analyticsRecorder, ConcurrentExecutor parent) {
