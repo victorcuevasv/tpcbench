@@ -18,6 +18,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.CountDownLatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
@@ -375,8 +376,9 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		HashMap<Integer, String> queriesHT = createQueriesHT(files, this.queriesReader);
 		int nQueries = files.size();
 		int totalQueries = nQueries * this.nStreams;
-		QueryResultsCollector resultsCollector = new QueryResultsCollector(totalQueries, 
-				this.resultsQueue, this.recorder, this);
+		CountDownLatch latch = new CountDownLatch(1);
+		QueryResultsCollectorLatch resultsCollector = new QueryResultsCollectorLatch(totalQueries, 
+				this.resultsQueue, this.recorder, this, latch);
 		ExecutorService resultsCollectorExecutor = Executors.newSingleThreadExecutor();
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
@@ -394,6 +396,17 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			this.executor.submit(stream);
 		}
 		this.executor.shutdown();
+		Thread doWait = new Thread(new Runnable() {
+			public void run() {
+				try {
+		            latch.await();
+		        }
+				catch (InterruptedException e) {
+		            e.printStackTrace();
+		        }
+			}
+		});
+		doWait.start();
 	}
 	
 	

@@ -1,9 +1,10 @@
 package org.bsc.dcc.vcv;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 
 
-public class QueryResultsCollector implements Runnable {
+public class QueryResultsCollectorLatch implements Runnable {
 	
 	private final int totalQueries;
 	private final BlockingQueue<QueryRecordConcurrent> resultsQueue;
@@ -11,12 +12,14 @@ public class QueryResultsCollector implements Runnable {
 	private final ConcurrentExecutor parent;
 	private final CountDownLatch latch;
 	
-	public QueryResultsCollector(int totalQueries, BlockingQueue<QueryRecordConcurrent> resultsQueue,
-			AnalyticsRecorderConcurrent analyticsRecorder, ConcurrentExecutor parent) {
+	public QueryResultsCollectorLatch(int totalQueries, BlockingQueue<QueryRecordConcurrent> resultsQueue,
+			AnalyticsRecorderConcurrent analyticsRecorder, ConcurrentExecutor parent,
+			CountDownLatch latch) {
 		this.totalQueries = totalQueries;
 		this.resultsQueue = resultsQueue;
 		this.analyticsRecorder = analyticsRecorder;
 		this.parent = parent;
+		this.latch = latch;
 	}
 	
 	public void run() {
@@ -38,6 +41,7 @@ public class QueryResultsCollector implements Runnable {
 		}
 		if( this.parent != null && ! this.analyticsRecorder.system.equalsIgnoreCase("sparkdatabricks") )
 			this.parent.closeConnection();
+		latch.countDown();
 	}
 	
 }
