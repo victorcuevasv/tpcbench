@@ -377,7 +377,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		int nQueries = files.size();
 		int totalQueries = nQueries * this.nStreams;
 		CountDownLatch latch = new CountDownLatch(1);
-		QueryResultsCollectorLatch resultsCollector = new QueryResultsCollectorLatch(totalQueries, 
+		QueryResultsCollector resultsCollector = new QueryResultsCollector(totalQueries, 
 				this.resultsQueue, this.recorder, this, latch);
 		ExecutorService resultsCollectorExecutor = Executors.newSingleThreadExecutor();
 		resultsCollectorExecutor.execute(resultsCollector);
@@ -396,29 +396,12 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			this.executor.submit(stream);
 		}
 		this.executor.shutdown();
-		Thread doWait = new Thread(new Runnable() {
-			public void run() {
-				try {
-		            latch.await();
-		        }
-				catch (InterruptedException e) {
-		            e.printStackTrace();
-		        }
-			}
-		});
-		doWait.start();
 		try {
-			doWait.join();
+            latch.await();
         }
 		catch (InterruptedException e) {
             e.printStackTrace();
         }
-		//try {
-        //    latch.await();
-        //}
-		//catch (InterruptedException e) {
-        //    e.printStackTrace();
-        //}
 	}
 	
 	
