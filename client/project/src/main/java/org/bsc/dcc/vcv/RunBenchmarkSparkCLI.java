@@ -107,15 +107,19 @@ public class RunBenchmarkSparkCLI {
 			if( doTput ) {
 				this.saveTestParameters(args, "tput");
 				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
+				this.executeCommand("date > /data/tput1.txt");
 				ExecuteQueriesConcurrentSpark.main(args);
+				this.executeCommand("date > /data/tput2.txt");
 			}
 			if( this.system.equals("sparkdatabricks")  ) {
 				this.executeCommand("mkdir -p /dbfs/mnt/tpcds-results-test/" + this.resultsDir);
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /dbfs/mnt/tpcds-results-test/" + this.resultsDir + "/");
 			}
 			else if( this.system.equals("sparkemr")  ) {
+				this.executeCommand("date > /data/copy1.txt");
 				this.executeCommand("mkdir -p /mnt/tpcds-results-test/" + this.resultsDir);
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /mnt/tpcds-results-test/" + this.resultsDir + "/");
+				this.executeCommand("date > /data/copy2.txt");
 			}
 		}
 		catch(Exception e) {
@@ -171,13 +175,13 @@ public class RunBenchmarkSparkCLI {
 		}
 	}
 
-	private void executeCommand(String cmd) {
+	private int executeCommand(String cmd) {
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.command("bash", "-c", cmd);
+		int exitVal = -1;
 		try {
 			Process process = processBuilder.start();
-			int exitVal = process.waitFor();
-			System.out.println(exitVal);
+			exitVal = process.waitFor();
 		}
 		catch(IOException ioe) {
 			ioe.printStackTrace();
@@ -185,6 +189,7 @@ public class RunBenchmarkSparkCLI {
 		catch(InterruptedException ie) {
 			ie.printStackTrace();
 		}
+		return exitVal;
 	}
 
 	
