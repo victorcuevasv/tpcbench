@@ -37,7 +37,7 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	private final ExecutorService executor;
 	private final BlockingQueue<QueryRecordConcurrent> resultsQueue;
 	private final JarQueriesReaderAsZipFile queriesReader;
-	private static final int POOL_SIZE = 100;
+	private static final int POOL_SIZE = 150;
 	private final Random random;
 	final String workDir;
 	final String dbName;
