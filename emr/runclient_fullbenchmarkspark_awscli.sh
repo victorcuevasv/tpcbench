@@ -235,7 +235,7 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	echo "${blu}Created cluster with id ${cluster_id}.${end}"
 fi
 
-WAIT_FOR_TERMINATION=1
+WAIT_FOR_TERMINATION=0
 
 if [ "$WAIT_FOR_TERMINATION" -eq 1 ]; then
 	echo "${blu}Waiting for the completion of cluster ${cluster_id}.${end}"
