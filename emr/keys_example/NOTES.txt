@@ -12,7 +12,7 @@ import org.apache.hudi.DataSourceWriteOptions
 import org.apache.hudi.config.HoodieWriteConfig
 import org.apache.hudi.hive.MultiPartKeysValueExtractor
 
-
+//Use partitioning
 val hudiOptions = Map[String,String](
   HoodieWriteConfig.TABLE_NAME -> "ship_mode",
   DataSourceWriteOptions.RECORDKEY_FIELD_OPT_KEY -> "sm_ship_mode_sk",
@@ -26,10 +26,24 @@ val hudiOptions = Map[String,String](
   DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db")
   
 
-  DataSourceWriteOptions.KEYGENERATOR_CLASS_OPT_KEY -> classOf[NonpartitionedKeyGenerator].getCanonicalName,
-  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[NonPartitionedExtractor].getCanonicalName,   
+//Testing
 
+import org.apache.hudi.hive.NonPartitionedExtractor
 
+val hudiOptions = Map[String,String](
+  HoodieWriteConfig.TABLE_NAME -> "ship_mode",
+  DataSourceWriteOptions.RECORDKEY_FIELD_OPT_KEY -> "sm_ship_mode_sk",
+  DataSourceWriteOptions.PARTITIONPATH_FIELD_OPT_KEY -> "",
+  DataSourceWriteOptions.PRECOMBINE_FIELD_OPT_KEY -> "sm_ship_mode_sk",
+  DataSourceWriteOptions.STORAGE_TYPE_OPT_KEY -> "COPY_ON_WRITE", 
+  DataSourceWriteOptions.HIVE_SYNC_ENABLED_OPT_KEY -> "true",
+  DataSourceWriteOptions.HIVE_TABLE_OPT_KEY -> "ship_mode",
+  DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY -> "",
+  DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db",
+  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[NonPartitionedExtractor].getName)   
+
+//hoodie.datasource.write.keygenerator.class=org.apache.hudi.keygen.NonpartitionedKeyGenerator
+//hoodie.datasource.hive_sync.partition_extractor_class=org.apache.hudi.hive.NonPartitionedExtractor
 
 spark.sql("use tpcds_sparkemr_600_1gb_1_db")
 
