@@ -1,0 +1,51 @@
+
+//Running on spark-shell
+
+spark-shell --conf "spark.serializer=org.apache.spark.serializer.KryoSerializer" \
+--conf "spark.sql.hive.convertMetastoreParquet=false" \
+--jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar
+
+
+import org.apache.spark.sql.SaveMode
+import org.apache.spark.sql.functions._
+import org.apache.hudi.DataSourceWriteOptions
+import org.apache.hudi.config.HoodieWriteConfig
+import org.apache.hudi.hive.MultiPartKeysValueExtractor
+
+
+val hudiOptions = Map[String,String](
+  HoodieWriteConfig.TABLE_NAME -> "ship_mode",
+  DataSourceWriteOptions.RECORDKEY_FIELD_OPT_KEY -> "sm_ship_mode_sk",
+  DataSourceWriteOptions.PARTITIONPATH_FIELD_OPT_KEY -> "sm_ship_mode_id",
+  DataSourceWriteOptions.PRECOMBINE_FIELD_OPT_KEY -> "sm_ship_mode_sk",
+  DataSourceWriteOptions.STORAGE_TYPE_OPT_KEY -> "COPY_ON_WRITE", 
+  DataSourceWriteOptions.HIVE_SYNC_ENABLED_OPT_KEY -> "true",
+  DataSourceWriteOptions.HIVE_TABLE_OPT_KEY -> "ship_mode",
+  DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY -> "sm_ship_mode_id",
+  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[MultiPartKeysValueExtractor].getName,
+  DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db")
+  
+
+  DataSourceWriteOptions.KEYGENERATOR_CLASS_OPT_KEY -> classOf[NonpartitionedKeyGenerator].getCanonicalName,
+  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[NonPartitionedExtractor].getCanonicalName,   
+
+
+
+spark.sql("use tpcds_sparkemr_600_1gb_1_db")
+
+import scala.io.Source
+
+val createExtTableSQL = Source.fromFile("/home/hadoop/ship_mode_ext.sql").mkString
+
+spark.sql(createExtTableSQL)
+
+val extTableDF = spark.sql("select * from ship_mode_ext")
+
+// Write a DataFrame as a Hudi dataset
+extTableDF.write.format("org.apache.hudi")
+  .option(DataSourceWriteOptions.OPERATION_OPT_KEY, DataSourceWriteOptions.INSERT_OPERATION_OPT_VAL)
+  .options(hudiOptions).mode(SaveMode.Overwrite)
+  .save("s3://tpcds-warehouses-test/tpcds-warehouse-sparkemr-600-1gb-1/ship_mode/")
+
+
+
