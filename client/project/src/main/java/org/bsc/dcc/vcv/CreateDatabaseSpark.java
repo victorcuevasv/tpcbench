@@ -23,6 +23,7 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Encoders;
+import org.apache.spark.sql.SaveMode;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
@@ -307,11 +308,11 @@ public class CreateDatabaseSpark {
 			hudiOptions = createHudiOptions(tableName, primaryKey, precombineKey, null, false);
 		}
 		saveHudiOptions("hudi", tableName, hudiOptions);
-		String selectSql = "SELECT * FROM " + tableName + suffix;
+		String selectSql = "SELECT * FROM " + tableName + this.suffix;
 		//this.spark.sql(selectSql).coalesce(64).write().mode("overwrite").insertInto(tableName);
 		this.spark.sql(selectSql).write().format("org.apache.hudi")
 		  .option("hoodie.datasource.write.operation", "insert")
-		  .options(hudiOptions).mode("overwrite")
+		  .options(hudiOptions).mode(SaveMode.Overwrite)
 		  .save(this.extTablePrefixCreated.get() + "/" + tableName + "/");
 	}
 	
