@@ -5,8 +5,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.HashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.Optional;
 import java.sql.SQLException;
 import java.sql.Connection;
@@ -49,6 +52,7 @@ public class CreateDatabaseSpark {
 	private final boolean doCount;
 	private final boolean partition;
 	private final String jarFile;
+	private final Map<String, String> precombineKeys;
 	
 	public CreateDatabaseSpark(CommandLine commandLine) {
 		try {
@@ -85,6 +89,7 @@ public class CreateDatabaseSpark {
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
+		this.precombineKeys = new HudiPrecombineKeys().getMap();
 	}
 	
 	/**
@@ -138,6 +143,7 @@ public class CreateDatabaseSpark {
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
+		this.precombineKeys = new HudiPrecombineKeys().getMap();
 		try {
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
 					.enableHiveSupport()
@@ -228,42 +234,22 @@ public class CreateDatabaseSpark {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, suffix, false);
-			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName, rawDataDir, extTablePrefixRaw);
+			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, this.suffix, false);
+			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName, 
+					this.rawDataDir, this.extTablePrefixRaw);
 			saveCreateTableFile("textfile", tableName, extSqlCreate);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
-			this.dropTable("drop table if exists " + tableName + suffix);
+			this.dropTable("drop table if exists " + tableName + this.suffix);
 			this.spark.sql(extSqlCreate);
-			if( doCount )
-				countRowsQuery(tableName + suffix);
-			//String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", true);
-			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", false);
-			String intSqlCreate = internalCreateTable(incIntSqlCreate, tableName, extTablePrefixCreated,
-					format);
-			saveCreateTableFile("parquet", tableName, intSqlCreate);
-			this.dropTable("drop table if exists " + tableName);
-			this.spark.sql(intSqlCreate);
-			
-			String insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
-			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
-				List<String> columns = extractColumnNames(incIntSqlCreate); 
-				insertSql = createPartitionInsertStmt(tableName, columns, suffix, format);
-			}
-			saveCreateTableFile("insert", tableName, insertSql);
-			this.spark.sql(insertSql);
-			
-			/*
-			String selectSql = "SELECT * FROM " + tableName + suffix;
-			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
-				List<String> columns = extractColumnNames(incIntSqlCreate); 
-				selectSql = createPartitionSelectStmt(tableName, columns, suffix, format);
-			}
-			saveCreateTableFile("select", tableName, selectSql);
-			this.spark.sql(selectSql).coalesce(64).write().mode("overwrite").insertInto(tableName);
-			*/
+			if( this.doCount )
+				countRowsQuery(tableName + this.suffix);
+			if( ! this.format.equals("hudi") )
+				createInternalTableSQL(sqlCreate, tableName);
+			else
+				createInternalTableHudi(sqlCreate, tableName);
 			queryRecord.setSuccessful(true);
-			if( doCount )
+			if( this.doCount )
 				countRowsQuery(tableName);
 		}
 		catch (Exception e) {
@@ -278,6 +264,96 @@ public class CreateDatabaseSpark {
 				this.recorder.record(queryRecord);
 			}
 		}
+	}
+	
+	
+	private void createInternalTableSQL(String sqlCreate, String tableName) throws Exception {
+		//String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", true);
+		String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", false);
+		String intSqlCreate = internalCreateTable(incIntSqlCreate, tableName, 
+				this.extTablePrefixCreated, this.format);
+		saveCreateTableFile("parquet", tableName, intSqlCreate);
+		this.dropTable("drop table if exists " + tableName);
+		this.spark.sql(intSqlCreate);
+		String insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
+		if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
+			List<String> columns = extractColumnNames(incIntSqlCreate);
+			insertSql = createPartitionInsertStmt(tableName, columns, this.suffix, this.format);
+		}
+		saveCreateTableFile("insert", tableName, insertSql);
+		this.spark.sql(insertSql);
+		/*
+		String selectSql = "SELECT * FROM " + tableName + suffix;
+		if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
+			List<String> columns = extractColumnNames(incIntSqlCreate); 
+			selectSql = createPartitionSelectStmt(tableName, columns, suffix, format);
+		}
+		saveCreateTableFile("select", tableName, selectSql);
+		this.spark.sql(selectSql).coalesce(64).write().mode("overwrite").insertInto(tableName);	
+		 */
+	}
+	
+	
+	private void createInternalTableHudi(String sqlCreate, String tableName) throws Exception {
+		String primaryKey = extractPrimaryKey(sqlCreate);
+		String precombineKey = this.precombineKeys.get(tableName);
+		Map<String, String> hudiOptions = null;
+		if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
+			String partitionKey = 
+					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+			hudiOptions = createHudiOptions(tableName, primaryKey, precombineKey, partitionKey, true);
+		}
+		else {
+			hudiOptions = createHudiOptions(tableName, primaryKey, precombineKey, null, false);
+		}
+		saveHudiOptions(tableName, hudiOptions);
+		String selectSql = "SELECT * FROM " + tableName + suffix;
+		//this.spark.sql(selectSql).coalesce(64).write().mode("overwrite").insertInto(tableName);
+		this.spark.sql(selectSql).write().format("org.apache.hudi")
+		  .option("hoodie.datasource.write.operation", "insert")
+		  .options(hudiOptions).mode("overwrite")
+		  .save(this.extTablePrefixCreated + "/" + tableName + "/");
+	}
+	
+	
+	private Map<String, String> createHudiOptions(String tableName, String primaryKey,
+			String precombineKey, String partitionKey, boolean usePartitioning) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("hoodie.datasource.hive_sync.database", this.dbName);
+		map.put("hoodie.datasource.write.precombine.field", precombineKey);
+		map.put("hoodie.datasource.hive_sync.table", tableName);
+		map.put("hoodie.datasource.hive_sync.enable", "true");
+		map.put("hoodie.datasource.write.recordkey.field", primaryKey);
+		map.put("hoodie.table.name", tableName);
+		map.put("hoodie.datasource.write.storage.type", "COPY_ON_WRITE");
+		map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.ComplexKeyGenerator");
+		if( usePartitioning ) {
+			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 
+					"org.apache.hudi.hive.MultiPartKeysValueExtractor");
+			map.put("hoodie.datasource.hive_sync.partition_fields", partitionKey);
+			map.put("hoodie.datasource.write.partitionpath.field", partitionKey);
+		}
+		else {
+			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 
+					"org.apache.hudi.hive.NonPartitionedExtractor");
+			map.put("hoodie.datasource.hive_sync.partition_fields", "");
+			map.put("hoodie.datasource.write.partitionpath.field", "");
+		}
+		return map;
+	}
+	
+	
+	private String extractPrimaryKey(String sqlCreate) {
+		String primaryKeyLine = Stream.of(sqlCreate.split("\\r?\\n")).
+				filter(s -> s.contains("primary key")).findAny().orElse(null);
+		if( primaryKeyLine == null ) {
+			System.out.println("Null value in extractPrimaryKey.");
+			this.logger.error("Null value in extractPrimaryKey.");
+		}
+		String primaryKey = primaryKeyLine.trim().substring(primaryKeyLine.indexOf('(') + 1, 
+				primaryKeyLine.indexOf(')'));
+		}
+		return primaryKey.replace(" ", "");
 	}
 	
 	
@@ -396,6 +472,29 @@ public class CreateDatabaseSpark {
 			FileWriter fileWriter = new FileWriter(createTableFileName);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			printWriter.println(sqlCreate);
+			printWriter.close();
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+			this.logger.error(ioe);
+		}
+	}
+	
+	
+	private void saveHudiOptions(String tableName, Map<String, String> map) {
+		try {
+			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + this.createTableDir +
+					"/" + this.experimentName + "/" + this.instance +
+					"/" + tableName + ".txt";
+			StringBuilder builder = new StringBuilder();
+			for (Map.Entry<String, String> entry : map.entrySet()) {
+			    builder.append(entry.getKey() + "=" + entry.getValue().toString() + "\n");
+			}
+			File temp = new File(createTableFileName);
+			temp.getParentFile().mkdirs();
+			FileWriter fileWriter = new FileWriter(createTableFileName);
+			PrintWriter printWriter = new PrintWriter(fileWriter);
+			printWriter.println(builder.toString());
 			printWriter.close();
 		}
 		catch (IOException ioe) {
