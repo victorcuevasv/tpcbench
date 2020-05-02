@@ -25,8 +25,20 @@ val hudiOptions = Map[String,String](
   DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[MultiPartKeysValueExtractor].getName,
   DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db")
   
+val hudiOptions = Map[String,String](
+  HoodieWriteConfig.TABLE_NAME -> "catalog_sales",
+  DataSourceWriteOptions.RECORDKEY_FIELD_OPT_KEY -> "cs_item_sk",
+  DataSourceWriteOptions.PARTITIONPATH_FIELD_OPT_KEY -> "ss_sold_date_sk",
+  DataSourceWriteOptions.PRECOMBINE_FIELD_OPT_KEY -> "cs_item_sk",
+  DataSourceWriteOptions.STORAGE_TYPE_OPT_KEY -> "COPY_ON_WRITE", 
+  DataSourceWriteOptions.HIVE_SYNC_ENABLED_OPT_KEY -> "true",
+  DataSourceWriteOptions.HIVE_TABLE_OPT_KEY -> "catalog_sales",
+  DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY -> "ss_sold_date_sk",
+  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[MultiPartKeysValueExtractor].getName,
+  DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db")
+  
 
-//Testing
+//Do not use partitioning
 
 import org.apache.hudi.hive.NonPartitionedExtractor
 
@@ -40,7 +52,19 @@ val hudiOptions = Map[String,String](
   DataSourceWriteOptions.HIVE_TABLE_OPT_KEY -> "ship_mode",
   DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY -> "",
   DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db",
-  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[NonPartitionedExtractor].getName)   
+  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[NonPartitionedExtractor].getName)
+  
+val hudiOptions = Map[String,String](
+  HoodieWriteConfig.TABLE_NAME -> "catalog_sales",
+  DataSourceWriteOptions.RECORDKEY_FIELD_OPT_KEY -> "cs_item_sk",
+  DataSourceWriteOptions.PARTITIONPATH_FIELD_OPT_KEY -> "",
+  DataSourceWriteOptions.PRECOMBINE_FIELD_OPT_KEY -> "cs_item_sk",
+  DataSourceWriteOptions.STORAGE_TYPE_OPT_KEY -> "COPY_ON_WRITE", 
+  DataSourceWriteOptions.HIVE_SYNC_ENABLED_OPT_KEY -> "true",
+  DataSourceWriteOptions.HIVE_TABLE_OPT_KEY -> "catalog_sales",
+  DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY -> "",
+  DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db",
+  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[NonPartitionedExtractor].getName)    
 
 //hoodie.datasource.write.keygenerator.class=org.apache.hudi.keygen.NonpartitionedKeyGenerator
 //hoodie.datasource.hive_sync.partition_extractor_class=org.apache.hudi.hive.NonPartitionedExtractor
@@ -60,6 +84,48 @@ extTableDF.write.format("org.apache.hudi")
   .option(DataSourceWriteOptions.OPERATION_OPT_KEY, DataSourceWriteOptions.INSERT_OPERATION_OPT_VAL)
   .options(hudiOptions).mode(SaveMode.Overwrite)
   .save("s3://tpcds-warehouses-test/tpcds-warehouse-sparkemr-600-1gb-1/ship_mode/")
+  
+//Composite keys and partitioning
+
+import org.apache.hudi.ComplexKeyGenerator
+
+val hudiOptions = Map[String,String](
+  HoodieWriteConfig.TABLE_NAME -> "catalog_sales",
+  DataSourceWriteOptions.RECORDKEY_FIELD_OPT_KEY -> "cs_item_sk,cs_order_number",
+  DataSourceWriteOptions.PARTITIONPATH_FIELD_OPT_KEY -> "ss_sold_date_sk",
+  DataSourceWriteOptions.PRECOMBINE_FIELD_OPT_KEY -> "cs_order_number",
+  DataSourceWriteOptions.STORAGE_TYPE_OPT_KEY -> "COPY_ON_WRITE", 
+  DataSourceWriteOptions.HIVE_SYNC_ENABLED_OPT_KEY -> "true",
+  DataSourceWriteOptions.HIVE_TABLE_OPT_KEY -> "catalog_sales",
+  DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY -> "ss_sold_date_sk",
+  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[MultiPartKeysValueExtractor].getName,
+  DataSourceWriteOptions.KEYGENERATOR_CLASS_OPT_KEY -> classOf[ComplexKeyGenerator].getName,
+  DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db")
+  
+  
+//Print map in scala
+
+for ((k,v) <- hudiOptions) printf("key: %s, value: %s\n", k, v)
+
+
+key: hoodie.datasource.hive_sync.database, value: tpcds_sparkemr_600_1gb_1_db
+key: hoodie.datasource.write.precombine.field, value: cs_order_number
+key: hoodie.datasource.hive_sync.partition_fields, value: ss_sold_date_sk
+key: hoodie.datasource.hive_sync.partition_extractor_class, value: org.apache.hudi.hive.MultiPartKeysValueExtractor
+key: hoodie.datasource.hive_sync.table, value: catalog_sales
+key: hoodie.datasource.hive_sync.enable, value: true
+key: hoodie.datasource.write.recordkey.field, value: cs_item_sk,cs_order_number
+key: hoodie.table.name, value: catalog_sales
+key: hoodie.datasource.write.storage.type, value: COPY_ON_WRITE
+key: hoodie.datasource.write.keygenerator.class, value: org.apache.hudi.ComplexKeyGenerator
+key: hoodie.datasource.write.partitionpath.field, value: ss_sold_date_sk
+
+
+
+
+
+
+
 
 
 
