@@ -352,7 +352,6 @@ public class CreateDatabaseSpark {
 		}
 		String primaryKey = primaryKeyLine.trim().substring(primaryKeyLine.indexOf('(') + 1, 
 				primaryKeyLine.indexOf(')'));
-		}
 		return primaryKey.replace(" ", "");
 	}
 	
