@@ -118,6 +118,40 @@ steps_func()
 EOF
 }
 
+
+steps_func_hudi()
+{
+  cat <<EOF
+[
+   {
+      "Args":[
+         "spark-submit",
+         "--deploy-mode",
+         "client",
+         "--conf",
+         "spark.eventLog.enabled=true",
+         "--conf",
+         "spark.serializer=org.apache.spark.serializer.KryoSerializer",
+         "--conf",
+         "spark.sql.hive.convertMetastoreParquet=false",
+		 "--jars",
+		 "/usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar",
+         "--class",
+         "org.bsc.dcc.vcv.RunBenchmarkSparkCLI",
+         "$JarFile",
+         $paramsStr
+      ],
+      "Type":"CUSTOM_JAR",
+      "ActionOnFailure":"TERMINATE_CLUSTER",
+      "Jar":"command-runner.jar",
+      "Properties":"",
+      "Name":"Spark application"
+   }
+]
+EOF
+}
+
+
 instance-groups_func()
 {
   cat <<EOF
