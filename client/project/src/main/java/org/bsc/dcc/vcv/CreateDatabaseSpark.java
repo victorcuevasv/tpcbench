@@ -351,8 +351,7 @@ public class CreateDatabaseSpark {
 			this.logger.error("Null value in extractPrimaryKey.");
 		}
 		String primaryKey = primaryKeyLine.trim();
-		primaryKey = primaryKey.substring(primaryKeyLine.indexOf('(') + 1, 
-				primaryKeyLine.indexOf(')'));
+		primaryKey = primaryKey.substring(primaryKey.indexOf('(') + 1, primaryKey.indexOf(')'));
 		return primaryKey.replace(" ", "");
 	}
 	
