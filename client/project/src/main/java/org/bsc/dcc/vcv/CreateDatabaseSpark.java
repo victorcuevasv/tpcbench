@@ -346,6 +346,9 @@ public class CreateDatabaseSpark {
 	private String extractPrimaryKey(String sqlCreate) {
 		String primaryKeyLine = Stream.of(sqlCreate.split("\\r?\\n")).
 				filter(s -> s.contains("primary key")).findAny().orElse(null);
+		System.out.println("Extracting primary key.");
+		System.out.println("primaryKeyLine:");
+		System.out.println(primaryKeyLine);
 		if( primaryKeyLine == null ) {
 			System.out.println("Null value in extractPrimaryKey.");
 			this.logger.error("Null value in extractPrimaryKey.");
