@@ -312,7 +312,7 @@ public class CreateDatabaseSpark {
 		this.spark.sql(selectSql).write().format("org.apache.hudi")
 		  .option("hoodie.datasource.write.operation", "insert")
 		  .options(hudiOptions).mode("overwrite")
-		  .save(this.extTablePrefixCreated + "/" + tableName + "/");
+		  .save(this.extTablePrefixCreated.get() + "/" + tableName + "/");
 	}
 	
 	
