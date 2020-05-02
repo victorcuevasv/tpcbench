@@ -306,7 +306,7 @@ public class CreateDatabaseSpark {
 		else {
 			hudiOptions = createHudiOptions(tableName, primaryKey, precombineKey, null, false);
 		}
-		saveHudiOptions(tableName, hudiOptions);
+		saveHudiOptions("hudi", tableName, hudiOptions);
 		String selectSql = "SELECT * FROM " + tableName + suffix;
 		//this.spark.sql(selectSql).coalesce(64).write().mode("overwrite").insertInto(tableName);
 		this.spark.sql(selectSql).write().format("org.apache.hudi")
@@ -480,10 +480,10 @@ public class CreateDatabaseSpark {
 	}
 	
 	
-	private void saveHudiOptions(String tableName, Map<String, String> map) {
+	private void saveHudiOptions(String suffix, String tableName, Map<String, String> map) {
 		try {
 			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + this.createTableDir +
-					"/" + this.experimentName + "/" + this.instance +
+					suffix + "/" + this.experimentName + "/" + this.instance +
 					"/" + tableName + ".txt";
 			StringBuilder builder = new StringBuilder();
 			for (Map.Entry<String, String> entry : map.entrySet()) {
