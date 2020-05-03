@@ -21,49 +21,51 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
-DirNameWarehouse="tpcds-warehouse-sparkemr-529-$1gb-$2"
+DirNameWarehouse="tpcds-warehouse-sparkemr-600-$1gb-$2"
 DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
-DatabaseName="tpcds_sparkemr_529_$1gb_$2_db"
+DatabaseName="tpcds_sparkemr_600_$1gb_$2_db"
 Nodes="2"
 JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
 
 args=()
 
-#args[0] main work directory
+# main work directory
 args[0]="--main-work-dir=/data"
-#args[1] schema (database) name
+# schema (database) name
 args[1]="--schema-name=$DatabaseName"
-#args[2] results folder name (e.g. for Google Drive)
+# results folder name (e.g. for Google Drive)
 args[2]="--results-dir=$DirNameResults"
-#args[3] experiment name (name of subfolder within the results folder)
-args[3]="--experiment-name=sparkemr-529-${Nodes}nodes-$1gb-experimental"
-#args[4] system name (system name used within the logs)
+# experiment name (name of subfolder within the results folder)
+args[3]="--experiment-name=sparkemr-600-${Nodes}nodes-$1gb-experimental"
+# system name (system name used within the logs)
 args[4]="--system-name=sparkemr"
 
-#args[5] experiment instance number
+# experiment instance number
 args[5]="--instance-number=$2"
-#args[6] prefix of external location for raw data tables (e.g. S3 bucket), null for none
+# prefix of external location for raw data tables (e.g. S3 bucket), null for none
 args[6]="--ext-raw-data-location=s3://tpcds-datasets/$1GB"
-#args[7] prefix of external location for created tables (e.g. S3 bucket), null for none
+# prefix of external location for created tables (e.g. S3 bucket), null for none
 args[7]="--ext-tables-location=s3://tpcds-warehouses-test/$DirNameWarehouse"
-#args[8] format for column-storage tables (PARQUET, DELTA)
+# format for column-storage tables (PARQUET, DELTA)
 args[8]="--table-format=parquet"
-#args[9] whether to use data partitioning for the tables (true/false)
+# whether to use data partitioning for the tables (true/false)
 args[9]="--use-partitioning=false"
 
-#args[10] jar file
-args[10]="--jar-file=$JarFile"
-#args[11] whether to generate statistics by analyzing tables (true/false)
-args[11]="--use-row-stats=true"
-#args[12] if argument above is true, whether to compute statistics for columns (true/false)
-args[12]="--use-column-stats=true"
-#args[13] "all" or query file
-args[13]="--all-or-query-file=query2.sql" 
-#args[14] number of streams
-args[14]="--number-of-streams=$3"
-
-#args[15] flags (111111 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=111011"
+# "all" or create table file
+args[10]="--all-or-create-file=all"
+# jar file
+args[11]="--jar-file=$JarFile"
+# whether to generate statistics by analyzing tables (true/false)
+args[12]="--use-row-stats=true"
+# if argument above is true, whether to compute statistics for columns (true/false)
+args[13]="--use-column-stats=true"
+# "all" or query file
+args[14]="--all-or-query-file=query2.sql"
+ 
+# number of streams
+args[15]="--number-of-streams=$3"
+# flags (111111 schema|load|analyze|zorder|power|tput)
+args[16]="--execution-flags=111011"
 
 function json_string_list() {
     declare array=("$@")
@@ -245,7 +247,7 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	--termination-protected \
 	--applications Name=Hadoop Name=Hive Name=Spark \
 	--ec2-attributes "$ec2Attributes" \
-	--release-label emr-5.29.0 \
+	--release-label emr-6.0.0 \
 	--log-uri 's3n://bsc-emr-logs/' \
 	--steps "$steps" \
 	--instance-groups "$instanceGroups" \

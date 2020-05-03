@@ -51,10 +51,13 @@ public class RunBenchmarkSparkOptions {
 		options.addOption( Option.builder().longOpt( "use-partitioning" )
 				.desc( "whether to use data partitioning for the tables" )
 				.hasArg(true).required(true).type(Boolean.class).build() );
+		options.addOption( Option.builder().longOpt( "all-or-create-file" )
+				.desc( "\"all\" or create table file" )
+				.hasArg(true).required(false).build() );
+		
 		options.addOption( Option.builder().longOpt( "jar-file" )
 				.desc( "jar file" )
 				.hasArg(true).required(true).build() );
-		
 		options.addOption( Option.builder().longOpt( "use-row-stats" )
 				.desc( "whether to generate row statistics by analyzing tables" )
 				.hasArg(true).required(true).type(Boolean.class).build() );
@@ -67,10 +70,10 @@ public class RunBenchmarkSparkOptions {
 		options.addOption( Option.builder().longOpt( "queries-dir-in-jar" )
 				.desc( "queries dir within the jar" )
 				.hasArg(true).required(false).build() );
+		
 		options.addOption( Option.builder().longOpt( "results-subdir" )
 				.desc( "subdirectory of work directory to store the results" )
 				.hasArg(true).required(false).build() );
-		
 		options.addOption( Option.builder().longOpt( "plans-subdir" )
 				.desc( "subdirectory of work directory to store the execution plans" )
 				.hasArg(true).required(false).build() );
@@ -83,10 +86,10 @@ public class RunBenchmarkSparkOptions {
 		options.addOption( Option.builder().longOpt( "all-or-query-file" )
 				.desc( "\"all\" or query file" )
 				.hasArg(true).required(true).build() );
+		
 		options.addOption( Option.builder().longOpt( "save-tput-plans" )
 				.desc( "save tput test plans" )
 				.hasArg(true).required(false).type(Boolean.class).build() );
-		
 		options.addOption( Option.builder().longOpt( "save-tput-results" )
 				.desc( "save tput test results" )
 				.hasArg(true).required(false).type(Boolean.class).build() );

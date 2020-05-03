@@ -53,6 +53,7 @@ public class CreateDatabaseSpark {
 	private final boolean doCount;
 	private final boolean partition;
 	private final String jarFile;
+	private final String createSingleOrAll;
 	private final Map<String, String> precombineKeys;
 	
 	public CreateDatabaseSpark(CommandLine commandLine) {
@@ -86,6 +87,7 @@ public class CreateDatabaseSpark {
 		this.doCount = Boolean.parseBoolean(doCountStr);
 		String partitionStr = commandLine.getOptionValue("use-partitioning");
 		this.partition = Boolean.parseBoolean(partitionStr);
+		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
 		this.jarFile = commandLine.getOptionValue("jar-file");
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
@@ -140,6 +142,7 @@ public class CreateDatabaseSpark {
 		this.format = args[12];
 		this.doCount = Boolean.parseBoolean(args[13]);
 		this.partition = Boolean.parseBoolean(args[14]);
+		this.createSingleOrAll = "all";
 		this.jarFile = args[15];
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
@@ -200,6 +203,12 @@ public class CreateDatabaseSpark {
 			if( fileName.equals("dbgen_version.sql") ) {
 				System.out.println("Skipping: " + fileName);
 				continue;
+			}
+			if( ! this.createSingleOrAll.equals("all") ) {
+				if( ! fileName.equals(this.createSingleOrAll) ) {
+					System.out.println("Skipping: " + fileName);
+					continue;
+				}
 			}
 			createTable(fileName, sqlCreate, i);
 			i++;
