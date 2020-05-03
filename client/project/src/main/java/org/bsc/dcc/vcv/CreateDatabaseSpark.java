@@ -329,6 +329,9 @@ public class CreateDatabaseSpark {
 	private Map<String, String> createHudiOptions(String tableName, String primaryKey,
 			String precombineKey, String partitionKey, boolean usePartitioning) {
 		Map<String, String> map = new HashMap<String, String>();
+		//For now only use simple keys.
+		StringTokenizer tokenizer = new StringTokenizer(primaryKey, ",");
+		primaryKey = tokenizer.nextToken();
 		map.put("hoodie.datasource.hive_sync.database", this.dbName);
 		map.put("hoodie.datasource.write.precombine.field", precombineKey);
 		map.put("hoodie.datasource.hive_sync.table", tableName);
@@ -336,18 +339,20 @@ public class CreateDatabaseSpark {
 		map.put("hoodie.datasource.write.recordkey.field", primaryKey);
 		map.put("hoodie.table.name", tableName);
 		map.put("hoodie.datasource.write.storage.type", "COPY_ON_WRITE");
-		map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.ComplexKeyGenerator");
 		if( usePartitioning ) {
 			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 
 					"org.apache.hudi.hive.MultiPartKeysValueExtractor");
 			map.put("hoodie.datasource.hive_sync.partition_fields", partitionKey);
 			map.put("hoodie.datasource.write.partitionpath.field", partitionKey);
+			//map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.ComplexKeyGenerator");
+			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.SimpleKeyGenerator");
 		}
 		else {
 			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 
 					"org.apache.hudi.hive.NonPartitionedExtractor");
 			map.put("hoodie.datasource.hive_sync.partition_fields", "");
 			map.put("hoodie.datasource.write.partitionpath.field", "");
+			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.NonpartitionedKeyGenerator");   
 		}
 		return map;
 	}

@@ -72,7 +72,7 @@ function create_string_list() {
     declare list=""
     for w in "${array[@]}"
     do
-        list+="\"$w\" "
+        list+="$w "
     done
     #Remove the last space
     echo ${list%?}

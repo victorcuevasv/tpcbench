@@ -12,6 +12,12 @@ import org.apache.hudi.DataSourceWriteOptions
 import org.apache.hudi.config.HoodieWriteConfig
 import org.apache.hudi.hive.MultiPartKeysValueExtractor
 
+import org.apache.hudi.hive.NonPartitionedExtractor
+import org.apache.hudi.ComplexKeyGenerator
+import org.apache.hudi.NonpartitionedKeyGenerator
+import org.apache.hudi.SimpleKeyGenerator
+
+
 //Use partitioning
 val hudiOptions = Map[String,String](
   HoodieWriteConfig.TABLE_NAME -> "ship_mode",
@@ -35,6 +41,7 @@ val hudiOptions = Map[String,String](
   DataSourceWriteOptions.HIVE_TABLE_OPT_KEY -> "catalog_sales",
   DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY -> "ss_sold_date_sk",
   DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[MultiPartKeysValueExtractor].getName,
+  DataSourceWriteOptions.KEYGENERATOR_CLASS_OPT_KEY -> classOf[SimpleKeyGenerator].getName,
   DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db")
   
 
@@ -52,7 +59,8 @@ val hudiOptions = Map[String,String](
   DataSourceWriteOptions.HIVE_TABLE_OPT_KEY -> "ship_mode",
   DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY -> "",
   DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db",
-  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[NonPartitionedExtractor].getName)
+  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[NonPartitionedExtractor].getName,
+  DataSourceWriteOptions.KEYGENERATOR_CLASS_OPT_KEY -> classOf[NonpartitionedKeyGenerator].getName)
   
 val hudiOptions = Map[String,String](
   HoodieWriteConfig.TABLE_NAME -> "catalog_sales",
