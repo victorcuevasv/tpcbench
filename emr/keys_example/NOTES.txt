@@ -146,8 +146,8 @@ for ((k,v) <- hudiOptions) printf("%s -> %s\n", k, v)
 
 //Save spark configuration to file
 import java.io._
-val fw = new FileWriter("out.txt", false) 
-for ((k,v) <- spark.sparkContext.getConf.getAll) fw.write(k + "=" + v + "\n\n")
+val fw = new FileWriter("shellSparkConf.txt", false) 
+for ((k,v) <- spark.sparkContext.getConf.getAll.sortBy(_._1)) fw.write(k + "=" + v + "\n\n")
 fw.close()
 
 
