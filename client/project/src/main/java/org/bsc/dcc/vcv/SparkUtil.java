@@ -19,7 +19,8 @@ public class SparkUtil {
 		    sb.append(entry._2);
 		    sb.append('"');
 		    if (iter.hasNext()) {
-		        sb.append('\n\n');
+		        sb.append('\n');
+		        sb.append('\n');
 		    }
 		}
 		return sb.toString();
