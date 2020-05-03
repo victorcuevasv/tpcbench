@@ -21,6 +21,7 @@ public class CreateSchemaSpark {
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
 						.enableHiveSupport()
 						.getOrCreate();
+			this.logger.info(SparkUtil.stringifySparkConfiguration(this.spark));
 		}
 		catch(Exception e) {
 			e.printStackTrace();
