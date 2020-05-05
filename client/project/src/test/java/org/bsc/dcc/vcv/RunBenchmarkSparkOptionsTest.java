@@ -100,7 +100,7 @@ public class RunBenchmarkSparkOptionsTest {
     		Options options = runOptions.getOptions();
     		CommandLineParser parser = new DefaultParser();
     		CommandLine commandLine = parser.parse(options, args);
-    		assertEquals(RunBenchmarkSparkOptions.recoverAsString(commandLine), String.join(" ", args));
+    		assertEquals(RunBenchmarkSparkOptions.recoverAsString(commandLine), String.join(",", args));
     	}
     	catch(Exception e) {
     		e.printStackTrace();
