@@ -76,7 +76,7 @@ public class RunBenchmarkSparkOptionsTest {
     		String partitionStr = commandLine.getOptionValue("use-partitioning");
     		boolean partition = Boolean.parseBoolean(partitionStr);
     		assertFalse(partition);
-    		assertTrue(runOptions.getOptions().toString().equals("WRONG"));
+    		assertEquals(runOptions.getOptions().toString(), "WRONG");
     	}
     	catch(Exception e) {
     		e.printStackTrace();
