@@ -2,6 +2,7 @@ package org.bsc.dcc.vcv;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.CommandLine;
 
 public class RunBenchmarkSparkOptions {
 	
@@ -108,10 +109,10 @@ public class RunBenchmarkSparkOptions {
 		return this.options;
 	}
 	
-	public String toString() {
+	public static String recoverAsString(CommandLine commandLine) {
 		StringBuilder builder = new StringBuilder();
-		for(Option option : this.options.getOptions()) {
-			builder.append(option.getLongOpt() + "=" + option.getValue() + " ");
+		for(Option option : commandLine.getOptions()) {
+			builder.append("--" + option.getLongOpt() + "=" + option.getValue() + " ");
 		}
 		return builder.toString().trim();
 	}
