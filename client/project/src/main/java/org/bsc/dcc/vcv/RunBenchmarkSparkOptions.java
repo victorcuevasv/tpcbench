@@ -107,6 +107,14 @@ public class RunBenchmarkSparkOptions {
 	public Options getOptions() {
 		return this.options;
 	}
+	
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		for(Option option : this.options.getOptions()) {
+			builder.append(option.toString());
+		}
+		return builder.toString();
+	}
 
 }
 
