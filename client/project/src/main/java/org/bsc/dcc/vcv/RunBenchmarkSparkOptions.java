@@ -111,9 +111,9 @@ public class RunBenchmarkSparkOptions {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		for(Option option : this.options.getOptions()) {
-			builder.append(option.toString());
+			builder.append(option.getLongOpt() + "=" + option.getValue() + " ");
 		}
-		return builder.toString();
+		return builder.toString().trim();
 	}
 
 }
