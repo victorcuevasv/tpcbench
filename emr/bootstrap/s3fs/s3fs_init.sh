@@ -2,6 +2,8 @@
 
 #User to own the directories.
 mUSER="ec2-user"
+#Name of the iam role with the policy enabling access to the s3 buckets.
+iamRoleName="tpcds-mount"
 #Buckets to mount. It is assumed an IAM role enabling access to them is associated with the machine.
 buckets=("tpcds-jars" "tpcds-results-test")
 
@@ -17,7 +19,7 @@ sudo make -C ./s3fs-fuse install
 for bucket in "${buckets[@]}" ; do
 	mkdir /home/$mUSER/$bucket
 	sudo chown $mUSER:$mUSER -R /home/$mUSER/$bucket
-	sudo -u $mUSER s3fs -o iam_role="tpcds-mount" -o url="https://s3-us-west-2.amazonaws.com" \
+	sudo -u $mUSER s3fs -o iam_role="$iamRoleName" -o url="https://s3-us-west-2.amazonaws.com" \
 	-o endpoint=us-west-2 -o dbglevel=info -o curldbg \
 	-o use_cache=/tmp $bucket /home/$mUSER/$bucket
 done
