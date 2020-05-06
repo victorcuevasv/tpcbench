@@ -47,7 +47,7 @@ index=$((index+1))
 
 #Build the client project builder image.
 printf "\n\n%s\n\n" "${mag}Building the client project builder image.${end}"
-bash $DIR/../client/buildSingle.sh $USER_NAME $USER_ID $GROUP_ID $LOCAL_MIRROR
+bash $DIR/../client/buildSingle.sh $USER_NAME $USER_ID $GROUP_ID $LOCAL_MIRROR $JDBC
 buildFlags[$index]=$?
 buildLabels[$index]=client
 index=$((index+1))

@@ -17,6 +17,7 @@ ARG PRESTO_MIRROR=repo1.maven.org
 ARG SIMBADRIVER_MIRROR=localhost:8888
 ARG MAVEN_VERSION=3.6.3
 ARG PRESTO_VERSION=0.227
+ARG JDBC=false
 
 #Download and decompress Maven.
 
@@ -35,26 +36,25 @@ RUN wget --no-check-certificate -q -P /opt \
     
 #Download the Simba JDBC driver for Databricks.
 
-RUN wget -q -P /opt http://$SIMBADRIVER_MIRROR/simbadriver/SparkJDBC41.jar 
+RUN if [ $JDBC = "true" ] ; then wget -q -P /opt http://$SIMBADRIVER_MIRROR/simbadriver/SparkJDBC41.jar ; fi 
 
 #Install the Simba JDBC driver jar with Maven.
 
 USER $UNAME
 
-RUN mvn install:install-file -Dfile=/opt/SparkJDBC41.jar -DgroupId=com.simba.spark.jdbc41 -DartifactId=Driver -Dversion=2.6.3.1003 -Dpackaging=jar    
+RUN if [ $JDBC = "true" ] ; then mvn install:install-file -Dfile=/opt/SparkJDBC41.jar -DgroupId=com.simba.spark.jdbc41 -DartifactId=Driver -Dversion=2.6.3.1003 -Dpackaging=jar ; fi    
 
 #Download the Maven dependencies.
 
 ADD project/*.xml /home/$UNAME/
 
-RUN mvn  -q dependency:go-offline -f /home/$UNAME/pom.xml && \
-    rm -f /home/$UNAME/pom.xml
+RUN mvn  -q dependency:go-offline -f /home/$UNAME/pomEMR.xml && rm -f /home/$UNAME/pomEMR.xml
+
+RUN mvn  -q dependency:go-offline -f /home/$UNAME/pomSpark.xml && rm -f /home/$UNAME/pomSpark.xml
     
-RUN mvn  -q dependency:go-offline -f /home/$UNAME/pomSpark.xml && \
-    rm -f /home/$UNAME/pomSpark.xml
-    
-RUN mvn  -q dependency:go-offline -f /home/$UNAME/pomSparkJDBC.xml && \
-    rm -f /home/$UNAME/pomSparkJDBC.xml
+RUN if [ $JDBC = "true" ] ; then mvn  -q dependency:go-offline -f /home/$UNAME/pom.xml && rm -f /home/$UNAME/pom.xml ; fi
+
+RUN if [ $JDBC = "true" ] ; then mvn  -q dependency:go-offline -f /home/$UNAME/pomSparkJDBC.xml && rm -f /home/$UNAME/pomSparkJDBC.xml ; fi
 
 CMD ["bash"]
 
