@@ -3,7 +3,7 @@ FROM ubuntujava:dev
 USER root
 
 ARG APACHE_MIRROR=archive.apache.org
-ARG SPARK_VERSION=2.4.3
+ARG SPARK_VERSION=2.4.4
 ARG HADOOP_VERSION=2.7.7
 
 #Install netcat to use nc to check connections, ssh and python.

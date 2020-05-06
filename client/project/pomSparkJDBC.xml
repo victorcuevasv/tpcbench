@@ -49,7 +49,7 @@
 		<dependency>
 			<groupId>com.facebook.presto</groupId>
 			<artifactId>presto-jdbc</artifactId>
-			<version>0.214</version>
+			<version>0.227</version>
 		</dependency>
 		<dependency>
 			<groupId>com.simba.spark.jdbc41</groupId>

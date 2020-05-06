@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y \
 ARG APACHE_MIRROR=archive.apache.org
 ARG PRESTO_MIRROR=repo1.maven.org
 ARG SIMBADRIVER_MIRROR=localhost:8888
-ARG MAVEN_VERSION=3.6.0
-ARG PRESTO_VERSION=0.220
+ARG MAVEN_VERSION=3.6.3
+ARG PRESTO_VERSION=0.227
 
 #Download and decompress Maven.
 
