@@ -28,7 +28,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<includes>
-						<exclude>org/bsc/dcc/vcv/ProcessCreateScript.java</exclude>
+						<include>org/bsc/dcc/vcv/ProcessCreateScript.java</include>
 					</includes>
 				</configuration>
 			</plugin>
