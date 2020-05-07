@@ -21,6 +21,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
 	<build>
+		<directory>targetcreatescript</directory>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
