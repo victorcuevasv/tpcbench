@@ -27,6 +27,9 @@ GROUP_ID=$(id -g)
 #Indicates whether to use the local mirror for the dependencies (0=no / 1=yes).
 LOCAL_MIRROR=1
 
+#If the variable DBR_JDBC is defined, it will be passed to the buildSingle.sh script.
+# <DBR_JDBC>
+
 buildFlags=()
 buildLabels=()
 index=0
@@ -47,7 +50,7 @@ index=$((index+1))
 
 #Build the client project builder image.
 printf "\n\n%s\n\n" "${mag}Building the client project builder image.${end}"
-bash $DIR/../client/buildSingle.sh $USER_NAME $USER_ID $GROUP_ID $LOCAL_MIRROR $JDBC
+bash $DIR/../client/buildSingle.sh $USER_NAME $USER_ID $GROUP_ID $LOCAL_MIRROR $DBR_JDBC
 buildFlags[$index]=$?
 buildLabels[$index]=client
 index=$((index+1))
