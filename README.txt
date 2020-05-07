@@ -148,8 +148,8 @@ Within the tpcdsbench directory, type
 bash compileclientEMR.sh
 
 The script above will create a file named client-1.2-SNAPSHOT-SHADED.jar that will also be copied into
-the $HOME/tpcds-jars/targetemr/ directory. The tpcds-jars directory is a mounted bucket, so in effect
-any previous version of the jar file stored in s3 will be overwritten.
+the $HOME/tpcds-jars/targetemr/ directory. It is important to note that the tpcds-jars directory is a 
+mounted s3 bucket, so in effect any previous version of the jar file stored in s3 will be overwritten.
 
 2.2) Compile the Spark application
 
@@ -158,13 +158,7 @@ Within the tpcdsbench directory, type
 bash compileclientSparkDatabricks.sh
 
 The process is analogous to the Presto application. Again a file named client-1.2-SNAPSHOT-SHADED.jar will
-be generated but this time it will be stored in $HOME/tpcds-jars/targetsparkdatabricks/
-
-
-
-
-
-
+be generated but in this case it will be stored in $HOME/tpcds-jars/targetsparkdatabricks/
 
 
 
