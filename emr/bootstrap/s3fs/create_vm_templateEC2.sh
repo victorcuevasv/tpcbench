@@ -5,6 +5,7 @@
 
 SecurityGroupId="sg-0d676074919b90fac"
 RoleWithPolicyArn="arn:aws:iam::384416317380:instance-profile/tpcds-mount"
+KeyPair="testalojakeypair"
 
 encodedScript=$(base64 --wrap=0 s3fs_init.sh)
 
@@ -44,7 +45,7 @@ json_data_func()
             }
         }
     ], 
-    "KeyName": "testalojakeypair", 
+    "KeyName": "$KeyPair", 
     "CreditSpecification": {
         "CpuCredits": "standard"
     }, 
