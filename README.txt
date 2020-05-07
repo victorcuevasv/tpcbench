@@ -9,7 +9,7 @@ machine after completing the equivalent tasks performed by the AWS initializatio
 
 git clone https://victorcuevasv@bitbucket.org/victorcuevasv/tpcdsbench.git
 
-2) Create a virtual machine on AWS
+2) Create a virtual machine on AWS.
 
 Scripts are provided to create a VM on AWS with the necessary configuration. If the artifacts created by
 some of the scripts already exist in the AWS account, the corresponding steps can be omitted.
@@ -87,10 +87,12 @@ a virtual machine instance is created from this template, the s3fs_init.sh scrip
 will install s3fs and mount the tpcds-jars and tpcds-results-test buckets. In addition, it will install
 git, docker, jq, and the databricks-cli.
 
-The benchmark system can then be downloaded to the newly created VM in order to run benchmarking
-experiments.
+The VM can be created directly from the AWS web GUI. The benchmark system can then be downloaded to the
+newly created VM in order to run benchmarking experiments, as it was done in step 1.
 
+git clone https://victorcuevasv@bitbucket.org/victorcuevasv/tpcdsbench.git
 
+3) Build the benchmarking infrastructure
 
 
 
