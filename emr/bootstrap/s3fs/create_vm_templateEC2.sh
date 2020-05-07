@@ -21,7 +21,7 @@ json_data_func()
             "ResourceType": "instance", 
             "Tags": [
                 {
-                    "Value": "TestMachine", 
+                    "Value": "BenchmarkVM", 
                     "Key": "Name"
                 }
             ]
