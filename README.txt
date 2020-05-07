@@ -80,21 +80,32 @@ When the script create_vm_templateEC2.sh is executed, it will encode the s3fs_in
 so that it can be sent as part of the AWS CLI request to create the template. Consequently, to create
 the template it suffices to execute the create_vm_templateEC2.sh script as follows
 
-bash emr\bootstrap\s3fs\create_vm_templateEC2.sh
+bash emr/bootstrap/s3fs/create_vm_templateEC2.sh
 
 The execution of the script results in the creation of an EC2 instance template named BenchmarkVM. When
 a virtual machine instance is created from this template, the s3fs_init.sh script will be executed, which
 will install s3fs and mount the tpcds-jars and tpcds-results-test buckets. In addition, it will install
 git, docker, jq, and the databricks-cli.
 
-The VM can be created directly from the AWS web GUI. The benchmark system can then be downloaded to the
-newly created VM in order to run benchmarking experiments, as it was done in step 1.
+The VM can be created directly from the AWS web GUI (EC2 > Launch templates > Launch instance from template).
+The benchmark system can then be downloaded to the newly created VM in order to run benchmarking experiments,
+as it was done in step 1.
 
 git clone https://victorcuevasv@bitbucket.org/victorcuevasv/tpcdsbench.git
 
-3) Build the benchmarking infrastructure
 
+3) Build the benchmarking infrastructure.
 
+The building process will create the container images to generate the queries, compile the application,
+and run experiments. The instructions in this section cover Databricks, EMR Spark, and EMR Presto.
+However, in the case of Databricks JDBC, additional steps are required due to the JDBC driver used.
+The additional steps to run Databricks JDBC are detailed later in this document.
+
+3.1) Create the containers.
+
+The BuildAll.sh script creates the necessary container images, it can be run with the instruction.
+
+bash emr/BuildAll.sh
 
 
 
