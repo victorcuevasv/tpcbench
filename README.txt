@@ -107,5 +107,66 @@ The BuildAll.sh script creates the necessary container images, it can be run wit
 
 bash emr/BuildAll.sh
 
+The container images created shoud include: clientbuilder, tpcds, ubuntujava, and ubuntu. The clientbuilder
+image contains the benchmarking application code, while the tpcds image contains the data and queries
+generation tools adapted from the TPC-DS Toolkit.
+
+
+RUNNING EXPERIMENTS
+
+After the benchmarking infrastructure has been installed, in order to run experiments it is still necessary
+to generate the SQL files (create table statements and queries) and to compile the benchmarking application.
+It is important to remark that the benchmarking application and the SQL files it will run are encapsulated
+in the same jar file. However, the generation of the queries and the compilation of the application are 
+separate tasks.
+
+1) Create the SQL files
+
+It is absolutely necessary to create the SQL files before compiling the application, otherwise the SQL files
+will not be included in the jar. Inside the tpcdsbench directory, to create the SQL files execute the following
+script, supplying the scale factor (as an integer denoting gigabytes):
+
+bash CreateSQLFiles.sh <scale factor>
+
+For example, type:
+
+bash CreateSQLFiles.sh 1000
+
+To create the SQL files corresponding to the 1000 GB (or 1 TB) scale factor. Although the create table 
+statements do not change with the scale factor, some of the attribute values used in the queries do change.
+
+2) Compile the benchmarking application
+
+Once the SQL files have been generated, the benchmarking application can be compiled, which will include
+them. Separate jar files are generated for Presto and Spark. In the case of Spark, the built application
+works on EMR as well as on Databricks.
+
+2.1) Compile the Presto application
+
+Within the tpcdsbench directory, type
+
+bash compileclientEMR.sh
+
+The script above will create a file named client-1.2-SNAPSHOT-SHADED.jar that will also be copied into
+the $HOME/tpcds-jars/targetemr/ directory. The tpcds-jars directory is a mounted bucket, so in effect
+any previous version of the jar file stored in s3 will be overwritten.
+
+2.2) Compile the Spark application
+
+Within the tpcdsbench directory, type
+
+bash compileclientSparkDatabricks.sh
+
+The process is analogous to the Presto application. Again a file named client-1.2-SNAPSHOT-SHADED.jar will
+be generated but this time it will be stored in $HOME/tpcds-jars/targetsparkdatabricks/
+
+
+
+
+
+
+
+
+
 
 

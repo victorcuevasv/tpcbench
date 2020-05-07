@@ -17,5 +17,5 @@ GROUP_ID=$(id -g)
 printf "\n\n%s\n\n" "${blu}Compiling the client EMR project.${end}"
 bash client/compileEMR.sh $USER_ID $GROUP_ID
 
-#cp client/project/targetemr/client-1.2-SNAPSHOT-SHADED.jar $HOME/tpcds-jars/targetemr/client-1.2-SNAPSHOT-SHADED.jar  
+cp client/project/targetemr/client-1.2-SNAPSHOT-SHADED.jar $HOME/tpcds-jars/targetemr/client-1.2-SNAPSHOT-SHADED.jar  
 

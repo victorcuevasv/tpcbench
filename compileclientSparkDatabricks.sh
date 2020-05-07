@@ -17,4 +17,4 @@ GROUP_ID=$(id -g)
 printf "\n\n%s\n\n" "${blu}Compiling the client project.${end}"
 bash client/compileSparkDatabricks.sh $USER_ID $GROUP_ID
 
-#cp client/project/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar $HOME/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar   
+cp client/project/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar $HOME/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar   
