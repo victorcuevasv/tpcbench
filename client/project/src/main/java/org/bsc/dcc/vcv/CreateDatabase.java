@@ -59,6 +59,7 @@ public class CreateDatabase {
 	//When data partitioning or bucketing is used, Presto has to be replaced by Hive.
 	//This variable keeps track of that case.
 	private String systemRunning;
+	private final String createSingleOrAll;
 	
 	public CreateDatabase(CommandLine commandLine) {
 		this.workDir = commandLine.getOptionValue("main-work-dir");
@@ -84,10 +85,14 @@ public class CreateDatabase {
 		this.hostname = commandLine.getOptionValue("server-hostname");
 		this.username = commandLine.getOptionValue("connection-username");
 		this.jarFile = commandLine.getOptionValue("jar-file");
+		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		this.systemRunning = this.system;
+		if( commandLine.hasOption("override-load-system") ) {
+			this.systemRunning = commandLine.getOptionValue("override-load-system");
+		}
 		this.openConnection();
 	}
 	
@@ -146,11 +151,16 @@ public class CreateDatabase {
 		this.bucketing = Boolean.parseBoolean(args[15]);
 		this.hostname = args[16];
 		this.username = args[17];
+		this.createSingleOrAll = "all";
 		this.jarFile = args[18];
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		this.systemRunning = this.system;
+		if( this.system.equals("hive") || 
+				( ( this.partition || this.bucketing ) && this.system.startsWith("presto") ) ) {
+			this.systemRunning = "hive";
+		}
 		this.openConnection();
 	}
 	
@@ -159,28 +169,25 @@ public class CreateDatabase {
 			//IMPORTANT.
 			//Use Hive instead of Presto due to out of memory errors when using partitioning.
 			//The logs would still be organized as if Presto was used.
-			if( this.system.equals("hive") || 
-					( ( this.partition || this.bucketing ) && this.system.startsWith("presto") ) ) {
-			//if( this.system.equals("hive") ) {
+			if( this.systemRunning.equals("hive") ) {
 				Class.forName(driverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" + this.hostname + 
 					":10000/" + dbName, "hive", "");
-				this.systemRunning = "hive";
 			}
-			else if( this.system.equals("presto") ) {
+			else if( this.systemRunning.equals("presto") ) {
 				Class.forName(prestoDriverName);
 				//this.con = DriverManager.getConnection("jdbc:presto://" + 
 				//		this.hostname + ":8080/hive/" + this.dbName, "hive", "");
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8080/hive/" + this.dbName, this.username, "");
 			}
-			else if( this.system.equals("prestoemr") ) {
+			else if( this.systemRunning.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
 				//Should use hadoop to drop a table created by spark.
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8889/hive/" + this.dbName, "hadoop", "");
 			}
-			else if( this.system.equals("sparkdatabricksjdbc") ) {
+			else if( this.systemRunning.equals("sparkdatabricksjdbc") ) {
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
@@ -188,19 +195,19 @@ public class CreateDatabase {
 				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
 				";UseNativeQuery=1");
 			}
-			else if( this.system.startsWith("spark") ) {
+			else if( this.systemRunning.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" +
 						this.hostname + ":10015/" + this.dbName, "hive", "");
 			}
-			else if( system.startsWith("snowflake") ) {
+			else if( this.systemRunning.startsWith("snowflake") ) {
 				Class.forName(snowflakeDriverName);
 				con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
 						"user=" + this.username + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
 						"&schema=" + this.dbName + "&warehouse=testwh");
 			}
 			else {
-				throw new java.lang.RuntimeException("Unsupported system: " + this.system);
+				throw new java.lang.RuntimeException("Unsupported system: " + this.systemRunning);
 			}
 		}
 		catch (ClassNotFoundException e) {
@@ -253,21 +260,32 @@ public class CreateDatabase {
 	}
 	
 	private void createTables() {
+		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
-		// Process each .sql create table file found in the directory.
 		List<String> unorderedList = this.createTableReader.getFiles();
 		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
 		int i = 1;
 		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
-			//if( ! fileName.equals("call_center.sql") )
-			//	continue;
+			// Skip the dbgen_version table since its time attribute is not
+			// compatible with Hive.
+			if( fileName.equals("dbgen_version.sql") ) {
+				System.out.println("Skipping: " + fileName);
+				continue;
+			}
+			if( ! this.createSingleOrAll.equals("all") ) {
+				if( ! fileName.equals(this.createSingleOrAll) ) {
+					System.out.println("Skipping: " + fileName);
+					continue;
+				}
+			}
 			if( ! this.systemRunning.equals("snowflake") )
 				this.createTable(fileName, sqlCreate, i);
 			else
 				this.createTableSnowflake(fileName, sqlCreate, i);
 			i++;
 		}
+		this.recorder.close();
 	}
 	
 	private void createTableSnowflake(String sqlCreateFilename, String sqlCreate, int index) {
@@ -281,12 +299,6 @@ public class CreateDatabase {
 			//Hive and Spark use the statement 'create external table ...' for raw data tables
 			String snowflakeSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, suffix, false);
 			saveCreateTableFile("snowflaketable", tableName, snowflakeSqlCreate);
-			// Skip the dbgen_version table since its time attribute is not
-			// compatible with Hive.
-			if (tableName.equals("dbgen_version")) {
-				System.out.println("Skipping: " + tableName);
-				return;
-			}
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			Statement stmt = con.createStatement();
@@ -351,12 +363,6 @@ public class CreateDatabase {
 				extSqlCreate = externalCreateTablePresto(incExtSqlCreate, tableName, rawDataDir,
 						extTablePrefixRaw);
 			saveCreateTableFile("textfile", tableName, extSqlCreate);
-			// Skip the dbgen_version table since its time attribute is not
-			// compatible with Hive.
-			if (tableName.equals("dbgen_version")) {
-				System.out.println("Skipping: " + tableName);
-				return;
-			}
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			Statement stmt = con.createStatement();

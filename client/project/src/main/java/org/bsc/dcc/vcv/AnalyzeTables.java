@@ -3,9 +3,12 @@ package org.bsc.dcc.vcv;
 import java.sql.SQLException;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -26,6 +29,7 @@ public class AnalyzeTables {
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private final AnalyticsRecorder recorder;
+	private final JarCreateTableReaderAsZipFile analyzeTableReader;
 	private final String workDir;
 	private final String dbName;
 	private final String resultsDir;
@@ -35,6 +39,10 @@ public class AnalyzeTables {
 	private final int instance;
 	private final boolean computeForCols;
 	private final String hostname;
+	private final String jarFile;
+	private final String createTableDir;
+	private final String createSingleOrAll;
+	private String systemRunning;
 	
 	
 	public AnalyzeTables(CommandLine commandLine) {
@@ -49,8 +57,16 @@ public class AnalyzeTables {
 		String computeForColsStr = commandLine.getOptionValue("use-column-stats");
 		this.computeForCols = Boolean.parseBoolean(computeForColsStr);
 		this.hostname = commandLine.getOptionValue("server-hostname");
+		this.jarFile = commandLine.getOptionValue("jar-file");
+		this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
+		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
+		this.analyzeTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
+		this.systemRunning = this.system;
+		if( commandLine.hasOption("override-analyze-system") ) {
+			this.systemRunning = commandLine.getOptionValue("override-analyze-system");
+		}
 		this.openConnection();
 	}
 
@@ -68,12 +84,15 @@ public class AnalyzeTables {
 	 * args[6] experiment instance number
 	 * args[7] compute statistics for columns (true/false)
 	 * args[8] hostname of the server
+	 * args[9] jar file
+	 * 
+	 * args[10] subdirectory within the jar that contains the create table files
 	 * 
 	 */
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
 	public AnalyzeTables(String[] args) {
-		if( args.length != 9 ) {
+		if( args.length != 11 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
@@ -87,8 +106,13 @@ public class AnalyzeTables {
 		this.instance = Integer.parseInt(args[6]);
 		this.computeForCols = Boolean.parseBoolean(args[7]);
 		this.hostname = args[8];
+		this.jarFile = args[9];
+		this.createTableDir = args[10];
+		this.createSingleOrAll = "all";
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
+		this.analyzeTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
+		this.systemRunning = this.system;
 		this.openConnection();
 	}
 
@@ -96,25 +120,25 @@ public class AnalyzeTables {
 	private void openConnection() {
 		try {
 			String driverName = "";
-			if( this.system.equals("hive") ) {
+			if( this.systemRunning.equals("hive") ) {
 				Class.forName(hiveDriverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" +
 						this.hostname + ":10000/" + this.dbName, "hive", "");
 				
 			}
-			else if( this.system.equals("presto") ) {
+			else if( this.systemRunning.equals("presto") ) {
 				Class.forName(prestoDriverName);
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8080/hive/" + this.dbName, "hive", "");
 				((PrestoConnection)this.con).setSessionProperty("query_max_stage_count", "102");
 			}
-			else if( this.system.equals("prestoemr") ) {
+			else if( this.systemRunning.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8889/hive/" + this.dbName, "hive", "");
 				((PrestoConnection)this.con).setSessionProperty("query_max_stage_count", "102");
 			}
-			else if( this.system.equals("sparkdatabricksjdbc") ) {
+			else if( this.systemRunning.equals("sparkdatabricksjdbc") ) {
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
@@ -122,7 +146,7 @@ public class AnalyzeTables {
 				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
 				";UseNativeQuery=1");
 			}
-			else if( system.startsWith("spark") ) {
+			else if( systemRunning.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" +
 						this.hostname + ":10015/" + this.dbName, "hive", "");
@@ -177,20 +201,32 @@ public class AnalyzeTables {
 	
 	
 	private void analyzeTables() {
-		if( this.system.equals("hive") )
-			this.configureMapreduce();
-		String[] tables = {"call_center", "catalog_page", "catalog_returns", "catalog_sales",
-							"customer", "customer_address", "customer_demographics", "date_dim",
-							"household_demographics", "income_band", "inventory", "item",
-							"promotion", "reason", "ship_mode", "store", "store_returns",
-							"store_sales", "time_dim", "warehouse", "web_page", "web_returns",
-							"web_sales", "web_site"};
+		if( this.systemRunning.equals("hive") )
+			//this.configureMapreduce();
+		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
-		for(int i = 0; i < tables.length; i++) {
-			if( this.system.startsWith("spark") )
-				this.executeAnalyzeTableSpark(tables[i], i);
+		List<String> unorderedList = this.analyzeTableReader.getFiles();
+		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
+		int i = 1;
+		for (final String fileName : orderedList) {
+			String sqlCreate = this.analyzeTableReader.getFile(fileName);
+			// Skip the dbgen_version table since its time attribute is not
+			// compatible with Hive.
+			if( fileName.equals("dbgen_version.sql") ) {
+				System.out.println("Skipping: " + fileName);
+				continue;
+			}
+			if( ! this.createSingleOrAll.equals("all") ) {
+				if( ! fileName.equals(this.createSingleOrAll) ) {
+					System.out.println("Skipping: " + fileName);
+					continue;
+				}
+			}
+			if( this.systemRunning.startsWith("spark") )
+				this.executeAnalyzeTableSpark(fileName, i);
 			else
-				this.executeAnalyzeTable(tables[i], i);
+				this.executeAnalyzeTable(fileName, i);
+			i++;
 		}
 		this.recorder.close();
 	}
@@ -221,22 +257,27 @@ public class AnalyzeTables {
 	}
 	
 	
-	private void executeAnalyzeTable(String table, int index) {
+	private void executeAnalyzeTable(String sqlCreateFilename, int index) {
 		QueryRecord queryRecord = null;
 		try {
+			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			queryRecord = new QueryRecord(index);
-			System.out.println("\nAnalyzing table: " + table + "\n");
-			this.logger.info("\nAnalyzing table: " + table + "\n");
+			System.out.println("\nAnalyzing table: " + tableName + "\n");
+			this.logger.info("\nAnalyzing table: " + tableName + "\n");
 			Statement stmt = con.createStatement();
 			String sqlStr = null;
-			if( this.system.equals("hive") )
-				sqlStr = "ANALYZE TABLE " + table + " COMPUTE STATISTICS";
-			else if( this.system.startsWith("presto") )
-				sqlStr = "ANALYZE " + table;
+			if( this.systemRunning.equals("hive") )
+				sqlStr = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS";
+			else if( this.systemRunning.startsWith("presto") )
+				sqlStr = "ANALYZE " + tableName;
 			queryRecord.setStartTime(System.currentTimeMillis());
 			stmt.executeUpdate(sqlStr);
-			if( this.system.equals("hive") && this.computeForCols ) {
-				String sqlStrCols = "ANALYZE TABLE " + table + " COMPUTE STATISTICS FOR COLUMNS";
+			if( this.systemRunning.equals("hive") && this.computeForCols ) {
+				ResultSet rs = stmt.executeQuery("DESCRIBE " + tableName);
+				String columnsStr = extractColumns(rs);
+				String sqlStrCols = "ANALYZE TABLE " + tableName + 
+						" COMPUTE STATISTICS FOR COLUMNS " + columnsStr;
+				this.saveAnalyzeTableFile("analyze", tableName, sqlStrCols);
 				stmt.executeUpdate(sqlStrCols);
 			}
 			queryRecord.setSuccessful(true);
@@ -259,9 +300,10 @@ public class AnalyzeTables {
 	}
 	
 	
-	private void executeAnalyzeTableSpark(String tableName, int index) {
+	private void executeAnalyzeTableSpark(String sqlCreateFilename, int index) {
 		QueryRecord queryRecord = null;
 		try {
+			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Analyzing table: " + tableName);
 			this.logger.info("Analyzing table: " + tableName);
 			// Skip the dbgen_version table since its time attribute is not
@@ -276,8 +318,10 @@ public class AnalyzeTables {
 			if( this.computeForCols ) {
 				ResultSet rs = stmt.executeQuery("DESCRIBE " + tableName);
 				String columnsStr = extractColumns(rs);
-				stmt.executeUpdate("ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR COLUMNS " + 
-						columnsStr);
+				String sqlStrCols = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR COLUMNS " + 
+						columnsStr;
+				this.saveAnalyzeTableFile("analyze", tableName, sqlStrCols);
+				stmt.executeUpdate(sqlStrCols);
 			}
 			else
 				stmt.executeUpdate("ANALYZE TABLE " + tableName + " COMPUTE STATISTICS");
@@ -310,6 +354,25 @@ public class AnalyzeTables {
 		}
 		rs.close();
 		return builder.toString();
+	}
+	
+	
+	public void saveAnalyzeTableFile(String suffix, String tableName, String sqlAnalyze) {
+		try {
+			String analyzeTableFileName = this.workDir + "/" + this.resultsDir + "/" + this.createTableDir +
+											suffix + "/" + this.experimentName + "/" + this.instance +
+											"/" + tableName + ".sql";
+			File temp = new File(analyzeTableFileName);
+			temp.getParentFile().mkdirs();
+			FileWriter fileWriter = new FileWriter(analyzeTableFileName);
+			PrintWriter printWriter = new PrintWriter(fileWriter);
+			printWriter.println(sqlAnalyze);
+			printWriter.close();
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+			this.logger.error(ioe);
+		}
 	}
 	
 	

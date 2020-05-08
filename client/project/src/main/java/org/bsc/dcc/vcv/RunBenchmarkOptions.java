@@ -26,6 +26,9 @@ public class RunBenchmarkOptions {
 		options.addOption( Option.builder().longOpt( "instance-number" )
 				.desc( "experiment instance number" )
 				.hasArg(true).required(true).type(Integer.class).build() );
+		options.addOption( Option.builder().longOpt( "override-load-system" )
+				.desc( "override the default system to use for data loading" )
+				.hasArg(true).required(false).type(Integer.class).build() );
 		options.addOption( Option.builder().longOpt( "raw-data-dir" )
 				.desc( "directory for generated data raw files" )
 				.hasArg(true).required(false).build() );
@@ -35,10 +38,10 @@ public class RunBenchmarkOptions {
 		options.addOption( Option.builder().longOpt( "text-file-suffix" )
 				.desc( "suffix used for intermediate table text files" )
 				.hasArg(true).required(false).build() );
+		
 		options.addOption( Option.builder().longOpt( "ext-raw-data-location" )
 				.desc( "prefix of external location for raw data files" )
 				.hasArg(true).required(false).build() );
-		
 		options.addOption( Option.builder().longOpt( "ext-tables-location" )
 				.desc( "prefix of external location for tables" )
 				.hasArg(true).required(false).build() );
@@ -51,10 +54,13 @@ public class RunBenchmarkOptions {
 		options.addOption( Option.builder().longOpt( "use-partitioning" )
 				.desc( "whether to use data partitioning for the tables" )
 				.hasArg(true).required(true).type(Boolean.class).build() );
+		
+		options.addOption( Option.builder().longOpt( "all-or-create-file" )
+				.desc( "\"all\" or create table file" )
+				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "use-bucketing" )
 				.desc( "whether to use data partitioning for the tables" )
 				.hasArg(true).required(false).type(Boolean.class).build() );
-		
 		options.addOption( Option.builder().longOpt( "server-hostname" )
 				.desc( "server hostname" )
 				.hasArg(true).required(true).build() );
@@ -64,19 +70,23 @@ public class RunBenchmarkOptions {
 		options.addOption( Option.builder().longOpt( "jar-file" )
 				.desc( "jar file" )
 				.hasArg(true).required(true).build() );
+		
+		options.addOption( Option.builder().longOpt( "override-analysis-system" )
+				.desc( "override the default system to use for data loading" )
+				.hasArg(true).required(false).type(Integer.class).build() );
 		options.addOption( Option.builder().longOpt( "use-row-stats" )
 				.desc( "whether to generate row statistics by analyzing tables" )
 				.hasArg(true).required(true).type(Boolean.class).build() );
 		options.addOption( Option.builder().longOpt( "use-column-stats" )
 				.desc( "whether to generate column statistics by analyzing tables" )
 				.hasArg(true).required(true).type(Boolean.class).build() );
-		
 		options.addOption( Option.builder().longOpt( "tpcds-test" )
 				.desc( "indicate a specific test to run when needed" )
 				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "queries-dir-in-jar" )
 				.desc( "queries dir within the jar" )
 				.hasArg(true).required(false).build() );
+		
 		options.addOption( Option.builder().longOpt( "results-subdir" )
 				.desc( "subdirectory of work directory to store the results" )
 				.hasArg(true).required(false).build() );
@@ -86,13 +96,13 @@ public class RunBenchmarkOptions {
 		options.addOption( Option.builder().longOpt( "save-power-plans" )
 				.desc( "save power test plans" )
 				.hasArg(true).required(false).type(Boolean.class).build() );
-		
 		options.addOption( Option.builder().longOpt( "save-power-results" )
 				.desc( "save power test results" )
 				.hasArg(true).required(false).type(Boolean.class).build() );
 		options.addOption( Option.builder().longOpt( "all-or-query-file" )
 				.desc( "\"all\" or query file" )
 				.hasArg(true).required(true).build() );
+		
 		options.addOption( Option.builder().longOpt( "save-tput-plans" )
 				.desc( "save tput test plans" )
 				.hasArg(true).required(false).type(Boolean.class).build() );
@@ -102,13 +112,13 @@ public class RunBenchmarkOptions {
 		options.addOption( Option.builder().longOpt( "number-of-streams" )
 				.desc( "number of streams for the throughput test" )
 				.hasArg(true).required(true).type(Integer.class).build() );
-		
 		options.addOption( Option.builder().longOpt( "random-seed" )
 				.desc( "random seed" )
 				.hasArg(true).required(false).type(Integer.class).build() );
 		options.addOption( Option.builder().longOpt( "multiple-connections" )
 				.desc( "use multiple connections" )
 				.hasArg(true).required(false).type(Integer.class).build() );
+		
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );
