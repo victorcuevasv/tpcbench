@@ -80,6 +80,10 @@ args[17]="--server-hostname=localhost"
 args[18]="--connection-username=hadoop"
 #queries dir within the jar
 args[19]="--queries-dir-in-jar=QueriesPresto"
+#override the default system to use for data loading
+#args[20]="--override-load-system=hive"
+#override the default system to use for table statistics
+#args[21]="--override-analysis-system=hive"
 
 function json_string_list() {
     declare array=("$@")

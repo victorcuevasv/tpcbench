@@ -72,7 +72,7 @@ public class RunBenchmarkOptions {
 				.hasArg(true).required(true).build() );
 		
 		options.addOption( Option.builder().longOpt( "override-analysis-system" )
-				.desc( "override the default system to use for data loading" )
+				.desc( "override the default system to use for table statistics" )
 				.hasArg(true).required(false).type(Integer.class).build() );
 		options.addOption( Option.builder().longOpt( "use-row-stats" )
 				.desc( "whether to generate row statistics by analyzing tables" )
