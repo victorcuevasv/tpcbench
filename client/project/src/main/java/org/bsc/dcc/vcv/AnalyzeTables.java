@@ -264,7 +264,7 @@ public class AnalyzeTables {
 			queryRecord = new QueryRecord(index);
 			System.out.println("\nAnalyzing table: " + tableName + "\n");
 			this.logger.info("\nAnalyzing table: " + tableName + "\n");
-			Statement stmt = con.createStatement();
+			Statement stmt = this.con.createStatement();
 			String sqlStr = null;
 			if( this.systemRunning.equals("hive") )
 				sqlStr = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS";
@@ -274,7 +274,7 @@ public class AnalyzeTables {
 			stmt.executeUpdate(sqlStr);
 			if( this.systemRunning.equals("hive") && this.computeForCols ) {
 				ResultSet rs = stmt.executeQuery("DESCRIBE " + tableName);
-				String columnsStr = extractColumns(rs);
+				String columnsStr = extractColumns(rs, 1);
 				String sqlStrCols = "ANALYZE TABLE " + tableName + 
 						" COMPUTE STATISTICS FOR COLUMNS " + columnsStr;
 				this.saveAnalyzeTableFile("analyze", tableName, sqlStrCols);
@@ -317,7 +317,7 @@ public class AnalyzeTables {
 			Statement stmt = con.createStatement();
 			if( this.computeForCols ) {
 				ResultSet rs = stmt.executeQuery("DESCRIBE " + tableName);
-				String columnsStr = extractColumns(rs);
+				String columnsStr = extractColumns(rs, 0);
 				String sqlStrCols = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR COLUMNS " + 
 						columnsStr;
 				this.saveAnalyzeTableFile("analyze", tableName, sqlStrCols);
@@ -342,14 +342,14 @@ public class AnalyzeTables {
 	}
 	
 	
-	private String extractColumns(ResultSet rs) 
+	private String extractColumns(ResultSet rs, int firstColumn) 
 			throws SQLException {
 		StringBuilder builder = new StringBuilder();
 		boolean first = true;
 		while (rs.next()) {
 			if( ! first )
 				builder.append(", ");
-			builder.append(rs.getString(0));
+			builder.append(rs.getString(firstColumn));
 			first = false;
 		}
 		rs.close();
