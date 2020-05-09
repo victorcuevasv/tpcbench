@@ -345,16 +345,14 @@ public class AnalyzeTables {
 	private String extractColumns(ResultSet rs, int firstColumn) 
 			throws SQLException {
 		StringBuilder builder = new StringBuilder();
-		boolean first = true;
-		int counter = 1;
+		int counter = 0;
 		while (rs.next()) {
-			if( ! first )
+			if( counter > 0 )
 				builder.append(", ");
-			builder.append(rs.getString(firstColumn));
-			if( counter % 3 == 0 )
+			if( ( counter > 0 ) && ( counter % 3 == 0 ) )
 				builder.append("\n");
+			builder.append(rs.getString(firstColumn));
 			counter++;
-			first = false;
 		}
 		rs.close();
 		return builder.toString();
