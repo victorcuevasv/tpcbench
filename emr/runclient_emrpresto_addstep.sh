@@ -84,6 +84,8 @@ args[19]="--queries-dir-in-jar=QueriesPresto"
 #args[20]="--override-load-system=hive"
 #override the default system to use for table statistics
 #args[21]="--override-analysis-system=hive"
+#all or create table file
+#args[22]="--all-or-create-file=catalog_sales.sql"
 
 function json_string_list() {
     declare array=("$@")
@@ -122,13 +124,6 @@ steps=$(jq -c . <<<  "$(steps_func)")
 aws emr add-steps \
 --cluster-id "$ClusterId" \
 --steps "$steps"
-
-
-
-
-
-
-
 
 
 

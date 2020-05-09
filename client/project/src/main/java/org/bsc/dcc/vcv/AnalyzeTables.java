@@ -201,7 +201,7 @@ public class AnalyzeTables {
 	
 	
 	private void analyzeTables() {
-		if( this.systemRunning.equals("hive") )
+		//if( this.systemRunning.equals("hive") )
 			//this.configureMapreduce();
 		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
