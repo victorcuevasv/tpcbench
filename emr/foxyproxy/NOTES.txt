@@ -1,0 +1,4 @@
+
+Windows command to oppen connection
+
+aws emr socks --cluster-id j-137MKJ7WYJPUB --key-pair-file C:\devp\opensuse\id_rsa
