@@ -31,6 +31,7 @@ DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
 DatabaseName="tpcds_prestoemr_529_$1gb_$2_db"
 Nodes="2"
 JarFile="/mnt/tpcds-jars/targetemr/client-1.2-SNAPSHOT-SHADED.jar"
+AutoTerminate="true"
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
@@ -80,6 +81,14 @@ args[18]="--connection-username=hadoop"
 #queries dir within the jar
 args[19]="--queries-dir-in-jar=QueriesPresto"
 
+function auto_terminate_func() {
+	if [[ $AutoTerminate == "true" ]] ; then
+		echo " --auto-terminate "
+	else	
+		echo ""
+	fi
+}
+
 function json_string_list() {
     declare array=("$@")
     declare list=""
@@ -106,7 +115,7 @@ ec2-attributes_func()
 EOF
 }
 
-
+#Options for action on failure: TERMINATE_CLUSTER, CANCEL_AND_WAIT, and CONTINUE
 steps_func()
 {
   cat <<EOF
@@ -144,7 +153,6 @@ instance-groups_func()
 ]
 EOF
 }
-
 
 configurations_func()
 {
@@ -232,8 +240,7 @@ aws emr create-cluster \
 --log-uri 's3n://bsc-emr-logs/' \
 --steps "$steps" \
 --instance-groups "$instanceGroups" \
---configurations "$configurations" \
---auto-terminate \
+--configurations "$configurations" $(auto_terminate_func) \
 --auto-scaling-role EMR_AutoScaling_DefaultRole \
 --bootstrap-actions "$bootstrapActions" \
 --ebs-root-volume-size 10 \
@@ -242,15 +249,6 @@ aws emr create-cluster \
 --name 'BSC-test' \
 --scale-down-behavior TERMINATE_AT_TASK_COMPLETION \
 --region us-west-2
-
-
-
-
-
-
-
-
-
 
 
 
