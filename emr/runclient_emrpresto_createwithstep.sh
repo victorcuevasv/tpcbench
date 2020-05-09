@@ -80,6 +80,12 @@ args[17]="--server-hostname=localhost"
 args[18]="--connection-username=hadoop"
 #queries dir within the jar
 args[19]="--queries-dir-in-jar=QueriesPresto"
+#override the default system to use for data loading
+#args[20]="--override-load-system=hive"
+#override the default system to use for table statistics
+#args[21]="--override-analyze-system=hive"
+#all or create table file
+#args[22]="--all-or-create-file=catalog_sales.sql"
 
 function auto_terminate_func() {
 	if [[ $AutoTerminate == "true" ]] ; then
