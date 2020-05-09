@@ -346,10 +346,14 @@ public class AnalyzeTables {
 			throws SQLException {
 		StringBuilder builder = new StringBuilder();
 		boolean first = true;
+		int counter = 1;
 		while (rs.next()) {
 			if( ! first )
 				builder.append(", ");
 			builder.append(rs.getString(firstColumn));
+			if( counter % 3 == 0 )
+				builder.append("\n");
+			counter++;
 			first = false;
 		}
 		rs.close();
