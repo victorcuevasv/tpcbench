@@ -83,7 +83,7 @@ args[19]="--queries-dir-in-jar=QueriesPresto"
 #override the default system to use for data loading
 #args[20]="--override-load-system=hive"
 #override the default system to use for table statistics
-#args[21]="--override-analysis-system=hive"
+#args[21]="--override-analyze-system=hive"
 #all or create table file
 #args[22]="--all-or-create-file=catalog_sales.sql"
 

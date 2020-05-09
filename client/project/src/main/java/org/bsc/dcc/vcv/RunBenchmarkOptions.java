@@ -71,7 +71,7 @@ public class RunBenchmarkOptions {
 				.desc( "jar file" )
 				.hasArg(true).required(true).build() );
 		
-		options.addOption( Option.builder().longOpt( "override-analysis-system" )
+		options.addOption( Option.builder().longOpt( "override-analyze-system" )
 				.desc( "override the default system to use for table statistics" )
 				.hasArg(true).required(false).type(Integer.class).build() );
 		options.addOption( Option.builder().longOpt( "use-row-stats" )
