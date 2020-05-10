@@ -96,6 +96,7 @@ public class AnalyzeTablesSpark {
 		this.jarFile = args[8];
 		this.createTableDir = args[9];
 		this.createSingleOrAll = "all";
+		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		try {
