@@ -112,7 +112,7 @@ image contains the benchmarking application code, while the tpcds image contains
 generation tools adapted from the TPC-DS Toolkit.
 
 
-RUNNING EXPERIMENTS
+COMPILING THE APPLICATION
 
 After the benchmarking infrastructure has been installed, in order to run experiments it is still necessary
 to generate the SQL files (create table statements and queries) and to compile the benchmarking application.
@@ -159,6 +159,13 @@ bash compileclientSparkDatabricks.sh
 
 The process is analogous to the Presto application. Again a file named client-1.2-SNAPSHOT-SHADED.jar will
 be generated but in this case it will be stored in $HOME/tpcds-jars/targetsparkdatabricks/
+
+Different systems require different scripts and procedures in order to run experiments, which are detailed in
+the next sections.
+
+RUNNING EXPERIMENTS IN EMR SPARK
+
+
 
 
 

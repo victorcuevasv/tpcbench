@@ -20,6 +20,7 @@ public class AnalyzeTablesSpark {
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private SparkSession spark;
 	private final AnalyticsRecorder recorder;
+	private final JarCreateTableReaderAsZipFile createTableReader;
 	private final String workDir;
 	private final String dbName;
 	private final String resultsDir;
@@ -28,6 +29,9 @@ public class AnalyzeTablesSpark {
 	private final String test;
 	private final int instance;
 	private final boolean computeForCols;
+	private final String createSingleOrAll;
+	private final String jarFile;
+	private final String createTableDir;
 
 	public AnalyzeTablesSpark(CommandLine commandLine) {
 		try {
@@ -51,6 +55,10 @@ public class AnalyzeTablesSpark {
 		this.instance = Integer.parseInt(instanceStr);
 		String computeForColsStr = commandLine.getOptionValue("use-column-stats");
 		this.computeForCols = Boolean.parseBoolean(computeForColsStr);
+		this.jarFile = commandLine.getOptionValue("jar-file");
+		this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
+		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
+		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 	}
@@ -67,10 +75,12 @@ public class AnalyzeTablesSpark {
 	 * args[5] test name (i.e. analyze)
 	 * args[6] experiment instance number
 	 * args[7] compute statistics for columns (true/false)
+	 * args[8] jar file
+	 * args[9] subdirectory within the jar that contains the create table files
 	 * 
 	 */
 	public AnalyzeTablesSpark(String[] args) {
-		if( args.length != 8 ) {
+		if( args.length != 10 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
 			logger.error("Incorrect number of arguments: " + args.length);
 			System.exit(1);
@@ -83,6 +93,9 @@ public class AnalyzeTablesSpark {
 		this.test = args[5];
 		this.instance = Integer.parseInt(args[6]);
 		this.computeForCols = Boolean.parseBoolean(args[7]);
+		this.jarFile = args[8];
+		this.createTableDir = args[9];
+		this.createSingleOrAll = "all";
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		try {
@@ -136,20 +149,32 @@ public class AnalyzeTablesSpark {
 	
 	
 	private void analyzeTables() {
+		// Process each .sql create table file found in the jar file.
 		this.useDatabase(this.dbName);
 		this.recorder.header();
-		String[] tables = {"call_center", "catalog_page", "catalog_returns", "catalog_sales",
-				"customer", "customer_address", "customer_demographics", "date_dim",
-				"household_demographics", "income_band", "inventory", "item",
-				"promotion", "reason", "ship_mode", "store", "store_returns",
-				"store_sales", "time_dim", "warehouse", "web_page", "web_returns",
-				"web_sales", "web_site"};
-		for(int i = 0; i < tables.length; i++) {
-			// Use i + 1 for index to match the order in the load test.
-			// Note in the tables array above that the dbgen_version table
-			// is not included, since it is skipped in the load test.
-			analyzeTable(tables[i], this.computeForCols, i + 1);
+		List<String> unorderedList = this.createTableReader.getFiles();
+		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
+		int i = 1;
+		for (final String fileName : orderedList) {
+			String sqlCreate = this.createTableReader.getFile(fileName);
+			// Skip the dbgen_version table since its time attribute is not
+			// compatible with Hive.
+			if( fileName.equals("dbgen_version.sql") ) {
+				System.out.println("Skipping: " + fileName);
+				continue;
+			}
+			if( ! this.createSingleOrAll.equals("all") ) {
+				if( ! fileName.equals(this.createSingleOrAll) ) {
+					System.out.println("Skipping: " + fileName);
+					continue;
+				}
+			}
+			analyzeTable(fileName, this.computeForCols, i);
+			i++;
 		}
+		//if( ! this.system.equals("sparkdatabricks") ) {
+		//	this.closeConnection();
+		//}
 		this.recorder.close();
 	}
 
@@ -167,9 +192,10 @@ public class AnalyzeTablesSpark {
 	}
 	
 	
-	private void analyzeTable(String tableName, boolean computeForCols, int index) {
+	private void analyzeTable(String sqlCreateFilename, boolean computeForCols, int index) {
 		QueryRecord queryRecord = null;
 		try {
+			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Analyzing table: " + tableName);
 			this.logger.info("Analyzing table: " + tableName);
 			// Skip the dbgen_version table since its time attribute is not
@@ -183,11 +209,15 @@ public class AnalyzeTablesSpark {
 			if( computeForCols ) {
 				Dataset<Row> dataset = this.spark.sql("DESCRIBE " + tableName);
 				String columnsStr = processResults(dataset);
-				this.spark.sql("ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR COLUMNS " + 
-						columnsStr);
+				String sqlStrCols = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR COLUMNS " + 
+						columnsStr; 
+				this.saveAnalyzeTableFile("analyze", tableName, sqlStrCols);
+				this.spark.sql(sqlStrCols);
 			}
-			else
-				this.spark.sql("ANALYZE TABLE " + tableName + " COMPUTE STATISTICS");
+			else {
+				String sqlStr = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS";
+				this.spark.sql(sqlStr);
+			}
 			queryRecord.setSuccessful(true);
 		}
 		catch (Exception e) {
@@ -219,6 +249,25 @@ public class AnalyzeTablesSpark {
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		return retVal;
+	}
+	
+	
+	public void saveAnalyzeTableFile(String suffix, String tableName, String sqlAnalyze) {
+		try {
+			String analyzeTableFileName = this.workDir + "/" + this.resultsDir + "/" + this.createTableDir +
+											suffix + "/" + this.experimentName + "/" + this.instance +
+											"/" + tableName + ".sql";
+			File temp = new File(analyzeTableFileName);
+			temp.getParentFile().mkdirs();
+			FileWriter fileWriter = new FileWriter(analyzeTableFileName);
+			PrintWriter printWriter = new PrintWriter(fileWriter);
+			printWriter.println(sqlAnalyze);
+			printWriter.close();
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+			this.logger.error(ioe);
+		}
 	}
 	
 	

@@ -325,8 +325,11 @@ public class AnalyzeTables {
 				this.saveAnalyzeTableFile("analyze", tableName, sqlStrCols);
 				stmt.executeUpdate(sqlStrCols);
 			}
-			else
-				stmt.executeUpdate("ANALYZE TABLE " + tableName + " COMPUTE STATISTICS");
+			else {
+				String sqlStr = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS";
+				this.saveAnalyzeTableFile("analyze", tableName, sqlStr);
+				stmt.executeUpdate(sqlStr);
+			}
 			queryRecord.setSuccessful(true);
 		}
 		catch (Exception e) {

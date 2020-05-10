@@ -211,11 +211,14 @@ public class RunBenchmarkSpark {
 		args[2] results folder name (e.g. for Google Drive)
 		args[3] experiment name (name of subfolder within the results folder)
 		args[4] system name (system name used within the logs)
+		
 		args[5] test name (i.e. analyze)
 		args[6] experiment instance number
 		args[7] compute statistics for columns (true/false)
+		args[8] jar file
+		args[9] subdirectory within the jar that contains the create table files
 		*/
-		String[] array = new String[8];
+		String[] array = new String[10];
 		array[0] = args[0];
 		array[1] = args[1];
 		array[2] = args[2];
@@ -225,6 +228,8 @@ public class RunBenchmarkSpark {
 		array[5] = "analyze";
 		array[6] = args[5];
 		array[7] = args[16];
+		array[8] = args[14];
+		array[9] = args[7];
 		
 		return array;
 	}

@@ -21,11 +21,14 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
-DirNameWarehouse="tpcds-warehouse-sparkemr-600-$1gb-$2"
-DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
-DatabaseName="tpcds_sparkemr_600_$1gb_$2_db"
 Nodes="2"
+Tag=$(date +%s)
+ExperimentName="sparkemr-600-${Nodes}nodes-$1gb-$Tag"
+DirNameWarehouse="tpcds-warehouse-sparkemr-600-$1gb-$2-$Tag"
+DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
+DatabaseName="tpcds_sparkemr_600_$1gb_$2_db_$Tag"
 JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
+AutoTerminate="true"
 
 args=()
 
@@ -36,7 +39,7 @@ args[1]="--schema-name=$DatabaseName"
 # results folder name (e.g. for Google Drive)
 args[2]="--results-dir=$DirNameResults"
 # experiment name (name of subfolder within the results folder)
-args[3]="--experiment-name=sparkemr-600-${Nodes}nodes-$1gb-experimental"
+args[3]="--experiment-name=$ExperimentName"
 # system name (system name used within the logs)
 args[4]="--system-name=sparkemr"
 
@@ -66,6 +69,14 @@ args[14]="--all-or-query-file=query2.sql"
 args[15]="--number-of-streams=$3"
 # flags (111111 schema|load|analyze|zorder|power|tput)
 args[16]="--execution-flags=111011"
+
+function auto_terminate_func() {
+	if [[ $AutoTerminate == "true" ]] ; then
+		echo " --auto-terminate "
+	else	
+		echo ""
+	fi
+}
 
 function json_string_list() {
     declare array=("$@")
@@ -251,8 +262,7 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	--log-uri 's3n://bsc-emr-logs/' \
 	--steps "$steps" \
 	--instance-groups "$instanceGroups" \
-	--configurations "$configurations" \
-	--auto-terminate \
+	--configurations "$configurations" $(auto_terminate_func) \
 	--auto-scaling-role EMR_AutoScaling_DefaultRole \
 	--bootstrap-actions "$bootstrapActions" \
 	--ebs-root-volume-size 10 \
@@ -261,7 +271,6 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	--name 'BSC-test' \
 	--scale-down-behavior TERMINATE_AT_TASK_COMPLETION \
 	--region us-west-2)
-    #exit 0
     #Example output.
 	#{
     #	"ClusterId": "j-I7ZKG7UYDEDA",
