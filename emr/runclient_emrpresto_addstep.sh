@@ -27,10 +27,12 @@ if [ $# -lt 3 ]; then
 fi
 
 ClusterId=""
-DirNameWarehouse="tpcds-warehouse-prestoemr-529-$1gb-$2"
-DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
-DatabaseName="tpcds_prestoemr_529_$1gb_$2_db"
 Nodes="2"
+Tag=""
+ExperimentName="prestoemr-600-${Nodes}nodes-$1gb-$Tag"
+DirNameWarehouse="tpcds-warehouse-prestoemr-600-$1gb-$2-$Tag"
+DatabaseName="tpcds_prestoemr_600_$1gb_$2_db_$Tag"
+DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
 JarFile="/mnt/tpcds-jars/targetemr/client-1.2-SNAPSHOT-SHADED.jar"
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
@@ -44,7 +46,7 @@ args[1]="--schema-name=$DatabaseName"
 #results folder name (e.g. for Google Drive)
 args[2]="--results-dir=$DirNameResults"
 #experiment name (name of subfolder within the results folder)
-args[3]="--experiment-name=prestoemr-529-${Nodes}nodes-$1gb-experimental"
+args[3]="--experiment-name=$ExperimentName"
 #system name (system name used within the logs)
 args[4]="--system-name=prestoemr"
 
@@ -80,6 +82,7 @@ args[17]="--server-hostname=localhost"
 args[18]="--connection-username=hadoop"
 #queries dir within the jar
 args[19]="--queries-dir-in-jar=QueriesPresto"
+
 #override the default system to use for data loading
 #args[20]="--override-load-system=hive"
 #override the default system to use for table statistics
