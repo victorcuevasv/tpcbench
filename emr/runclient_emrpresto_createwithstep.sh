@@ -26,7 +26,7 @@ if [ $# -lt 3 ]; then
     exit 0
 fi
 
-Nodes="2"s
+Nodes="2"
 Tag=$(date +%s)
 ExperimentName="prestoemr-600-${Nodes}nodes-$1gb-$Tag"
 DirNameWarehouse="tpcds-warehouse-prestoemr-600-$1gb-$2-$Tag"
