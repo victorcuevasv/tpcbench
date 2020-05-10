@@ -266,13 +266,15 @@ public class AnalyzeTables {
 			this.logger.info("\nAnalyzing table: " + tableName + "\n");
 			Statement stmt = this.con.createStatement();
 			String sqlStr = null;
-			if( this.systemRunning.equals("hive") )
-				sqlStr = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS";
-			else if( this.systemRunning.startsWith("presto") )
-				sqlStr = "ANALYZE " + tableName;
 			queryRecord.setStartTime(System.currentTimeMillis());
-			stmt.executeUpdate(sqlStr);
+			if( this.systemRunning.startsWith("presto") ) {
+				sqlStr = "ANALYZE " + tableName;
+				this.saveAnalyzeTableFile("analyze", tableName, sqlStr);
+				stmt.executeUpdate(sqlStr);
+			}
 			if( this.systemRunning.equals("hive") && this.computeForCols ) {
+				//sqlStr = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS";
+				//stmt.executeUpdate(sqlStr);
 				ResultSet rs = stmt.executeQuery("DESCRIBE " + tableName);
 				String columnsStr = extractColumns(rs, 1);
 				String sqlStrCols = "ANALYZE TABLE " + tableName + 
