@@ -22,7 +22,7 @@ GROUP_ID=$(id -g)
 #$3 number of streams (positive integer)
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_fullbenchmark_awscli.sh <scale factor> <experiment instance number> <number of streams>${end}"
+    echo "${yel}Usage: bash runclient_emrpresto_createwithstep.sh <scale factor> <experiment instance number> <number of streams>${end}"
     exit 0
 fi
 
