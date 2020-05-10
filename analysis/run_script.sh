@@ -13,6 +13,8 @@ end=$'\e[0m'
 #$3 script to execute
 #$4 input text file (e.g. labels)
 
+#Example:
+#bash run_script.sh tpcds-results-test presto-comp/analytics/ stacked_chart.R experiments.txt
 
 if [ $# -lt 4 ]; then
     echo "${yel}Usage: bash run_script.sh <bucket to mount> <s3 prefix> <script to run> <input text file>${end}"
