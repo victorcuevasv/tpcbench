@@ -26,10 +26,12 @@ if [ $# -lt 3 ]; then
     exit 0
 fi
 
-DirNameWarehouse="tpcds-warehouse-prestoemr-529-$1gb-$2"
+Nodes="2"s
+Tag=$(date +%s)
+ExperimentName="prestoemr-600-${Nodes}nodes-$1gb-$Tag"
+DirNameWarehouse="tpcds-warehouse-prestoemr-600-$1gb-$2-$Tag"
+DatabaseName="tpcds_prestoemr_600_$1gb_$2_db_$Tag"
 DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
-DatabaseName="tpcds_prestoemr_529_$1gb_$2_db"
-Nodes="2"
 JarFile="/mnt/tpcds-jars/targetemr/client-1.2-SNAPSHOT-SHADED.jar"
 AutoTerminate="true"
 
@@ -44,7 +46,7 @@ args[1]="--schema-name=$DatabaseName"
 #results folder name (e.g. for Google Drive)
 args[2]="--results-dir=$DirNameResults"
 #experiment name (name of subfolder within the results folder)
-args[3]="--experiment-name=prestoemr-529-${Nodes}nodes-$1gb-experimental"
+args[3]="--experiment-name=$ExperimentName"
 #system name (system name used within the logs)
 args[4]="--system-name=prestoemr"
 
@@ -55,7 +57,7 @@ args[6]="--ext-raw-data-location=s3://tpcds-datasets/$1GB"
 #prefix of external location for created tables (e.g. S3 bucket), null for none
 args[7]="--ext-tables-location=s3://tpcds-warehouses-test/$DirNameWarehouse"
 #format for column-storage tables (PARQUET, DELTA)
-args[8]="--table-format=orc"
+args[8]="--table-format=parquet"
 #whether to use data partitioning for the tables (true/false)
 args[9]="--use-partitioning=false"
 
@@ -80,6 +82,7 @@ args[17]="--server-hostname=localhost"
 args[18]="--connection-username=hadoop"
 #queries dir within the jar
 args[19]="--queries-dir-in-jar=QueriesPresto"
+
 #override the default system to use for data loading
 #args[20]="--override-load-system=hive"
 #override the default system to use for table statistics
@@ -242,7 +245,7 @@ aws emr create-cluster \
 --termination-protected \
 --applications Name=Hadoop Name=Hive Name=Presto Name=Ganglia \
 --ec2-attributes "$ec2Attributes" \
---release-label emr-5.29.0 \
+--release-label emr-6.0.0 \
 --log-uri 's3n://bsc-emr-logs/' \
 --steps "$steps" \
 --instance-groups "$instanceGroups" \
@@ -255,7 +258,5 @@ aws emr create-cluster \
 --name 'BSC-test' \
 --scale-down-behavior TERMINATE_AT_TASK_COMPLETION \
 --region us-west-2
-
-
 
 
