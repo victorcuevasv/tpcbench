@@ -239,8 +239,6 @@ instanceGroups=$(jq -c . <<<  "$(instance-groups_func)")
 configurations=$(jq -c . <<<  "$(configurations_func)")
 bootstrapActions=$(jq -c . <<<  "$(bootstrap-actions_func)")
 
-#Delete the --auto-terminate line to avoid the cluster termination.
-
 aws emr create-cluster \
 --termination-protected \
 --applications Name=Hadoop Name=Hive Name=Presto Name=Ganglia \
