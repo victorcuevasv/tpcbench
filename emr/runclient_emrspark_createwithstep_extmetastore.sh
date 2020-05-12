@@ -232,6 +232,7 @@ configurations_func()
 EOF
 }
 
+#The emr_init.sh file in s3 corresponds to tpcdsbench/emr/bootstrap/s3fs/emr_init.sh
 bootstrap-actions_func()
 {
   cat <<EOF
