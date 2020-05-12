@@ -237,9 +237,10 @@ bootstrap-actions_func()
   cat <<EOF
 [
    {
-      "Path":"s3://bsc-bootstrap/emrClusterEFS_user_param.sh",
+      "Path":"s3://bsc-bootstrap/s3fs/emr_init.sh",
       "Args":[
-         "hadoop"
+         "hadoop",
+         "tpcds-jars,tpcds-results-test"
       ],
       "Name":"Custom action"
    }
