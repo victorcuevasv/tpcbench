@@ -10,16 +10,21 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
+#Get the user name of the user executing this script.
+USER_NAME=$(whoami)
+#Get the user id of the user executing this script.
+USER_ID=$(id -u)
+#Get the user id of the user executing this script.
+GROUP_ID=$(id -g)
+
 #$1 scale factor (positive integer)
 #$2 experiment instance number (positive integer)
 #$3 number of streams (positive integer)
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_emrspark_createwithstep.sh <scale factor> <experiment instance number> <number of streams>${end}"
+    echo "${yel}Usage: bash runclient_emrspark_createwithstep_extmetastore.sh <scale factor> <experiment instance number> <number of streams>${end}"
     exit 0
 fi
-
-printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
 Nodes="2"
 Tag=$(date +%s)
@@ -29,6 +34,8 @@ DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
 DatabaseName="tpcds_sparkemr_600_$1gb_$2_db_$Tag"
 JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
 AutoTerminate="true"
+
+printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
 args=()
 
@@ -99,11 +106,11 @@ ec2-attributes_func()
    "InstanceProfile":"EMR_EC2_DefaultRole",
    "SubnetId":"subnet-01033078",
    "EmrManagedSlaveSecurityGroup":"sg-0d6c7aa7f3a231e50",
-   "EmrManagedMasterSecurityGroup":"sg-0cefde07cc1a0a36e"
+   "EmrManagedMasterSecurityGroup":"sg-0cefde07cc1a0a36e",
+   "AdditionalMasterSecurityGroups":["sg-e9663ea1"]
 }
 EOF
 }
-
 
 steps_func()
 {
@@ -130,7 +137,6 @@ steps_func()
 ]
 EOF
 }
-
 
 steps_func_hudi()
 {
@@ -164,7 +170,6 @@ steps_func_hudi()
 EOF
 }
 
-
 instance-groups_func()
 {
   cat <<EOF
@@ -185,60 +190,61 @@ instance-groups_func()
 EOF
 }
 
-
 configurations_func()
 {
   cat <<EOF
 [
    {
-      "Classification":"spark-defaults",
+      "Classification":"presto-connector-hive",
       "Properties":{
-         "spark.driver.memory":"5692M",
-         "hive.exec.max.dynamic.partitions":"3000",
+         "hive.allow-drop-table":"true",
+         "hive.compression-codec":"SNAPPY",
+         "hive.max-partitions-per-writers":"2500",
+         "hive.s3-file-system-type":"PRESTO"
+      }
+   },
+   {
+      "Classification":"presto-config",
+      "Properties":{
+         "experimental.spiller-spill-path":"/mnt/tmp/",
+         "experimental.max-spill-per-node":"1400GB",
+         "experimental.query-max-spill-per-node":"700GB",
+         "experimental.spill-enabled":"false",
+         "experimental.spill-compression-enabled":"true",
+         "query.max-memory":"240GB",
+         "query.max-memory-per-node":"27GB",
+         "query.max-total-memory-per-node":"29GB"
+      }
+   },
+   {
+      "Classification":"hive-site",
+      "Properties":{
+         "javax.jdo.option.ConnectionURL": "jdbc:mysql://metastore.crhrootttpzi.us-west-2.rds.amazonaws.com:3306/hive?createDatabaseIfNotExist=true",
+         "javax.jdo.option.ConnectionDriverName": "org.mariadb.jdbc.Driver",
+         "javax.jdo.option.ConnectionUserName": "hive",
+         "javax.jdo.option.ConnectionPassword": "hive",
+         "hive.exec.max.dynamic.partitions":"5000",
          "hive.exec.dynamic.partition.mode":"nonstrict",
-         "spark.sql.broadcastTimeout":"7200",
-         "spark.sql.crossJoin.enabled":"true"
+         "hive.exec.max.dynamic.partitions.pernode":"2500"
       }
    }
 ]
 EOF
 }
 
-
 bootstrap-actions_func()
 {
   cat <<EOF
 [
    {
-      "Path":"s3://bsc-bootstrap/s3fs/emr_init.sh",
+      "Path":"s3://bsc-bootstrap/emrClusterEFS_user_param.sh",
       "Args":[
-         "hadoop",
-         "tpcds-jars,tpcds-results-test"
+         "hadoop"
       ],
       "Name":"Custom action"
    }
 ]
 EOF
-}
-
-#Get the state (RUNNING, TERMINATED) of a job run via its run_id using the Jobs REST API.
-#$1 run_id
-get_run_state() {
-   declare jsonStr=$(aws emr describe-cluster --cluster-id $1)
-   declare state=$(jq -j '.Cluster.Status.State'  <<<  "$jsonStr")
-   echo $state
-}
-
-#Wait until the state of a job run is TERMINATED by polling using the Jobs REST API.
-#$1 run_id
-#$2 pause in seconds for polling
-wait_for_run_termination() {
-   declare state=$(get_run_state $1)
-   while [ $state != "TERMINATED"  ] ;
-   do
-      sleep $2
-      state=$(get_run_state $1)
-   done
 }
 
 ec2Attributes=$(jq -c . <<<  "$(ec2-attributes_func)")
@@ -298,5 +304,21 @@ if [ "$RUN_DELETE_WAREHOUSE" -eq 1 ]; then
     aws s3 rm --recursive s3://tpcds-warehouses-test/$DirNameWarehouse
     #exit 0
 fi
+
+
+#Commands to create the metastore
+#Run on an EC-2 virtual machine with mysql installed (sudo yum install mysql -y)
+#username:admin, password:maria_db
+#mysql -h metastore.crhrootttpzi.us-west-2.rds.amazonaws.com -P 3306 -u admin -p
+#create database hive; grant all privileges on hive.* to 'hive'@'%' identified by 'hive'; flush privileges;
+
+
+
+
+
+
+
+
+
 
 
