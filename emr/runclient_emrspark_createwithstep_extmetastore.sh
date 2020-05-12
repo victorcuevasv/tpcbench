@@ -195,25 +195,13 @@ configurations_func()
   cat <<EOF
 [
    {
-      "Classification":"presto-connector-hive",
+      "Classification":"spark-defaults",
       "Properties":{
-         "hive.allow-drop-table":"true",
-         "hive.compression-codec":"SNAPPY",
-         "hive.max-partitions-per-writers":"2500",
-         "hive.s3-file-system-type":"PRESTO"
-      }
-   },
-   {
-      "Classification":"presto-config",
-      "Properties":{
-         "experimental.spiller-spill-path":"/mnt/tmp/",
-         "experimental.max-spill-per-node":"1400GB",
-         "experimental.query-max-spill-per-node":"700GB",
-         "experimental.spill-enabled":"false",
-         "experimental.spill-compression-enabled":"true",
-         "query.max-memory":"240GB",
-         "query.max-memory-per-node":"27GB",
-         "query.max-total-memory-per-node":"29GB"
+         "spark.driver.memory":"5692M",
+         "hive.exec.max.dynamic.partitions":"3000",
+         "hive.exec.dynamic.partition.mode":"nonstrict",
+         "spark.sql.broadcastTimeout":"7200",
+         "spark.sql.crossJoin.enabled":"true"
       }
    },
    {
