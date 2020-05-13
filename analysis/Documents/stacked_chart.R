@@ -42,7 +42,7 @@ calculateStats <- function(analytics, dataframe, label, experiment, test, instan
 createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title){
   plot <- ggplot(data=dataf, aes(x=SYSTEM, y=get(metric), fill=TEST), width=7, height=7) + 
     geom_bar(stat="identity", position = position_stack(reverse = T)) + 
-    #It may be necessary to use fun.y in some environments.
+    #It may be necessary to use 'fun.y = sum' instead of 'fun = sum' in some environments.
     geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = SYSTEM), stat = 'summary', fun = sum, vjust = -0.1, size=6) +     
     theme(axis.title.x=element_blank()) + 
     theme(axis.text=element_text(size=16), axis.title=element_text(size=18)) +
