@@ -29,8 +29,9 @@ fi
 
 Tag="experimental$(date +%s)"
 
-if [ ${#$4} -ge 1 ] ; then
-	Tag=$4
+dummy4=$4
+if [ ${#dummy4} -ge 1 ] ; then
+        Tag=$4
 fi
 
 Nodes="2"

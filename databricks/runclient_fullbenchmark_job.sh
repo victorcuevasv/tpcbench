@@ -28,8 +28,9 @@ printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
 Tag="experimental"
 
-if [ ${#$4} -ge 1 ] ; then
-	Tag=$4
+dummy4=$4
+if [ ${#dummy4} -ge 1 ] ; then
+        Tag=$4
 fi
 
 Nodes="2"
