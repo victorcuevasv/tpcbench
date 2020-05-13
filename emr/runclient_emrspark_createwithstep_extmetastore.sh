@@ -28,10 +28,10 @@ fi
 
 Nodes="2"
 Tag=$(date +%s)
-ExperimentName="sparkemr-600-${Nodes}nodes-$1gb-$Tag"
-DirNameWarehouse="tpcds-warehouse-sparkemr-600-$1gb-$2-$Tag"
+ExperimentName="sparkemr-529-${Nodes}nodes-$1gb-$Tag"
+DirNameWarehouse="tpcds-warehouse-sparkemr-529-$1gb-$2-$Tag"
 DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
-DatabaseName="tpcds_sparkemr_600_$1gb_$2_db_$Tag"
+DatabaseName="tpcds_sparkemr_529_$1gb_$2_db_$Tag"
 JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
 AutoTerminate="true"
 
@@ -190,6 +190,7 @@ instance-groups_func()
 EOF
 }
 
+#Important: the external RDS metastore may not work in EMR 6.0 for unknown reasons.
 configurations_func()
 {
   cat <<EOF
@@ -254,7 +255,7 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	--termination-protected \
 	--applications Name=Hadoop Name=Hive Name=Spark \
 	--ec2-attributes "$ec2Attributes" \
-	--release-label emr-6.0.0 \
+	--release-label emr-5.29.0 \
 	--log-uri 's3n://bsc-emr-logs/' \
 	--steps "$steps" \
 	--instance-groups "$instanceGroups" \
