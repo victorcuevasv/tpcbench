@@ -20,14 +20,20 @@ GROUP_ID=$(id -g)
 #$1 scale factor (positive integer)
 #$2 experiment instance number (positive integer)
 #$3 number of streams (positive integer)
+#$4 optional - descriptive tag for the experiment
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_emrspark_createwithstep_extmetastore.sh <scale factor> <experiment instance number> <number of streams>${end}"
+    echo "${yel}Usage: bash runclient_emrspark_createwithstep_extmetastore.sh <scale factor> <experiment instance number> <number of streams> <tag>${end}"
     exit 0
 fi
 
+Tag="experimental$(date +%s)"
+
+if [ ${#$4} -ge 1 ] ; then
+	Tag=$4
+fi
+
 Nodes="2"
-Tag=$(date +%s)
 ExperimentName="sparkemr-529-${Nodes}nodes-$1gb-$Tag"
 DirNameWarehouse="tpcds-warehouse-sparkemr-529-$1gb-$2-$Tag"
 DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"

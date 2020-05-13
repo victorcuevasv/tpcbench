@@ -20,16 +20,21 @@ if [ -z "$DATABRICKS_TOKEN" ]; then
 fi
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_fullbenchmark_job.sh <scale factor> <experiment instance number> <number of streams>${end}"
+    echo "${yel}Usage: bash runclient_fullbenchmark_job.sh <scale factor> <experiment instance number> <number of streams> <tag>${end}"
     exit 0
 fi
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
+Tag="experimental"
+
+if [ ${#$4} -ge 1 ] ; then
+	Tag=$4
+fi
+
 Nodes="2"
 MajorVersion="6"
 MinorVersion="4"
-Tag="experimental"
 DirNameWarehouse="tpcds-warehouse-sparkdatabricks-${MajorVersion}${MinorVersion}-$1gb-$2${Tag}"
 DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
 DatabaseName="tpcds_warehouse_sparkdatabricks_${MajorVersion}${MinorVersion}_$1gb_$2${Tag}"
