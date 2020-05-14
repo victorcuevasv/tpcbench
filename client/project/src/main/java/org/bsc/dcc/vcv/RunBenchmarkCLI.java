@@ -116,8 +116,8 @@ public class RunBenchmarkCLI {
 						"s3://tpcds-results-test/" + this.resultsDir + "/");
 				String user = System.getProperty("user.name");
 				this.executeCommand("echo \"hello " + user + "\" > $HOME/hello.txt");
-				this.executeCommand("mkdir -p /mnt/tpcds-results-test/" + this.resultsDir);
-				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /mnt/tpcds-results-test/" + this.resultsDir + "/");
+				//this.executeCommand("mkdir -p /mnt/tpcds-results-test/" + this.resultsDir);
+				//this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /mnt/tpcds-results-test/" + this.resultsDir + "/");
 			}
 		}
 		catch(Exception e) {
