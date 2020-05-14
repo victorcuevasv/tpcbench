@@ -114,7 +114,8 @@ public class RunBenchmarkCLI {
 			else if( this.system.equals("sparkemr") || this.system.equals("prestoemr")  ) {
 				this.executeCommand("aws s3 cp --recursive " + this.workDir + "/" + this.resultsDir + "/ " +
 						"s3://tpcds-results-test/" + this.resultsDir + "/");
-				this.executeCommand("echo hello > $HOME/hello.txt");
+				String user = System.getProperty("user.name");
+				this.executeCommand("echo \"hello " + user + "\" > $HOME/hello.txt");
 				this.executeCommand("mkdir -p /mnt/tpcds-results-test/" + this.resultsDir);
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /mnt/tpcds-results-test/" + this.resultsDir + "/");
 			}
