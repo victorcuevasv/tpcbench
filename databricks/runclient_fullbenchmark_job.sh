@@ -35,7 +35,7 @@ fi
 
 Nodes="2"
 MajorVersion="6"
-MinorVersion="4"
+MinorVersion="5"
 DirNameWarehouse="tpcds-warehouse-sparkdatabricks-${MajorVersion}${MinorVersion}-$1gb-$2${Tag}"
 DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
 DatabaseName="tpcds_warehouse_sparkdatabricks_${MajorVersion}${MinorVersion}_$1gb_$2${Tag}"
@@ -49,41 +49,43 @@ JOB_NAME="Run TPC-DS Benchmark"
 
 args=()
 
-#args[0] main work directory
+# main work directory
 args[0]="--main-work-dir=/data"
-#args[1] schema (database) name
+# schema (database) name
 args[1]="--schema-name=$DatabaseName"
-#args[2] results folder name (e.g. for Google Drive)
+# results folder name (e.g. for Google Drive)
 args[2]="--results-dir=$DirNameResults"
-#args[3] experiment name (name of subfolder within the results folder)
+# experiment name (name of subfolder within the results folder)
 args[3]="--experiment-name=$DirNameExperiment"
-#args[4] system name (system name used within the logs)
+# system name (system name used within the logs)
 args[4]="--system-name=sparkdatabricks"
 
-#args[5] experiment instance number
+# experiment instance number
 args[5]="--instance-number=$2"
-#args[6] prefix of external location for raw data tables (e.g. S3 bucket), null for none
+# prefix of external location for raw data tables (e.g. S3 bucket), null for none
 args[6]="--ext-raw-data-location=dbfs:/mnt/tpcdsbucket/$1GB"
-#args[7] prefix of external location for created tables (e.g. S3 bucket), null for none
+# prefix of external location for created tables (e.g. S3 bucket), null for none
 args[7]="--ext-tables-location=dbfs:/mnt/tpcds-warehouses-test/$DirNameWarehouse"
-#args[8] format for column-storage tables (PARQUET, DELTA)
-args[8]="--table-format=delta"
-#args[9] whether to use data partitioning for the tables (true/false)
+# format for column-storage tables (PARQUET, DELTA)
+args[8]="--table-format=parquet"
+# whether to use data partitioning for the tables (true/false)
 args[9]="--use-partitioning=true"
 
-#args[10] jar file
+# jar file
 args[10]="--jar-file=/dbfs/$JarFile"
-#args[11] whether to generate statistics by analyzing tables (true/false)
+# whether to generate statistics by analyzing tables (true/false)
 args[11]="--use-row-stats=true"
-#args[12] if argument above is true, whether to compute statistics for columns (true/false)
+# if argument above is true, whether to compute statistics for columns (true/false)
 args[12]="--use-column-stats=true"
-#args[13] "all" or query file
+# "all" or query file
 args[13]="--all-or-query-file=query2.sql" 
-#args[14] number of streams
+# number of streams
 args[14]="--number-of-streams=$3"
 
-#args[15] flags (111111 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=111111"
+# flags (111111 schema|load|analyze|zorder|power|tput)
+args[15]="--execution-flags=111011"
+# "all" or create table file
+args[16]="--all-or-create-file=all"
 
 function json_string_list() {
     declare array=("$@")
@@ -183,19 +185,27 @@ create_job() {
    echo $state
 }
 
-RUN_CREATE_AND_RUN_JOB=1
+RUN_CREATE_JOB=1
 job_id=""
 job_run_id=""
 
-if [ "$RUN_CREATE_AND_RUN_JOB" -eq 1 ]; then
+RUN_CREATE_JOB=1
+
+if [ "$RUN_CREATE_JOB" -eq 1 ]; then
 	echo "${blu}Creating job for benchmark execution.${end}"
 	job_id=$(create_job)
 	echo "${blu}Created job with id ${job_id} and starting its execution.${end}"
+fi
+
+RUN_RUN_JOB=0
+
+if [ "$RUN_RUN_JOB" -eq 1 ]; then
+	echo "${blu}Running job for benchmark execution.${end}"
 	jsonJobRun=$(databricks jobs run-now --job-id $job_id)
 	job_run_id=$(jq -j '.run_id' <<< "$jsonJobRun")
 fi
 
-WAIT_FOR_TERMINATION=1
+WAIT_FOR_TERMINATION=0
 
 if [ "$WAIT_FOR_TERMINATION" -eq 1 ]; then
 	echo "${blu}Waiting for the completion of run ${job_run_id}.${end}"
