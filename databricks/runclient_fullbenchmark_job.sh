@@ -149,6 +149,9 @@ post_data_func()
 EOF
 }
 
+#External metastore script:
+#dbfs:/databricks/init_scripts/set_spark_embedded_metastore.sh
+
 #Get the state (RUNNING, TERMINATED) of a job run via its run_id using the Jobs REST API.
 #$1 run_id
 get_run_state() {
@@ -185,7 +188,6 @@ create_job() {
    echo $state
 }
 
-RUN_CREATE_JOB=1
 job_id=""
 job_run_id=""
 

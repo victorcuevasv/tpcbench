@@ -232,7 +232,19 @@ spark.databricks.delta.autoCompact.maxFileSize 134217728
 
 
 
+Check committer time:
 
+Check log4j-active.log
+
+Search lines with:
+
+DirectoryAtomicCommitProtocol
+
+
+
+
+
+ 
 
 
 

@@ -1,0 +1,6 @@
+Commands in windows.
+
+"C:\Program Files\R\R-3.6.3\bin\Rscript.exe" stacked_chart.R tpcds-results-test presto-comp/analytics/ experiments.txt
+
+"C:\Program Files\R\R-3.6.3\bin\Rscript.exe" stacked_chart.R tpcds-results-test dbr65pqtload/analytics/ experiments.txt
+
