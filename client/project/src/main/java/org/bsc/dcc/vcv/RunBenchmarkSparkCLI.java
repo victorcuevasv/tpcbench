@@ -114,8 +114,10 @@ public class RunBenchmarkSparkCLI {
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /dbfs/mnt/tpcds-results-test/" + this.resultsDir + "/");
 			}
 			else if( this.system.equals("sparkemr")  ) {
-				this.executeCommand("mkdir -p /mnt/tpcds-results-test/" + this.resultsDir);
-				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /mnt/tpcds-results-test/" + this.resultsDir + "/");
+				this.executeCommand("aws s3 cp --recursive " + this.workDir + "/" + this.resultsDir + "/ " +
+						"s3://tpcds-results-test/" + this.resultsDir + "/");
+				//this.executeCommand("mkdir -p /mnt/tpcds-results-test/" + this.resultsDir);
+				//this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /mnt/tpcds-results-test/" + this.resultsDir + "/");
 			}
 		}
 		catch(Exception e) {
