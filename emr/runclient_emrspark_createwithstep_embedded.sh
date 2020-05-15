@@ -10,39 +10,25 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
-#Get the user name of the user executing this script.
-USER_NAME=$(whoami)
-#Get the user id of the user executing this script.
-USER_ID=$(id -u)
-#Get the user id of the user executing this script.
-GROUP_ID=$(id -g)
-
 #$1 scale factor (positive integer)
 #$2 experiment instance number (positive integer)
 #$3 number of streams (positive integer)
-#$4 optional - descriptive tag for the experiment
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_emrspark_createwithstep_extmetastore.sh <scale factor> <experiment instance number> <number of streams> <tag>${end}"
+    echo "${yel}Usage: bash runclient_emrspark_createwithstep.sh <scale factor> <experiment instance number> <number of streams>${end}"
     exit 0
 fi
 
-Tag="experimental$(date +%s)"
-
-dummy4=$4
-if [ ${#dummy4} -ge 1 ] ; then
-        Tag=$4
-fi
+printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
 Nodes="2"
+Tag=experimental$(date +%s)
 ExperimentName="sparkemr-529-${Nodes}nodes-$1gb-$Tag"
 DirNameWarehouse="tpcds-warehouse-sparkemr-529-$1gb-$2-$Tag"
 DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
 DatabaseName="tpcds_sparkemr_529_$1gb_$2_db_$Tag"
 JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
 AutoTerminate="true"
-
-printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
 args=()
 
@@ -113,11 +99,11 @@ ec2-attributes_func()
    "InstanceProfile":"EMR_EC2_DefaultRole",
    "SubnetId":"subnet-01033078",
    "EmrManagedSlaveSecurityGroup":"sg-0d6c7aa7f3a231e50",
-   "EmrManagedMasterSecurityGroup":"sg-0cefde07cc1a0a36e",
-   "AdditionalMasterSecurityGroups":["sg-e9663ea1"]
+   "EmrManagedMasterSecurityGroup":"sg-0cefde07cc1a0a36e"
 }
 EOF
 }
+
 
 steps_func()
 {
@@ -144,6 +130,7 @@ steps_func()
 ]
 EOF
 }
+
 
 steps_func_hudi()
 {
@@ -177,6 +164,7 @@ steps_func_hudi()
 EOF
 }
 
+
 instance-groups_func()
 {
   cat <<EOF
@@ -197,7 +185,7 @@ instance-groups_func()
 EOF
 }
 
-#Important: the external RDS metastore may not work in EMR 6.0 for unknown reasons.
+
 configurations_func()
 {
   cat <<EOF
@@ -209,19 +197,15 @@ configurations_func()
          "hive.exec.max.dynamic.partitions":"3000",
          "hive.exec.dynamic.partition.mode":"nonstrict",
          "spark.sql.broadcastTimeout":"7200",
-         "spark.sql.crossJoin.enabled":"true"
-      }
-   },
-   {
-      "Classification":"hive-site",
-      "Properties":{
-         "javax.jdo.option.ConnectionURL": "jdbc:mysql://metastore.crhrootttpzi.us-west-2.rds.amazonaws.com:3306/hive?createDatabaseIfNotExist=true",
-         "javax.jdo.option.ConnectionDriverName": "org.mariadb.jdbc.Driver",
-         "javax.jdo.option.ConnectionUserName": "hive",
-         "javax.jdo.option.ConnectionPassword": "hive",
-         "hive.exec.max.dynamic.partitions":"5000",
-         "hive.exec.dynamic.partition.mode":"nonstrict",
-         "hive.exec.max.dynamic.partitions.pernode":"2500"
+         "spark.sql.crossJoin.enabled":"true",
+         "spark.hadoop.datanucleus.fixedDatastore":"false",
+		 "spark.hadoop.javax.jdo.option.ConnectionDriverName":"org.apache.derby.jdbc.EmbeddedDriver",
+		 "spark.hadoop.javax.jdo.option.ConnectionPassword":"hivepass",
+		 "spark.hadoop.datanucleus.autoCreateTables":"true",
+		 "spark.hadoop.javax.jdo.option.ConnectionURL":"jdbc:derby:memory:myInMemDB;create=true",
+		 "spark.sql.catalogImplementation":"hive",
+		 "spark.hadoop.datanucleus.autoCreateSchema":"true",
+		 "spark.hadoop.javax.jdo.option.ConnectionUserName":"hiveuser"
       }
    }
 ]
@@ -245,6 +229,26 @@ bootstrap-actions_func()
 EOF
 }
 
+#Get the state (RUNNING, TERMINATED) of a job run via its run_id using the Jobs REST API.
+#$1 run_id
+get_run_state() {
+   declare jsonStr=$(aws emr describe-cluster --cluster-id $1)
+   declare state=$(jq -j '.Cluster.Status.State'  <<<  "$jsonStr")
+   echo $state
+}
+
+#Wait until the state of a job run is TERMINATED by polling using the Jobs REST API.
+#$1 run_id
+#$2 pause in seconds for polling
+wait_for_run_termination() {
+   declare state=$(get_run_state $1)
+   while [ $state != "TERMINATED"  ] ;
+   do
+      sleep $2
+      state=$(get_run_state $1)
+   done
+}
+
 ec2Attributes=$(jq -c . <<<  "$(ec2-attributes_func)")
 steps=$(jq -c . <<<  "$(steps_func)")
 instanceGroups=$(jq -c . <<<  "$(instance-groups_func)")
@@ -262,7 +266,7 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	--termination-protected \
 	--applications Name=Hadoop Name=Hive Name=Spark \
 	--ec2-attributes "$ec2Attributes" \
-	--release-label emr-5.29.0 \
+	--release-label emr-6.0.0 \
 	--log-uri 's3n://bsc-emr-logs/' \
 	--steps "$steps" \
 	--instance-groups "$instanceGroups" \
@@ -302,38 +306,5 @@ if [ "$RUN_DELETE_WAREHOUSE" -eq 1 ]; then
     aws s3 rm --recursive s3://tpcds-warehouses-test/$DirNameWarehouse
     #exit 0
 fi
-
-
-#Commands to create the metastore
-#Run on an EC-2 virtual machine with mysql installed (sudo yum install mysql -y)
-#username:admin, password:maria_db
-#mysql -h metastore.crhrootttpzi.us-west-2.rds.amazonaws.com -P 3306 -u admin -p
-#create database hive; grant all privileges on hive.* to 'hive'@'%' identified by 'hive'; flush privileges;
-
-#username:admin, password:postgres
-#Options to install the postgresql client
-#sudo amazon-linux-extras install postgresql10s
-#sudo yum install postgresql
-#psql -h [HOSTNAME] -p [PORT] -U [USERNAME] -W -d [DATABASENAME]
-#psql -h metastorepg.crhrootttpzi.us-west-2.rds.amazonaws.com -p 5432 -U admin
-#Create the database, Postgres cannot create it if it doesnt exist based on a JDBC parameter like MySQL.
-#create database hive;
-#create user hive with encrypted password 'hive';
-#grant all privileges on database hive to hive;
-
-#Create metastore schema. This can be necessary even if there is a pre-existent schema
-#due to version problems. Note that the -dbType should be postgres or mysql, as required.
-#/usr/lib/hive/bin/schematool -dbType postgres -initSchema
-
-#Restart hive in EMR 5.x
-#sudo stop hive-server2
-#sudo stop hive-hcatalog-server
-#sudo start hive-server2
-#sudo start hive-hcatalog-server
-
-#Directory holding the driver jars for EMR
-#/usr/lib/hive/lib
-#/usr/lib/hive/lib/mariadb-connector-java.jar -> /usr/share/java/mariadb-connector-java.jar
-
 
 
