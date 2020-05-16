@@ -215,7 +215,7 @@ configurations_func()
    {
       "Classification":"hive-site",
       "Properties":{
-         "javax.jdo.option.ConnectionURL": "jdbc:mysql://metastore.crhrootttpzi.us-west-2.rds.amazonaws.com:3306/hive?createDatabaseIfNotExist=true",
+         "javax.jdo.option.ConnectionURL": "jdbc:mysql://metastoremysql.crhrootttpzi.us-west-2.rds.amazonaws.com:3306/hive?createDatabaseIfNotExist=true",
          "javax.jdo.option.ConnectionDriverName": "org.mariadb.jdbc.Driver",
          "javax.jdo.option.ConnectionUserName": "hive",
          "javax.jdo.option.ConnectionPassword": "hive",
@@ -303,11 +303,20 @@ if [ "$RUN_DELETE_WAREHOUSE" -eq 1 ]; then
     #exit 0
 fi
 
+#The metastore has to be created only once, if it is not created on a new RDS server,
+#the bootstrap process of the EMR cluster will fail. Subsequently, the same database
+#can be used for all experiments.
 
 #Commands to create the metastore
 #Run on an EC-2 virtual machine with mysql installed (sudo yum install mysql -y)
 #username:admin, password:maria_db
 #mysql -h metastore.crhrootttpzi.us-west-2.rds.amazonaws.com -P 3306 -u admin -p
+#create database hive; grant all privileges on hive.* to 'hive'@'%' identified by 'hive'; flush privileges;
+
+#Commands to create the metastore
+#Run on an EC-2 virtual machine with mysql installed (sudo yum install mysql -y)
+#username:admin, password:mysqlmysql
+#mysql -h metastoremysql.crhrootttpzi.us-west-2.rds.amazonaws.com -P 3306 -u admin -p
 #create database hive; grant all privileges on hive.* to 'hive'@'%' identified by 'hive'; flush privileges;
 
 #username:admin, password:postgres
@@ -330,6 +339,9 @@ fi
 #sudo stop hive-hcatalog-server
 #sudo start hive-server2
 #sudo start hive-hcatalog-server
+
+#Start thrift server
+#sudo /usr/lib/spark/sbin/start-thriftserver.sh
 
 #Directory holding the driver jars for EMR
 #/usr/lib/hive/lib
