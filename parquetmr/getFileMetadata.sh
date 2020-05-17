@@ -10,6 +10,8 @@ end=$'\e[0m'
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+UNAME=$(whoami)
+
 #$1 Name of the file (must be inside the input directory)
 
 if [ $# -lt 1 ]; then
@@ -21,9 +23,11 @@ fi
 printf "\n%s\n\n" "${cyn}Obtaining the metadata.${end}"
 
 docker run --rm --name parquetmr --volume $DIR/input:/input \
-	--entrypoint java parquetmr:dev -jar /opt/parquet-mr/parquet-tools/target/parquet-tools-1.12.0-SNAPSHOT.jar \
+	--entrypoint java parquetmr:dev \
+	-jar /home/$UNAME/parquet-mr-apache-parquet-1.11.0/parquet-tools/target/parquet-tools-1.11.0.jar  \
 	meta /input/$1
 
 #docker run -it --rm --name parquetmr --volume $DIR/input:/input \
 #	--entrypoint bash parquetmr:dev 
+
 
