@@ -53,12 +53,12 @@ WORKDIR /home/$UNAME/parquet-mr-apache-parquet-1.11.0/
 
 RUN LC_ALL=C mvn clean install -Plocal  -DskipTests
 
-#Compile the project.
+#Compile the project (no longer necessary done in previous step).
 #WORKDIR /home/$UNAME/parquet-mr-apache-parquet-1.11.0/parquet-tools
 
 #RUN mvn clean package -DskipTests -Plocal
 
-#USER $UNAME
+USER $UNAME
 
 CMD ["bash"]
 
