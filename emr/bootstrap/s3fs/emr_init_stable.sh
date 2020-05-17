@@ -4,7 +4,7 @@
 #$2 buckets to mount as comma separated list
 
 sudo yum install -y gcc libstdc++-devel gcc-c++ fuse fuse-devel curl-devel libxml2-devel mailcap automake openssl-devel git   
-sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 sudo yum install -y s3fs-fuse
 
 #Get the list of buckets as an array, replace the commas by spaces
