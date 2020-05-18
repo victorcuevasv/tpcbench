@@ -1,7 +1,9 @@
 package org.bsc.dcc.vcv;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -170,7 +172,7 @@ public class AnalyzeTablesSpark {
 					continue;
 				}
 			}
-			analyzeTable(fileName, this.computeForCols, i);
+			analyzeTable(fileName, sqlCreate, this.computeForCols, i);
 			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -193,7 +195,8 @@ public class AnalyzeTablesSpark {
 	}
 	
 	
-	private void analyzeTable(String sqlCreateFilename, boolean computeForCols, int index) {
+	private void analyzeTable(String sqlCreateFilename, String sqlCreate, boolean computeForCols, 
+			int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
@@ -208,8 +211,9 @@ public class AnalyzeTablesSpark {
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			if( computeForCols ) {
-				Dataset<Row> dataset = this.spark.sql("DESCRIBE " + tableName);
-				String columnsStr = processResults(dataset);
+				//Dataset<Row> dataset = this.spark.sql("DESCRIBE " + tableName);
+				//String columnsStr = processResultsDescribe(dataset);
+				String columnsStr = extractColumnNames(sqlCreate);
 				String sqlStrCols = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR COLUMNS " + 
 						columnsStr; 
 				this.saveAnalyzeTableFile("analyze", tableName, sqlStrCols);
@@ -236,7 +240,30 @@ public class AnalyzeTablesSpark {
 	}
 	
 	
-	private String processResults(Dataset<Row> dataset) {
+	private String extractColumnNames(String sqlStr) {
+		List<String> list = new ArrayList<String>();
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new StringReader(sqlStr));
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				if( line.trim().length() == 0 )
+				continue;
+				if( line.trim().startsWith("create") || line.trim().startsWith("(") || line.trim().startsWith(")") )
+					continue;
+				StringTokenizer tokenizer = new StringTokenizer(line);
+				list.add(tokenizer.nextToken());
+			}
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+			this.logger.error(ioe);
+		}
+		return list.stream().collect( Collectors.joining( ", " ) );
+	}
+	
+	
+	private String processResultsDescribe(Dataset<Row> dataset) {
 		String retVal = null;
 		try {
 			List<String> list = dataset.map(row -> row.getString(0), Encoders.STRING()).collectAsList();
