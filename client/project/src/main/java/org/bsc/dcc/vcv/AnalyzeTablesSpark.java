@@ -249,7 +249,8 @@ public class AnalyzeTablesSpark {
 			while ((line = reader.readLine()) != null) {
 				if( line.trim().length() == 0 )
 				continue;
-				if( line.trim().startsWith("create") || line.trim().startsWith("(") || line.trim().startsWith(")") )
+				if( line.trim().startsWith("create") || line.trim().startsWith("(") 
+						|| line.trim().startsWith(")") || line.trim().startsWith("primary key") )
 					continue;
 				StringTokenizer tokenizer = new StringTokenizer(line);
 				list.add(tokenizer.nextToken());
