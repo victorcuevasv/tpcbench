@@ -112,7 +112,9 @@ function json_string_list() {
     echo ${list%??}
 }
 
-for i in {1..$2} ;
+START=1
+END=$2
+for (( i=$START; i<=$END; i++ ))
 do
 	#Run configuration.
 	ExperimentName="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-${i}-${Tag}"
