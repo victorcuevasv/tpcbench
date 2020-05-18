@@ -121,7 +121,7 @@ END=$2
 for (( i=$START; i<=$END; i++ ))
 do
 	#Run configuration.
-	ExperimentName="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-${i}-${Tag}"
+	ExperimentName="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-${Tag}"
 	DirNameWarehouse="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-${i}-${Tag}"
 	DirNameResults="databricks-test"
 	DatabaseName="tpcds_databricks_${MajorVersion}${MinorVersion}_$1gb_${i}_${Tag}"
