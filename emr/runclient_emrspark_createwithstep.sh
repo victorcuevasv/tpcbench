@@ -19,19 +19,24 @@ if [ $# -lt 3 ]; then
     exit 0
 fi
 
-printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
-
+#Cluster configuration.
 Nodes="2"
-Tag=$(date +%s)
-ExperimentName="sparkemr-600-${Nodes}nodes-$1gb-$Tag"
-DirNameWarehouse="tpcds-warehouse-sparkemr-600-$1gb-$2-$Tag"
-DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
+Version="5.29.0"
+AutoTerminate="true"
+#Run configuration.
+Tag="$(date +%s)test"
+ExperimentName="sparkemr-$Version-${Nodes}nodes-$1gb-$Tag"
+DirNameWarehouse="tpcds-warehouse-sparkemr-$Version-$1gb-$2-$Tag"
+DirNameResults="sparkemr-test"
 DatabaseName="tpcds_sparkemr_600_$1gb_$2_db_$Tag"
 JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
-AutoTerminate="true"
+JobName="BSC-test"
+#Script operation flags.
+RUN_CREATE_CLUSTER=1
+WAIT_FOR_TERMINATION=0
+RUN_DELETE_WAREHOUSE=0
 
 args=()
-
 # main work directory
 args[0]="--main-work-dir=/data"
 # schema (database) name
@@ -69,6 +74,8 @@ args[14]="--all-or-query-file=query2.sql"
 args[15]="--number-of-streams=$3"
 # flags (111111 schema|load|analyze|zorder|power|tput)
 args[16]="--execution-flags=111011"
+
+printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
 function auto_terminate_func() {
 	if [[ $AutoTerminate == "true" ]] ; then
@@ -249,7 +256,6 @@ bootstrapActions=$(jq -c . <<<  "$(bootstrap-actions_func)")
 
 #Create the cluster and run the benchmark.
 
-RUN_CREATE_CLUSTER=1
 jsonCluster=""
 cluster_id=""
 
@@ -268,7 +274,7 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	--ebs-root-volume-size 10 \
 	--service-role EMR_DefaultRole \
 	--enable-debugging \
-	--name 'BSC-test' \
+	--name "$JobName" \
 	--scale-down-behavior TERMINATE_AT_TASK_COMPLETION \
 	--region us-west-2)
     #Example output.
@@ -280,23 +286,14 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	echo "${blu}Created cluster with id ${cluster_id}.${end}"
 fi
 
-WAIT_FOR_TERMINATION=0
-
 if [ "$WAIT_FOR_TERMINATION" -eq 1 ]; then
 	echo "${blu}Waiting for the completion of cluster ${cluster_id}.${end}"
 	wait_for_run_termination $cluster_id 120
 	echo "${blu}Execution complete.${end}"
-fi
-
-#Delete the warehouse directory.
-
-RUN_DELETE_WAREHOUSE=0
-
-if [ "$RUN_DELETE_WAREHOUSE" -eq 1 ]; then
-    echo "${blu}Deleting the warehouse directory ${DirNameWarehouse}.${end}"
-    #Delete the bucket
-    aws s3 rm --recursive s3://tpcds-warehouses-test/$DirNameWarehouse
-    #exit 0
+	if [ "$RUN_DELETE_WAREHOUSE" -eq 1 ]; then
+    	echo "${blu}Deleting the warehouse directory ${DirNameWarehouse}.${end}"
+    	aws s3 rm --recursive s3://tpcds-warehouses-test/$DirNameWarehouse
+	fi
 fi
 
 

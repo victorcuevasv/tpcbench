@@ -20,35 +20,33 @@ if [ -z "$DATABRICKS_TOKEN" ]; then
 fi
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_fullbenchmark_job.sh <scale factor> <experiment instance number> <number of streams> <tag>${end}"
+    echo "${yel}Usage: bash runclient_fullbenchmark_job.sh <scale factor> <experiment instance number> <number of streams>${end}"
     exit 0
 fi
 
-printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
+printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
-Tag="experimental"
-
-dummy4=$4
-if [ ${#dummy4} -ge 1 ] ; then
-        Tag=$4
-fi
-
+#Cluster configuration.
 Nodes="2"
 MajorVersion="6"
 MinorVersion="5"
-DirNameWarehouse="tpcds-warehouse-sparkdatabricks-${MajorVersion}${MinorVersion}-$1gb-$2${Tag}"
-DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
-DatabaseName="tpcds_warehouse_sparkdatabricks_${MajorVersion}${MinorVersion}_$1gb_$2${Tag}"
-DirNameExperiment="tpcds-sparkdatabricks-${MajorVersion}${MinorVersion}-$1gb-$2${Tag}"
-#Note that /dbfs or dbfs: is not included, these are added later
+ScalaVersion="x-scala2.11"
+#Run configuration.
+Tag="$(date +%s)test"
+ExperimentName="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-$2-${Tag}"
+DirNameWarehouse="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-$2-${Tag}"
+DirNameResults="databricks-test"
+DatabaseName="tpcds_databricks_${MajorVersion}${MinorVersion}_$1gb_$2_${Tag}"
+#Note that /dbfs or dbfs: is not included, these are added later.
 JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
-
-printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
-
 JOB_NAME="Run TPC-DS Benchmark"
+#Script operation flags.
+RUN_CREATE_JOB=1
+RUN_RUN_JOB=0
+WAIT_FOR_TERMINATION=0
+RUN_DELETE_WAREHOUSE=0
 
 args=()
-
 # main work directory
 args[0]="--main-work-dir=/data"
 # schema (database) name
@@ -56,7 +54,7 @@ args[1]="--schema-name=$DatabaseName"
 # results folder name (e.g. for Google Drive)
 args[2]="--results-dir=$DirNameResults"
 # experiment name (name of subfolder within the results folder)
-args[3]="--experiment-name=$DirNameExperiment"
+args[3]="--experiment-name=$ExperimentName"
 # system name (system name used within the logs)
 args[4]="--system-name=sparkdatabricks"
 
@@ -87,6 +85,8 @@ args[15]="--execution-flags=111011"
 # "all" or create table file
 args[16]="--all-or-create-file=all"
 
+printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
+
 function json_string_list() {
     declare array=("$@")
     declare list=""
@@ -106,7 +106,7 @@ post_data_func()
 { 
 	"name":"$JOB_NAME",
 	"new_cluster":{ 
-		"spark_version":"${MajorVersion}.${MinorVersion}.x-scala2.11",
+		"spark_version":"${MajorVersion}.${MinorVersion}.${ScalaVersion}",
         "spark_conf":{
         	"spark.databricks.delta.optimize.maxFileSize":"134217728",
             "spark.databricks.delta.optimize.minFileSize":"134217728",
@@ -191,39 +191,26 @@ create_job() {
 job_id=""
 job_run_id=""
 
-RUN_CREATE_JOB=1
-
 if [ "$RUN_CREATE_JOB" -eq 1 ]; then
 	echo "${blu}Creating job for benchmark execution.${end}"
 	job_id=$(create_job)
 	echo "${blu}Created job with id ${job_id} and starting its execution.${end}"
 fi
 
-RUN_RUN_JOB=0
-
 if [ "$RUN_RUN_JOB" -eq 1 ]; then
-	echo "${blu}Running job for benchmark execution.${end}"
+	echo "${blu}Running job with id ${job_id} for benchmark execution.${end}"
 	jsonJobRun=$(databricks jobs run-now --job-id $job_id)
 	job_run_id=$(jq -j '.run_id' <<< "$jsonJobRun")
 fi
-
-WAIT_FOR_TERMINATION=0
 
 if [ "$WAIT_FOR_TERMINATION" -eq 1 ]; then
 	echo "${blu}Waiting for the completion of run ${job_run_id}.${end}"
 	wait_for_run_termination $job_run_id 120
 	echo "${blu}Benchmark running job completed.${end}"
-fi
-
-#Delete the warehouse directory.
-
-RUN_DELETE_WAREHOUSE=0
-
-if [ "$RUN_DELETE_WAREHOUSE" -eq 1 ]; then
-    echo "${blu}Deleting the warehouse directory ${DirNameWarehouse}.${end}"
-    #Delete the bucket
-    aws s3 rm --recursive s3://tpcds-warehouses-test/$DirNameWarehouse
-    #exit 0
+	if [ "$RUN_DELETE_WAREHOUSE" -eq 1 ]; then
+    	echo "${blu}Deleting the warehouse directory ${DirNameWarehouse}.${end}"
+    	aws s3 rm --recursive s3://tpcds-warehouses-test/$DirNameWarehouse
+	fi
 fi
 
 
