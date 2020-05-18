@@ -194,17 +194,17 @@ job_run_id=""
 if [ "$RUN_CREATE_JOB" -eq 1 ]; then
 	echo "${blu}Creating job for benchmark execution.${end}"
 	job_id=$(create_job)
-	echo "${blu}Created job with id ${job_id} and starting its execution.${end}"
+	echo "${blu}Created job with id ${job_id}.${end}"
 fi
 
 if [ "$RUN_RUN_JOB" -eq 1 ]; then
-	echo "${blu}Running job with id ${job_id} for benchmark execution.${end}"
+	echo "${blu}Running job with id ${job_id}.${end}"
 	jsonJobRun=$(databricks jobs run-now --job-id $job_id)
 	job_run_id=$(jq -j '.run_id' <<< "$jsonJobRun")
 fi
 
 if [ "$WAIT_FOR_TERMINATION" -eq 1 ]; then
-	echo "${blu}Waiting for the completion of run ${job_run_id}.${end}"
+	echo "${blu}Waiting for the completion of job ${job_run_id}.${end}"
 	wait_for_run_termination $job_run_id 120
 	echo "${blu}Benchmark running job completed.${end}"
 	if [ "$RUN_DELETE_WAREHOUSE" -eq 1 ]; then

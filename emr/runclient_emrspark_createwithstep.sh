@@ -259,6 +259,11 @@ bootstrapActions=$(jq -c . <<<  "$(bootstrap-actions_func)")
 jsonCluster=""
 cluster_id=""
 
+#Example AWS CLI output.
+#{
+#	"ClusterId": "j-I7ZKG7UYDEDA",
+#	"ClusterArn": "arn:aws:elasticmapreduce:us-west-2:384416317380:cluster/j-I7ZKG7UYDEDA"
+#}
 if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
     jsonCluster=$(aws emr create-cluster \
 	--termination-protected \
@@ -277,11 +282,7 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	--name "$JobName" \
 	--scale-down-behavior TERMINATE_AT_TASK_COMPLETION \
 	--region us-west-2)
-    #Example output.
-	#{
-    #	"ClusterId": "j-I7ZKG7UYDEDA",
-    #	"ClusterArn": "arn:aws:elasticmapreduce:us-west-2:384416317380:cluster/j-I7ZKG7UYDEDA"
-	#}
+
 	cluster_id=$(jq -j '.ClusterId'  <<<  "$jsonCluster")
 	echo "${blu}Created cluster with id ${cluster_id}.${end}"
 fi
