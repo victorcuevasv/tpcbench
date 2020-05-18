@@ -34,10 +34,14 @@ MajorVersion="6"
 MinorVersion="5"
 ScalaVersion="x-scala2.11"
 JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
-paramsStr=""
+Tag="$(date +%s)test"
+#Script operation flags.
+RUN_CREATE_JOB=1
+RUN_RUN_JOB=0
+
 JOB_NAME=""
 args=()
-Tag="$(date +%s)test"
+paramsStr=""
 
 post_data_func()
 {
@@ -165,12 +169,16 @@ do
 	paramsStr=$(json_string_list "${args[@]}")
 	job_id=""
 	job_run_id=""
-	echo "${blu}Creating job for benchmark execution.${end}"
-	job_id=$(create_job)
-	echo "${blu}Created job with id ${job_id}.${end}"
-	#echo "${blu}Running job with id ${job_id}.${end}"
-	#jsonJobRun=$(databricks jobs run-now --job-id $job_id)
-	#job_run_id=$(jq -j '.run_id' <<< "$jsonJobRun")
+	if [ "$RUN_CREATE_JOB" -eq 1 ]; then
+		echo "${blu}Creating job for benchmark execution.${end}"
+		job_id=$(create_job)
+		echo "${blu}Created job with id ${job_id}.${end}"
+	fi
+	if [ "$RUN_RUN_JOB" -eq 1 ]; then
+		echo "${blu}Running job with id ${job_id}.${end}"
+		jsonJobRun=$(databricks jobs run-now --job-id $job_id)
+		job_run_id=$(jq -j '.run_id' <<< "$jsonJobRun")
+	fi
 	args=()
 done
 
