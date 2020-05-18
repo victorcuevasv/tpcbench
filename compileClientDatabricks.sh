@@ -21,7 +21,7 @@ fi
 Timestamp="$(date +%s)"
 UploadedFileName="client-1.2-SNAPSHOT-SHADED.jar"
 if [ $1 -eq 1 ]; then
-	UploadedFileName="client-1.2-SNAPSHOT-SHADED-${TimeStamp}.jar"
+	UploadedFileName="client-1.2-SNAPSHOT-SHADED-${Timestamp}.jar"
 fi
 
 #Build the client project.
