@@ -33,7 +33,7 @@ MinorVersion="5"
 ScalaVersion="x-scala2.11"
 #Run configuration.
 Tag="$(date +%s)test"
-ExperimentName="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-$2-${Tag}"
+ExperimentName="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-${Tag}"
 DirNameWarehouse="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-$2-${Tag}"
 DirNameResults="databricks-test"
 DatabaseName="tpcds_databricks_${MajorVersion}${MinorVersion}_$1gb_$2_${Tag}"
