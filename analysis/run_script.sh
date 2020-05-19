@@ -14,7 +14,7 @@ ScriptToRun="stacked_chart.R"
 #Example:
 #bash run_script.sh tpcds-results-test presto-comp/analytics/ stacked_chart.R experiments.txt
 
-if [ $# -lt 4 ]; then
+if [ $# -lt 1 ]; then
     echo "${yel}Usage: bash run_script.sh <arguments for the script>${end}"
     echo "${yel}Bucket to be mounted: ${BucketToMount}${end}"
     echo "${yel}R script to be executed: ${ScriptToRun}${end}"
