@@ -199,12 +199,12 @@ df <- df %>%
             AVG_DURATION_SEC = mean(AVERAGE_DURATION_SEC, na.rm = TRUE),
             GEOMEAN_DURATION_SEC = mean(GEOMEAN_DURATION_SEC, na.rm = TRUE))
 
-outXlsxFile <- file.paths(prefixDocuments, "Documents/experiments.xlsx")
+outXlsxFile <- file.path(prefixDocuments, "Documents/experiments.xlsx")
 export(df, outXlsxFile)
 
 plot <- createPlotFromDataframe(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
 
-outPngFile <- file.paths(prefixDocuments, "Documents/stacked_bar_chart.png")
+outPngFile <- file.path(prefixDocuments, "Documents/stacked_bar_chart.png")
 png(outPngFile, width=1500, height=500, res=120)
 print(plot)
 dev.off()
