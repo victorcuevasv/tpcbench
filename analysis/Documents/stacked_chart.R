@@ -1,9 +1,14 @@
-#args[1] bucket to mount
-#args[2] s3 prefix for experiment files
-#args[3] csv file with experiment labels (base name, should be located in Documents)
+#args[1] results data directory (can be mounted bucket)
+#args[2] csv file with experiment labels (should be located in Documents)
+
+Sys.setenv("AWS_ACCESS_KEY_ID" = "",
+           "AWS_SECRET_ACCESS_KEY" = "",
+           "AWS_DEFAULT_REGION" = "us-west-2")
 
 options(repr.plot.width=1500, repr.plot.height=400)
 
+#Next line with INSTALL_opts may be necessary on windows.
+#install.packages("aws.s3", repos = c("cloudyr" = "https://cloud.R-project.org"), INSTALL_opts = "--no-multiarch")
 library("aws.s3")
 library("rio")
 library("ggplot2")
@@ -43,7 +48,7 @@ createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, me
   plot <- ggplot(data=dataf, aes(x=SYSTEM, y=get(metric), fill=TEST), width=7, height=7) + 
     geom_bar(stat="identity", position = position_stack(reverse = T)) + 
     #It may be necessary to use 'fun.y = sum' instead of 'fun = sum' in some environments.
-    geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = SYSTEM), stat = 'summary', fun = sum, vjust = -0.1, size=6) +     
+    geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = SYSTEM), stat = 'summary', fun.y = sum, vjust = -0.1, size=6) +     
     theme(axis.title.x=element_blank()) + 
     theme(axis.text=element_text(size=16), axis.title=element_text(size=18)) +
     #The str_wrap function makes the name of the column appear on multiple lines instead of just one
@@ -58,15 +63,16 @@ createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, me
   return(plot)
 }
 
-processExperimentsS3 <- function(dataframe, experiments, labels, tests, instances) {
+processExperimentsS3 <- function(dirName, dataframe, experiments, labels, tests, instances) {
   i <- 1
   for(experiment in experiments) {
     for(test in tests) {
       for(instance in instances) {
-        s3Suffix <- paste0(experiment, "/", test, "/", instance, "/analytics.log")
-        s3objURL <- paste0(s3Prefix, s3Suffix)
+        s3Suffix <- file.path(experiment, test, instance, "analytics.log")
+        #It is NOT necessary to add s3://
+        s3objURL <- file.path(dirName, s3Suffix)
         if( object_exists(s3objURL) ) {
-          dataFile <- "/home/rstudio/Documents/data.txt"
+          dataFile <- "data.txt"
           saveS3ObjectToFile(s3objURL, dataFile)
           dataframe <- processAnalyticsFile(dataFile, dataframe, labels[[i]], experiment, test, instance)
         }
@@ -77,13 +83,21 @@ processExperimentsS3 <- function(dataframe, experiments, labels, tests, instance
   return(dataframe)
 }
 
+saveS3ObjectToFile <- function(s3objURL, outFile) {
+  s3obj <- get_object(s3objURL)
+  charObj <- rawToChar(s3obj)
+  sink(outFile)
+  cat (charObj)
+  sink()
+}
+
 processExperiments <- function(dirName, dataframe, experiments, labels, tests, instances) {
   i <- 1
   for(experiment in experiments) {
     for(test in tests) {
       for(instance in instances) {
-        fileSuffix <- paste0(experiment, "/", test, "/", instance, "/analytics.log")
-        dataFile <- paste0(dirName, fileSuffix)
+        fileSuffix <- file.path(experiment, test, instance, "analytics.log")
+        dataFile <- file.path(dirName, fileSuffix)
         if( file.exists(dataFile) ) {
           dataframe <- processAnalyticsFile(dataFile, dataframe, labels[[i]], experiment, test, instance)
         }
@@ -134,40 +148,46 @@ metricsYaxisLimit[["AVG_TOTAL_DURATION_HOUR"]] <- 30.0
 
 metric <- "AVG_TOTAL_DURATION_HOUR"
 
-#s3Prefix <- "s3://presto-comp/analytics/"
-
 args <- commandArgs(TRUE)
-
-dirName <- paste0("/home/rstudio/s3buckets/", args[1], "/", args[2])
-
-experimentsDF <- readExperimentsAsDataframe(paste0("/home/rstudio/Documents/", args[3]))
-
-#Option 1: use all of the subdirectories found in the directory.
-#experiments <- list.dirs(dirName)
-
-#Option 2: use only the experiments listed in the provided file.
-experiments <- as.list(experimentsDF$EXPERIMENT)
-
-#print(experiments)
-
-labels <- createLabelsList(experimentsDF, experiments)
-
-#print(labels)
-
-#Create a new dataframe to hold the aggregate results.
-df <- data.frame(SYSTEM=character(),
-                       TEST=character(),
-                       INSTANCE=character(),
-                       TOTAL_DURATION_SEC=double(),
-                       TOTAL_DURATION_HOUR=double(),
-                       AVERAGE_DURATION_SEC=double(),
-                       GEOMEAN_DURATION_SEC=double(),
-                       stringsAsFactors=FALSE)
-
+dirName <- file.path(args[1])
+experiments <- NULL
+labels <- NULL
 tests <- list('analyze', 'load', 'power', 'tput')
 instances <- list('1', '2', '3')
 
-df <- processExperiments(dirName, df, experiments, labels, tests, instances)
+#Option 1: use all of the subdirectories found in the directory.
+#For the labels, use the subdirectory name.
+if( length(args) < 2 ) {
+  experiments <- list.dirs(dirName)
+  labels <- experiments
+} else {
+  #Option 2: use only the experiments listed in the provided file.
+  #Those that are commented will be ignored.
+  experimentsDF <- readExperimentsAsDataframe(file.path("Documents", args[2]))
+  experiments <- as.list(experimentsDF$EXPERIMENT)
+  labels <- createLabelsList(experimentsDF, experiments)
+}
+
+#print(experiments)
+#print(labels)
+
+#Create a new dataframe to hold the aggregate results, pass it to the various functions.
+df <- data.frame(SYSTEM=character(),
+                 TEST=character(),
+                 INSTANCE=character(),
+                 TOTAL_DURATION_SEC=double(),
+                 TOTAL_DURATION_HOUR=double(),
+                 AVERAGE_DURATION_SEC=double(),
+                 GEOMEAN_DURATION_SEC=double(),
+                 stringsAsFactors=FALSE)
+
+#Option 1: read the data from files in the local filesystem
+if( ! startsWith(args[1], "s3:") ) {
+  df <- processExperiments(dirName, df, experiments, labels, tests, instances)
+} else {
+  #Option 2: download the files from s3 and process them.
+  df <- processExperimentsS3(dirName, df, experiments, labels, tests, instances)
+}
 
 df <- df %>%
   group_by(SYSTEM, TEST) %>%
@@ -175,13 +195,11 @@ df <- df %>%
             AVG_DURATION_SEC = mean(AVERAGE_DURATION_SEC, na.rm = TRUE),
             GEOMEAN_DURATION_SEC = mean(GEOMEAN_DURATION_SEC, na.rm = TRUE))
 
-#print(df, n=nrow(df))
-
-export(df, "/home/rstudio/Documents/experiments.xlsx")
+export(df, "Documents/experiments.xlsx")
 
 plot <- createPlotFromDataframe(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
 
-png("/home/rstudio/Documents/stacked_bar_chart.png", width=1500, height=500, res=120)
+png("Documents/stacked_bar_chart.png", width=1500, height=500, res=120)
 print(plot)
 dev.off()
 
