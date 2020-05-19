@@ -154,6 +154,10 @@ experiments <- NULL
 labels <- NULL
 tests <- list('analyze', 'load', 'power', 'tput')
 instances <- list('1', '2', '3')
+#Use for running in Docker
+#prefixDocuments <- "/home/rstudio"
+#Use for running locally
+prefixDocuments <- ""
 
 #Option 1: use all of the subdirectories found in the directory.
 #For the labels, use the subdirectory name.
@@ -195,11 +199,13 @@ df <- df %>%
             AVG_DURATION_SEC = mean(AVERAGE_DURATION_SEC, na.rm = TRUE),
             GEOMEAN_DURATION_SEC = mean(GEOMEAN_DURATION_SEC, na.rm = TRUE))
 
-export(df, "Documents/experiments.xlsx")
+outXlsxFile <- file.paths(prefixDocuments, "Documents/experiments.xlsx")
+export(df, outXlsxFile)
 
 plot <- createPlotFromDataframe(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
 
-png("Documents/stacked_bar_chart.png", width=1500, height=500, res=120)
+outPngFile <- file.paths(prefixDocuments, "Documents/stacked_bar_chart.png")
+png(outPngFile, width=1500, height=500, res=120)
 print(plot)
 dev.off()
 
