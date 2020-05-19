@@ -1,6 +1,11 @@
 #args[1] results data directory (can be mounted bucket)
 #args[2] csv file with experiment labels (should be located in Documents)
 
+#Use for running in Docker
+#prefixOS <- "/home/rstudio"
+#Use for running locally
+prefixOS <- ""
+
 Sys.setenv("AWS_ACCESS_KEY_ID" = "",
            "AWS_SECRET_ACCESS_KEY" = "",
            "AWS_DEFAULT_REGION" = "us-west-2")
@@ -97,7 +102,7 @@ processExperiments <- function(dirName, dataframe, experiments, labels, tests, i
     for(test in tests) {
       for(instance in instances) {
         fileSuffix <- file.path(experiment, test, instance, "analytics.log")
-        dataFile <- file.path(dirName, fileSuffix)
+        dataFile <- file.path(prefixOS, dirName, fileSuffix)
         if( file.exists(dataFile) ) {
           dataframe <- processAnalyticsFile(dataFile, dataframe, labels[[i]], experiment, test, instance)
         }
@@ -154,10 +159,6 @@ experiments <- NULL
 labels <- NULL
 tests <- list('analyze', 'load', 'power', 'tput')
 instances <- list('1', '2', '3')
-#Use for running in Docker
-#prefixDocuments <- "/home/rstudio"
-#Use for running locally
-prefixDocuments <- ""
 
 #Option 1: use all of the subdirectories found in the directory.
 #For the labels, use the subdirectory name.
@@ -167,7 +168,7 @@ if( length(args) < 2 ) {
 } else {
   #Option 2: use only the experiments listed in the provided file.
   #Those that are commented will be ignored.
-  experimentsDF <- readExperimentsAsDataframe(file.path(prefixDocuments, "Documents", args[2]))
+  experimentsDF <- readExperimentsAsDataframe(file.path(prefixOS, "Documents", args[2]))
   experiments <- as.list(experimentsDF$EXPERIMENT)
   labels <- createLabelsList(experimentsDF, experiments)
 }
@@ -199,12 +200,12 @@ df <- df %>%
             AVG_DURATION_SEC = mean(AVERAGE_DURATION_SEC, na.rm = TRUE),
             GEOMEAN_DURATION_SEC = mean(GEOMEAN_DURATION_SEC, na.rm = TRUE))
 
-outXlsxFile <- file.path(prefixDocuments, "Documents/experiments.xlsx")
+outXlsxFile <- file.path(prefixOS, "Documents/experiments.xlsx")
 export(df, outXlsxFile)
 
 plot <- createPlotFromDataframe(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
 
-outPngFile <- file.path(prefixDocuments, "Documents/stacked_bar_chart.png")
+outPngFile <- file.path(prefixOS, "Documents/stacked_bar_chart.png")
 png(outPngFile, width=1500, height=500, res=120)
 print(plot)
 dev.off()
