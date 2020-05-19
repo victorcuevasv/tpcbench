@@ -167,7 +167,7 @@ if( length(args) < 2 ) {
 } else {
   #Option 2: use only the experiments listed in the provided file.
   #Those that are commented will be ignored.
-  experimentsDF <- readExperimentsAsDataframe(file.path("Documents", args[2]))
+  experimentsDF <- readExperimentsAsDataframe(file.path(prefixDocuments, "Documents", args[2]))
   experiments <- as.list(experimentsDF$EXPERIMENT)
   labels <- createLabelsList(experimentsDF, experiments)
 }
