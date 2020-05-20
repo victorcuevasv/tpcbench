@@ -1,13 +1,14 @@
 #args[1] results data directory (can be mounted bucket)
 #args[2] csv file with experiment labels (should be located in Documents)
 
-#Use for running in Docker
-#prefixOS <- "/home/rstudio"
 #Use for running locally
 prefixOS <- getwd()
+#Change if running in Docker
+if( prefixOS == "/" )
+  prefixOS <- "/home/rstudio"
 
-Sys.setenv("AWS_ACCESS_KEY_ID" = "AKIAVTAH7P7CJ7LOM5UH",
-           "AWS_SECRET_ACCESS_KEY" = "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",
+Sys.setenv("AWS_ACCESS_KEY_ID" = "",
+           "AWS_SECRET_ACCESS_KEY" = "",
            "AWS_DEFAULT_REGION" = "us-west-2")
 
 options(repr.plot.width=1500, repr.plot.height=400)
