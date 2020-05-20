@@ -9,7 +9,7 @@ cyn=$'\e[1;36m'
 end=$'\e[0m'
 
 BucketToMount="tpcds-results-test"
-ScriptToRun="stacked_chart.R"
+ScriptToRun="Scripts/stacked_chart.R"
 
 #Example:
 #bash run_script.sh tpcds-results-test presto-comp/analytics/ stacked_chart.R experiments.txt
@@ -28,6 +28,7 @@ paramsStr="${@}"
 docker run --rm --privileged \
 -v $DIR/Documents:/home/rstudio/Documents  \
 -v $DIR/Output:/home/rstudio/Output  \
+-v $DIR/Scripts:/home/rstudio/Scripts \
 --entrypoint /bin/bash rstudio:dev -c \
-"mkdir -p /home/rstudio/${BucketToMount}; s3fs ${BucketToMount} /home/rstudio/${BucketToMount}; Rscript /home/rstudio/Documents/${ScriptToRun} $paramsStr"        
+"mkdir -p /home/rstudio/${BucketToMount}; s3fs ${BucketToMount} /home/rstudio/${BucketToMount}; Rscript /home/rstudio/${ScriptToRun} $paramsStr"        
  
