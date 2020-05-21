@@ -51,14 +51,14 @@ calculateStats <- function(analytics, dataframe, label, experiment, test, instan
 }
 
 createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title){
-  plot <- ggplot(data=dataf, aes(x=SYSTEM, y=get(metric), fill=TEST), width=7, height=7) + 
+  plot <- ggplot(data=dataf, aes(x=EXPERIMENT, y=get(metric), fill=TEST), width=7, height=7) + 
     geom_bar(stat="identity", position = position_stack(reverse = T)) + 
     #It may be necessary to use 'fun.y = sum' instead of 'fun = sum' in some environments.
-    geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = SYSTEM), stat = 'summary', fun.y = sum, vjust = -0.1, size=6) +     
+    geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = EXPERIMENT), stat = 'summary', fun.y = sum, vjust = -0.1, size=6) +     
     theme(axis.title.x=element_blank()) + 
     theme(axis.text=element_text(size=16), axis.title=element_text(size=18)) +
     #The str_wrap function makes the name of the column appear on multiple lines instead of just one
-    scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) + 
+    scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) + 
     scale_y_continuous(paste0(metricsLabel[[metric]], " ", " (", metricsUnit[[metric]], ")"), limits=c(0,metricsYaxisLimit[[metric]])) + 
     #scale_y_continuous(paste0(metricsLabel[[metric]], " ", " (", metricsUnit[[metric]], ")")) + 
     #Use the line below to specify the colors manually -must provide enough colors-
@@ -153,8 +153,6 @@ metricsDigits[["AVG_TOTAL_DURATION_HOUR"]] <- 2
 metricsYaxisLimit<-new.env()
 metricsYaxisLimit[["AVG_TOTAL_DURATION_HOUR"]] <- 30.0
 
-metric <- "AVG_TOTAL_DURATION_HOUR"
-
 args <- commandArgs(TRUE)
 dirName <- file.path(args[1])
 experiments <- NULL
@@ -170,6 +168,12 @@ if( length(args) < 2 ) {
 } else {
   #Option 2: use only the experiments listed in the provided file.
   #Those that are commented will be ignored.
+  #Example file listing the experiments:
+  #EXPERIMENT,LABEL
+  #s3://1bcjobaw6vl7h6y6zxlmm7zxom7n9gx/analytics,NA (line commented in the actual file)
+  #snowflakelarge128stream1clusterdefconcimpalakit,128streams
+  #snowflakelarge16stream1clusterdefconcimpalakit,16streams
+  #...
   experimentsDF <- readExperimentsAsDataframe(file.path(prefixOS, "Documents", args[2]))
   experiments <- as.list(experimentsDF$EXPERIMENT)
   labels <- createLabelsList(experimentsDF, experiments)
@@ -179,7 +183,7 @@ if( length(args) < 2 ) {
 #print(labels)
 
 #Create a new dataframe to hold the aggregate results, pass it to the various functions.
-df <- data.frame(SYSTEM=character(),
+df <- data.frame(EXPERIMENT=character(),
                  TEST=character(),
                  INSTANCE=character(),
                  TOTAL_DURATION_SEC=double(),
@@ -197,7 +201,7 @@ if( ! startsWith(args[1], "s3:") ) {
 }
 
 df <- df %>%
-  group_by(SYSTEM, TEST) %>%
+  group_by(EXPERIMENT, TEST) %>%
   summarize(AVG_TOTAL_DURATION_HOUR = mean(TOTAL_DURATION_HOUR, na.rm = TRUE),
             AVG_DURATION_SEC = mean(AVERAGE_DURATION_SEC, na.rm = TRUE),
             GEOMEAN_DURATION_SEC = mean(GEOMEAN_DURATION_SEC, na.rm = TRUE))
@@ -205,8 +209,8 @@ df <- df %>%
 outXlsxFile <- file.path(prefixOS, "Documents/experiments.xlsx")
 export(df, outXlsxFile)
 
+metric <- "AVG_TOTAL_DURATION_HOUR"
 plot <- createPlotFromDataframe(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
-
 outPngFile <- file.path(prefixOS, "Documents/stacked_bar_chart.png")
 png(outPngFile, width=1500, height=500, res=120)
 print(plot)

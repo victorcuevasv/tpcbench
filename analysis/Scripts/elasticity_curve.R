@@ -1,5 +1,5 @@
-#args[1] results data directory (can be mounted bucket)
-#args[2] csv file with experiment labels (should be located in Documents)
+#args[1] results data directory (can be mounted bucket) - required
+#args[2] csv file with experiment labels (should be located in Documents) - required
 
 #Use for running locally
 prefixOS <- getwd()
@@ -140,33 +140,10 @@ processExperiments <- function(dirName, dataframe, experiments, labels, tests, i
   return(dataframe)
 }
 
-list.dirs <- function(path=".", pattern=NULL, all.dirs=FALSE,
-                      full.names=FALSE, ignore.case=FALSE) {
-  # use full.names=TRUE to pass to file.info
-  all <- list.files(path, pattern, all.dirs,
-                    full.names=TRUE, recursive=FALSE, ignore.case)
-  dirs <- all[file.info(all)$isdir]
-  # determine whether to return full names or just dir names
-  if(isTRUE(full.names))
-    return(dirs)
-  else
-    return(basename(dirs))
-}
-
 readExperimentsAsDataframe <- function(inFile) {
   print(inFile)
   experimentsDF <- import(inFile, format="csv", colClasses="character")
   return(experimentsDF)
-}
-
-createLabelsList <- function(experimentsDF, experimentsList) {
-  labels <- list()
-  i <- 1
-  for(experiment in experimentsList) {
-    labels[[i]] <- experimentsDF$LABEL[experimentsDF$EXPERIMENT == experiment]
-    i <- i + 1
-  }
-  return(labels)
 }
 
 # Map metrics to descriptions for the y-axis.
@@ -204,19 +181,19 @@ experimentsDF <- NULL
 tests <- list('analyze', 'load', 'power', 'tput')
 instances <- list('0', '1', '2', '3')
 
-#Option 1: use all of the subdirectories found in the directory.
-#For the labels, use the subdirectory name.
-if( length(args) < 2 ) {
-  experiments <- list.dirs(dirName)
-  labels <- experiments
-} else {
-  #Option 2: use only the experiments listed in the provided file.
-  #Those that are commented will be ignored.
-  experimentsDF <- readExperimentsAsDataframe(file.path(prefixOS, "Documents", args[2]))
-}
+#Example of an experiments file.
 
-#print(experiments)
-#print(labels)
+#EXPERIMENT,LABEL,SIZE,SYSTEM
+#snowflakexsmallonecluster,SFK-xs,xs-1n,SFK
+#snowflakesmallonecluster,SFK-s,s-2n,SFK
+#...
+#databricks61delta8wpartnoz,DBR-8w,L-8n,DBR 6.1
+#databricks61delta16wpartnoz,DBR-16w,XL-16n,DBR 6.1
+
+if( length(args) < 2 )
+  stop("Usage: elasticity_curve.R <results dir> <csv file listing experiments>.")
+
+experimentsDF <- readExperimentsAsDataframe(file.path(prefixOS, "Documents", args[2]))
 
 #Create a new dataframe to hold the aggregate results, pass it to the various functions.
 df <- data.frame(LABEL=character(),
