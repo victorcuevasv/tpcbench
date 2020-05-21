@@ -64,7 +64,7 @@ createStackedChartFromDF <- function(dataf, metric, metricsLabel, metricsUnit, m
     scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) + 
     scale_y_continuous(paste0(metricsLabel[[metric]], " ", " (", metricsUnit[[metric]], ")"), limits=c(0,metricsYaxisLimit[[metric]])) + 
     #scale_y_continuous(paste0(metricsLabel[[metric]], " ", " (", metricsUnit[[metric]], ")")) + 
-    #Use the line below to specify the colors manually -must provide enough colors-
+    #The line below specifies the colors manually -must provide enough colors-
     scale_fill_manual(name="", values=c("#5e3c99", "#b2abd2", "#fdb863", "#e66101"), labels=c('load', 'analyze', 'power', 'tput')) + 
     theme(legend.position = "bottom") + 
     theme(legend.text=element_text(size=14)) + 
@@ -184,6 +184,7 @@ instances <- list('0', '1', '2', '3')
 #Example of an experiments file.
 
 #EXPERIMENT,LABEL,SIZE,SYSTEM
+#s3://1-rtvjs-45qnx2peo-ar39q2dprvzkmga/analytics,NA,NA,NA (line commented in actual file)
 #snowflakexsmallonecluster,SFK-xs,xs-1n,SFK
 #snowflakesmallonecluster,SFK-s,s-2n,SFK
 #...
@@ -216,15 +217,19 @@ if( ! startsWith(args[1], "s3:") ) {
   df <- processExperimentsS3(dirName, df, experimentsDF, tests, instances)
 }
 
+#Group and aggregate the generated dataframe to derive metrics for each experiment
+#and each test considering the various instances.
 df <- df %>%
   group_by(EXPERIMENT, TEST, LABEL, SIZE, SYSTEM) %>%
   summarize(AVG_TOTAL_DURATION_HOUR = mean(TOTAL_DURATION_HOUR, na.rm = TRUE),
             AVG_DURATION_SEC = mean(AVERAGE_DURATION_SEC, na.rm = TRUE),
             GEOMEAN_DURATION_SEC = mean(GEOMEAN_DURATION_SEC, na.rm = TRUE))
 
+#Save the dataframe to an excel file.
 outXlsxFile <- file.path(prefixOS, "Documents/experiments.xlsx")
 export(df, outXlsxFile)
 
+#Generate the stacked chart. The total is computed within the function that generates the plot.
 metric <- "AVG_TOTAL_DURATION_HOUR"
 plot <- createStackedChartFromDF(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
 outPngFile <- file.path(prefixOS, "Documents/stacked_bar_chart.png")
@@ -232,10 +237,13 @@ png(outPngFile, width=1500, height=500, res=120)
 print(plot)
 dev.off()
 
+#Group and aggregate the generated dataframe to derive metrics for each experiment
+#for the full benchmark considering the various aggregate metrics for the tests.
 df <- df %>%
   group_by(EXPERIMENT, LABEL, SIZE, SYSTEM) %>%
   summarize(TOTAL_DURATION_HOUR = sum(AVG_TOTAL_DURATION_HOUR, na.rm = TRUE))
 
+#Generate the elasticity curve.
 metric <- "TOTAL_DURATION_HOUR"
 plot <- createCurvePlotFromDF(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
 outPngFile <- file.path(prefixOS, "Documents/elasticity_chart.png")

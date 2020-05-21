@@ -1,5 +1,6 @@
-#args[1] results data directory (can be mounted bucket)
-#args[2] csv file with experiment labels (should be located in Documents)
+#!/usr/bin/env Rscript
+#args[1] results data directory (can be mounted s3 bucket)
+#args[2] csv file with experiment labels (should be located in Documents - optional)
 
 #Use for running locally
 prefixOS <- getwd()
@@ -58,10 +59,10 @@ createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, me
     theme(axis.title.x=element_blank()) + 
     theme(axis.text=element_text(size=16), axis.title=element_text(size=18)) +
     #The str_wrap function makes the name of the column appear on multiple lines instead of just one
-    scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) + 
+    scale_x_discrete(labels = function(x) str_wrap(x, width = 20)) + 
     scale_y_continuous(paste0(metricsLabel[[metric]], " ", " (", metricsUnit[[metric]], ")"), limits=c(0,metricsYaxisLimit[[metric]])) + 
     #scale_y_continuous(paste0(metricsLabel[[metric]], " ", " (", metricsUnit[[metric]], ")")) + 
-    #Use the line below to specify the colors manually -must provide enough colors-
+    #The line below to species the colors manually -must provide enough colors-
     scale_fill_manual(name="", values=c("#5e3c99", "#b2abd2", "#fdb863", "#e66101"), labels=c('load', 'analyze', 'power', 'tput')) + 
     theme(legend.position = "bottom") + 
     theme(legend.text=element_text(size=14)) + 
@@ -168,7 +169,9 @@ if( length(args) < 2 ) {
 } else {
   #Option 2: use only the experiments listed in the provided file.
   #Those that are commented will be ignored.
+  #
   #Example file listing the experiments:
+  #
   #EXPERIMENT,LABEL
   #s3://1bcjobaw6vl7h6y6zxlmm7zxom7n9gx/analytics,NA (line commented in the actual file)
   #snowflakelarge128stream1clusterdefconcimpalakit,128streams
@@ -178,9 +181,6 @@ if( length(args) < 2 ) {
   experiments <- as.list(experimentsDF$EXPERIMENT)
   labels <- createLabelsList(experimentsDF, experiments)
 }
-
-#print(experiments)
-#print(labels)
 
 #Create a new dataframe to hold the aggregate results, pass it to the various functions.
 df <- data.frame(EXPERIMENT=character(),
