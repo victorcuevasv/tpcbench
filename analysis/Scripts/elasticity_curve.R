@@ -57,7 +57,9 @@ calculateStats <- function(analytics, dataframe, experimentsDF, experiment, test
 }
 
 createStackedChartFromDF <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title){
-  plot <- ggplot(data=dataf, aes(x=LABEL, y=get(metric), fill=TEST), width=7, height=7) + 
+  plot <- ggplot(data=dataf, aes(x=factor(LABEL, levels=c('DBR-2w', 'DBR-4w', 'DBR-8w', 'DBR-16w',
+                                                          'SFK-s', 'SFK-M', 'SFK-L', 'SFK-XL')), 
+                                 y=get(metric), fill=TEST), width=7, height=7) + 
     geom_bar(stat="identity", position = position_stack(reverse = T)) + 
     #It may be necessary to use 'fun.y = sum' instead of 'fun = sum' in some environments.
     geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = LABEL), stat = 'summary', fun.y = sum, vjust = -0.1, size=6) +     
@@ -194,27 +196,35 @@ metricsLabel<-new.env()
 metricsLabel[["TOTAL_DURATION_HOUR"]] <- "Total"
 metricsLabel[["TOTAL_DURATION_SEC"]] <- "Total"
 metricsLabel[["AVG_TOTAL_DURATION_HOUR"]] <- "Total"
+metricsLabel[["FULLB_TOTAL_DURATION_HOUR"]] <- "Total"
+metricsLabel[["LOAD_PLUS_ANALYZE_TOTAL_DURATION_HOUR"]] <- "Total"
 metricsLabel[["SPEEDUP"]] <- ""
 
 metricsUnit<-new.env()
 metricsUnit[["TOTAL_DURATION_HOUR"]] <- "hr."
 metricsUnit[["TOTAL_DURATION_SEC"]] <- "sec."
 metricsUnit[["AVG_TOTAL_DURATION_HOUR"]] <- "hr."
+metricsUnit[["FULLB_TOTAL_DURATION_HOUR"]] <- "hr."
+metricsUnit[["LOAD_PLUS_ANALYZE_TOTAL_DURATION_HOUR"]] <- "hr."
 metricsUnit[["SPEEDUP"]] <- ""
 
 metricsDigits<-new.env()
 metricsDigits[["TOTAL_DURATION_HOUR"]] <- 2
 metricsDigits[["TOTAL_DURATION_SEC"]] <- 2
 metricsDigits[["AVG_TOTAL_DURATION_HOUR"]] <- 2
+metricsDigits[["FULLB_TOTAL_DURATION_HOUR"]] <- 2
+metricsDigits[["LOAD_PLUS_ANALYZE_TOTAL_DURATION_HOUR"]] <- 2
 metricsDigits[["SPEEDUP"]] <- 2
 
 metricsYaxisLimit<-new.env()
 metricsYaxisLimit[["TOTAL_DURATION_HOUR"]] <- 20.0
 metricsYaxisLimit[["TOTAL_DURATION_SEC"]] <- 9000
 metricsYaxisLimit[["AVG_TOTAL_DURATION_HOUR"]] <- 20.0
+metricsYaxisLimit[["FULLB_TOTAL_DURATION_HOUR"]] <- 20.0
+metricsYaxisLimit[["LOAD_PLUS_ANALYZE_TOTAL_DURATION_HOUR"]] <- 20.0
 metricsYaxisLimit[["SPEEDUP"]] <- 3.0
 
-#metric <- "TOTAL_DURATION_HOUR"
+#metric <- "FULLB_TOTAL_DURATION_HOUR"
 metric <- "AVG_TOTAL_DURATION_HOUR"
 #metric <- "SPEEDUP"
 
@@ -278,7 +288,8 @@ export(df, outXlsxFile)
 
 #Generate the stacked chart. The total is computed within the function that generates the plot.
 metric <- "AVG_TOTAL_DURATION_HOUR"
-plot <- createStackedChartFromDF(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
+plot <- createStackedChartFromDF(df, metric, metricsLabel, metricsUnit, metricsDigits,
+                                 "TPC-DS Full Benchmark at 1 TB")
 outPngFile <- file.path(prefixOS, "Documents/stacked_bar_chart.png")
 png(outPngFile, width=1500, height=500, res=120)
 print(plot)
@@ -286,42 +297,81 @@ dev.off()
 
 #Group and aggregate the generated dataframe to derive metrics for each experiment
 #for the full benchmark considering the various aggregate metrics for the tests.
-df <- df %>%
+dfFull <- df %>%
   group_by(EXPERIMENT, LABEL, SIZE, NODES, SYSTEM) %>%
-  summarize(TOTAL_DURATION_HOUR = sum(AVG_TOTAL_DURATION_HOUR, na.rm = TRUE))
+  summarize(FULLB_TOTAL_DURATION_HOUR = sum(AVG_TOTAL_DURATION_HOUR, na.rm = TRUE))
 
 #Save the dataframe to an excel file.
-outXlsxFile <- file.path(prefixOS, "Documents/elasticity_chart.xlsx")
-export(df, outXlsxFile)
+outXlsxFile <- file.path(prefixOS, "Documents/elasticity_chart_fullb.xlsx")
+export(dfFull, outXlsxFile)
 
 #Generate the elasticity curve.
-metric <- "TOTAL_DURATION_HOUR"
-df$NODES <- as.numeric(df$NODES)
-plot <- createElasticityPlotFromDF(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB", FALSE)
-outPngFile <- file.path(prefixOS, "Documents/elasticity_chart.png")
+metric <- "FULLB_TOTAL_DURATION_HOUR"
+dfFull$NODES <- as.numeric(dfFull$NODES)
+plot <- createElasticityPlotFromDF(dfFull, metric, metricsLabel, metricsUnit, metricsDigits,
+                                   "TPC-DS Full Benchmark at 1 TB", FALSE)
+outPngFile <- file.path(prefixOS, "Documents/elasticity_chart_fullb.png")
 png(outPngFile, width=800, height=800, res=120)
 print(plot)
 dev.off()
 
 #Compute the speedup with the dataframe containing the total duration for the benchmark.
 #First, get a table with the Databricks experiments, and a table with the snowflake experiments.
-dfDBR <- df[df$SYSTEM == "DBR_DLT_NOZ_PART",]
-dfSFK <- df[df$SYSTEM == "SNOWFLAKE",]
+dfDBR <- dfFull[dfFull$SYSTEM == "DBR_DLT_NOZ_PART",]
+dfSFK <- dfFull[dfFull$SYSTEM == "SNOWFLAKE",]
 #Join the two tables on SIZE (columns are renamed with x and y suffixes: DBR=x, SFK=y)
 dfJoin <- inner_join(dfDBR, dfSFK, by="SIZE")
 #Add a column with the speedup.
-dfJoin$SPEEDUP <- dfJoin$TOTAL_DURATION_HOUR.x / dfJoin$TOTAL_DURATION_HOUR.y
+dfJoin$SPEEDUP <- dfJoin$FULLB_TOTAL_DURATION_HOUR.x / dfJoin$FULLB_TOTAL_DURATION_HOUR.y
 
 #Save the dataframe to an excel file.
-outXlsxFile <- file.path(prefixOS, "Documents/speedup.xlsx")
+outXlsxFile <- file.path(prefixOS, "Documents/speedup_fullb.xlsx")
 export(dfJoin, outXlsxFile)
 
 #Generate the speedup curve.
 metric <- "SPEEDUP"
 dfJoin$NODES.x <- as.numeric(dfJoin$NODES.x)
 plot <- createSpeedupPlotFromDF(dfJoin, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB", FALSE)
-outPngFile <- file.path(prefixOS, "Documents/speedup.png")
+outPngFile <- file.path(prefixOS, "Documents/speedup_fullb.png")
 png(outPngFile, width=800, height=800, res=120)
 print(plot)
 dev.off()
+
+#Using the dataframe containing the aggregated results for individual tests, generate elasticity
+#plots for those individual tests.
+
+#For the power and tput tests the results need no further processing other than filtering the dataframe.
+df$NODES <- as.numeric(df$NODES)
+simpleTests <- c('power', 'tput')
+for( simpleTest in simpleTests  ) {
+  title <- paste0("TPC-DS ", simpleTest, " test at 1 TB")
+  metric <- "AVG_TOTAL_DURATION_HOUR"
+  dfFiltered <- df[df$TEST == simpleTest,]
+  plot <- createElasticityPlotFromDF(dfFiltered, metric, metricsLabel, metricsUnit, metricsDigits,
+                                     title, FALSE)
+  outPngFile <- file.path(prefixOS, paste0("Documents/elasticity_chart_", simpleTest, ".png"))
+  png(outPngFile, width=800, height=800, res=120)
+  print(plot)
+  dev.off()
+}
+#For the load and analyze tests, these have to be added together for Databricks, since Snowflake's
+#load test also includes the analyze test.
+title <- "TPC-DS load plus analyze test at 1 TB"
+metric <- "LOAD_PLUS_ANALYZE_TOTAL_DURATION_HOUR"
+#This filter condition works in principle, alternatively, use dplyr filter.
+#dfFiltered <- df[df$TEST == "load" | df$TEST == "analyze",]
+dfFiltered <- df %>% filter(TEST == "load" | TEST == "analyze")
+dfLoadPlusAnalyze <- dfFiltered %>%
+  group_by(EXPERIMENT, LABEL, SIZE, NODES, SYSTEM) %>%
+  summarize(LOAD_PLUS_ANALYZE_TOTAL_DURATION_HOUR = sum(AVG_TOTAL_DURATION_HOUR, na.rm = TRUE))
+plot <- createElasticityPlotFromDF(dfLoadPlusAnalyze, metric, metricsLabel, metricsUnit, metricsDigits,
+                                   title, FALSE)
+outPngFile <- file.path(prefixOS, "Documents/elasticity_chart_loadplusanalyze.png")
+png(outPngFile, width=800, height=800, res=120)
+print(plot)
+dev.off()
+
+
+
+
 
