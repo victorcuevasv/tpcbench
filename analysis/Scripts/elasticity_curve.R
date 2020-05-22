@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+#This script creates a stacked chart, an elasiticy curve, and a speedup curve.
 #args[1] results data directory (can be mounted bucket) - required
 #args[2] csv file with experiment labels (should be located in Documents) - required
 
@@ -47,8 +49,9 @@ calculateStats <- function(analytics, dataframe, experimentsDF, experiment, test
   geomeanDurationSec <- geoMean(analytics$DURATION)
   label <- experimentsDF$LABEL[experimentsDF$EXPERIMENT == experiment] 
   size <- experimentsDF$SIZE[experimentsDF$EXPERIMENT == experiment]
+  nodes <- experimentsDF$NODES[experimentsDF$EXPERIMENT == experiment]
   system <- experimentsDF$SYSTEM[experimentsDF$EXPERIMENT == experiment]
-  dataframe[nrow(dataframe) + 1,] = list(label, size, system, experiment, test, instance, totalDurationSec, totalDurationHour, 
+  dataframe[nrow(dataframe) + 1,] = list(label, size, nodes, system, experiment, test, instance, totalDurationSec, totalDurationHour, 
                                          averageDurationSec, geomeanDurationSec)
   return(dataframe)
 }
@@ -72,8 +75,18 @@ createStackedChartFromDF <- function(dataf, metric, metricsLabel, metricsUnit, m
   return(plot)
 }
 
-createCurvePlotFromDF <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title){
-  ggplot(data=dataf, aes(x=factor(SIZE, levels=c('xs-1n', 's-2n', 'M-4n', 'L-8n', 'XL-16n')),
+createElasticityPlotFromDF <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title, useDiscrete) {
+  xObj <- NULL
+  xScale <- NULL
+  if( useDiscrete ) {
+    xObj <- factor(dataf$SIZE, levels=c('xs-1n', 's-2n', 'M-4n', 'L-8n', 'XL-16n'))
+    #The str_wrap function makes the name of the column appear on multiple lines instead of just one
+    xScale <- scale_x_discrete("Cluster size", labels = function(x) str_wrap(x, width = 11))
+  } else {
+    xObj <- dataf$NODES
+    xScale <- scale_x_continuous("Nodes", limits=c(0,20), breaks=seq(0,20,2))
+  }
+  ggplot(data=dataf, aes(x=xObj, 
                          y=get(metric), color=SYSTEM, linetype=SYSTEM, group=SYSTEM), width=7, height=7) +  
     geom_line() +
     geom_point() +
@@ -81,10 +94,10 @@ createCurvePlotFromDF <- function(dataf, metric, metricsLabel, metricsUnit, metr
     theme(plot.title = element_text(size=20, face="bold")) +
     geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = SYSTEM),
               vjust = -1, size=5, show.legend = FALSE) +
-    theme(axis.title.x=element_blank()) + 
+    #Use to eliminate the x-axis title
+    #theme(axis.title.x=element_blank()) + 
     theme(axis.text=element_text(size=14), axis.title=element_text(size=16)) +
-    #The str_wrap function makes the name of the column appear on multiple lines instead of just one
-    scale_x_discrete(labels = function(x) str_wrap(x, width = 11)) + 
+    xScale +
     #Use the line below to specify the limit for the y axis
     scale_y_continuous(paste0(metricsLabel[[metric]], " ", " (", metricsUnit[[metric]], ")"), limits=c(0,metricsYaxisLimit[[metric]])) + 
     theme(legend.position = "bottom") + 
@@ -92,6 +105,36 @@ createCurvePlotFromDF <- function(dataf, metric, metricsLabel, metricsUnit, metr
     theme(legend.title=element_blank()) +
     scale_color_discrete(name="", labels = c("DBR 6.1", "SFK")) +
     scale_linetype_discrete(name="", labels = c("DBR 6.1", "SFK")) +
+    theme(plot.margin=margin(t = 10, r = 5, b = 5, l = 5, unit = "pt"))
+}
+
+createSpeedupPlotFromDF <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title, useDiscrete) {
+  xObj <- NULL
+  xScale <- NULL
+  if( useDiscrete ) {
+    xObj <- factor(dataf$SIZE, levels=c('xs-1n', 's-2n', 'M-4n', 'L-8n', 'XL-16n'))
+    #The str_wrap function makes the name of the column appear on multiple lines instead of just one
+    xScale <- scale_x_discrete("Cluster size", labels = function(x) str_wrap(x, width = 11))
+  } else {
+    xObj <- dataf$NODES.x
+    xScale <- scale_x_continuous("Nodes", limits=c(0,20), breaks=seq(0,20,2))
+  }
+  #Note that it is necessary to add group=1 in order to be able to draw the line.
+  ggplot(data=dataf, aes(x=xObj,
+                         y=get(metric), group=1, width=7, height=7)) +  
+    geom_line() +
+    geom_point() +
+    ggtitle(title) +
+    theme(plot.title = element_text(size=20, face="bold")) +
+    geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]])),
+              vjust = -1, size=5, show.legend = FALSE) +
+    theme(axis.text=element_text(size=14), axis.title=element_text(size=16)) +
+    xScale + 
+    #Use the line below to specify the limit for the y axis
+    scale_y_continuous(metricsLabel[[metric]], limits=c(0,metricsYaxisLimit[[metric]])) + 
+    theme(legend.position = "bottom") + 
+    theme(legend.text=element_text(size=14)) +  
+    theme(legend.title=element_blank()) +
     theme(plot.margin=margin(t = 10, r = 5, b = 5, l = 5, unit = "pt"))
 }
 
@@ -151,7 +194,7 @@ metricsLabel<-new.env()
 metricsLabel[["TOTAL_DURATION_HOUR"]] <- "Total"
 metricsLabel[["TOTAL_DURATION_SEC"]] <- "Total"
 metricsLabel[["AVG_TOTAL_DURATION_HOUR"]] <- "Total"
-metricsLabel[["Speedup"]] <- ""
+metricsLabel[["SPEEDUP"]] <- ""
 
 metricsUnit<-new.env()
 metricsUnit[["TOTAL_DURATION_HOUR"]] <- "hr."
@@ -183,13 +226,16 @@ instances <- list('0', '1', '2', '3')
 
 #Example of an experiments file.
 
-#EXPERIMENT,LABEL,SIZE,SYSTEM
-#s3://1-rtvjs-45qnx2peo-ar39q2dprvzkmga/analytics,NA,NA,NA (line commented in actual file)
-#snowflakexsmallonecluster,SFK-xs,xs-1n,SFK
-#snowflakesmallonecluster,SFK-s,s-2n,SFK
-#...
-#databricks61delta8wpartnoz,DBR-8w,L-8n,DBR 6.1
-#databricks61delta16wpartnoz,DBR-16w,XL-16n,DBR 6.1
+#EXPERIMENT,LABEL,SIZE,NODES,SYSTEM
+#s3://1-rtvjs-45qnx2peo-ar39q2dprvzkmga/analytics,NA,NA,NA,NA (line commented in actual file)
+#snowflakesmallonecluster,SFK-s,s-2n,2,SNOWFLAKE
+#snowflakemediumonecluster,SFK-M,M-4n,4,SNOWFLAKE
+#snowflakelargeonecluster,SFK-L,L-8n,8,SNOWFLAKE
+#snowflakexlargeonecluster,SFK-XL,XL-16n,16,SNOWFLAKE
+#databricks61delta2wpartnoz,DBR-2w,s-2n,2,DBR_DLT_NOZ_PART 
+#databricks61delta4wpartnoz,DBR-4w,M-4n,4,DBR_DLT_NOZ_PART
+#databricks61delta8wpartnoz,DBR-8w,L-8n,8,DBR_DLT_NOZ_PART
+#databricks61delta16wpartnoz,DBR-16w,XL-16n,16,DBR_DLT_NOZ_PART
 
 if( length(args) < 2 )
   stop("Usage: elasticity_curve.R <results dir> <csv file listing experiments>.")
@@ -199,6 +245,7 @@ experimentsDF <- readExperimentsAsDataframe(file.path(prefixOS, "Documents", arg
 #Create a new dataframe to hold the aggregate results, pass it to the various functions.
 df <- data.frame(LABEL=character(),
                  SIZE=character(),
+                 NODES=numeric(),
                  SYSTEM=character(),
                  EXPERIMENT=character(),
                  TEST=character(),
@@ -220,13 +267,13 @@ if( ! startsWith(args[1], "s3:") ) {
 #Group and aggregate the generated dataframe to derive metrics for each experiment
 #and each test considering the various instances.
 df <- df %>%
-  group_by(EXPERIMENT, TEST, LABEL, SIZE, SYSTEM) %>%
+  group_by(EXPERIMENT, TEST, LABEL, SIZE, NODES, SYSTEM) %>%
   summarize(AVG_TOTAL_DURATION_HOUR = mean(TOTAL_DURATION_HOUR, na.rm = TRUE),
             AVG_DURATION_SEC = mean(AVERAGE_DURATION_SEC, na.rm = TRUE),
             GEOMEAN_DURATION_SEC = mean(GEOMEAN_DURATION_SEC, na.rm = TRUE))
 
 #Save the dataframe to an excel file.
-outXlsxFile <- file.path(prefixOS, "Documents/experiments.xlsx")
+outXlsxFile <- file.path(prefixOS, "Documents/stacked_bar_chart.xlsx")
 export(df, outXlsxFile)
 
 #Generate the stacked chart. The total is computed within the function that generates the plot.
@@ -240,13 +287,40 @@ dev.off()
 #Group and aggregate the generated dataframe to derive metrics for each experiment
 #for the full benchmark considering the various aggregate metrics for the tests.
 df <- df %>%
-  group_by(EXPERIMENT, LABEL, SIZE, SYSTEM) %>%
+  group_by(EXPERIMENT, LABEL, SIZE, NODES, SYSTEM) %>%
   summarize(TOTAL_DURATION_HOUR = sum(AVG_TOTAL_DURATION_HOUR, na.rm = TRUE))
+
+#Save the dataframe to an excel file.
+outXlsxFile <- file.path(prefixOS, "Documents/elasticity_chart.xlsx")
+export(df, outXlsxFile)
 
 #Generate the elasticity curve.
 metric <- "TOTAL_DURATION_HOUR"
-plot <- createCurvePlotFromDF(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
+df$NODES <- as.numeric(df$NODES)
+plot <- createElasticityPlotFromDF(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB", FALSE)
 outPngFile <- file.path(prefixOS, "Documents/elasticity_chart.png")
+png(outPngFile, width=800, height=800, res=120)
+print(plot)
+dev.off()
+
+#Compute the speedup with the dataframe containing the total duration for the benchmark.
+#First, get a table with the Databricks experiments, and a table with the snowflake experiments.
+dfDBR <- df[df$SYSTEM == "DBR_DLT_NOZ_PART",]
+dfSFK <- df[df$SYSTEM == "SNOWFLAKE",]
+#Join the two tables on SIZE (columns are renamed with x and y suffixes: DBR=x, SFK=y)
+dfJoin <- inner_join(dfDBR, dfSFK, by="SIZE")
+#Add a column with the speedup.
+dfJoin$SPEEDUP <- dfJoin$TOTAL_DURATION_HOUR.x / dfJoin$TOTAL_DURATION_HOUR.y
+
+#Save the dataframe to an excel file.
+outXlsxFile <- file.path(prefixOS, "Documents/speedup.xlsx")
+export(dfJoin, outXlsxFile)
+
+#Generate the speedup curve.
+metric <- "SPEEDUP"
+dfJoin$NODES.x <- as.numeric(dfJoin$NODES.x)
+plot <- createSpeedupPlotFromDF(dfJoin, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB", FALSE)
+outPngFile <- file.path(prefixOS, "Documents/speedup.png")
 png(outPngFile, width=800, height=800, res=120)
 print(plot)
 dev.off()
