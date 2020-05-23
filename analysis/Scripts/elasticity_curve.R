@@ -140,6 +140,37 @@ createSpeedupPlotFromDF <- function(dataf, metric, metricsLabel, metricsUnit, me
     theme(plot.margin=margin(t = 10, r = 5, b = 5, l = 5, unit = "pt"))
 }
 
+createSpeedupAllTestsPlotFromDF <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title, useDiscrete) {
+  xObj <- NULL
+  xScale <- NULL
+  if( useDiscrete ) {
+    xObj <- factor(dataf$SIZE, levels=c('xs-1n', 's-2n', 'M-4n', 'L-8n', 'XL-16n'))
+    #The str_wrap function makes the name of the column appear on multiple lines instead of just one
+    xScale <- scale_x_discrete("Cluster size", labels = function(x) str_wrap(x, width = 11))
+  } else {
+    xObj <- dataf$NODES.x
+    xScale <- scale_x_continuous("Nodes", limits=c(0,20), breaks=seq(0,20,2))
+  }
+  ggplot(data=dataf, aes(x=xObj, 
+                         y=get(metric), color=TEST, linetype=TEST, group=TEST), width=7, height=7) +  
+    geom_line() +
+    geom_point() +
+    ggtitle(title) +
+    theme(plot.title = element_text(size=20, face="bold")) +
+    geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = TEST),
+              vjust = -1, size=5, show.legend = FALSE) +
+    #Use to eliminate the x-axis title
+    #theme(axis.title.x=element_blank()) + 
+    theme(axis.text=element_text(size=14), axis.title=element_text(size=16)) +
+    xScale +
+    #Use the line below to specify the limit for the y axis
+    scale_y_continuous(paste0(metricsLabel[[metric]], " ", metricsUnit[[metric]]), limits=c(0,metricsYaxisLimit[[metric]])) + 
+    theme(legend.position = "bottom") + 
+    theme(legend.text=element_text(size=14)) +  
+    theme(legend.title=element_blank()) +
+    theme(plot.margin=margin(t = 10, r = 5, b = 5, l = 5, unit = "pt"))
+}
+
 processExperimentsS3 <- function(dirName, dataframe, experimentsDF, tests, instances) {
   i <- 1
   for(experiment in as.list(experimentsDF$EXPERIMENT)) {
@@ -197,7 +228,6 @@ metricsLabel[["TOTAL_DURATION_HOUR"]] <- "Total"
 metricsLabel[["TOTAL_DURATION_SEC"]] <- "Total"
 metricsLabel[["AVG_TOTAL_DURATION_HOUR"]] <- "Total"
 metricsLabel[["FULLB_TOTAL_DURATION_HOUR"]] <- "Total"
-metricsLabel[["LOAD_PLUS_ANALYZE_TOTAL_DURATION_HOUR"]] <- "Total"
 metricsLabel[["SPEEDUP"]] <- ""
 
 metricsUnit<-new.env()
@@ -205,7 +235,6 @@ metricsUnit[["TOTAL_DURATION_HOUR"]] <- "hr."
 metricsUnit[["TOTAL_DURATION_SEC"]] <- "sec."
 metricsUnit[["AVG_TOTAL_DURATION_HOUR"]] <- "hr."
 metricsUnit[["FULLB_TOTAL_DURATION_HOUR"]] <- "hr."
-metricsUnit[["LOAD_PLUS_ANALYZE_TOTAL_DURATION_HOUR"]] <- "hr."
 metricsUnit[["SPEEDUP"]] <- ""
 
 metricsDigits<-new.env()
@@ -213,7 +242,6 @@ metricsDigits[["TOTAL_DURATION_HOUR"]] <- 2
 metricsDigits[["TOTAL_DURATION_SEC"]] <- 2
 metricsDigits[["AVG_TOTAL_DURATION_HOUR"]] <- 2
 metricsDigits[["FULLB_TOTAL_DURATION_HOUR"]] <- 2
-metricsDigits[["LOAD_PLUS_ANALYZE_TOTAL_DURATION_HOUR"]] <- 2
 metricsDigits[["SPEEDUP"]] <- 2
 
 metricsYaxisLimit<-new.env()
@@ -221,7 +249,6 @@ metricsYaxisLimit[["TOTAL_DURATION_HOUR"]] <- 20.0
 metricsYaxisLimit[["TOTAL_DURATION_SEC"]] <- 9000
 metricsYaxisLimit[["AVG_TOTAL_DURATION_HOUR"]] <- 20.0
 metricsYaxisLimit[["FULLB_TOTAL_DURATION_HOUR"]] <- 20.0
-metricsYaxisLimit[["LOAD_PLUS_ANALYZE_TOTAL_DURATION_HOUR"]] <- 20.0
 metricsYaxisLimit[["SPEEDUP"]] <- 3.0
 
 #metric <- "FULLB_TOTAL_DURATION_HOUR"
@@ -316,11 +343,11 @@ print(plot)
 dev.off()
 
 #Compute the speedup with the dataframe containing the total duration for the benchmark.
-#First, get a table with the Databricks experiments, and a table with the snowflake experiments.
-dfDBR <- dfFull[dfFull$SYSTEM == "DBR_DLT_NOZ_PART",]
-dfSFK <- dfFull[dfFull$SYSTEM == "SNOWFLAKE",]
-#Join the two tables on SIZE (columns are renamed with x and y suffixes: DBR=x, SFK=y)
-dfJoin <- inner_join(dfDBR, dfSFK, by="SIZE")
+#Do a self join of the table with the full benchmark results on SIZE 
+#(columns are renamed with x and y suffixes), add a filter to remove unnecessary tuples.
+#(i.e. use only DBR vs SFK instead of SFK vs. DBR).
+dfJoin <- inner_join(dfFull, dfFull, by="SIZE") %>%
+          filter(SYSTEM.x < SYSTEM.y)
 #Add a column with the speedup.
 dfJoin$SPEEDUP <- dfJoin$FULLB_TOTAL_DURATION_HOUR.x / dfJoin$FULLB_TOTAL_DURATION_HOUR.y
 
@@ -331,7 +358,8 @@ export(dfJoin, outXlsxFile)
 #Generate the speedup curve.
 metric <- "SPEEDUP"
 dfJoin$NODES.x <- as.numeric(dfJoin$NODES.x)
-plot <- createSpeedupPlotFromDF(dfJoin, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB", FALSE)
+plot <- createSpeedupPlotFromDF(dfJoin, metric, metricsLabel, metricsUnit, metricsDigits, 
+                                "TPC-DS Full Benchmark Speedup at 1 TB", FALSE)
 outPngFile <- file.path(prefixOS, "Documents/speedup_fullb.png")
 png(outPngFile, width=800, height=800, res=120)
 print(plot)
@@ -356,14 +384,13 @@ for( simpleTest in simpleTests  ) {
 }
 #For the load and analyze tests, these have to be added together for Databricks, since Snowflake's
 #load test also includes the analyze test.
-title <- "TPC-DS load plus analyze test at 1 TB"
-metric <- "LOAD_PLUS_ANALYZE_TOTAL_DURATION_HOUR"
 #This filter condition works in principle, alternatively, use dplyr filter.
 #dfFiltered <- df[df$TEST == "load" | df$TEST == "analyze",]
-dfFiltered <- df %>% filter(TEST == "load" | TEST == "analyze")
-dfLoadPlusAnalyze <- dfFiltered %>%
-  group_by(EXPERIMENT, LABEL, SIZE, NODES, SYSTEM) %>%
-  summarize(LOAD_PLUS_ANALYZE_TOTAL_DURATION_HOUR = sum(AVG_TOTAL_DURATION_HOUR, na.rm = TRUE))
+dfLoadPlusAnalyze <- df %>% filter(TEST == "load" | TEST == "analyze") %>%
+    group_by(EXPERIMENT, LABEL, SIZE, NODES, SYSTEM) %>%
+    summarize(AVG_TOTAL_DURATION_HOUR = sum(AVG_TOTAL_DURATION_HOUR, na.rm = TRUE))
+metric <- "AVG_TOTAL_DURATION_HOUR"
+title <- "TPC-DS load plus analyze test at 1 TB"
 plot <- createElasticityPlotFromDF(dfLoadPlusAnalyze, metric, metricsLabel, metricsUnit, metricsDigits,
                                    title, FALSE)
 outPngFile <- file.path(prefixOS, "Documents/elasticity_chart_loadplusanalyze.png")
@@ -371,7 +398,38 @@ png(outPngFile, width=800, height=800, res=120)
 print(plot)
 dev.off()
 
+#In addition, generate a speedup plot for the individual tests. Again it is necessary to merge the
+#load and analyze times for Databricks, in order to compare them with the load time of Snowflake.
+#Therefore, build a new dataframe with results for the power, tput, and a new load_analyze test.
+#In the case of Snowflake it suffices to in effect rename the test from load to load_analyze.
+#First, get a dataframe holding only the power and tput tests results.
+dfPowerTput <- df %>% filter(TEST == "power" | TEST == "tput") %>%
+                            select(EXPERIMENT, TEST, LABEL, SIZE, NODES, SYSTEM, AVG_TOTAL_DURATION_HOUR)
+#Merge the load and analyze test into a new load_analyze test.
+dfLoadAnalyzeTogether <- df %>% filter(TEST == "load" | TEST == "analyze") %>%
+                            group_by(EXPERIMENT, LABEL, SIZE, NODES, SYSTEM) %>%
+                            summarize(AVG_TOTAL_DURATION_HOUR = sum(AVG_TOTAL_DURATION_HOUR, na.rm = TRUE), 
+                                      TEST = "load_analyze") %>%
+                            select(EXPERIMENT, TEST, LABEL, SIZE, NODES, SYSTEM, AVG_TOTAL_DURATION_HOUR)
+#Merge the two parts.
+dfMerged <- union_all(dfPowerTput, dfLoadAnalyzeTogether)
+#Compute the speedup with the dataframe containing the results for the individual tests.
+#Do a self join the table on SIZE and TEST (columns are renamed with x and y suffixes) and
+#add a filter condition to remove unnecessary tuples (i.e. use only DBR vs SFK instead of SFK vs. DBR).
+dfJoin <- inner_join(dfMerged, dfMerged, by=c("TEST" = "TEST", "SIZE" = "SIZE")) %>%
+          filter(SYSTEM.x < SYSTEM.y)
+#Add a column with the speedup.
+dfJoin$SPEEDUP <- dfJoin$AVG_TOTAL_DURATION_HOUR.x / dfJoin$AVG_TOTAL_DURATION_HOUR.y
 
+#Generate the speedup curve for all tests.
+metric <- "SPEEDUP"
+dfJoin$NODES.x <- as.numeric(dfJoin$NODES.x)
+plot <- createSpeedupAllTestsPlotFromDF(dfJoin, metric, metricsLabel, metricsUnit, metricsDigits, 
+                                        "TPC-DS All Tests Speedup at 1 TB", FALSE)
+outPngFile <- file.path(prefixOS, "Documents/speedup_all_tests.png")
+png(outPngFile, width=800, height=800, res=120)
+print(plot)
+dev.off()
 
 
 
