@@ -77,7 +77,7 @@ processExperimentsS3 <- function(dirName, dataframe, experiments, labels, tests,
       for(instance in instances) {
         s3Suffix <- file.path(experiment, test, instance, "analytics.log")
         #It is NOT necessary to add s3://
-        s3objURL <- file.path(dirName, s3Suffix)
+        s3objURL <- URLencode(file.path(dirName, s3Suffix))
         if( object_exists(s3objURL) ) {
           dataFile <- "data.txt"
           saveS3ObjectToFile(s3objURL, dataFile)
@@ -193,11 +193,17 @@ df <- data.frame(EXPERIMENT=character(),
                  stringsAsFactors=FALSE)
 
 #Option 1: read the data from files in the local filesystem
-if( ! startsWith(args[1], "s3:") ) {
+if( ! startsWith(dirName, "s3:") ) {
   df <- processExperiments(dirName, df, experiments, labels, tests, instances)
 } else {
   #Option 2: download the files from s3 and process them.
-  df <- processExperimentsS3(dirName, df, experiments, labels, tests, instances)
+  #To process files in multiple paths, due probably to lazy evaluation it is absolutely necessary to
+  #specify them beforehand, hardcoded.
+  dirNameElements <- c(dirName)
+  #dirNameElements <- c("s3://tpcds-results-test/emr529/analytics", "s3://tpcds-results-test/dbr65/analytics")
+  for(dirNameElement in dirNameElements) {
+    df <- processExperimentsS3(dirNameElement, df, experiments, labels, tests, instances)
+  }
 }
 
 df <- df %>%
