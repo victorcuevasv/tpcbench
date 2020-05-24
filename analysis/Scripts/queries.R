@@ -46,7 +46,7 @@ processAnalyticsFile <- function(inFile, dataframe, label, experiment, test, ins
         analytics[dataframeCol] <- as.numeric(instance)
       else {
         if( dataframeColsTypes[[i]] == "numeric" )
-          analytics[dataframeCol] <- as.numeric(NA)
+          analytics[dataframeCol] <- NaN
         else
           analytics[dataframeCol] <- "NA"
       }
@@ -272,12 +272,16 @@ if( ! startsWith(dirName, "s3:") ) {
   #Option 2: download the files from s3 and process them.
   #To process files in multiple paths, due probably to lazy evaluation it is absolutely necessary to
   #specify them beforehand, hardcoded.
-  #dirNameElements <- c(dirName)
-  dirNameElements <- c("s3://tpcds-results-test/emr529/analytics", "s3://tpcds-results-test/dbr65/analytics")
+  dirNameElements <- c(dirName)
+  #dirNameElements <- c("s3://tpcds-results-test/emr529/analytics", "s3://tpcds-results-test/dbr65/analytics")
   for(dirNameElement in dirNameElements) {
     df <- processExperimentsS3(dirNameElement, df, experiments, labels, tests, instances)
   }
 }
+
+#Compute the ITEM, in case it was not specified in the data.
+#df <- df %>% group_by(EXPERIMENT, LABEL, TEST, INSTANCE, STREAM) %>%
+#  mutate(ITEM=with_order(order_by=STARTDATE_EPOCH, fun=row_number, x=STARTDATE_EPOCH))
 
 outXlsxFile <- file.path(prefixOS, "Documents/rawdata.xlsx")
 export(df, outXlsxFile)
