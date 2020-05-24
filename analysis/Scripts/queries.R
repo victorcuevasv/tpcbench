@@ -88,6 +88,25 @@ createBarChartFromDF <- function(dataf, metric, metricsLabel, metricsUnit, metri
     theme(legend.position="bottom")
 }
 
+createBarChartMaxMinFromDF <- function(dataf, metric, metricMax, metricMin, metricsLabel, metricsUnit, 
+                                       metricsDigits, title){
+  ggplot(data=dataf, aes(x=factor(QUERY), y=get(metric), ymin=get(metricMin), ymax=get(metricMax), fill=factor(LABEL))) +  
+    #geom_point(data=dataf, aes(x=factor(QUERY), y=get(metricMax), shape = factor(LABEL), fill=factor(LABEL))) +
+    #geom_point(data=dataf, aes(x=factor(QUERY), y=get(metricMin), shape = factor(LABEL), fill=factor(LABEL))) +
+    ggtitle(title) +
+    theme(plot.title = element_text(size=18, face="bold")) +
+    geom_bar(stat="identity", position=position_dodge()) + 
+    geom_errorbar(stat="identity", position=position_dodge(width = 0.9), width=0.3) + 
+    scale_y_continuous(paste0(metricsLabel[[metric]], " ", " (", metricsUnit[[metric]], ")"), 
+                       limits=c(0,metricsYaxisLimit[[metric]])) + 
+    theme(axis.title.x=element_blank()) + 
+    theme(axis.text=element_text(size=14), axis.title=element_text(size=18)) +
+    theme(legend.title = element_blank()) +
+    theme(strip.text.x=element_text(size=18)) +
+    theme(legend.text=element_text(size=14)) +
+    theme(legend.position="bottom")
+}
+
 processExperimentsS3 <- function(dirName, dataframe, experiments, labels, tests, instances) {
   i <- 1
   for(experiment in experiments) {
@@ -268,26 +287,40 @@ export(df, outXlsxFile)
 df <- df %>%
   group_by(EXPERIMENT, LABEL, TEST, QUERY) %>%
   summarize(AVG_DURATION_SEC = mean(DURATION, na.rm = TRUE),
-            GEOMEAN_DURATION_SEC = geoMean(DURATION, na.rm = TRUE))
+            GEOMEAN_DURATION_SEC = geoMean(DURATION, na.rm = TRUE),
+            MAX_DURATION_SEC = max(DURATION, na.rm = TRUE),
+            MIN_DURATION_SEC = min(DURATION, na.rm = TRUE))
 df$AVG_DURATION_HOUR <- df$AVG_DURATION_SEC / 3600.0
+df$MAX_DURATION_HOUR <- df$MAX_DURATION_SEC / 3600.0
+df$MIN_DURATION_HOUR <- df$MIN_DURATION_SEC / 3600.0
 df$AVG_DURATION_MIN <- df$AVG_DURATION_SEC / 60.0
+df$MAX_DURATION_MIN <- df$MAX_DURATION_SEC / 60.0
+df$MIN_DURATION_MIN <- df$MIN_DURATION_SEC / 60.0
 
 outXlsxFile <- file.path(prefixOS, "Documents/experiments.xlsx")
 export(df, outXlsxFile)
 
 metric <- "AVG_DURATION_MIN"
+metricMax <- "MAX_DURATION_MIN"
+metricMin <- "MIN_DURATION_MIN"
 yAxisDefaultLimit <- metricsYaxisLimit[[metric]]
 for( test in tests  ) {
   title <- paste0("TPC-DS ", test, " test at 1 TB")
   dfFiltered <- df[df$TEST == test,]
   queriesPerChart <- 25
   iterations <- ceiling(n_distinct(dfFiltered$QUERY) / queriesPerChart)
+  plotMaxMin <- TRUE
   for(i in 1:iterations) {
     lower <- (i-1) * queriesPerChart + 1
     upper <- i * queriesPerChart
     dfSubset <- dfFiltered[dfFiltered$QUERY >= lower & dfFiltered$QUERY <= upper,]
-    metricsYaxisLimit[[metric]] <- getRoundedLimit(max(dfFiltered[[metric]]))
-    plot <- createBarChartFromDF(dfSubset, metric, metricsLabel, metricsUnit, metricsDigits, title)
+    if( ! plotMaxMin ) {
+      metricsYaxisLimit[[metric]] <- getRoundedLimit(max(dfFiltered[[metric]]))
+      plot <- createBarChartFromDF(dfSubset, metric, metricsLabel, metricsUnit, metricsDigits, title)
+    } else {
+      metricsYaxisLimit[[metric]] <- getRoundedLimit(max(dfFiltered[[metricMax]]))
+      plot <- createBarChartMaxMinFromDF(dfSubset, metric, metricMax, metricMin, metricsLabel, metricsUnit, metricsDigits, title)
+    }
     outPngFile <- file.path(prefixOS, paste0("Documents/bar_chart_", test, "_", i, ".png"))
     png(outPngFile, width=1400, height=800, res=120)
     print(plot)
