@@ -90,9 +90,7 @@ createBarChartFromDF <- function(dataf, metric, metricsLabel, metricsUnit, metri
 
 createBarChartMaxMinFromDF <- function(dataf, metric, metricMax, metricMin, metricsLabel, metricsUnit, 
                                        metricsDigits, title){
-  ggplot(data=dataf, aes(x=factor(QUERY), y=get(metric), ymin=get(metricMin), ymax=get(metricMax), fill=factor(LABEL))) +  
-    #geom_point(data=dataf, aes(x=factor(QUERY), y=get(metricMax), shape = factor(LABEL), fill=factor(LABEL))) +
-    #geom_point(data=dataf, aes(x=factor(QUERY), y=get(metricMin), shape = factor(LABEL), fill=factor(LABEL))) +
+  ggplot(data=dataf, aes(x=factor(QUERY), y=get(metric), ymin=get(metricMin), ymax=get(metricMax), fill=factor(LABEL))) +
     ggtitle(title) +
     theme(plot.title = element_text(size=18, face="bold")) +
     geom_bar(stat="identity", position=position_dodge()) + 
