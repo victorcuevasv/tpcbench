@@ -22,13 +22,14 @@ fi
 #Cluster configuration.
 Nodes="2"
 Version="5.29.0"
+VersionShort="529"
 AutoTerminate="true"
 #Run configuration.
 Tag="$(date +%s)test"
-ExperimentName="sparkemr-$Version-${Nodes}nodes-$1gb-$Tag"
-DirNameWarehouse="tpcds-warehouse-sparkemr-$Version-$1gb-$2-$Tag"
+ExperimentName="sparkemr-${VersionShort}-${Nodes}nodes-$1gb-$Tag"
+DirNameWarehouse="tpcds-warehouse-sparkemr-${VersionShort}-$1gb-$2-$Tag"
 DirNameResults="sparkemr-test"
-DatabaseName="tpcds_sparkemr_600_$1gb_$2_db_$Tag"
+DatabaseName="tpcds_sparkemr_${VersionShort}_$1gb_$2_$Tag"
 JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
 JobName="BSC-test"
 #Script operation flags.
@@ -269,7 +270,7 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	--termination-protected \
 	--applications Name=Hadoop Name=Hive Name=Spark \
 	--ec2-attributes "$ec2Attributes" \
-	--release-label emr-6.0.0 \
+	--release-label emr-${Version} \
 	--log-uri 's3n://bsc-emr-logs/' \
 	--steps "$steps" \
 	--instance-groups "$instanceGroups" \

@@ -26,6 +26,7 @@ printf "\n\n%s\n\n" "${mag}Creating the clusters.${end}"
 #Cluster configuration.
 Nodes="2"
 Version="5.29.0"
+VersionShort="529"
 AutoTerminate="true"
 #Run configuration.
 Tag="$(date +%s)test"
@@ -190,10 +191,10 @@ START=1
 END=$2
 for (( i=$START; i<=$END; i++ ))
 do
-	ExperimentName="sparkemr-${Version}-${Nodes}nodes-$1gb-$Tag"
-	DirNameWarehouse="tpcds-warehouse-sparkemr-$Version-$1gb-${i}-$Tag"
+	ExperimentName="sparkemr-${VersionShort}-${Nodes}nodes-$1gb-$Tag"
+	DirNameWarehouse="tpcds-warehouse-sparkemr-${VersionShort}-$1gb-${i}-$Tag"
 	DirNameResults="sparkemr-test"
-	DatabaseName="tpcds_sparkemr_${Version}_$1gb_${i}_$Tag"
+	DatabaseName="tpcds_sparkemr_${VersionShort}_$1gb_${i}_$Tag"
 	JobName="Run TPC-DS Benchmark ${i}"
 
 	# main work directory
@@ -250,7 +251,7 @@ do
 		--termination-protected \
 		--applications Name=Hadoop Name=Hive Name=Spark \
 		--ec2-attributes "$ec2Attributes" \
-		--release-label emr-6.0.0 \
+		--release-label emr-${Version} \
 		--log-uri 's3n://bsc-emr-logs/' \
 		--steps "$steps" \
 		--instance-groups "$instanceGroups" \
