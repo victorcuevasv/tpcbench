@@ -125,7 +125,6 @@ do
 	DirNameWarehouse="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-${i}-${Tag}"
 	DirNameResults="databricks-test"
 	DatabaseName="tpcds_databricks_${MajorVersion}${MinorVersion}_$1gb_${i}_${Tag}"
-	#Note that /dbfs or dbfs: is not included, these are added later.
 	JOB_NAME="Run TPC-DS Benchmark ${i}"
 	
 	# main work directory
