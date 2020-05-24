@@ -65,6 +65,8 @@ createBarChartFromDF <- function(dataf, metric, metricsLabel, metricsUnit, metri
   ggplot(data=dataf, aes(x=factor(QUERY), y=get(metric), fill=factor(LABEL))) +  
     #ggplot(data=dataf, aes(x=factor(QUERY), y=DURATION, label=round(DURATION, digits=metricsDigits[[metric]]))) +
     #The dodge position makes the bars appear side by side
+    ggtitle(title) +
+    theme(plot.title = element_text(size=18, face="bold")) +
     geom_bar(stat="identity", position=position_dodge()) +  
     #This line adds the exact values on top of the bars
     #geom_text(size = 5, position=position_dodge(width=1), vjust=0.1) +
@@ -278,12 +280,19 @@ yAxisDefaultLimit <- metricsYaxisLimit[[metric]]
 for( test in tests  ) {
   title <- paste0("TPC-DS ", test, " test at 1 TB")
   dfFiltered <- df[df$TEST == test,]
-  metricsYaxisLimit[[metric]] <- getRoundedLimit(max(dfFiltered[[metric]]))
-  plot <- createBarChartFromDF(dfFiltered, metric, metricsLabel, metricsUnit, metricsDigits, title)
-  outPngFile <- file.path(prefixOS, paste0("Documents/bar_chart_", test, ".png"))
-  png(outPngFile, width=800, height=800, res=120)
-  print(plot)
-  dev.off()
+  queriesPerChart <- 25
+  iterations <- ceiling(n_distinct(dfFiltered$QUERY) / queriesPerChart)
+  for(i in 1:iterations) {
+    lower <- (i-1) * queriesPerChart + 1
+    upper <- i * queriesPerChart
+    dfSubset <- dfFiltered[dfFiltered$QUERY >= lower & dfFiltered$QUERY <= upper,]
+    metricsYaxisLimit[[metric]] <- getRoundedLimit(max(dfFiltered[[metric]]))
+    plot <- createBarChartFromDF(dfSubset, metric, metricsLabel, metricsUnit, metricsDigits, title)
+    outPngFile <- file.path(prefixOS, paste0("Documents/bar_chart_", test, "_", i, ".png"))
+    png(outPngFile, width=1400, height=800, res=120)
+    print(plot)
+    dev.off()
+  }
 }
 metricsYaxisLimit[[metric]] <- yAxisDefaultLimit
 
