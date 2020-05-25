@@ -283,6 +283,10 @@ if( ! startsWith(dirName, "s3:") ) {
 #df <- df %>% group_by(EXPERIMENT, LABEL, TEST, INSTANCE, STREAM) %>%
 #  mutate(ITEM=with_order(order_by=STARTDATE_EPOCH, fun=row_number, x=STARTDATE_EPOCH))
 
+#Compute the QUERY_RANK, i.e., the rank of the query in the test according to execution time.
+#df <- df %>% group_by(EXPERIMENT, LABEL, TEST, QUERY) %>%
+#  mutate(QUERY_RANK=with_order(order_by=DURATION, fun=row_number, x=DURATION))
+
 outXlsxFile <- file.path(prefixOS, "Documents/rawdata.xlsx")
 export(df, outXlsxFile)
 
