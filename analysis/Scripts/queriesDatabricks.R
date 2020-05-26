@@ -49,22 +49,31 @@ processDatabricksFile <- function(inFile, dataframe, test) {
   return(union(dataframe, analytics))
 }
 
-createBarChartFromDF <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title, factorValuesList){
+createBarChartFromDF <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title, 
+                                 factorValuesList, i){
+  metricsYaxisLimit[[metric]] <- 250
+  xAxisObj <- element_text(size=16)
+  if( i %% 2 == 0) {
+    title <- ""
+    #xAxisObj <- element_blank()
+  }
   #Use the factor function to transform the ScaleFactor column from continuous to categorical
-  ggplot(data=dataf, aes(x=factor(QUERY_NAME, levels=factorValuesList), y=get(metric), fill=factor(LABEL))) +  
+  ggplot(data=dataf, aes(x=factor(QUERY_NAME, levels=rev(factorValuesList)), y=get(metric), fill=factor(LABEL))) +  
     #ggplot(data=dataf, aes(x=factor(QUERY), y=DURATION, label=round(DURATION, digits=metricsDigits[[metric]]))) +
     #The dodge position makes the bars appear side by side
     ggtitle(title) +
     theme(plot.title = element_text(size=18, face="bold")) +
-    geom_bar(stat="identity", position=position_dodge()) +  
+    geom_bar(stat="identity", position=position_dodge()) +
+    coord_flip() +
+    geom_text(aes(label = round(stat(y), digits=1)), hjust = -0.15, size=5) + 
     #This line adds the exact values on top of the bars
     #geom_text(size = 5, position=position_dodge(width=1), vjust=0.1) +
     #facet_wrap(~ SYSTEM, ncol=2) +
     #geom_hline(aes(yintercept=SYSTEM_AVERAGE), data=dataf) +
     scale_y_continuous(paste0(metricsLabel[[metric]], " ", " (", metricsUnit[[metric]], ")"), 
                        limits=c(0,metricsYaxisLimit[[metric]])) + 
-    theme(axis.title.x=element_blank()) + 
-    theme(axis.text=element_text(size=14), axis.title=element_text(size=18)) +
+    theme(axis.title.x=xAxisObj) + 
+    theme(axis.text=element_text(size=16), axis.title.y=element_blank()) +
     #The str_wrap function makes the name of the column appear on multiple lines instead of just one
     #scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) + 
     #scale_fill_manual(name="", values=c("#585574", "#DDD4B3"), labels=c("EMR Presto", "Databricks Spark")) + 
@@ -74,24 +83,36 @@ createBarChartFromDF <- function(dataf, metric, metricsLabel, metricsUnit, metri
     #theme(legend.position = c(0.175, 0.85)) +
     theme(strip.text.x=element_text(size=18)) +
     theme(legend.text=element_text(size=14)) +
-    theme(legend.position="bottom")
+    scale_fill_manual(values=c("darkseagreen")) +
+    #theme(legend.position="bottom")
+    theme(legend.position="none")
 }
 
 createBarChartMaxMinFromDF <- function(dataf, metric, metricMax, metricMin, metricsLabel, metricsUnit, 
-                                       metricsDigits, title, factorValuesList){
-  ggplot(data=dataf, aes(x=factor(QUERY_NAME, levels=factorValuesList), y=get(metric), ymin=get(metricMin), 
+                                       metricsDigits, title, factorValuesList, i){
+  metricsYaxisLimit[[metric]] <- 250
+  xAxisObj <- element_text(size=16)
+  if( i %% 2 == 0) {
+    title <- ""
+    #xAxisObj <- element_blank()
+  }
+  ggplot(data=dataf, aes(x=factor(QUERY_NAME, levels=rev(factorValuesList)), y=get(metric), ymin=get(metricMin), 
                          ymax=get(metricMax), fill=factor(LABEL))) +
-    ggtitle(title) +
-    theme(plot.title = element_text(size=18, face="bold")) +
+    ggtitle(title) + theme(plot.title = element_text(size=18, face="bold")) +
     geom_bar(stat="identity", position=position_dodge()) + 
-    geom_errorbar(stat="identity", position=position_dodge(width = 0.9), width=0.3) + 
+    geom_errorbar(stat="identity", position=position_dodge(width = 0.9), width=0.3) +
+    coord_flip() +
+    #Add the values on top of the bars.
+    #geom_text(aes(label = round(stat(y), digits=1)), vjust = -0.1, size=6) + 
     scale_y_continuous(paste0(metricsLabel[[metric]], " ", " (", metricsUnit[[metric]], ")"), 
                        limits=c(0,metricsYaxisLimit[[metric]])) + 
-    theme(axis.title.x=element_blank()) + 
-    theme(axis.text=element_text(size=14), axis.title=element_text(size=18)) +
+    #theme(axis.text=element_text(size=14), axis.title=element_text(size=18)) +
+    theme(axis.text=element_text(size=16), axis.title.y=element_blank()) +
+    theme(axis.title.x = xAxisObj) +
     theme(legend.title = element_blank()) +
-    theme(strip.text.x=element_text(size=18)) +
+    theme(strip.text.x=element_text(size=16)) +
     theme(legend.text=element_text(size=14)) +
+    scale_fill_manual(values=c("antiquewhite3")) +
     #theme(legend.position="bottom")
     theme(legend.position="none")
 }
@@ -213,6 +234,9 @@ df$QUERY_NAME <- gsub("q", "", df$QUERY_NAME)
 factorValuesDF <- df %>% filter(INSTANCE == 1) %>% arrange(QUERY)
 factorValuesList <- as.vector(factorValuesDF$QUERY_NAME)
 
+#Use only the rank 1 queries.
+#df <- df %>% filter(QUERY_RANK == 1)
+
 df <- df %>%
   group_by(EXPERIMENT, LABEL, TEST, QUERY, QUERY_NAME) %>%
   summarize(AVG_DURATION_SEC = mean(DURATION, na.rm = TRUE),
@@ -234,11 +258,13 @@ metricMax <- "MAX_DURATION_SEC"
 metricMin <- "MIN_DURATION_SEC"
 yAxisDefaultLimit <- metricsYaxisLimit[[metric]]
 for( test in tests  ) {
-  title <- paste0("TPC-DS ", test, " test at 30000 TB")
+  title <- paste0("TPC-DS ", test, " test at 30,000 TB")
   dfFiltered <- df[df$TEST == test,]
-  queriesPerChart <- 21
+  #queriesPerChart <- 21
+  queriesPerChart <- 26
   iterations <- ceiling(n_distinct(dfFiltered$QUERY) / queriesPerChart)
-  plotMaxMin <- TRUE
+  #plotMaxMin <- TRUE
+  plotMaxMin <- FALSE
   for(i in 1:iterations) {
     lower <- (i-1) * queriesPerChart + 1
     upper <- i * queriesPerChart
@@ -246,14 +272,14 @@ for( test in tests  ) {
     if( ! plotMaxMin ) {
       metricsYaxisLimit[[metric]] <- getRoundedLimit(max(dfFiltered[[metric]]))
       plot <- createBarChartFromDF(dfSubset, metric, metricsLabel, metricsUnit, metricsDigits,
-                                   title, factorValuesList)
+                                   title, factorValuesList, i)
     } else {
       metricsYaxisLimit[[metric]] <- getRoundedLimit(max(dfFiltered[[metricMax]]))
       plot <- createBarChartMaxMinFromDF(dfSubset, metric, metricMax, metricMin, metricsLabel,
-                                         metricsUnit, metricsDigits, title, factorValuesList)
+                                         metricsUnit, metricsDigits, title, factorValuesList, i)
     }
     outPngFile <- file.path(prefixOS, paste0("Documents/bar_chart_", test, "_", i, ".png"))
-    png(outPngFile, width=1400, height=800, res=120)
+    png(outPngFile, width=700, height=1000, res=120)
     print(plot)
     dev.off()
   }
