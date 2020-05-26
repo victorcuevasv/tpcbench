@@ -103,7 +103,7 @@ createBarChartMaxMinFromDF <- function(dataf, metric, metricMax, metricMin, metr
     geom_errorbar(stat="identity", position=position_dodge(width = 0.9), width=0.3) +
     coord_flip() +
     #Add the values on top of the bars.
-    #geom_text(aes(label = round(stat(y), digits=1)), vjust = -0.1, size=6) + 
+    geom_text(aes(label = round(stat(ymax), digits=1), y = round(stat(ymax), digits=1)), hjust = -0.15, size=5) + 
     scale_y_continuous(paste0(metricsLabel[[metric]], " ", " (", metricsUnit[[metric]], ")"), 
                        limits=c(0,metricsYaxisLimit[[metric]])) + 
     #theme(axis.text=element_text(size=14), axis.title=element_text(size=18)) +
@@ -263,8 +263,8 @@ for( test in tests  ) {
   #queriesPerChart <- 21
   queriesPerChart <- 26
   iterations <- ceiling(n_distinct(dfFiltered$QUERY) / queriesPerChart)
-  #plotMaxMin <- TRUE
-  plotMaxMin <- FALSE
+  plotMaxMin <- TRUE
+  #plotMaxMin <- FALSE
   for(i in 1:iterations) {
     lower <- (i-1) * queriesPerChart + 1
     upper <- i * queriesPerChart
