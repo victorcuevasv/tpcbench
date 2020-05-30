@@ -235,7 +235,7 @@ factorValuesDF <- df %>% filter(INSTANCE == 1) %>% arrange(QUERY)
 factorValuesList <- as.vector(factorValuesDF$QUERY_NAME)
 
 #Use only the rank 1 queries.
-#df <- df %>% filter(QUERY_RANK == 1)
+df <- df %>% filter(QUERY_RANK == 1)
 
 df <- df %>%
   group_by(EXPERIMENT, LABEL, TEST, QUERY, QUERY_NAME) %>%
@@ -263,8 +263,8 @@ for( test in tests  ) {
   #queriesPerChart <- 21
   queriesPerChart <- 26
   iterations <- ceiling(n_distinct(dfFiltered$QUERY) / queriesPerChart)
-  plotMaxMin <- TRUE
-  #plotMaxMin <- FALSE
+  #plotMaxMin <- TRUE
+  plotMaxMin <- FALSE
   for(i in 1:iterations) {
     lower <- (i-1) * queriesPerChart + 1
     upper <- i * queriesPerChart
