@@ -1,4 +1,4 @@
-#!/bin/bash   
+#!/bin/bash
 
 #Variables for console output with colors.
 
@@ -14,9 +14,9 @@ end=$'\e[0m'
 #$2 experiment instance number (positive integer)
 #$3 number of streams (positive integer)
 
-CHECK_TOKEN=0
+USE_DBR_CLI=1
 
-if [ -z "$DATABRICKS_TOKEN" ] && [ "$CHECK_TOKEN" -eq 1 ] ; then
+if [ -z "$DATABRICKS_TOKEN" ] && [ "$USE_DBR_CLI" -eq 0 ] ; then
     echo "${yel}The environment variable DATABRICKS_TOKEN is not defined.${end}"
     exit 0
 fi
@@ -48,7 +48,6 @@ RUN_CREATE_JOB=1
 RUN_RUN_JOB=0
 WAIT_FOR_TERMINATION=0
 RUN_DELETE_WAREHOUSE=0
-USE_DBR_CLI=1
 
 args=()
 # main work directory
@@ -85,9 +84,9 @@ args[13]="--all-or-query-file=query2.sql"
 args[14]="--number-of-streams=$3"
 
 # flags (111111 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=111010"
+args[15]="--execution-flags=110000"
 # "all" or create table file
-args[16]="--all-or-create-file=all"
+args[16]="--all-or-create-file=call_center.sql"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 
@@ -160,12 +159,12 @@ EOF
 #$1 run_id
 get_run_state() {
 	declare jsonStr=""
-	if [ USE_DBR_CLI -eq 0 ] ; then
+	if [ "$USE_DBR_CLI" -eq 0 ] ; then
 		jsonStr=$(curl -s -n \
    		-H "Authorization: Bearer $DATABRICKS_TOKEN" \
    		https://${DatabricksHost}/api/2.0/jobs/runs/get?run_id=$1)
 	else
-		jsonStr=$(databricks jobs get --job-id $1)
+		jsonStr=$(databricks runs get --run-id $1)
 	fi
 	declare state=$(jq -j '.state.life_cycle_state'  <<<  "$jsonStr")
 	echo $state
@@ -212,7 +211,7 @@ job_run_id=""
 
 if [ "$RUN_CREATE_JOB" -eq 1 ]; then
 	echo "${blu}Creating job for benchmark execution.${end}"
-	if [ USE_DBR_CLI -eq 0 ] ; then
+	if [ "$USE_DBR_CLI" -eq 0 ]; then
 		job_id=$(create_job)
 	else
 		#Must add the quotes to post_data_func to avoid error.
@@ -224,8 +223,8 @@ fi
 
 if [ "$RUN_RUN_JOB" -eq 1 ]; then
 	echo "${blu}Running job with id ${job_id}.${end}"
-	jsonJobRun = ""
-	if [ USE_DBR_CLI -eq 0 ] ; then
+	jsonJobRun=""
+	if [ "$USE_DBR_CLI" -eq 0 ]; then
 		jsonJobRun=$(run_job $job_id)
 	else
 		jsonJobRun=$(databricks jobs run-now --job-id $job_id)
@@ -234,12 +233,12 @@ if [ "$RUN_RUN_JOB" -eq 1 ]; then
 fi
 
 if [ "$WAIT_FOR_TERMINATION" -eq 1 ]; then
-	echo "${blu}Waiting for the completion of job ${job_run_id}.${end}"
+	echo "${blu}Waiting for the completion of job with run id ${job_run_id}.${end}"
 	wait_for_run_termination $job_run_id 120
 	echo "${blu}Benchmark running job completed.${end}"
 	if [ "$RUN_DELETE_WAREHOUSE" -eq 1 ]; then
-    	echo "${blu}Deleting the warehouse directory ${DirNameWarehouse}.${end}"
-    	aws s3 rm --recursive s3://tpcds-warehouses-test/$DirNameWarehouse
+    		echo "${blu}Deleting the warehouse directory ${DirNameWarehouse}.${end}"
+    		aws s3 rm --recursive s3://tpcds-warehouses-test/$DirNameWarehouse
 	fi
 fi
 
