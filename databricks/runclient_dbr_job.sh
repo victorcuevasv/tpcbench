@@ -16,7 +16,7 @@ end=$'\e[0m'
 
 CHECK_TOKEN=0
 
-if [ -z "$DATABRICKS_TOKEN"   ] && [ "$CHECK_TOKEN" -eq 1  ] ; then
+if [ -z "$DATABRICKS_TOKEN" ] && [ "$CHECK_TOKEN" -eq 1 ] ; then
     echo "${yel}The environment variable DATABRICKS_TOKEN is not defined.${end}"
     exit 0
 fi
@@ -29,6 +29,7 @@ fi
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
 #Cluster configuration.
+DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Nodes="2"
 MajorVersion="6"
 MinorVersion="5"
@@ -47,6 +48,7 @@ RUN_CREATE_JOB=1
 RUN_RUN_JOB=0
 WAIT_FOR_TERMINATION=0
 RUN_DELETE_WAREHOUSE=0
+USE_DBR_CLI=1
 
 args=()
 # main work directory
@@ -157,12 +159,16 @@ EOF
 #Get the state (RUNNING, TERMINATED) of a job run via its run_id using the Jobs REST API.
 #$1 run_id
 get_run_state() {
-   declare jsonStr=$(curl -s -n \
-   -H "Authorization: Bearer $DATABRICKS_TOKEN" \
-   https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/jobs/runs/get?run_id=$1)
-
-   declare state=$(jq -j '.state.life_cycle_state'  <<<  "$jsonStr")
-   echo $state
+	declare jsonStr=""
+	if [ USE_DBR_CLI -eq 0 ] ; then
+		jsonStr=$(curl -s -n \
+   		-H "Authorization: Bearer $DATABRICKS_TOKEN" \
+   		https://${DatabricksHost}/api/2.0/jobs/runs/get?run_id=$1)
+	else
+		jsonStr=$(databricks jobs get --job-id $1)
+	fi
+	declare state=$(jq -j '.state.life_cycle_state'  <<<  "$jsonStr")
+	echo $state
 }
 
 #Wait until the state of a job run is TERMINATED by polling using the Jobs REST API.
@@ -183,7 +189,7 @@ create_job() {
 	-H "Authorization: Bearer $DATABRICKS_TOKEN" \
 	-H "Content-Type: application/json" \
 	-d "$(post_data_func)" \
-	https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/jobs/create)
+	https://${DatabricksHost}/api/2.0/jobs/create)
 	#Example output.
 	#{"job_id":236}
    declare state=$(jq -j '.job_id'  <<<  "$jsonStr")
@@ -197,7 +203,7 @@ run_job() {
 	-H "Authorization: Bearer $DATABRICKS_TOKEN" \
 	-H "Content-Type: application/json" \
 	-d "{ \"job_id\": $1 }" \
-	https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/jobs/run-now)
+	https://${DatabricksHost}/api/2.0/jobs/run-now)
    echo $jsonStr
 }
 
@@ -206,19 +212,24 @@ job_run_id=""
 
 if [ "$RUN_CREATE_JOB" -eq 1 ]; then
 	echo "${blu}Creating job for benchmark execution.${end}"
-	#job_id=$(create_job)
-	#Alternatively, use the Databricks CLI.
-	#Must add the quotes to post_data_func to avoid error.
-	jsonJobCreate=$(databricks jobs create --json "$(post_data_func)")
-	job_id=$(jq -j '.job_id'  <<<  "$jsonJobCreate")
+	if [ USE_DBR_CLI -eq 0 ] ; then
+		job_id=$(create_job)
+	else
+		#Must add the quotes to post_data_func to avoid error.
+		jsonJobCreate=$(databricks jobs create --json "$(post_data_func)")
+		job_id=$(jq -j '.job_id'  <<<  "$jsonJobCreate")
+	fi
 	echo "${blu}Created job with id ${job_id}.${end}"
 fi
 
 if [ "$RUN_RUN_JOB" -eq 1 ]; then
 	echo "${blu}Running job with id ${job_id}.${end}"
-	#jsonJobRun=$(run_job $job_id)
-	#Alternatively, use the Databricks CLI.
-	jsonJobRun=$(databricks jobs run-now --job-id $job_id)
+	jsonJobRun = ""
+	if [ USE_DBR_CLI -eq 0 ] ; then
+		jsonJobRun=$(run_job $job_id)
+	else
+		jsonJobRun=$(databricks jobs run-now --job-id $job_id)
+	fi
 	job_run_id=$(jq -j '.run_id' <<< "$jsonJobRun")
 fi
 
