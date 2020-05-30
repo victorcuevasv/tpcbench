@@ -42,7 +42,7 @@ JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
 JOB_NAME="Run TPC-DS Benchmark $2"
 #Script operation flags.
 RUN_CREATE_JOB=1
-RUN_RUN_JOB=0
+RUN_RUN_JOB=1
 WAIT_FOR_TERMINATION=0
 RUN_DELETE_WAREHOUSE=0
 
@@ -196,10 +196,6 @@ run_job() {
 	-H "Content-Type: application/json" \
 	-d "{ \"job_id\": $1 }" \
 	https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/jobs/run-now)
-	#Example output.
-	#{"job_id":236}
-   #declare state=$(jq -j '.job_id'  <<<  "$jsonStr")
-   #echo $state
    echo $jsonStr
 }
 
@@ -209,7 +205,7 @@ job_run_id=""
 if [ "$RUN_CREATE_JOB" -eq 1 ]; then
 	echo "${blu}Creating job for benchmark execution.${end}"
 	job_id=$(create_job)
-	#Alternatively, use the Databricks CLI
+	#Alternatively, use the Databricks CLI.
 	#Must add the quotes to post_data_func to avoid error.
 	#jsonJobCreate=$(databricks jobs create --json "$(post_data_func)")
 	#job_id=$(jq -j '.job_id'  <<<  "$jsonJobCreate")
@@ -218,7 +214,9 @@ fi
 
 if [ "$RUN_RUN_JOB" -eq 1 ]; then
 	echo "${blu}Running job with id ${job_id}.${end}"
-	jsonJobRun=$(databricks jobs run-now --job-id $job_id)
+	jsonJobRun=$(run_job $job_id)
+	#Alternatively, use the Databricks CLI.
+	#jsonJobRun=$(databricks jobs run-now --job-id $job_id)
 	job_run_id=$(jq -j '.run_id' <<< "$jsonJobRun")
 fi
 
