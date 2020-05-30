@@ -141,7 +141,7 @@ do
 	DirNameWarehouse="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-${i}-${Tag}"
 	DirNameResults="databricks-test"
 	DatabaseName="tpcds_databricks_${MajorVersion}${MinorVersion}_$1gb_${i}_${Tag}"
-	JOB_NAME="${JOB_NAME_PREFIX} ${i}"
+	JOB_NAME="${JOB_NAME_PREFIX} ${Tag} ${i}"
 	
 	# main work directory
 	args[0]="--main-work-dir=/data"

@@ -42,7 +42,7 @@ DirNameResults="databricks-test"
 DatabaseName="tpcds_databricks_${MajorVersion}${MinorVersion}_$1gb_$2_${Tag}"
 #Note that /dbfs or dbfs: is not included, these are added later.
 JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
-JOB_NAME="Run TPC-DS Benchmark $2"
+JOB_NAME="Run TPC-DS Benchmark ${Tag} $2"
 #Script operation flags.
 RUN_CREATE_JOB=1
 RUN_RUN_JOB=0
