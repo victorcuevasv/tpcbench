@@ -188,6 +188,21 @@ create_job() {
    echo $state
 }
 
+#Run a job using the Jobs REST API.
+#$1 id of the job to run.
+run_job() {
+   declare jsonStr=$(curl -s -X POST \
+	-H "Authorization: Bearer $DATABRICKS_TOKEN" \
+	-H "Content-Type: application/json" \
+	-d "{ \"job_id\": $1 }" \
+	https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/jobs/run-now)
+	#Example output.
+	#{"job_id":236}
+   #declare state=$(jq -j '.job_id'  <<<  "$jsonStr")
+   #echo $state
+   echo $jsonStr
+}
+
 job_id=""
 job_run_id=""
 
