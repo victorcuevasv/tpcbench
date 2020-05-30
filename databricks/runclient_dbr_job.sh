@@ -42,7 +42,7 @@ JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
 JOB_NAME="Run TPC-DS Benchmark $2"
 #Script operation flags.
 RUN_CREATE_JOB=1
-RUN_RUN_JOB=1
+RUN_RUN_JOB=0
 WAIT_FOR_TERMINATION=0
 RUN_DELETE_WAREHOUSE=0
 
@@ -204,19 +204,19 @@ job_run_id=""
 
 if [ "$RUN_CREATE_JOB" -eq 1 ]; then
 	echo "${blu}Creating job for benchmark execution.${end}"
-	job_id=$(create_job)
+	#job_id=$(create_job)
 	#Alternatively, use the Databricks CLI.
 	#Must add the quotes to post_data_func to avoid error.
-	#jsonJobCreate=$(databricks jobs create --json "$(post_data_func)")
-	#job_id=$(jq -j '.job_id'  <<<  "$jsonJobCreate")
+	jsonJobCreate=$(databricks jobs create --json "$(post_data_func)")
+	job_id=$(jq -j '.job_id'  <<<  "$jsonJobCreate")
 	echo "${blu}Created job with id ${job_id}.${end}"
 fi
 
 if [ "$RUN_RUN_JOB" -eq 1 ]; then
 	echo "${blu}Running job with id ${job_id}.${end}"
-	jsonJobRun=$(run_job $job_id)
+	#jsonJobRun=$(run_job $job_id)
 	#Alternatively, use the Databricks CLI.
-	#jsonJobRun=$(databricks jobs run-now --job-id $job_id)
+	jsonJobRun=$(databricks jobs run-now --job-id $job_id)
 	job_run_id=$(jq -j '.run_id' <<< "$jsonJobRun")
 fi
 
@@ -229,6 +229,5 @@ if [ "$WAIT_FOR_TERMINATION" -eq 1 ]; then
     	aws s3 rm --recursive s3://tpcds-warehouses-test/$DirNameWarehouse
 	fi
 fi
-
 
 
