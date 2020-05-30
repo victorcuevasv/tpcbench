@@ -67,7 +67,7 @@ args[7]="--ext-tables-location=dbfs:/mnt/tpcds-warehouses-test/$DirNameWarehouse
 # format for column-storage tables (PARQUET, DELTA)
 args[8]="--table-format=parquet"
 # whether to use data partitioning for the tables (true/false)
-args[9]="--use-partitioning=true"
+args[9]="--use-partitioning=false"
 
 # jar file
 args[10]="--jar-file=/dbfs/$JarFile"
@@ -81,7 +81,7 @@ args[13]="--all-or-query-file=query2.sql"
 args[14]="--number-of-streams=$3"
 
 # flags (111111 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=111011"
+args[15]="--execution-flags=111010"
 # "all" or create table file
 args[16]="--all-or-create-file=all"
 
@@ -193,10 +193,12 @@ job_run_id=""
 
 if [ "$RUN_CREATE_JOB" -eq 1 ]; then
 	echo "${blu}Creating job for benchmark execution.${end}"
-	job_id=$(create_job)
+	#job_id=$(create_job)
 	#Alternatively, use the Databricks CLI
-	#jsonJobCreate=$(databricks jobs create --json $(post_data_func))
-	#echo $jsonJobCreate
+	jsonJobCreate=$(jq -c . <<<  "$(post_data_func)")
+	#Must add the quotes to jsonJobCreate to avoid error.
+	jsonJobCreateRet=$(databricks jobs create --json "$jsonJobCreate")
+	job_id=$(jq -j '.job_id'  <<<  "$jsonJobCreateRet")
 	echo "${blu}Created job with id ${job_id}.${end}"
 fi
 
