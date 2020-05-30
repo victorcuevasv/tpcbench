@@ -193,12 +193,11 @@ job_run_id=""
 
 if [ "$RUN_CREATE_JOB" -eq 1 ]; then
 	echo "${blu}Creating job for benchmark execution.${end}"
-	#job_id=$(create_job)
+	job_id=$(create_job)
 	#Alternatively, use the Databricks CLI
-	jsonJobCreate=$(jq -c . <<<  "$(post_data_func)")
-	#Must add the quotes to jsonJobCreate to avoid error.
-	jsonJobCreateRet=$(databricks jobs create --json "$jsonJobCreate")
-	job_id=$(jq -j '.job_id'  <<<  "$jsonJobCreateRet")
+	#Must add the quotes to post_data_func to avoid error.
+	#jsonJobCreate=$(databricks jobs create --json "$(post_data_func)")
+	#job_id=$(jq -j '.job_id'  <<<  "$jsonJobCreate")
 	echo "${blu}Created job with id ${job_id}.${end}"
 fi
 
