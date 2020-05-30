@@ -224,7 +224,7 @@ fi
 
 if [ "$RUN_RUN_JOB" -eq 1 ]; then
 	echo "${blu}Running job with id ${job_id}.${end}"
-	jsonJobRun = ""
+	jsonJobRun=""
 	if [ USE_DBR_CLI -eq 0 ] ; then
 		jsonJobRun=$(run_job $job_id)
 	else
