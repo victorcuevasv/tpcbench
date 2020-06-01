@@ -15,7 +15,7 @@ end=$'\e[0m'
 #$3 number of streams (positive integer)
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_emrspark_createwithstep.sh <scale factor> <number of experiment instances> <number of streams>${end}"
+    echo "${yel}Usage: bash runclient_emrspark_createwithstep_multiple.sh <scale factor> <number of experiment instances> <number of streams>${end}"
     exit 0
 fi
 
