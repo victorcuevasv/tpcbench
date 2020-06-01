@@ -31,7 +31,7 @@ DirNameWarehouse="tpcds-warehouse-sparkemr-${VersionShort}-$1gb-$2-$Tag"
 DirNameResults="sparkemr-test"
 DatabaseName="tpcds_sparkemr_${VersionShort}_$1gb_$2_$Tag"
 JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
-JobName="BSC-test"
+JobName="BSC-test ${Tag}"
 #Script operation flags.
 RUN_CREATE_CLUSTER=1
 WAIT_FOR_TERMINATION=0

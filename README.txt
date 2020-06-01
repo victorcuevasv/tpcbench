@@ -5,6 +5,8 @@ It is recommended to use a VM on AWS to run the experiments for ease of use, rep
 and to minimize network latency for some experiments. However, it is possible to run the experiments on any 
 machine after completing the equivalent tasks performed by the AWS initialization script.
 
+To create the AWS VM and install the benchmarking platform follow the next steps.
+
 1) Download the code to a machine with the AWS CLI installed and properly configured.
 
 git clone https://victorcuevasv@bitbucket.org/victorcuevasv/tpcdsbench.git
@@ -16,14 +18,14 @@ some of the scripts already exist in the AWS account, the corresponding steps ca
 
 2.1) Create a security group enabling ssh access to the VM (can be skipped if it already exists).
 
-Enter the tpcdsbench directory and execute the create_security_group_EC2.sh script. The security group
-will be created with an inbound rule to enable ssh access. The script should also output the id of the
-security group, which will be needed later.
+Enter the tpcdsbench directory and execute the create_security_group_EC2.sh script, the name of the security
+group to be created should be provided as a parameter. The security group will be created with an inbound rule
+to enable ssh access. The script should also output the id of the security group, which will be needed later.
 
-bash emr/bootstrap/s3fs/create_security_group_EC2.sh
+bash emr/bootstrap/s3fs/create_security_group_EC2.sh <name of the security group>
 
-2.2) Create an EC2 instance template. The script create_vm_templateEC2.sh enables to do this. It requires
-3 configuration values.
+2.2) Create an EC2 instance template. The script create_vm_templateEC2.sh (also in the emr/bootstrap/s3fs/
+directory) enables to do this. It requires 3 configuration values.
 
 -line 6: the id of the security group to enable ssh access, resulting from the previous step.
 -line 7: the arn of a role enabling access to the s3 buckets, discussed later.
