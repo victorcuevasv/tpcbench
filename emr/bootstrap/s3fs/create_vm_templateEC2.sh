@@ -40,7 +40,7 @@ json_data_func()
                 "Encrypted": false, 
                 "DeleteOnTermination": true, 
                 "VolumeType": "gp2", 
-                "VolumeSize": 10, 
+                "VolumeSize": 20, 
                 "SnapshotId": "snap-0111a56dd4bda22e9"
             }
         }
