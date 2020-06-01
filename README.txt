@@ -74,7 +74,7 @@ AWS web GUI, along with a new policy that can be specified in the form
 The buckets currently in use are tpcds-jars and tpcds-results-test. The IAM role is identified by the 
 arn but also by its name, which is used in the initialization script. Once the 3 values mentioned above
 are present in the create_vm_templateEC2.sh, it is also necessary to modify the initialization script
-s3fs_init.sh located in the same directory, concretely
+s3fs_init.sh located in the same directory (emr/bootstrap/s3fs/), concretely
 
 -line 6 (s3fs_init.sh): the name of the IAM role used to access the s3 buckets.
 

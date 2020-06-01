@@ -7,7 +7,9 @@ SecurityGroupId="sg-0d676074919b90fac"
 RoleWithPolicyArn="arn:aws:iam::384416317380:instance-profile/tpcds-mount"
 KeyPair="testalojakeypair"
 
-encodedScript=$(base64 --wrap=0 s3fs_init.sh)
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
+encodedScript=$(base64 --wrap=0 $DIR/s3fs_init.sh)
 
 json_data_func()
 {
