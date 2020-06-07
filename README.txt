@@ -173,6 +173,15 @@ the next sections. In all cases, however, the execution of the application jar s
 produces experimental results that are stored in the tpcds-results-test s3 bucket, using the locations specified
 in the arguments of the application, which in turn are specified within the script used to run the experiment.
 
+3) Generate the data
+
+It is possible to use the TPC-DS Toolkit container to generate data by relying on its data generator.
+For a small scale factor (e.g. 1 or 10 GB), it suffices to have enough disk space and use the command
+
+bash createDataFiles.sh <scale factor>
+
+The data is stored in the directory $HOME/tpcdsbench/vols/hive/<scale factor>GB
+
 
 RUNNING EXPERIMENTS IN EMR SPARK
 
