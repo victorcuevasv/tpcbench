@@ -24,10 +24,10 @@ library("dplyr")
 library("EnvStats")
 
 createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title){
-  plot <- ggplot(data=dataf, aes(x=EXPERIMENT, y=get(metric), fill=TEST), width=7, height=7) + 
+  plot <- ggplot(data=dataf, aes(x=LABEL, y=get(metric), fill=TEST), width=7, height=7) + 
     geom_bar(stat="identity", position = position_stack(reverse = T)) + 
     #It may be necessary to use 'fun.y = sum' instead of 'fun = sum' in some environments.
-    geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = EXPERIMENT), stat = 'summary', fun.y = sum, vjust = -0.1, size=6) +     
+    geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = LABEL), stat = 'summary', fun.y = sum, vjust = -0.1, size=6) +     
     theme(axis.title.x=element_blank()) + 
     theme(axis.text=element_text(size=16), axis.title=element_text(size=18)) +
     #The str_wrap function makes the name of the column appear on multiple lines instead of just one
@@ -243,14 +243,14 @@ export(df, outXlsxFile)
 
 dfNotTput <- df %>% filter(TEST != 'tput')
 dfNotTput <- dfNotTput %>%
-  group_by(EXPERIMENT, TEST, INSTANCE) %>%
+  group_by(EXPERIMENT, LABEL, TEST, INSTANCE) %>%
   summarize(TOTAL_DURATION_HOUR = sum(DURATION, na.rm = TRUE) / 3600.0,
             AVERAGE_DURATION_SEC = mean(DURATION, na.rm = TRUE),
             GEOMEAN_DURATION_SEC = geoMean(DURATION, na.rm = TRUE))
 
 dfTput <- df %>% filter(TEST == 'tput')
 dfTput <- dfTput %>%
-  group_by(EXPERIMENT, TEST, INSTANCE) %>%
+  group_by(EXPERIMENT, LABEL, TEST, INSTANCE) %>%
   summarize(TOTAL_DURATION_HOUR = (max(STOPDATE_EPOCH, na.rm = TRUE) - min(STARTDATE_EPOCH)) / (3600.0 * 1000),
             AVERAGE_DURATION_SEC = mean(DURATION, na.rm = TRUE),
             GEOMEAN_DURATION_SEC = geoMean(DURATION, na.rm = TRUE))
@@ -258,7 +258,7 @@ dfTput <- dfTput %>%
 dfAgg <- union(dfNotTput, dfTput)
 
 dfSummary <- dfAgg %>%
-  group_by(EXPERIMENT, TEST) %>%
+  group_by(EXPERIMENT, LABEL, TEST) %>%
   summarize(AVG_TOTAL_DURATION_HOUR = mean(TOTAL_DURATION_HOUR, na.rm = TRUE),
             AVG_DURATION_SEC = mean(AVERAGE_DURATION_SEC, na.rm = TRUE),
             GEOMEAN_DURATION_SEC = mean(GEOMEAN_DURATION_SEC, na.rm = TRUE))
