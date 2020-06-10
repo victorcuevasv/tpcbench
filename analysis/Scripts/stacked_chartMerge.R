@@ -23,34 +23,6 @@ library("stringr")
 library("dplyr")
 library("EnvStats")
 
-processAnalyticsFile <- function(inFile, dataframe, label, experiment, test, instance) {
-  analytics <- import(inFile, format="psv", colClasses="character")
-  #Convert the character colums to numeric values where needed.
-  analytics$QUERY <- as.numeric(analytics$QUERY)
-  #analytics$STREAM <- as.numeric(analytics$STREAM)
-  analytics$STARTDATE_EPOCH <- as.numeric(analytics$STARTDATE_EPOCH)
-  analytics$STOPDATE_EPOCH <- as.numeric(analytics$STOPDATE_EPOCH)
-  analytics$DURATION_MS <- as.numeric(analytics$DURATION_MS)
-  analytics$DURATION <- as.numeric(analytics$DURATION)
-  analytics$RESULTS_SIZE <- as.numeric(analytics$RESULTS_SIZE)
-  #analytics$TUPLES <- as.numeric(analytics$TUPLES)
-  return(calculateStats(analytics, dataframe, label, experiment, test, instance))
-}
-
-calculateStats <- function(analytics, dataframe, label, experiment, test, instance) {
-  totalDurationSec <- 0
-  if( test == "tput" )
-    totalDurationSec <- (max(analytics$STOPDATE_EPOCH) - min(analytics$STARTDATE_EPOCH)) / 1000.0
-  else
-    totalDurationSec <- sum(analytics$DURATION)
-  totalDurationHour <- totalDurationSec / 3600.0
-  averageDurationSec <- mean(analytics$DURATION)
-  geomeanDurationSec <- geoMean(analytics$DURATION)
-  dataframe[nrow(dataframe) + 1,] = list(label, test, instance, totalDurationSec, totalDurationHour, 
-                                         averageDurationSec, geomeanDurationSec)
-  return(dataframe)
-}
-
 createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title){
   plot <- ggplot(data=dataf, aes(x=EXPERIMENT, y=get(metric), fill=TEST), width=7, height=7) + 
     geom_bar(stat="identity", position = position_stack(reverse = T)) + 
@@ -70,6 +42,46 @@ createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, me
   return(plot)
 }
 
+processAnalyticsFile <- function(inFile, dataframe, label, experiment, test, instance, s3objURL) {
+  analytics <- import(inFile, format="psv", colClasses="character")
+  analyticsCols <- colnames(analytics)
+  dataframeCols <- colnames(dataframe)
+  dataframeColsTypes <- sapply(dataframe, class)
+  for(i in 1:length(dataframeCols)) {
+    dataframeCol <- dataframeCols[[i]]
+    if( dataframeCol %in% analyticsCols ) {
+      #Cannot use $ notation when using a variable, must use [[]]
+      if( dataframeColsTypes[[i]] == "numeric" )
+        analytics[[dataframeCol]] <- as.numeric(analytics[[dataframeCol]])
+    }
+    else if( ! (dataframeCol %in% analyticsCols) ) {
+      if( dataframeCol == "EXPERIMENT" )
+        analytics[dataframeCol] <- experiment
+      else if ( dataframeCol == "LABEL" )
+        analytics[dataframeCol] <- label
+      else if ( dataframeCol == "TEST" )
+        analytics[dataframeCol] <- test
+      else if ( dataframeCol == "INSTANCE" )
+        analytics[dataframeCol] <- as.numeric(instance)
+      else if ( dataframeCol == "URL" )
+        analytics[dataframeCol] <- s3objURL
+      else {
+        if( dataframeColsTypes[[i]] == "numeric" )
+          analytics[dataframeCol] <- NaN
+        else
+          analytics[dataframeCol] <- "NA"
+      }
+    }
+  }
+  for(analyticsCol in analyticsCols) {
+    if( ! (analyticsCol %in% dataframeCols) ) {
+      analytics <- select(analytics, -analyticsCol)
+    }
+  }
+  return(union(dataframe, analytics))
+}
+
+
 processExperimentsS3 <- function(dirName, dataframe, experiments, labels, tests, instances) {
   i <- 1
   for(experiment in experiments) {
@@ -81,7 +93,7 @@ processExperimentsS3 <- function(dirName, dataframe, experiments, labels, tests,
         if( object_exists(s3objURL) ) {
           dataFile <- "data.txt"
           saveS3ObjectToFile(s3objURL, dataFile)
-          dataframe <- processAnalyticsFile(dataFile, dataframe, labels[[i]], experiment, test, instance)
+          dataframe <- processAnalyticsFile(dataFile, dataframe, labels[[i]], experiment, test, instance, s3objURL)
         }
       }
     }
@@ -183,13 +195,27 @@ if( length(args) < 2 ) {
 }
 
 #Create a new dataframe to hold the aggregate results, pass it to the various functions.
-df <- data.frame(EXPERIMENT=character(),
+df <- data.frame(
+                 EXPERIMENT=character(),
+                 SYSTEM=character(),
                  TEST=character(),
-                 INSTANCE=character(),
-                 TOTAL_DURATION_SEC=double(),
-                 TOTAL_DURATION_HOUR=double(),
-                 AVERAGE_DURATION_SEC=double(),
-                 GEOMEAN_DURATION_SEC=double(),
+                 INSTANCE=numeric(),
+                 QUERY=numeric(),
+                 STREAM=numeric(),
+                 ITEM=numeric(),
+                 DURATION_MS=numeric(),
+                 DURATION=numeric(),
+                 STARTDATE_EPOCH=numeric(),
+                 STOPDATE_EPOCH=numeric(),
+                 STARTDATE=character(),
+                 STOPDATE=character(),
+                 SUCCESSFUL=character(),
+                 RESULTS_SIZE=numeric(),
+                 TUPLES=numeric(),
+                 SCALE_FACTOR=numeric(),
+                 ITERATION=numeric(),
+                 LABEL=character(),
+                 URL=character(),
                  stringsAsFactors=FALSE)
 
 #Option 1: read the data from files in the local filesystem
@@ -200,14 +226,38 @@ if( ! startsWith(dirName, "s3:") ) {
   #To process files in multiple paths, due probably to lazy evaluation it is absolutely necessary to
   #specify them beforehand, hardcoded.
   #dirNameElements <- c(dirName)
-  #dirNameElements <- c("s3://tpcds-results-test/emr529/analytics", "s3://tpcds-results-test/dbr65/analytics")
-  dirNameElements <- c("s3://tpcds-results-obsolete/emrmysqldriver/analytics")
+  dirNameElements <- c("s3://tpcds-results-test/presto-comp/analytics", 
+                       "s3://tpcds-results-test/1odwczxc3jftmhmvahdl7tz32dyyw0pen/analytics",
+                       "s3://13ox7iwkfecru61h2nxeaaszmytrzcby8/presto-comp/analytics")
   for(dirNameElement in dirNameElements) {
     df <- processExperimentsS3(dirNameElement, df, experiments, labels, tests, instances)
   }
 }
 
-df <- df %>%
+outXlsxFile <- file.path(prefixOS, "Documents/experimentsAll.xlsx")
+export(df, outXlsxFile)
+
+#Compute the ITEM, in case it was not specified in the data.
+#df <- df %>% group_by(EXPERIMENT, LABEL, TEST, INSTANCE, STREAM) %>%
+#  mutate(ITEM=with_order(order_by=STARTDATE_EPOCH, fun=row_number, x=STARTDATE_EPOCH))
+
+dfNotTput <- df %>% filter(TEST != 'tput')
+dfNotTput <- dfNotTput %>%
+  group_by(EXPERIMENT, TEST, INSTANCE) %>%
+  summarize(TOTAL_DURATION_HOUR = sum(DURATION, na.rm = TRUE) / 3600.0,
+            AVERAGE_DURATION_SEC = mean(DURATION, na.rm = TRUE),
+            GEOMEAN_DURATION_SEC = geoMean(DURATION, na.rm = TRUE))
+
+dfTput <- df %>% filter(TEST == 'tput')
+dfTput <- dfTput %>%
+  group_by(EXPERIMENT, TEST, INSTANCE) %>%
+  summarize(TOTAL_DURATION_HOUR = (max(STOPDATE_EPOCH, na.rm = TRUE) - min(STARTDATE_EPOCH)) / (3600.0 * 1000),
+            AVERAGE_DURATION_SEC = mean(DURATION, na.rm = TRUE),
+            GEOMEAN_DURATION_SEC = geoMean(DURATION, na.rm = TRUE))
+
+dfAgg <- union(dfNotTput, dfTput)
+
+dfSummary <- dfAgg %>%
   group_by(EXPERIMENT, TEST) %>%
   summarize(AVG_TOTAL_DURATION_HOUR = mean(TOTAL_DURATION_HOUR, na.rm = TRUE),
             AVG_DURATION_SEC = mean(AVERAGE_DURATION_SEC, na.rm = TRUE),
@@ -217,7 +267,7 @@ outXlsxFile <- file.path(prefixOS, "Documents/experiments.xlsx")
 export(df, outXlsxFile)
 
 metric <- "AVG_TOTAL_DURATION_HOUR"
-plot <- createPlotFromDataframe(df, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
+plot <- createPlotFromDataframe(dfSummary, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
 outPngFile <- file.path(prefixOS, "Documents/stacked_bar_chart.png")
 png(outPngFile, width=1500, height=500, res=120)
 print(plot)
