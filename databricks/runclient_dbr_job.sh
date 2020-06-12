@@ -70,7 +70,7 @@ args[7]="--ext-tables-location=dbfs:/mnt/tpcds-warehouses-test/$DirNameWarehouse
 # format for column-storage tables (PARQUET, DELTA)
 args[8]="--table-format=parquet"
 # whether to use data partitioning for the tables (true/false)
-args[9]="--use-partitioning=false"
+args[9]="--use-partitioning=true"
 
 # jar file
 args[10]="--jar-file=/dbfs/$JarFile"
@@ -79,14 +79,14 @@ args[11]="--use-row-stats=true"
 # if argument above is true, whether to compute statistics for columns (true/false)
 args[12]="--use-column-stats=true"
 # "all" or query file
-args[13]="--all-or-query-file=query2.sql" 
+args[13]="--all-or-query-file=all" 
 # number of streams
 args[14]="--number-of-streams=$3"
 
 # flags (111111 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=110000"
+args[15]="--execution-flags=111011"
 # "all" or create table file
-args[16]="--all-or-create-file=call_center.sql"
+args[16]="--all-or-create-file=all"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 
