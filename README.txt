@@ -185,6 +185,8 @@ The data is stored in the directory $HOME/tpcdsbench/vols/hive/<scale factor>GB
 
 RUNNING EXPERIMENTS IN EMR SPARK
 
+IMPORTANT NOTE: before running experiments with EMR, it is necessary to properly configure the AWS CLI.
+
 The scripts enabling running experiments in EMR Spark are inside the $HOME/tpcdsbench/emr directory. There are
 four main modalities of running experiments:
 
