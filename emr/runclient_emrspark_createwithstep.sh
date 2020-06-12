@@ -58,7 +58,7 @@ args[7]="--ext-tables-location=s3://tpcds-warehouses-test/$DirNameWarehouse"
 # format for column-storage tables (PARQUET, DELTA)
 args[8]="--table-format=parquet"
 # whether to use data partitioning for the tables (true/false)
-args[9]="--use-partitioning=false"
+args[9]="--use-partitioning=true"
 
 # "all" or create table file
 args[10]="--all-or-create-file=all"
@@ -67,9 +67,9 @@ args[11]="--jar-file=$JarFile"
 # whether to generate statistics by analyzing tables (true/false)
 args[12]="--use-row-stats=true"
 # if argument above is true, whether to compute statistics for columns (true/false)
-args[13]="--use-column-stats=true"
+args[13]="--use-column-stats=false"
 # "all" or query file
-args[14]="--all-or-query-file=query2.sql"
+args[14]="--all-or-query-file=all"
  
 # number of streams
 args[15]="--number-of-streams=$3"

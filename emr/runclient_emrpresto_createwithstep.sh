@@ -26,14 +26,21 @@ if [ $# -lt 3 ]; then
     exit 0
 fi
 
+#Cluster configuration.
 Nodes="2"
-Tag=$(date +%s)
-ExperimentName="prestoemr-529-${Nodes}nodes-$1gb-$Tag"
-DirNameWarehouse="tpcds-warehouse-prestoemr-529-$1gb-$2-$Tag"
-DatabaseName="tpcds_prestoemr_529_$1gb_$2_db_$Tag"
-DirNameResults="1odwczxc3jftmhmvahdl7tz32dyyw0pen"
-JarFile="/mnt/tpcds-jars/targetemr/client-1.2-SNAPSHOT-SHADED.jar"
+Version="5.29.0"
+VersionShort="529"
 AutoTerminate="true"
+#Run configuration.
+Tag="$(date +%s)test"
+ExperimentName="prestoemr-${VersionShort}-${Nodes}nodes-$1gb-$Tag"
+DirNameWarehouse="tpcds-warehouse-prestoemr-${VersionShort}-$1gb-$2-$Tag"
+DirNameResults="prestoemr-test"
+DatabaseName="tpcds_prestoemr_${VersionShort}_$1gb_$2_db_$Tag"
+JarFile="/mnt/tpcds-jars/targetemr/client-1.2-SNAPSHOT-SHADED.jar"
+JobName="BSC-test ${Tag}"
+#Script operation flags.
+RUN_CREATE_BUCKET=1
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
@@ -194,7 +201,11 @@ configurations_func()
       "Properties":{
          "hive.exec.max.dynamic.partitions":"5000",
          "hive.exec.dynamic.partition.mode":"nonstrict",
-         "hive.exec.max.dynamic.partitions.pernode":"2500"
+         "hive.exec.max.dynamic.partitions.pernode":"2500",
+         "javax.jdo.option.ConnectionURL": "jdbc:mysql://metastoremysql.crhrootttpzi.us-west-2.rds.amazonaws.com:3306/hive?createDatabaseIfNotExist=true",
+         "javax.jdo.option.ConnectionDriverName": "org.mariadb.jdbc.Driver",
+         "javax.jdo.option.ConnectionUserName": "hive",
+         "javax.jdo.option.ConnectionPassword": "hive"
       }
    }
 ]
@@ -218,7 +229,6 @@ bootstrap-actions_func()
 EOF
 }
 
-RUN_CREATE_BUCKET=1
 
 if [ "$RUN_CREATE_BUCKET" -eq 1 ]; then
     #Create the table folders
@@ -254,7 +264,7 @@ aws emr create-cluster \
 --ebs-root-volume-size 10 \
 --service-role EMR_DefaultRole \
 --enable-debugging \
---name 'BSC-test' \
+--name "$JobName" \
 --scale-down-behavior TERMINATE_AT_TASK_COMPLETION \
 --region us-west-2
 
