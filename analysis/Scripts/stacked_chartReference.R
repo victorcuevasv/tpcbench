@@ -23,6 +23,33 @@ library("stringr")
 library("dplyr")
 library("EnvStats")
 
+processAnalyticsFile <- function(inFile, schemaDF) {
+  analytics <- import(inFile, format="psv", colClasses="character")
+  analyticsCols <- colnames(analytics)
+  dataframeCols <- colnames(schemaDF)
+  dataframeColsTypes <- sapply(schemaDF, class)
+  for(i in 1:length(dataframeCols)) {
+    dataframeCol <- dataframeCols[[i]]
+    if( dataframeCol %in% analyticsCols ) {
+      #Cannot use $ notation when using a variable, must use [[]]
+      if( dataframeColsTypes[[i]] == "numeric" )
+        analytics[[dataframeCol]] <- as.numeric(analytics[[dataframeCol]])
+    }
+    else if( ! (dataframeCol %in% analyticsCols) ) {
+      if( dataframeColsTypes[[i]] == "numeric" )
+        analytics[dataframeCol] <- NaN
+      else
+        analytics[dataframeCol] <- "NA"
+    }
+  }
+  for(analyticsCol in analyticsCols) {
+    if( ! (analyticsCol %in% dataframeCols) ) {
+      analytics <- select(analytics, -analyticsCol)
+    }
+  }
+  return(analytics)
+}
+
 createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title){
   plot <- ggplot(data=dataf, aes(x=LABEL, y=get(metric), fill=TEST), width=7, height=7) + 
     geom_bar(stat="identity", position = position_stack(reverse = T)) + 
@@ -42,91 +69,12 @@ createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, me
   return(plot)
 }
 
-processAnalyticsFile <- function(inFile, dataframe, label, experiment, test, instance, s3objURL) {
-  analytics <- import(inFile, format="psv", colClasses="character")
-  analyticsCols <- colnames(analytics)
-  dataframeCols <- colnames(dataframe)
-  dataframeColsTypes <- sapply(dataframe, class)
-  for(i in 1:length(dataframeCols)) {
-    dataframeCol <- dataframeCols[[i]]
-    if( dataframeCol %in% analyticsCols ) {
-      #Cannot use $ notation when using a variable, must use [[]]
-      if( dataframeColsTypes[[i]] == "numeric" )
-        analytics[[dataframeCol]] <- as.numeric(analytics[[dataframeCol]])
-    }
-    else if( ! (dataframeCol %in% analyticsCols) ) {
-      if( dataframeCol == "EXPERIMENT" )
-        analytics[dataframeCol] <- experiment
-      else if ( dataframeCol == "LABEL" )
-        analytics[dataframeCol] <- label
-      else if ( dataframeCol == "TEST" )
-        analytics[dataframeCol] <- test
-      else if ( dataframeCol == "INSTANCE" )
-        analytics[dataframeCol] <- as.numeric(instance)
-      else if ( dataframeCol == "URL" )
-        analytics[dataframeCol] <- s3objURL
-      else {
-        if( dataframeColsTypes[[i]] == "numeric" )
-          analytics[dataframeCol] <- NaN
-        else
-          analytics[dataframeCol] <- "NA"
-      }
-    }
-  }
-  for(analyticsCol in analyticsCols) {
-    if( ! (analyticsCol %in% dataframeCols) ) {
-      analytics <- select(analytics, -analyticsCol)
-    }
-  }
-  return(union(dataframe, analytics))
-}
-
-
-processExperimentsS3 <- function(dirName, dataframe, experiments, labels, tests, instances) {
-  i <- 1
-  for(experiment in experiments) {
-    for(test in tests) {
-      for(instance in instances) {
-        s3Suffix <- file.path(experiment, test, instance, "analytics.log")
-        #It is NOT necessary to add s3://
-        s3objURL <- URLencode(file.path(dirName, s3Suffix))
-        if( object_exists(s3objURL) ) {
-          #if( experiment == "prestoemr-529-8nodes-1000gb-hiveparquet1589503121" && instance > 1 )
-          #  next
-          dataFile <- "data.txt"
-          saveS3ObjectToFile(s3objURL, dataFile)
-          dataframe <- processAnalyticsFile(dataFile, dataframe, labels[[i]], experiment, test, instance, s3objURL)
-        }
-      }
-    }
-    i <- i + 1
-  }
-  return(dataframe)
-}
-
 saveS3ObjectToFile <- function(s3objURL, outFile) {
   s3obj <- get_object(s3objURL)
   charObj <- rawToChar(s3obj)
   sink(outFile)
   cat (charObj)
   sink()
-}
-
-processExperiments <- function(dirName, dataframe, experiments, labels, tests, instances) {
-  i <- 1
-  for(experiment in experiments) {
-    for(test in tests) {
-      for(instance in instances) {
-        fileSuffix <- file.path(experiment, test, instance, "analytics.log")
-        dataFile <- file.path(prefixOS, dirName, fileSuffix)
-        if( file.exists(dataFile) ) {
-          dataframe <- processAnalyticsFile(dataFile, dataframe, labels[[i]], experiment, test, instance)
-        }
-      }
-    }
-    i <- i + 1
-  }
-  return(dataframe)
 }
 
 list.dirs <- function(path=".", pattern=NULL, all.dirs=FALSE,
@@ -225,16 +173,12 @@ if( ! startsWith(dirName, "s3:") ) {
   df <- processExperiments(dirName, df, experiments, labels, tests, instances)
 } else {
   #Option 2: download the files from s3 and process them.
-  #To process files in multiple paths, due probably to lazy evaluation it is absolutely necessary to
-  #specify them beforehand, hardcoded.
-  #dirNameElements <- c(dirName)
-  #dirNameElements <- c("s3://1-rtvjs-45qnx2peo-ar39q2dprvzkmga/analytics")
-  
-  dirNameElements <- c("s3://tpcds-results-test/dbr65/analytics",
-                       "s3://tpcds-results-test/emr529/analytics",
-                       "s3://tpcds-results-test/emr600/analytics")
-  for(dirNameElement in dirNameElements) {
-    df <- processExperimentsS3(dirNameElement, df, experiments, labels, tests, instances)
+  s3URL <- "s3://tpcds-results-test/reference/ReferenceResults.csv"
+  saveS3ObjectToFile(s3URL, "ReferenceResults.csv")
+  allDF <- processAnalyticsFile("ReferenceResults.csv", df)
+  for(experiment in experiments) {
+    dfExperiment <- allDF %>% filter(EXPERIMENT == experiment)
+    df <- union(df, dfExperiment)
   }
 }
 
