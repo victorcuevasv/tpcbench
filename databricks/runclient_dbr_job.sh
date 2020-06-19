@@ -35,10 +35,10 @@ MajorVersion="6"
 MinorVersion="5"
 ScalaVersion="x-scala2.11"
 #Run configuration.
-Tag="$(date +%s)test"
+Tag="$(date +%s)"
 ExperimentName="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-${Tag}"
 DirNameWarehouse="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-$2-${Tag}"
-DirNameResults="databricks-test"
+DirNameResults="dbr65"
 DatabaseName="tpcds_databricks_${MajorVersion}${MinorVersion}_$1gb_$2_${Tag}"
 #Note that /dbfs or dbfs: is not included, these are added later.
 JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
