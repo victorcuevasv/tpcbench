@@ -230,7 +230,7 @@ if( ! startsWith(dirName, "s3:") ) {
   #dirNameElements <- c(dirName)
   #dirNameElements <- c("s3://1-rtvjs-45qnx2peo-ar39q2dprvzkmga/analytics")
   
-  dirNameElements <- c("s3://tpcds-results-test/dbr65/analytics",
+  dirNameElements <- c("s3://tpcds-results-obsolete/dbr65dlt/analytics",
                        "s3://tpcds-results-test/emr529/analytics",
                        "s3://tpcds-results-test/emr600/analytics")
   for(dirNameElement in dirNameElements) {

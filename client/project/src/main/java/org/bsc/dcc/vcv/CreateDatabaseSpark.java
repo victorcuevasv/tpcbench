@@ -345,14 +345,14 @@ public class CreateDatabaseSpark {
 			map.put("hoodie.datasource.hive_sync.partition_fields", partitionKey);
 			map.put("hoodie.datasource.write.partitionpath.field", partitionKey);
 			//map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.ComplexKeyGenerator");
-			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.SimpleKeyGenerator");
+			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.SimpleKeyGenerator");
 		}
 		else {
 			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 
 					"org.apache.hudi.hive.NonPartitionedExtractor");
 			map.put("hoodie.datasource.hive_sync.partition_fields", "");
 			map.put("hoodie.datasource.write.partitionpath.field", "");
-			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.NonpartitionedKeyGenerator");   
+			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.NonpartitionedKeyGenerator");   
 		}
 		return map;
 	}
