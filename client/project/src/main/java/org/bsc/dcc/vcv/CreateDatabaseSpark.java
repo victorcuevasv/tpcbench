@@ -339,6 +339,7 @@ public class CreateDatabaseSpark {
 		map.put("hoodie.datasource.write.recordkey.field", primaryKey);
 		map.put("hoodie.table.name", tableName);
 		map.put("hoodie.datasource.write.storage.type", "COPY_ON_WRITE");
+		map.put("hoodie.datasource.write.hive_style_partitioning", "true");
 		if( usePartitioning ) {
 			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 
 					"org.apache.hudi.hive.MultiPartKeysValueExtractor");
