@@ -209,7 +209,7 @@ do
 	args[4]="--system-name=sparkemr"
 	
 	# experiment instance number
-	args[5]="--instance-number=$2"
+	args[5]="--instance-number=${i}"
 	# prefix of external location for raw data tables (e.g. S3 bucket), null for none
 	args[6]="--ext-raw-data-location=s3://tpcds-datasets/$1GB"
 	# prefix of external location for created tables (e.g. S3 bucket), null for none

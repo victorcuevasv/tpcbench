@@ -24,7 +24,8 @@ library("dplyr")
 library("EnvStats")
 
 createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title){
-  plot <- ggplot(data=dataf, aes(x=LABEL, y=get(metric), fill=TEST), width=7, height=7) + 
+  dataf$TESTf <- factor(dataf$TEST, levels=c('load', 'analyze', 'power', 'tput'))
+  plot <- ggplot(data=dataf, aes(x=LABEL, y=get(metric), fill=TESTf), width=7, height=7) + 
     geom_bar(stat="identity", position = position_stack(reverse = T)) + 
     #It may be necessary to use 'fun.y = sum' instead of 'fun = sum' in some environments.
     geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = LABEL), stat = 'summary', fun.y = sum, vjust = -0.1, size=6) +     
@@ -91,6 +92,7 @@ processExperimentsS3 <- function(dirName, dataframe, experiments, labels, tests,
         #It is NOT necessary to add s3://
         s3objURL <- URLencode(file.path(dirName, s3Suffix))
         if( object_exists(s3objURL) ) {
+          print(s3objURL)
           #if( experiment == "prestoemr-529-8nodes-1000gb-hiveparquet1589503121" && instance > 1 )
           #  next
           dataFile <- "data.txt"
@@ -230,9 +232,7 @@ if( ! startsWith(dirName, "s3:") ) {
   #dirNameElements <- c(dirName)
   #dirNameElements <- c("s3://1-rtvjs-45qnx2peo-ar39q2dprvzkmga/analytics")
   
-  dirNameElements <- c("s3://tpcds-results-obsolete/dbr65dlt/analytics",
-                       "s3://tpcds-results-test/emr529/analytics",
-                       "s3://tpcds-results-test/emr600/analytics")
+  dirNameElements <- c("s3://13ox7iwkfecru61h2nxeaaszmytrzcby8/analytics")
   for(dirNameElement in dirNameElements) {
     df <- processExperimentsS3(dirNameElement, df, experiments, labels, tests, instances)
   }

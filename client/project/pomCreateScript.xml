@@ -29,6 +29,7 @@
 				<configuration>
 					<includes>
 						<include>org/bsc/dcc/vcv/ProcessCreateScript.java</include>
+						<include>org/bsc/dcc/vcv/ProcessParallelDataFiles.java</include>
 					</includes>
 					<testExcludes>
         				<testExclude>**/*</testExclude>

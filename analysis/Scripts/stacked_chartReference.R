@@ -51,7 +51,8 @@ processAnalyticsFile <- function(inFile, schemaDF) {
 }
 
 createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, metricsDigits, title){
-  plot <- ggplot(data=dataf, aes(x=LABEL, y=get(metric), fill=TEST), width=7, height=7) + 
+  dataf$TESTf <- factor(dataf$TEST, levels=c('load', 'analyze', 'power', 'tput'))
+  plot <- ggplot(data=dataf, aes(x=LABEL, y=get(metric), fill=TESTf), width=7, height=7) + 
     geom_bar(stat="identity", position = position_stack(reverse = T)) + 
     #It may be necessary to use 'fun.y = sum' instead of 'fun = sum' in some environments.
     geom_text(aes(label = round(stat(y), digits=metricsDigits[[metric]]), group = LABEL), stat = 'summary', fun.y = sum, vjust = -0.1, size=6) +     
@@ -219,6 +220,9 @@ export(df, outCSVFile, na="NA", quote=FALSE)
 
 outXlsxFile <- file.path(prefixOS, "Documents/experimentsSummary.xlsx")
 export(dfSummary, outXlsxFile)
+
+outCSVFile <- file.path(prefixOS, "Documents/experimentsSummary.csv")
+export(dfSummary, outCSVFile, na="NA", quote=FALSE)
 
 metric <- "AVG_TOTAL_DURATION_HOUR"
 plot <- createPlotFromDataframe(dfSummary, metric, metricsLabel, metricsUnit, metricsDigits, "TPC-DS Full Benchmark at 1 TB")
