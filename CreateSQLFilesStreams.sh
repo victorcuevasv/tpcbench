@@ -64,7 +64,7 @@ cp -r $DIR/vols/data/QueriesSnowflake $DIR/client/project/src/main/resources/
 #Generate the unused Netezza query streams.
 printf "\n\n%s\n\n" "${mag}Generating the Netezza query streams.${end}"
 bash $DIR/createStreams.sh $1 $2
-bash $DIR/runclient_processStreamFilesQueries.sh
+bash $DIR/runclient_processStreamFilesQueries.sh Netezza
 
 #Generate the unused Netezza query streams.
 printf "\n\n%s\n\n" "${mag}Generating the Spark query streams.${end}"
