@@ -103,9 +103,9 @@ public class ProcessStreamFilesQueries {
 			Arrays.sort(queries);
 			for(int i = 0; i < queries.length; i++) {
 				String query = ht.get(queries[i]);
-				File outFile = new File(workDir + "/" + outDir + "/Stream" + nStream + 
-						"/" + "query" + queries[i] + ".sql");
-				//outFile.mkdirs();
+				File outDirFull = new File(workDir + "/" + outDir + "/Stream" + nStream);
+				outDirFull.mkdirs();
+				File outFile = new File(outDirFull.getAbsolutePath() + "/" + "query" + queries[i] + ".sql");
 				outFile.createNewFile();
 				PrintWriter printWriter = new PrintWriter(new FileWriter(outFile));
 				printWriter.println(query);
