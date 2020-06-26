@@ -33,7 +33,7 @@ public class ProcessStreamFilesQueries {
 			if ( ! file.isDirectory() ) {
 				int nStream = AppUtil.extractNumber(file.getName());
 				Map<Integer, String> ht = this.processFile(file);
-				this.saveQueryStream(ht, outDir, nStream);
+				this.saveQueryStream(ht, workDir, outDir, nStream);
 			}
 		}
 	}
@@ -97,15 +97,15 @@ public class ProcessStreamFilesQueries {
 		return nQuery;
 	}
 	
-	private void saveQueryStream(Map<Integer, String> ht, String outDir, int nStream) {
+	private void saveQueryStream(Map<Integer, String> ht, String workDir, String outDir, int nStream) {
 		try {
 		    Integer[] queries = ht.keySet().toArray(new Integer[] {});
 			Arrays.sort(queries);
 			for(int i = 0; i < queries.length; i++) {
 				String query = ht.get(queries[i]);
-				File outFile = new File(outDir + "/Stream" + nStream + "/" + "query" + queries[i] + ".sql");
+				File outFile = new File(workDir + "/" + outDir + "/Stream" + nStream + 
+						"/" + "query" + queries[i] + ".sql");
 				outFile.mkdirs();
-				outFile.createNewFile();
 				PrintWriter printWriter = new PrintWriter(new FileWriter(outFile));
 				printWriter.println(query);
 			    printWriter.close();
