@@ -22,7 +22,7 @@ GROUP_ID=$(id -g)
 #$2 number of streams
 
 if [ $# -lt 2 ]; then
-    echo "${yel}Usage: bash createStreams.sh <scale factor> <number of streams>${end}"
+    echo "${yel}Usage: bash createStreamsSpark.sh <scale factor> <number of streams>${end}"
     exit 1
 fi
 
