@@ -20,8 +20,8 @@ GROUP_ID=$(id -g)
 #PARAMETERS.
 #$1 scale factor (positive integer)
 
-if [ $# -lt 1 ]; then
-    echo "${yel}Usage: bash CreateSQLFiles.sh <scale factor>${end}"
+if [ $# -lt 2 ]; then
+    echo "${yel}Usage: bash CreateSQLFiles.sh <scale factor> <number of streams>${end}"
     exit 0
 fi
 
@@ -61,12 +61,15 @@ printf "\n\n%s\n\n" "${mag}Generating the Snowflake queries.${end}"
 bash $DIR/dqgen/generateQueriesSnowflake.sh $USER_ID $GROUP_ID $1
 cp -r $DIR/vols/data/QueriesSnowflake $DIR/client/project/src/main/resources/
 
-#Generate the query streams.
-printf "\n\n%s\n\n" "${mag}Generating the query streams.${end}"
-bash $DIR/createStreams.sh $1 4
+#Generate the unused Netezza query streams.
+printf "\n\n%s\n\n" "${mag}Generating the Netezza query streams.${end}"
+bash $DIR/createStreams.sh $1 $2
 bash $DIR/runclient_processStreamFilesQueries.sh
 
-
+#Generate the unused Netezza query streams.
+printf "\n\n%s\n\n" "${mag}Generating the Spark query streams.${end}"
+bash $DIR/createStreamsSpark.sh $1 $2
+bash $DIR/runclient_processStreamFilesQueries.sh Spark
 
 
 

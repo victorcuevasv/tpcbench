@@ -9,8 +9,11 @@ USER_ID=$(id -u)
 #Get the user id of the user executing this script.
 GROUP_ID=$(id -g)
 
+#PARAMETERS.
+#$1 name of the system to generate the query streams.
+
 docker run --rm --user $USER_ID:$GROUP_ID -v $DIR/client/project:/project -v $DIR/vols/data:/data \
 	--entrypoint mvn clientbuilder:dev exec:java \
 	 -Dexec.mainClass="org.bsc.dcc.vcv.ProcessStreamFilesQueries" \
-	 -Dexec.args="/data Streams StreamsProcessed" -q -f /project/pomCreateScript.xml   
+	 -Dexec.args="/data Streams$1 Streams$1Processed" -q -f /project/pomCreateScript.xml   
 
