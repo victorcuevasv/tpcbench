@@ -63,7 +63,7 @@ cp -r $DIR/vols/data/QueriesSnowflake $DIR/client/project/src/main/resources/
 
 #Generate the query streams.
 printf "\n\n%s\n\n" "${mag}Generating the query streams.${end}"
-bash $DIR/createStreams.sh
+bash $DIR/createStreams.sh $1 4
 bash $DIR/runclient_processStreamFilesQueries.sh
 
 
