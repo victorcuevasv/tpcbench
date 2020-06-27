@@ -54,6 +54,7 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	final private String jarFile;
 	final private int nStreams;
 	final private long seed;
+	final private boolean tputChangingStreams;
 	
 	public ExecuteQueriesConcurrentSpark(CommandLine commandLine) {
 		try {
@@ -88,6 +89,8 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 		String seedStr = commandLine.getOptionValue("random-seed", "1954"); 
 		this.seed = Long.parseLong(seedStr);
 		this.random = new Random(seed);
+		String tputChangingStreamsStr = commandLine.getOptionValue("tput-changing-streams", "true");
+		this.tputChangingStreams = Boolean.parseBoolean(tputChangingStreamsStr);
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.resultsDir,
 				this.experimentName, this.system, this.test, this.instance);
@@ -139,6 +142,7 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 		this.nStreams = Integer.parseInt(args[13]);
 		this.seed = Long.parseLong(args[14]);
 		this.random = new Random(seed);
+		this.tputChangingStreams = true;
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.resultsDir,
 				this.experimentName, this.system, this.test, this.instance);
@@ -207,6 +211,16 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
 		for(int i = 0; i < nStreams; i++) {
+			HashMap<Integer, String> queriesHT = null;
+			if( this.tputChangingStreams ) {
+				JarQueriesReaderAsZipFile streamQueriesReader = 
+					new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir + "/stream" + i + "/");
+				List<String> filesStream = streamQueriesReader.getFilesOrdered();
+				queriesHT = createQueriesHT(filesStream, streamQueriesReader);
+			}
+			else {
+				queriesHT = createQueriesHT(files, this.queriesReader);
+			}
 			QueryStreamSpark stream = new QueryStreamSpark(i, this.resultsQueue, this.spark,
 					queriesHT, nQueries, random, this);
 			this.executor.submit(stream);
