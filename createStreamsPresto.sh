@@ -22,13 +22,12 @@ GROUP_ID=$(id -g)
 #$2 number of streams
 
 if [ $# -lt 2 ]; then
-    echo "${yel}Usage: bash createStreamsSpark.sh <scale factor> <number of streams>${end}"
+    echo "${yel}Usage: bash createStreamsPresto.sh <scale factor> <number of streams>${end}"
     exit 1
 fi
 
-#Generate the Spark queries.
-printf "\n\n%s\n\n" "${mag}Generating the Spark query streams.${end}"
-bash $DIR/dqgen/generateStreamsSpark.sh $USER_ID $GROUP_ID $1 $2
-
+#Generate the Presto queries.
+printf "\n\n%s\n\n" "${mag}Generating the Presto query streams.${end}"
+bash $DIR/dqgen/generateStreamsPresto.sh $USER_ID $GROUP_ID $1 $2
 
 

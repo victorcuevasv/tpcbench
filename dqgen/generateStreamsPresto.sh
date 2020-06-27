@@ -16,9 +16,9 @@ end=$'\e[0m'
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-printf "\n\n%s\n\n" "${blu}Generating the Spark query stream files.${end}"
+printf "\n\n%s\n\n" "${blu}Generating the Presto query stream files.${end}"
 
 docker run --rm --user $1:$2 --name tpc --volume $DIR/../vols/data:/TPC-DS/v2.10.1rc3/output \
-	tpcds:dev /TPC-DS/v2.10.1rc3/tools/createStreamsSpark.sh $3 $4    
+	tpcds:dev /TPC-DS/v2.10.1rc3/tools/createStreamsPresto.sh $3 $4    
 	
 

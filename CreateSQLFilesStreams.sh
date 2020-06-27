@@ -67,10 +67,56 @@ bash $DIR/createStreams.sh $1 $2
 bash $DIR/runclient_processStreamFilesQueries.sh Netezza
 cp -r $DIR/vols/data/StreamsNetezzaProcessed/* $DIR/client/project/src/main/resources/QueriesNetezza
 
-#Generate the unused Netezza query streams.
+#Generate the Spark query streams.
 printf "\n\n%s\n\n" "${mag}Generating the Spark query streams.${end}"
 bash $DIR/createStreamsSpark.sh $1 $2
 bash $DIR/runclient_processStreamFilesQueries.sh Spark
 cp -r $DIR/vols/data/StreamsSparkProcessed/* $DIR/client/project/src/main/resources/QueriesSpark
+
+#Generate the Presto query streams.
+printf "\n\n%s\n\n" "${mag}Generating the Presto query streams.${end}"
+bash $DIR/createStreamsPresto.sh $1 $2
+bash $DIR/runclient_processStreamFilesQueries.sh Presto
+#Add session properties to specific queries.
+START=0
+END=$2
+for (( i=$START; i<$END; i++ ))
+do
+	#Add SET SESSION statements to selected queries.
+	printf "%s\n%s\n" "SET SESSION join_distribution_type = 'PARTITIONED';" "$(cat $DIR/vols/data/StreamsPrestoProcessed/stream$i/query5.sql )" > $DIR/vols/data/StreamsPrestoProcessed/stream$i/query5.sql     
+	printf "%s\n" "SET SESSION join_distribution_type = 'AUTOMATIC';" >> $DIR/vols/data/StreamsPrestoProcessed/stream$i/query5.sql
+	
+	printf "%s\n%s\n" "SET SESSION join_reordering_strategy = 'ELIMINATE_CROSS_JOINS';" "$(cat $DIR/vols/data/StreamsPrestoProcessed/stream$i/query18.sql )" > $DIR/vols/data/StreamsPrestoProcessed/stream$i/query18.sql     
+	printf "%s\n" "SET SESSION join_reordering_strategy = 'ELIMINATE_CROSS_JOINS';" >> $DIR/vols/data/StreamsPrestoProcessed/stream$i/query18.sql
+	
+	#printf "%s\n%s\n" "SET SESSION spill_enabled = false;" "$(cat $DIR/vols/data/StreamsPrestoProcessed/stream$i/query23.sql )" > $DIR/vols/data/StreamsPrestoProcessed/stream$i/query23.sql     
+	#printf "%s\n" "SET SESSION spill_enabled = true;" >> $DIR/vols/data/StreamsPrestoProcessed/stream$i/query23.sql
+	
+	#printf "%s\n%s\n" "SET SESSION spill_enabled = false;" "$(cat $DIR/vols/data/StreamsPrestoProcessed/stream$i/query30.sql )" > $DIR/vols/data/StreamsPrestoProcessed/stream$i/query30.sql     
+	#printf "%s\n" "SET SESSION spill_enabled = true;" >> $DIR/vols/data/StreamsPrestoProcessed/stream$i/query30.sql
+	
+	printf "%s\n%s\n" "SET SESSION task_concurrency = 32;" "$(cat $DIR/vols/data/StreamsPrestoProcessed/stream$i/query67.sql )" > $DIR/vols/data/StreamsPrestoProcessed/stream$i/query67.sql
+	#printf "%s\n%s\n" "SET SESSION spill_enabled = false;" "$(cat $DIR/vols/data/StreamsPrestoProcessed/stream$i/query67.sql )" > $DIR/vols/data/StreamsPrestoProcessed/stream$i/query67.sql     
+	printf "%s\n" "SET SESSION task_concurrency = 16;" >> $DIR/vols/data/StreamsPrestoProcessed/stream$i/query67.sql
+	#printf "%s\n" "SET SESSION spill_enabled = true;" >> $DIR/vols/data/StreamsPrestoProcessed/stream$i/query67.sql
+	
+	printf "%s\n%s\n" "SET SESSION join_distribution_type = 'PARTITIONED';" "$(cat $DIR/vols/data/StreamsPrestoProcessed/stream$i/query75.sql )" > $DIR/vols/data/StreamsPrestoProcessed/stream$i/query75.sql     
+	printf "%s\n" "SET SESSION join_distribution_type = 'AUTOMATIC';" >> $DIR/vols/data/StreamsPrestoProcessed/stream$i/query75.sql
+	
+	printf "%s\n%s\n" "SET SESSION join_distribution_type = 'PARTITIONED';" "$(cat $DIR/vols/data/StreamsPrestoProcessed/stream$i/query78.sql )" > $DIR/vols/data/StreamsPrestoProcessed/stream$i/query78.sql     
+	printf "%s\n%s\n" "SET SESSION join_reordering_strategy = 'NONE';" "$(cat $DIR/vols/data/StreamsPrestoProcessed/stream$i/query78.sql )" > $DIR/vols/data/StreamsPrestoProcessed/stream$i/query78.sql 
+	#printf "%s\n%s\n" "SET SESSION spill_enabled = false;" "$(cat $DIR/vols/data/StreamsPrestoProcessed/stream$i/query78.sql )" > $DIR/vols/data/StreamsPrestoProcessed/stream$i/query78.sql
+	printf "%s\n" "SET SESSION join_distribution_type = 'AUTOMATIC';" >> $DIR/vols/data/StreamsPrestoProcessed/stream$i/query78.sql
+	printf "%s\n" "SET SESSION join_reordering_strategy = 'AUTOMATIC';" >> $DIR/vols/data/StreamsPrestoProcessed/stream$i/query78.sql
+	#printf "%s\n" "SET SESSION spill_enabled = true;" >> $DIR/vols/data/StreamsPrestoProcessed/stream$i/query78.sql
+	
+	printf "%s\n%s\n" "SET SESSION join_distribution_type = 'PARTITIONED';" "$(cat $DIR/vols/data/StreamsPrestoProcessed/stream$i/query80.sql )" > $DIR/vols/data/StreamsPrestoProcessed/stream$i/query80.sql     
+	printf "%s\n" "SET SESSION join_distribution_type = 'AUTOMATIC';" >> $DIR/vols/data/StreamsPrestoProcessed/stream$i/query80.sql
+	     
+	printf "%s\n%s\n" "SET SESSION join_reordering_strategy = 'NONE';" "$(cat $DIR/vols/data/StreamsPrestoProcessed/stream$i/query85.sql )" > $DIR/vols/data/StreamsPrestoProcessed/stream$i/query85.sql 
+	printf "%s\n" "SET SESSION join_reordering_strategy = 'AUTOMATIC';" >> $DIR/vols/data/StreamsPrestoProcessed/stream$i/query85.sql
+  
+done
+cp -r $DIR/vols/data/StreamsPrestoProcessed/* $DIR/client/project/src/main/resources/QueriesPresto
 
 
