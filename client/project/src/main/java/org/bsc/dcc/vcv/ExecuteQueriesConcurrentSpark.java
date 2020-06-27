@@ -201,7 +201,6 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 	
 	public void executeStreams() {
 		List<String> files = queriesReader.getFilesOrdered();
-		HashMap<Integer, String> queriesHT = createQueriesHT(files, this.queriesReader);
 		int nQueries = files.size();
 		this.useDatabase(dbName);
 		int totalQueries = nQueries * nStreams;
