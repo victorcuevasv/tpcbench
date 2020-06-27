@@ -213,7 +213,7 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 			HashMap<Integer, String> queriesHT = null;
 			if( this.tputChangingStreams ) {
 				JarQueriesReaderAsZipFile streamQueriesReader = 
-					new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir + "/stream" + i + "/");
+					new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir + "Stream" + i + "/");
 				List<String> filesStream = streamQueriesReader.getFilesOrdered();
 				queriesHT = createQueriesHT(filesStream, streamQueriesReader);
 			}
