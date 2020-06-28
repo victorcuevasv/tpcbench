@@ -119,6 +119,9 @@ public class RunBenchmarkOptions {
 				.desc( "use multiple connections" )
 				.hasArg(true).required(false).type(Integer.class).build() );
 		
+		options.addOption( Option.builder().longOpt( "tput-changing-streams" )
+				.desc( "use queries specific to a given stream" )
+				.hasArg(true).required(false).type(Boolean.class).build() );
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );

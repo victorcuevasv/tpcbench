@@ -61,6 +61,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	final private long seed;
 	final private boolean multiple;
 	final int[][] matrix;
+	final private boolean tputChangingStreams;
 	private final boolean useCachedResultSnowflake = false;
 	private final int maxConcurrencySnowflake = 8;
 	
@@ -89,6 +90,8 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		String multipleStr = commandLine.getOptionValue("multiple-connections", "false"); 
 		this.multiple = Boolean.parseBoolean(multipleStr);
 		this.hostname = commandLine.getOptionValue("server-hostname");
+		String tputChangingStreamsStr = commandLine.getOptionValue("tput-changing-streams", "true");
+		this.tputChangingStreams = Boolean.parseBoolean(tputChangingStreamsStr);
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
 		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.resultsDir,
@@ -157,6 +160,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.seed = Long.parseLong(args[15]);
 		this.multiple = Boolean.parseBoolean(args[16]);
 		this.random = new Random(seed);
+		this.tputChangingStreams = true;
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
 		this.matrix = this.streamsReader.getFileAsMatrix(this.streamsReader.getFiles().get(0));
@@ -373,7 +377,6 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	
 	private void executeStreams() {
 		List<String> files = queriesReader.getFilesOrdered();
-		HashMap<Integer, String> queriesHT = createQueriesHT(files, this.queriesReader);
 		int nQueries = files.size();
 		int totalQueries = nQueries * this.nStreams;
 		CountDownLatch latch = new CountDownLatch(1);
@@ -383,6 +386,16 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
 		for(int i = 0; i < this.nStreams; i++) {
+			HashMap<Integer, String> queriesHT = null;
+			if( this.tputChangingStreams ) {
+				JarQueriesReaderAsZipFile streamQueriesReader = 
+					new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir + "Stream" + i + "/");
+				List<String> filesStream = streamQueriesReader.getFilesOrdered();
+				queriesHT = createQueriesHT(filesStream, streamQueriesReader);
+			}
+			else {
+				queriesHT = createQueriesHT(files, this.queriesReader);
+			}
 			QueryStream stream = null;
 			if( ! this.multiple ) {
 				stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT,
