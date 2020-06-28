@@ -135,4 +135,16 @@ do
 	cp -r $DIR/vols/data/StreamsPrestoProcessed/stream$i $DIR/client/project/src/main/resources/QueriesPrestoStream$i
 done
 
+#Generate the Snowflake query streams.
+printf "\n\n%s\n\n" "${mag}Generating the Snowflake query streams.${end}"
+bash $DIR/createStreamsSnowflake.sh $1 $2
+bash $DIR/runclient_processStreamFilesQueries.sh Snowflake
+START=0
+END=$2
+for (( i=$START; i<$END; i++ ))
+do
+	cp -r $DIR/vols/data/StreamsSnowflakeProcessed/stream$i $DIR/client/project/src/main/resources/QueriesSnowflakeStream$i
+done
+
+
 
