@@ -19,6 +19,7 @@ GROUP_ID=$(id -g)
 
 #PARAMETERS.
 #$1 scale factor (positive integer)
+#$2 number of streams (positive integer)
 
 if [ $# -lt 2 ]; then
     echo "${yel}Usage: bash CreateSQLFiles.sh <scale factor> <number of streams>${end}"
@@ -65,13 +66,23 @@ cp -r $DIR/vols/data/QueriesSnowflake $DIR/client/project/src/main/resources/
 printf "\n\n%s\n\n" "${mag}Generating the Netezza query streams.${end}"
 bash $DIR/createStreams.sh $1 $2
 bash $DIR/runclient_processStreamFilesQueries.sh Netezza
-cp -r $DIR/vols/data/StreamsNetezzaProcessed/* $DIR/client/project/src/main/resources/QueriesNetezza
+START=0
+END=$2
+for (( i=$START; i<$END; i++ ))
+do
+	cp -r $DIR/vols/data/StreamsNetezzaProcessed/stream$i $DIR/client/project/src/main/resources/QueriesNetezzaStream$i
+done
 
 #Generate the Spark query streams.
 printf "\n\n%s\n\n" "${mag}Generating the Spark query streams.${end}"
 bash $DIR/createStreamsSpark.sh $1 $2
 bash $DIR/runclient_processStreamFilesQueries.sh Spark
-cp -r $DIR/vols/data/StreamsSparkProcessed/* $DIR/client/project/src/main/resources/QueriesSpark
+START=0
+END=$2
+for (( i=$START; i<$END; i++ ))
+do
+	cp -r $DIR/vols/data/StreamsSparkProcessed/stream$i $DIR/client/project/src/main/resources/QueriesSparkStream$i
+done
 
 #Generate the Presto query streams.
 printf "\n\n%s\n\n" "${mag}Generating the Presto query streams.${end}"
@@ -117,6 +128,23 @@ do
 	printf "%s\n" "SET SESSION join_reordering_strategy = 'AUTOMATIC';" >> $DIR/vols/data/StreamsPrestoProcessed/stream$i/query85.sql
   
 done
-cp -r $DIR/vols/data/StreamsPrestoProcessed/* $DIR/client/project/src/main/resources/QueriesPresto
+START=0
+END=$2
+for (( i=$START; i<$END; i++ ))
+do
+	cp -r $DIR/vols/data/StreamsPrestoProcessed/stream$i $DIR/client/project/src/main/resources/QueriesPrestoStream$i
+done
+
+#Generate the Snowflake query streams.
+printf "\n\n%s\n\n" "${mag}Generating the Snowflake query streams.${end}"
+bash $DIR/createStreamsSnowflake.sh $1 $2
+bash $DIR/runclient_processStreamFilesQueries.sh Snowflake
+START=0
+END=$2
+for (( i=$START; i<$END; i++ ))
+do
+	cp -r $DIR/vols/data/StreamsSnowflakeProcessed/stream$i $DIR/client/project/src/main/resources/QueriesSnowflakeStream$i
+done
+
 
 
