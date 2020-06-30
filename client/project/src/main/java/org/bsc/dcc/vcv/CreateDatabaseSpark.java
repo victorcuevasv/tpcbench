@@ -340,6 +340,7 @@ public class CreateDatabaseSpark {
 		map.put("hoodie.datasource.write.storage.type", "COPY_ON_WRITE");
 		map.put("hoodie.datasource.write.hive_style_partitioning", "true");
 		map.put("hoodie.parquet.max.file.size", String.valueOf(1024 * 1024 * 1024));
+		map.put("hoodie.parquet.compression.codec", "snappy");
 		if( usePartitioning ) {
 			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 
 					"org.apache.hudi.hive.MultiPartKeysValueExtractor");
