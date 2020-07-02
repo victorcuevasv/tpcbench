@@ -319,7 +319,7 @@ public class CreateDatabaseSpark {
 		saveHudiOptions("hudi", tableName, hudiOptions);
 		String selectSql = "SELECT * FROM " + tableName + this.suffix;
 		this.spark.sql(selectSql).write().format("org.apache.hudi")
-		  .option("hoodie.datasource.write.operation", "bulkinsert")
+		  .option("hoodie.datasource.write.operation", "insert")
 		  .options(hudiOptions).mode(SaveMode.Overwrite)
 		  .save(this.extTablePrefixCreated.get() + "/" + tableName + "/");
 	}
