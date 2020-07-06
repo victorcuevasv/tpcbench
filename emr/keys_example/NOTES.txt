@@ -224,8 +224,18 @@ extTableDF.write.format("org.apache.hudi").option("hoodie.datasource.write.opera
 .options(hudiOptions).mode(SaveMode.Overwrite)
 .save("s3://tpcds-warehouses-test/tpcds-warehouse-sparkemr-600-1gb-1/catalog_sales/")
 	
+	
 
-  
-  
-  
+beeline -u jdbc:hive2://localhost:10000/default -n hive -p hive
+
+USE dbName
+
+ALTER TABLE catalog_sales PARTITION (cs_sold_date_sk='default') RENAME TO PARTITION (cs_sold_date_sk='0');
+
+ALTER TABLE catalog_sales PARTITION COLUMN (cs_sold_date_sk integer);
+ 
+ALTER TABLE catalog_sales PARTITION (cs_sold_date_sk='0') RENAME TO PARTITION (cs_sold_date_sk='__HIVE_DEFAULT_PARTITION__');  
+
+
+
 
