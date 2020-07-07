@@ -54,6 +54,7 @@ public class CreateDatabaseSpark {
 	private final boolean partition;
 	private final String jarFile;
 	private final String createSingleOrAll;
+	private final boolean partitionIgnoreNulls;
 	private final Map<String, String> precombineKeys;
 	
 	public CreateDatabaseSpark(CommandLine commandLine) {
@@ -88,6 +89,8 @@ public class CreateDatabaseSpark {
 		String partitionStr = commandLine.getOptionValue("use-partitioning");
 		this.partition = Boolean.parseBoolean(partitionStr);
 		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
+		String partitionIgnoreNullsStr = commandLine.getOptionValue("partition-ignore-nulls", "false");
+		this.partitionIgnoreNulls = Boolean.parseBoolean(partitionIgnoreNullsStr);
 		this.jarFile = commandLine.getOptionValue("jar-file");
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
@@ -318,6 +321,11 @@ public class CreateDatabaseSpark {
 		}
 		saveHudiOptions("hudi", tableName, hudiOptions);
 		String selectSql = "SELECT * FROM " + tableName + this.suffix;
+		if( this.partitionIgnoreNulls ) {
+			selectSql = selectSql + " WHERE " + 
+					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] +
+					" is not null";
+		}
 		this.spark.sql(selectSql).write().format("org.apache.hudi")
 		  .option("hoodie.datasource.write.operation", "insert")
 		  .options(hudiOptions).mode(SaveMode.Overwrite)
@@ -597,6 +605,11 @@ public class CreateDatabaseSpark {
 		else
 			builder.append("* \n");
 		builder.append("FROM " + tableName + suffix + "\n");
+		if( this.partitionIgnoreNulls ) {
+			builder.append("WHERE " + 
+					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] +
+					" is not null \n");
+		}
 		builder.append("DISTRIBUTE BY " + Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
 		return builder.toString();
 	}
@@ -617,6 +630,11 @@ public class CreateDatabaseSpark {
 		}
 		else
 			builder.append("* \n");
+		if( this.partitionIgnoreNulls ) {
+			builder.append("WHERE " + 
+					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] +
+					" is not null \n");
+		}
 		builder.append("FROM " + tableName + suffix + "\n");
 		return builder.toString();
 	}
