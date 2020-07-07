@@ -146,6 +146,7 @@ public class CreateDatabaseSpark {
 		this.doCount = Boolean.parseBoolean(args[13]);
 		this.partition = Boolean.parseBoolean(args[14]);
 		this.createSingleOrAll = "all";
+		this.partitionIgnoreNulls = false;
 		this.jarFile = args[15];
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
