@@ -322,7 +322,8 @@ public class CreateDatabaseSpark {
 		}
 		saveHudiOptions("hudi", tableName, hudiOptions);
 		String selectSql = "SELECT * FROM " + tableName + this.suffix;
-		if( this.partitionIgnoreNulls ) {
+		if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) && 
+				this.partitionIgnoreNulls ) {
 			selectSql = selectSql + " WHERE " + 
 					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] +
 					" is not null";
