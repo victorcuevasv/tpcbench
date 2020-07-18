@@ -252,7 +252,7 @@ public class CreateDatabaseSparkUpdate {
 				.option("hoodie.datasource.write.operation", "insert")
 				.options(hudiOptions)
 				.mode(SaveMode.Overwrite)
-				.save(this.extTablePrefixCreated.get() + "/" + tableName + "/");
+				.save(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/");
 			queryRecord.setSuccessful(true);
 			saveCreateTableFile("hudidenorm", tableName, sqlSelect);
 			if( this.doCount )
