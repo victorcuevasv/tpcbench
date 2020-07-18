@@ -76,6 +76,7 @@ public class CreateDatabaseSparkDenorm {
 		this.instance = Integer.parseInt(instanceStr);
 		//this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
 		this.createTableDir = "QueriesDenorm";
+		this.extTablePrefixCreated = Optional.ofNullable(commandLine.getOptionValue("ext-tables-location"));
 		this.format = commandLine.getOptionValue("table-format");
 		String doCountStr = commandLine.getOptionValue("count-queries", "false");
 		this.doCount = Boolean.parseBoolean(doCountStr);
