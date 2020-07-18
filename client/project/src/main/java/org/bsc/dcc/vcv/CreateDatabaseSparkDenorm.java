@@ -53,7 +53,7 @@ public class CreateDatabaseSparkDenorm {
 	private final String createSingleOrAll;
 	private final Map<String, String> precombineKeys;
 	
-	public CreateDatabaseSpark(CommandLine commandLine) {
+	public CreateDatabaseSparkDenorm(CommandLine commandLine) {
 		try {
 
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
