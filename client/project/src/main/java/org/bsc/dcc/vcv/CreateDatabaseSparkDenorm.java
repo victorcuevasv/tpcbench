@@ -213,7 +213,7 @@ public class CreateDatabaseSparkDenorm {
 	
 	public void saveCreateTableFile(String suffix, String tableName, String sqlCreate) {
 		try {
-			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + this.createTableDir +
+			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + "tables" +
 					suffix + "/" + this.experimentName + "/" + this.instance +
 					"/" + tableName + ".sql";
 			File temp = new File(createTableFileName);
