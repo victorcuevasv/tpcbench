@@ -167,12 +167,11 @@ public class CreateDatabaseSparkUpdate {
 			this.logger.info("Processing table " + index + ": " + tableName);
 			this.dropTable("drop table if exists " + tableName + "_denorm_delta");
 			String sqlSelect = "SELECT * FROM " + tableName + "_denorm";
-			saveCreateTableFile("deltadenorm", tableName, sqlSelect);
 			if( this.doCount )
 				countRowsQuery(tableName + "_denorm");
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
-			if( this.partition ) {
+			if( ! this.partition ) {
 				this.spark.sql(sqlSelect).write()
 				.option("compression", "snappy")
 				.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_delta")
@@ -189,16 +188,17 @@ public class CreateDatabaseSparkUpdate {
 				String distCol = null;
 				if( posDist != -1 )
 					distCol = Partitioning.distKeys[posDist];
+				sqlSelect += sqlSelect + " DISTRIBUTE BY " + distCol;
 				this.spark.sql(sqlSelect).write()
 				.option("compression", "snappy")
 				.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_delta")
 				.partitionBy(partCol)
-				.repartition(distCol)
 				.mode("overwrite")
 				.format("delta")
 				.saveAsTable(tableName + "_denorm_delta");
 			}
 			queryRecord.setSuccessful(true);
+			saveCreateTableFile("deltadenorm", tableName, sqlSelect);
 			if( this.doCount )
 				countRowsQuery(tableName + "_denorm_delta");
 		}
