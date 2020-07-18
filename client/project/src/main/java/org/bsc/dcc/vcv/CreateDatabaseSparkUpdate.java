@@ -188,7 +188,7 @@ public class CreateDatabaseSparkUpdate {
 				String distCol = null;
 				if( posDist != -1 )
 					distCol = Partitioning.distKeys[posDist];
-				sqlSelect += sqlSelect + " DISTRIBUTE BY " + distCol;
+				sqlSelect = sqlSelect + " DISTRIBUTE BY " + distCol;
 				this.spark.sql(sqlSelect).write()
 				.option("compression", "snappy")
 				.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_delta")
