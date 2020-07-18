@@ -62,7 +62,7 @@ public class CreateDatabaseSparkDenorm {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSpark constructor.");
+			this.logger.error("Error in CreateDatabaseSparkDenorm constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -102,7 +102,7 @@ public class CreateDatabaseSparkDenorm {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseSpark main.");
+			logger.error("Error in CreateDatabaseSparkDenorm main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
@@ -144,7 +144,7 @@ public class CreateDatabaseSparkDenorm {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSpark useDatabase.");
+			this.logger.error("Error in CreateDatabaseSparkDenorm useDatabase.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -171,7 +171,7 @@ public class CreateDatabaseSparkDenorm {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSpark createTable.");
+			this.logger.error("Error in CreateDatabaseSparkDenorm createTable.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -252,7 +252,7 @@ public class CreateDatabaseSparkDenorm {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSpark closeConnection.");
+			this.logger.error("Error in CreateDatabaseSparkDenorm closeConnection.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
