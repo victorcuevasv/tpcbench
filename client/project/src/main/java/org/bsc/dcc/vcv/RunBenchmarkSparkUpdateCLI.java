@@ -86,14 +86,20 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the LOAD DENORM test.\n\n\n");
 				CreateDatabaseSparkDenorm.main(args);
 			}
+			boolean doLoadUpdate = this.flags.charAt(3) == '1' ? true : false;
+			if( doLoadUpdate ) {
+				this.saveTestParameters(args, "loadupdate");
+				System.out.println("\n\n\nRunning the LOAD UPDATE test.\n\n\n");
+				CreateDatabaseSparkUpdate.main(args);
+			}
 			//Redundant check for legacy compatibility.
-			boolean doAnalyze = this.flags.charAt(3) == '1' ? true : false;
+			boolean doAnalyze = this.flags.charAt(4) == '1' ? true : false;
 			if( this.analyze && doAnalyze) {
 				this.saveTestParameters(args, "analyze");
 				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
 				AnalyzeTablesSpark.main(args);
 			}
-			boolean doZorder = this.flags.charAt(4) == '1' ? true : false;
+			boolean doZorder = this.flags.charAt(5) == '1' ? true : false;
 			if( this.format.equalsIgnoreCase("delta") && doZorder ) {
 				String[] executeQueriesSparkDeltaZorderArgs =
 						this.createExecuteQueriesSparkDeltaZorderArgs(args);
@@ -101,7 +107,7 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkDeltaZorderArgs);
 			}
-			boolean doPower = this.flags.charAt(5) == '1' ? true : false;
+			boolean doPower = this.flags.charAt(6) == '1' ? true : false;
 			if( doPower ) {
 				String[] executeQueriesSparkArgs =
 						this.createExecuteQueriesSparkArgs(args);
@@ -109,7 +115,7 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkArgs);
 			}
-			boolean doTput = this.flags.charAt(6) == '1' ? true : false;
+			boolean doTput = this.flags.charAt(7) == '1' ? true : false;
 			if( doTput ) {
 				this.saveTestParameters(args, "tput");
 				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
