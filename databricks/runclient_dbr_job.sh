@@ -31,14 +31,14 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 #Cluster configuration.
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Nodes="2"
-MajorVersion="6"
-MinorVersion="5"
-ScalaVersion="x-scala2.11"
+MajorVersion="7"
+MinorVersion="0"
+ScalaVersion="x-scala2.12"
 #Run configuration.
 Tag="$(date +%s)"
 ExperimentName="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-${Tag}"
 DirNameWarehouse="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-$2-${Tag}"
-DirNameResults="dbr65"
+DirNameResults="dbr${MajorVersion}${MinorVersion}"
 DatabaseName="tpcds_databricks_${MajorVersion}${MinorVersion}_$1gb_$2_${Tag}"
 #Note that /dbfs or dbfs: is not included, these are added later.
 JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
