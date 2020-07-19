@@ -207,6 +207,11 @@ public class CreateDatabaseSparkDenorm {
 		}
 		builder.append("as\n");
 		builder.append(sqlQuery);
+		if( this.partition ) {
+			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
+			if( pos != -1 )
+				builder.append("DISTRIBUTE BY " + Partitioning.partKeys[pos] + " \n" );
+		}
 		return builder.toString();
 	}
 
