@@ -184,11 +184,6 @@ public class CreateDatabaseSparkUpdate {
 				int posPart = Arrays.asList(Partitioning.tables).indexOf(tableName);
 				if( posPart != -1 )
 					partCol = Partitioning.partKeys[posPart];
-				int posDist = Arrays.asList(Partitioning.tables).indexOf(tableName);
-				String distCol = null;
-				if( posDist != -1 )
-					distCol = Partitioning.distKeys[posDist];
-				sqlSelect = sqlSelect + " DISTRIBUTE BY " + distCol;
 				this.spark.sql(sqlSelect).write()
 				.option("compression", "snappy")
 				.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_delta")
@@ -237,9 +232,6 @@ public class CreateDatabaseSparkUpdate {
 						Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
 				hudiOptions = createHudiOptions(tableName + "_denorm_hudi", 
 						primaryKey, precombineKey, partitionKey, true);
-				String distKey = 
-						Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
-				//sqlSelect = sqlSelect + " DISTRIBUTE BY " + distKey;
 			}
 			else {
 				hudiOptions = createHudiOptions(tableName + "_denorm_hudi", 
