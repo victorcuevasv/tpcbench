@@ -239,7 +239,7 @@ public class CreateDatabaseSparkUpdate {
 						primaryKey, precombineKey, partitionKey, true);
 				String distKey = 
 						Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
-				sqlSelect = sqlSelect + " DISTRIBUTE BY " + distKey;
+				//sqlSelect = sqlSelect + " DISTRIBUTE BY " + distKey;
 			}
 			else {
 				hudiOptions = createHudiOptions(tableName + "_denorm_hudi", 
