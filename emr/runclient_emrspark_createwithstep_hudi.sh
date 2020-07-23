@@ -294,7 +294,7 @@ cluster_id=""
 if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
     jsonCluster=$(aws emr create-cluster \
 	--termination-protected \
-	--applications Name=Hadoop Name=Hive Name=Spark \
+	--applications Name=Hadoop Name=Hive Name=Spark Name=Ganglia \
 	--ec2-attributes "$ec2Attributes" \
 	--release-label emr-${Version} \
 	--log-uri 's3n://bsc-emr-logs/' \
