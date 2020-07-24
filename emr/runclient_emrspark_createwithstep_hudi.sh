@@ -67,14 +67,15 @@ args[11]="--jar-file=$JarFile"
 # whether to generate statistics by analyzing tables (true/false)
 args[12]="--use-row-stats=true"
 # if argument above is true, whether to compute statistics for columns (true/false)
-args[13]="--use-column-stats=false"
+args[13]="--use-column-stats=true"
 # "all" or query file
 args[14]="--all-or-query-file=all"
- 
+
 # number of streams
 args[15]="--number-of-streams=$3"
-# flags (111111 schema|load|analyze|zorder|power|tput)
-args[16]="--execution-flags=111011"
+# flags (1111111111 schema        |load          |load denorm |load update|analyze|
+#                   analyze denorm|analyze update|zorder      |power      |tput)
+args[16]="--execution-flags=0000111000"
 
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 

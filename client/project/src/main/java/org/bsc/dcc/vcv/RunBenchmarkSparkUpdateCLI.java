@@ -99,7 +99,23 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
 				AnalyzeTablesSpark.main(args);
 			}
-			boolean doZorder = this.flags.charAt(5) == '1' ? true : false;
+			boolean doAnalyzeDenorm = this.flags.charAt(5) == '1' ? true : false;
+			if( doAnalyzeDenorm ) {
+				String[] executeQueriesAnalyzeDenormArgs =
+						this.createExecuteQueriesAnalyzeDenormArgs(args);
+				this.saveTestParameters(executeQueriesAnalyzeDenormArgs, "analyzedenorm");
+				System.out.println("\n\n\nRunning the ANALYZE DENORM test.\n\n\n");
+				ExecuteQueriesSpark.main(executeQueriesAnalyzeDenormArgs);
+			}
+			boolean doAnalyzeUpdate = this.flags.charAt(6) == '1' ? true : false;
+			if( doAnalyzeUpdate ) {
+				String[] executeQueriesAnalyzeUpdateArgs =
+						this.createExecuteQueriesAnalyzeUpdateArgs(args);
+				this.saveTestParameters(executeQueriesAnalyzeUpdateArgs, "analyzeupdate");
+				System.out.println("\n\n\nRunning the ANALYZE UPDATE test.\n\n\n");
+				ExecuteQueriesSpark.main(executeQueriesAnalyzeUpdateArgs);
+			}
+			boolean doZorder = this.flags.charAt(7) == '1' ? true : false;
 			if( this.format.equalsIgnoreCase("delta") && doZorder ) {
 				String[] executeQueriesSparkDeltaZorderArgs =
 						this.createExecuteQueriesSparkDeltaZorderArgs(args);
@@ -107,7 +123,7 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkDeltaZorderArgs);
 			}
-			boolean doPower = this.flags.charAt(6) == '1' ? true : false;
+			boolean doPower = this.flags.charAt(8) == '1' ? true : false;
 			if( doPower ) {
 				String[] executeQueriesSparkArgs =
 						this.createExecuteQueriesSparkArgs(args);
@@ -115,7 +131,7 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkArgs);
 			}
-			boolean doTput = this.flags.charAt(7) == '1' ? true : false;
+			boolean doTput = this.flags.charAt(9) == '1' ? true : false;
 			if( doTput ) {
 				this.saveTestParameters(args, "tput");
 				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
@@ -158,6 +174,24 @@ public class RunBenchmarkSparkUpdateCLI {
 			array[array.length - 1] = "--queries-dir-in-jar=DatabricksDeltaZorderNoPart";
 		else
 			array[array.length - 1] = "--queries-dir-in-jar=DatabricksDeltaZorder";
+		return array;
+	}
+	
+	
+	private String[] createExecuteQueriesAnalyzeDenormArgs(String args[]) {
+		String[] array = new String[args.length + 2];
+		System.arraycopy(args, 0, array, 0, args.length);
+		array[array.length - 2] = "--tpcds-test=analyzedenorm";
+		array[array.length - 1] = "--queries-dir-in-jar=AnalyzeDenorm";
+		return array;
+	}
+	
+	
+	private String[] createExecuteQueriesAnalyzeUpdateArgs(String args[]) {
+		String[] array = new String[args.length + 2];
+		System.arraycopy(args, 0, array, 0, args.length);
+		array[array.length - 2] = "--tpcds-test=analyzeupdate";
+		array[array.length - 1] = "--queries-dir-in-jar=AnalyzeUpdate";
 		return array;
 	}
 	
