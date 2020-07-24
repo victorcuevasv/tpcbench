@@ -1,4 +1,4 @@
-ANALYZE TABLE web_sales_denorm COMPUTE STATISTICS FOR COLUMNS
+ANALYZE TABLE web_sales_denorm_delta COMPUTE STATISTICS FOR COLUMNS
 ws_sold_time_sk,
 ws_ship_date_sk,
 ws_item_sk,

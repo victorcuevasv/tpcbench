@@ -1,4 +1,4 @@
-ANALYZE TABLE store_sales_denorm COMPUTE STATISTICS FOR COLUMNS
+ANALYZE TABLE store_sales_denorm_delta COMPUTE STATISTICS FOR COLUMNS
 ss_sold_time_sk,
 ss_item_sk,
 ss_customer_sk,

@@ -1,4 +1,4 @@
-ANALYZE TABLE catalog_sales_denorm COMPUTE STATISTICS FOR COLUMNS
+ANALYZE TABLE catalog_sales_denorm_delta COMPUTE STATISTICS FOR COLUMNS
 cs_sold_time_sk,
 cs_ship_date_sk,
 cs_bill_customer_sk,
