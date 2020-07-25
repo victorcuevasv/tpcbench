@@ -77,6 +77,8 @@ args[15]="--number-of-streams=$3"
 #                   analyze denorm |analyze update|zorder      |zorder update |delte data  |  
 #                   delete test    |power          |tput)
 args[16]="--execution-flags=0000000000100"
+# count-queries
+args[17]="--count-queries=true"
 
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 

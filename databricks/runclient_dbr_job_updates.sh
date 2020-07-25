@@ -89,6 +89,8 @@ args[14]="--number-of-streams=$3"
 args[15]="--execution-flags=0000000000100"
 # "all" or create table file
 args[16]="--all-or-create-file=all"
+# count-queries
+args[17]="--count-queries=false"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 
