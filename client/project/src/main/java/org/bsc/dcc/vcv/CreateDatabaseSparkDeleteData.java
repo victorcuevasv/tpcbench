@@ -55,8 +55,8 @@ public class CreateDatabaseSparkDeleteData {
 	private final Map<String, String> precombineKeys;
 	private final double[] fractions = {0.1, 1.0, 10.0};
 	private final String[] deleteSuffix = {"pointone", "one", "ten"};
-	private final int[] firstMod = {2, 10, 40};
-	private final int[] secondMod = {5, 8, 15};
+	private final int[] firstMod = {40, 10, 2};
+	private final int[] secondMod = {15, 8, 5};
 	
 	public CreateDatabaseSparkDeleteData(CommandLine commandLine) {
 		try {
