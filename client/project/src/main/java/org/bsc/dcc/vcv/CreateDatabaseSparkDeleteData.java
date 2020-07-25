@@ -165,7 +165,7 @@ public class CreateDatabaseSparkDeleteData {
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			String denormTableName = tableName + "_denorm";
-			String deleteTableName = denormTableName + "_" + this.deleteSuffix[fractionIndex];
+			String deleteTableName = denormTableName + "_delete_" + this.deleteSuffix[fractionIndex];
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			this.dropTable("drop table if exists " + deleteTableName);
