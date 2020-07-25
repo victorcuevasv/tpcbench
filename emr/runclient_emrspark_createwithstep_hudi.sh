@@ -22,7 +22,7 @@ fi
 #Cluster configuration.
 Nodes="2"
 Version="5.30.1"
-VersionShort="531"
+VersionShort="530"
 AutoTerminate="true"
 #Run configuration.
 Tag="$(date +%s)huditest"

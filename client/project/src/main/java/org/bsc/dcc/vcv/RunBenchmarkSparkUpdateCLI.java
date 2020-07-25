@@ -208,7 +208,10 @@ public class RunBenchmarkSparkUpdateCLI {
 		String[] array = new String[args.length + 2];
 		System.arraycopy(args, 0, array, 0, args.length);
 		array[array.length - 2] = "--tpcds-test=analyzeupdate";
-		array[array.length - 1] = "--queries-dir-in-jar=AnalyzeUpdate";
+		if( this.system.equals("sparkdatabricks") )
+			array[array.length - 1] = "--queries-dir-in-jar=AnalyzeUpdateDelta";
+		else if( this.system.equals("sparkemr") )
+			array[array.length - 1] = "--queries-dir-in-jar=AnalyzeUpdateHudi";
 		return array;
 	}
 	
