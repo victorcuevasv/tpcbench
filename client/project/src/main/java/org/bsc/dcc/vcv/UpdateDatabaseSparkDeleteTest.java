@@ -210,7 +210,6 @@ public class UpdateDatabaseSparkDeleteTest {
 		String partKey = 
 				Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
 		String primaryKeyFull = this.primaryKeys.get(tableName);
-		//For now only use simple keys.
 		StringTokenizer tokenizer = new StringTokenizer(primaryKeyFull, ",");
 		String primaryKey = tokenizer.nextToken();
 		String primaryKeyComp = null;
