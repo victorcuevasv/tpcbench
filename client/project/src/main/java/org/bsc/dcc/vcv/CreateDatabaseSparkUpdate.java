@@ -248,7 +248,7 @@ public class CreateDatabaseSparkUpdate {
 			queryRecord.setSuccessful(true);
 			saveCreateTableFile("hudidenorm", tableName, sqlSelect);
 			if( this.doCount )
-				countRowsQuery(tableName + "_denorm_hudi");
+				countRowsQuery(tableName + "_denorm_hudi_ro");
 		}
 		catch (Exception e) {
 			e.printStackTrace();
