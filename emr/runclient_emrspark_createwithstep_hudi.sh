@@ -73,10 +73,10 @@ args[14]="--all-or-query-file=all"
 
 # number of streams
 args[15]="--number-of-streams=$3"
-# flags (1111111111 schema         |load          |load denorm |load update   |analyze      |
-#                   analyze denorm |analyze update|zorder      |zorder denorm |zorder update|
-#                   power          |tput)
-args[15]="--execution-flags=000011100000"
+# flags (1111111111 schema         |load          |load denorm |load update   |analyze     |
+#                   analyze denorm |analyze update|zorder      |zorder update |power       |  
+#                   tput)
+args[16]="--execution-flags=00001110100"
 
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 

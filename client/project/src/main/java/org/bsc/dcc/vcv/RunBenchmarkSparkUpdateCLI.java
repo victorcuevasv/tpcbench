@@ -123,15 +123,7 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkDeltaZorderArgs);
 			}
-			boolean doZorderDenorm = this.flags.charAt(8) == '1' ? true : false;
-			if( doZorderDenorm ) {
-				String[] executeQueriesSparkDeltaZorderDenormArgs =
-						this.createExecuteQueriesSparkDeltaZorderDenormArgs(args);
-				this.saveTestParameters(executeQueriesSparkDeltaZorderDenormArgs, "zorderdenorm");
-				System.out.println("\n\n\nRunning the Delta Z-ORDER DENORM test.\n\n\n");
-				ExecuteQueriesSpark.main(executeQueriesSparkDeltaZorderDenormArgs);
-			}
-			boolean doZorderUpdate = this.flags.charAt(9) == '1' ? true : false;
+			boolean doZorderUpdate = this.flags.charAt(8) == '1' ? true : false;
 			if( doZorderUpdate ) {
 				String[] executeQueriesSparkDeltaZorderUpdateArgs =
 						this.createExecuteQueriesSparkDeltaZorderUpdateArgs(args);
@@ -139,7 +131,7 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the Delta Z-ORDER UPDATE test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkDeltaZorderUpdateArgs);
 			}
-			boolean doPower = this.flags.charAt(10) == '1' ? true : false;
+			boolean doPower = this.flags.charAt(9) == '1' ? true : false;
 			if( doPower ) {
 				String[] executeQueriesSparkArgs =
 						this.createExecuteQueriesSparkArgs(args);
@@ -147,7 +139,7 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkArgs);
 			}
-			boolean doTput = this.flags.charAt(11) == '1' ? true : false;
+			boolean doTput = this.flags.charAt(10) == '1' ? true : false;
 			if( doTput ) {
 				this.saveTestParameters(args, "tput");
 				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
@@ -190,15 +182,6 @@ public class RunBenchmarkSparkUpdateCLI {
 			array[array.length - 1] = "--queries-dir-in-jar=DatabricksDeltaZorderNoPart";
 		else
 			array[array.length - 1] = "--queries-dir-in-jar=DatabricksDeltaZorder";
-		return array;
-	}
-	
-	
-	private String[] createExecuteQueriesSparkDeltaZorderDenormArgs(String args[]) {
-		String[] array = new String[args.length + 2];
-		System.arraycopy(args, 0, array, 0, args.length);
-		array[array.length - 2] = "--tpcds-test=zorderdenorm";
-		array[array.length - 1] = "--queries-dir-in-jar=DatabricksDeltaZorderDenorm";
 		return array;
 	}
 	
