@@ -287,7 +287,7 @@ public class CreateDatabaseSparkUpdate {
 					"org.apache.hudi.hive.MultiPartKeysValueExtractor");
 			map.put("hoodie.datasource.hive_sync.partition_fields", partitionKey);
 			map.put("hoodie.datasource.write.partitionpath.field", partitionKey);
-			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.ComplexKeyGenerator");
+			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.ComplexKeyGenerator");
 			//map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.SimpleKeyGenerator");
 		}
 		else {
