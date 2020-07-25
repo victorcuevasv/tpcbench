@@ -213,11 +213,16 @@ public class UpdateDatabaseSparkDeleteTest {
 		//For now only use simple keys.
 		StringTokenizer tokenizer = new StringTokenizer(primaryKeyFull, ",");
 		String primaryKey = tokenizer.nextToken();
+		String primaryKeyComp = null;
+		if( tokenizer.hasMoreTokens() )
+			primaryKeyComp = tokenizer.nextToken();
 		StringBuilder builder = new StringBuilder();
 		builder.append("MERGE INTO " + denormDeltaTableName + " AS a \n");
 		builder.append("USING " + deleteTableName + " AS b \n");
 		builder.append("ON a." + partKey + " = b." + partKey + "\n");
 		builder.append("AND a." + primaryKey + " = b." + primaryKey + "\n");
+		if( primaryKeyComp != null )
+			builder.append("AND a." + primaryKeyComp + " = b." + primaryKeyComp + "\n");
 		builder.append("WHEN MATCHED THEN DELETE \n");
 		return builder.toString();
 	}
