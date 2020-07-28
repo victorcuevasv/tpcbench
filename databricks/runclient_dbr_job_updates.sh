@@ -91,6 +91,8 @@ args[15]="--execution-flags=0000000000100"
 args[16]="--all-or-create-file=all"
 # count-queries
 args[17]="--count-queries=false"
+# all or denorm table file
+args[18]="--denorm-all-or-file=all"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 

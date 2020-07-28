@@ -79,6 +79,8 @@ args[15]="--number-of-streams=$3"
 args[16]="--execution-flags=1111000001100"
 # count-queries
 args[17]="--count-queries=true"
+# all or denorm table file
+args[18]="--denorm-all-or-file=all"
 
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 

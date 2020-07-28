@@ -51,6 +51,7 @@ public class CreateDatabaseSparkDenorm {
 	private final boolean partition;
 	private final String jarFile;
 	private final String createSingleOrAll;
+	private final String denormSingleOrAll;
 	private final Map<String, String> precombineKeys;
 	
 	public CreateDatabaseSparkDenorm(CommandLine commandLine) {
@@ -83,6 +84,7 @@ public class CreateDatabaseSparkDenorm {
 		String partitionStr = commandLine.getOptionValue("use-partitioning");
 		this.partition = Boolean.parseBoolean(partitionStr);
 		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
+		this.denormSingleOrAll = commandLine.getOptionValue("denorm-all-or-file", "all");
 		this.jarFile = commandLine.getOptionValue("jar-file");
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
@@ -121,8 +123,8 @@ public class CreateDatabaseSparkDenorm {
 		int i = 1;
 		for (final String fileName : orderedList) {
 			String sqlQuery = this.createTableReader.getFile(fileName);
-			if( ! this.createSingleOrAll.equals("all") ) {
-				if( ! fileName.equals(this.createSingleOrAll) ) {
+			if( ! this.denormSingleOrAll.equals("all") ) {
+				if( ! fileName.equals(this.denormSingleOrAll) ) {
 					System.out.println("Skipping: " + fileName);
 					continue;
 				}

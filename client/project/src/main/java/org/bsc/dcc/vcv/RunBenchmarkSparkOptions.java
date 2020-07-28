@@ -107,6 +107,9 @@ public class RunBenchmarkSparkOptions {
 		options.addOption( Option.builder().longOpt( "partition-ignore-nulls" )
 				.desc( "ignore tuples with null values for the partition column" )
 				.hasArg(true).required(false).type(Boolean.class).build() );
+		options.addOption( Option.builder().longOpt( "denorm-all-or-file" )
+				.desc( "\"all\" or create table file for denorm tables" )
+				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );
