@@ -182,9 +182,9 @@ public class CreateDatabaseSparkUpdate {
 				String skipAtt = tokenizer.nextToken();
 				StringBuilder selectBuilder = new StringBuilder(sqlSelect);
 				selectBuilder.append(
-						"\n WHERE MOD(" + partCol + ", " + SkipMods.firstMod + ") <> 0");
+						"\nWHERE MOD(" + partCol + ", " + SkipMods.firstMod + ") <> 0");
 				selectBuilder.append(
-						"\n AND MOD(" + skipAtt + ", " + SkipMods.secondMod + ") <> 0");
+						"\nOR MOD(" + skipAtt + ", " + SkipMods.secondMod + ") <> 0");
 				sqlSelect = selectBuilder.toString();
 			}
 			if( this.doCount )
@@ -261,9 +261,9 @@ public class CreateDatabaseSparkUpdate {
 				String skipAtt = tokenizer.nextToken();
 				StringBuilder selectBuilder = new StringBuilder(sqlSelect);
 				selectBuilder.append(
-						"\n WHERE MOD(" + partitionKey + ", " + SkipMods.firstMod + ") <> 0");
+						"\nWHERE MOD(" + partitionKey + ", " + SkipMods.firstMod + ") <> 0");
 				selectBuilder.append(
-						"\n AND MOD(" + skipAtt + ", " + SkipMods.secondMod + ") <> 0");
+						"\nOR MOD(" + skipAtt + ", " + SkipMods.secondMod + ") <> 0");
 				sqlSelect = selectBuilder.toString();
 			}
 			this.spark.sql(sqlSelect)
