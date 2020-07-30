@@ -54,6 +54,7 @@ public class CreateDatabaseSparkUpdate {
 	private final String denormSingleOrAll;
 	private final Map<String, String> precombineKeys;
 	private final Map<String, String> primaryKeys;
+	private final boolean skipData;
 	
 	public CreateDatabaseSparkUpdate(CommandLine commandLine) {
 		try {
@@ -96,6 +97,8 @@ public class CreateDatabaseSparkUpdate {
 				this.system, this.test, this.instance);
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
 		this.primaryKeys = new HudiPrimaryKeys().getMap();
+		String skipDataStr = commandLine.getOptionValue("denorm-apply-skip");
+		this.skipData = Boolean.parseBoolean(skipDataStr);
 	}
 	
 
@@ -168,7 +171,22 @@ public class CreateDatabaseSparkUpdate {
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			this.dropTable("drop table if exists " + tableName + "_denorm_delta");
+			String primaryKey = this.primaryKeys.get(tableName);
+			String partCol = null;
+			int posPart = Arrays.asList(Partitioning.tables).indexOf(tableName);
+			if( posPart != -1 )
+				partCol = Partitioning.partKeys[posPart];
 			String sqlSelect = "SELECT * FROM " + tableName + "_denorm";
+			if( this.skipData ) {
+				StringTokenizer tokenizer = new StringTokenizer(primaryKey, ",");
+				String skipAtt = tokenizer.nextToken();
+				StringBuilder selectBuilder = new StringBuilder(sqlSelect);
+				selectBuilder.append(
+						"\n WHERE MOD(" + partCol + ", " + SkipMods.firstMod + ") <> 0");
+				selectBuilder.append(
+						"\n AND MOD(" + skipAtt + ", " + SkipMods.secondMod + ") <> 0");
+				sqlSelect = selectBuilder.toString();
+			}
 			if( this.doCount )
 				countRowsQuery(tableName + "_denorm");
 			queryRecord = new QueryRecord(index);
@@ -182,10 +200,6 @@ public class CreateDatabaseSparkUpdate {
 				.saveAsTable(tableName + "_denorm_delta");
 			}
 			else {
-				String partCol = null;
-				int posPart = Arrays.asList(Partitioning.tables).indexOf(tableName);
-				if( posPart != -1 )
-					partCol = Partitioning.partKeys[posPart];
 				this.spark.sql(sqlSelect).write()
 				.option("compression", "snappy")
 				.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_delta")
@@ -221,7 +235,6 @@ public class CreateDatabaseSparkUpdate {
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			this.dropTable("drop table if exists " + tableName + "_denorm_hudi");
-			String sqlSelect = "SELECT * FROM " + tableName + "_denorm";
 			if( this.doCount )
 				countRowsQuery(tableName + "_denorm");
 			queryRecord = new QueryRecord(index);
@@ -240,6 +253,19 @@ public class CreateDatabaseSparkUpdate {
 						primaryKey, precombineKey, null, false);
 			}
 			this.saveHudiOptions("hudi", tableName, hudiOptions);
+			String sqlSelect = "SELECT * FROM " + tableName + "_denorm";
+			if( this.skipData ) {
+				String partitionKey = 
+						Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+				StringTokenizer tokenizer = new StringTokenizer(primaryKey, ",");
+				String skipAtt = tokenizer.nextToken();
+				StringBuilder selectBuilder = new StringBuilder(sqlSelect);
+				selectBuilder.append(
+						"\n WHERE MOD(" + partitionKey + ", " + SkipMods.firstMod + ") <> 0");
+				selectBuilder.append(
+						"\n AND MOD(" + skipAtt + ", " + SkipMods.secondMod + ") <> 0");
+				sqlSelect = selectBuilder.toString();
+			}
 			this.spark.sql(sqlSelect)
 				.write()
 				.format("org.apache.hudi")

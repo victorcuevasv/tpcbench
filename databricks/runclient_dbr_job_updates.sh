@@ -93,6 +93,8 @@ args[16]="--all-or-create-file=all"
 args[17]="--count-queries=false"
 # all or denorm table file
 args[18]="--denorm-all-or-file=all"
+# skip data to be inserted later
+args[19]="--denorm-apply-skip=true"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 
