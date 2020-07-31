@@ -30,7 +30,7 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
 #Cluster configuration.
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
-Nodes="2"
+Nodes="4"
 MajorVersion="7"
 MinorVersion="0"
 ScalaVersion="x-scala2.12"
@@ -84,9 +84,9 @@ args[13]="--all-or-query-file=all"
 args[14]="--number-of-streams=$3"
 
 # flags (1111111111 schema         |load          |load denorm |load update   |analyze     |
-#                   analyze denorm |analyze update|zorder      |zorder update |insert data |  
-#                   delete data    |delete test   |power       |tput)
-args[15]="--execution-flags=00000000010000"
+#                   analyze denorm |analyze update|zorder      |zorder update |insupd data |  
+#                   insupd test    |delete data   |delete test |power         |tput)
+args[15]="--execution-flags=111100001111100"
 # "all" or create table file
 args[16]="--all-or-create-file=all"
 # count-queries

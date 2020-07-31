@@ -20,7 +20,7 @@ if [ $# -lt 3 ]; then
 fi
 
 #Cluster configuration.
-Nodes="2"
+Nodes="4"
 Version="5.30.1"
 VersionShort="530"
 AutoTerminate="true"
@@ -74,9 +74,9 @@ args[14]="--all-or-query-file=all"
 # number of streams
 args[15]="--number-of-streams=$3"
 # flags (1111111111 schema         |load          |load denorm |load update   |analyze     |
-#                   analyze denorm |analyze update|zorder      |zorder update |insert data |  
-#                   delete data    |delete test   |power       |tput)
-args[16]="--execution-flags=00000000010000"
+#                   analyze denorm |analyze update|zorder      |zorder update |insupd data |  
+#                   insupd test    |delete data   |delete test |power         |tput)
+args[16]="--execution-flags=111100000111100"
 # count-queries
 args[17]="--count-queries=true"
 # all or denorm table file
