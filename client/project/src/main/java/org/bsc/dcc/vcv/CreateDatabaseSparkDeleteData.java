@@ -95,7 +95,7 @@ public class CreateDatabaseSparkDeleteData {
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
-		this.primaryKeys = new HudiPrecombineKeys().getMap();
+		this.primaryKeys = new HudiPrimaryKeys().getMap();
 	}
 	
 
