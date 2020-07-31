@@ -217,14 +217,14 @@ public class CreateDatabaseSparkDeleteData {
 		//For now only use simple keys.
 		StringTokenizer tokenizer = new StringTokenizer(primaryKeyFull, ",");
 		String primaryKey = tokenizer.nextToken();
-		StringBuilder builder = new StringBuilder("create table " + deleteTableName + "\n");
+		StringBuilder builder = new StringBuilder("CREATE TABLE " + deleteTableName + "\n");
 		builder.append("USING PARQUET\n");
 		builder.append("OPTIONS ('compression'='snappy')\n");
 		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + deleteTableName + "' \n");
-		builder.append("as\n");
+		builder.append("AS\n");
 		builder.append("SELECT * FROM " + denormTableName + "\n");
 		builder.append("WHERE MOD(" + partKey + ", " + this.firstMod[fractionIndex] + ") = 0 \n");
-		builder.append("and MOD(" + primaryKey + ", " + this.secondMod[fractionIndex] + ") = 0 \n");
+		builder.append("AND MOD(" + primaryKey + ", " + this.secondMod[fractionIndex] + ") = 0 \n");
 		return builder.toString();
 	}
 

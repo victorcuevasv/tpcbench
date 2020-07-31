@@ -198,7 +198,7 @@ public class CreateDatabaseSparkDenorm {
 	
 	private String parquetCreateTable(String sqlQuery, String tableName, 
 			Optional<String> extTablePrefixCreated) {
-		StringBuilder builder = new StringBuilder("create table " + tableName + "_denorm\n");
+		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "_denorm\n");
 		builder.append("USING PARQUET\n");
 		builder.append("OPTIONS ('compression'='snappy')\n");
 		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "_denorm" + "' \n");
@@ -207,7 +207,7 @@ public class CreateDatabaseSparkDenorm {
 			if( pos != -1 )
 				builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n" );
 		}
-		builder.append("as\n");
+		builder.append("AS\n");
 		builder.append(sqlQuery);
 		if( this.partition ) {
 			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
