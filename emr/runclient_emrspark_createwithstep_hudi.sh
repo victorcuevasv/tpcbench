@@ -74,9 +74,9 @@ args[14]="--all-or-query-file=all"
 # number of streams
 args[15]="--number-of-streams=$3"
 # flags (1111111111 schema         |load          |load denorm |load update   |analyze     |
-#                   analyze denorm |analyze update|zorder      |zorder update |delete data |  
-#                   delete test    |power         |tput)
-args[16]="--execution-flags=1111000001100"
+#                   analyze denorm |analyze update|zorder      |zorder update |insert data |  
+#                   delete data    |delete test   |power       |tput)
+args[16]="--execution-flags=00000000010000"
 # count-queries
 args[17]="--count-queries=true"
 # all or denorm table file

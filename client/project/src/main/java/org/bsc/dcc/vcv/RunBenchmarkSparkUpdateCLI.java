@@ -131,19 +131,25 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the Delta Z-ORDER UPDATE test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkDeltaZorderUpdateArgs);
 			}
-			boolean doDeleteData = this.flags.charAt(9) == '1' ? true : false;
+			boolean doInsertData = this.flags.charAt(9) == '1' ? true : false;
+			if( doInsertData ) {
+				this.saveTestParameters(args, "insertdata");
+				System.out.println("\n\n\nRunning the CREATE INSERT DATA test.\n\n\n");
+				CreateDatabaseSparkInsertData.main(args);
+			}
+			boolean doDeleteData = this.flags.charAt(10) == '1' ? true : false;
 			if( doDeleteData ) {
 				this.saveTestParameters(args, "deletedata");
 				System.out.println("\n\n\nRunning the CREATE DELETE DATA test.\n\n\n");
 				CreateDatabaseSparkDeleteData.main(args);
 			}
-			boolean doDeleteTest = this.flags.charAt(10) == '1' ? true : false;
+			boolean doDeleteTest = this.flags.charAt(11) == '1' ? true : false;
 			if( doDeleteTest ) {
 				this.saveTestParameters(args, "deletetest");
 				System.out.println("\n\n\nRunning the DELETE test.\n\n\n");
 				UpdateDatabaseSparkDeleteTest.main(args);
 			}
-			boolean doPower = this.flags.charAt(11) == '1' ? true : false;
+			boolean doPower = this.flags.charAt(12) == '1' ? true : false;
 			if( doPower ) {
 				String[] executeQueriesSparkArgs =
 						this.createExecuteQueriesSparkArgs(args);
@@ -151,7 +157,7 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkArgs);
 			}
-			boolean doTput = this.flags.charAt(12) == '1' ? true : false;
+			boolean doTput = this.flags.charAt(13) == '1' ? true : false;
 			if( doTput ) {
 				this.saveTestParameters(args, "tput");
 				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
