@@ -172,7 +172,7 @@ public class CreateDatabaseSparkInsertData {
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			this.dropTable("drop table if exists " + insertTableName);
-			String parquetSqlCreate = this.parquetCreateTable(tableName, denormTableName,
+			String parquetSqlCreate = this.parquetCreateTableMain(tableName, denormTableName,
 					insertTableName, this.extTablePrefixCreated, fractionIndex);
 			saveCreateTableFile("insertcreate", insertTableName, parquetSqlCreate);
 			if( this.doCount )
@@ -209,7 +209,7 @@ public class CreateDatabaseSparkInsertData {
 	}
 
 	
-	private String parquetCreateTable(String tableName, String denormTableName, 
+	private String parquetCreateTableMain(String tableName, String denormTableName, 
 			String insertTableName, Optional<String> extTablePrefixCreated,
 			int fractionIndex) {
 		String partKey = 
@@ -223,12 +223,58 @@ public class CreateDatabaseSparkInsertData {
 		builder.append("OPTIONS ('compression'='snappy')\n");
 		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + insertTableName + "' \n");
 		builder.append("as\n");
-		builder.append("SELECT * FROM " + denormTableName + "\n");
+		builder.append("( SELECT * FROM " + denormTableName + "\n");
 		builder.append("WHERE MOD(" + partKey + ", " + SkipMods.firstMod + ") = 0 \n");
-		builder.append("AND MOD(" + primaryKey + ", " + SkipMods.secondMod + ") = 0 \n");
+		builder.append("AND MOD(" + primaryKey + ", " + SkipMods.secondMod + ") = 0 ) \n");
+		String updateExpr = this.createUpdatesExpression(denormTableName, partKey, primaryKey);
+		builder.append("UNION \n");
+		builder.append(updateExpr);
 		return builder.toString();
 	}
 
+	
+	private String createUpdatesExpression(String denormTableName, String partKey, String primaryKey) {
+		String expr = null;
+		try {
+			Dataset<Row> dataset = this.spark.sql("DESCRIBE " + denormTableName);
+			String columnsStr = getColumnNames(dataset);
+			String columnsStrUpd = columnsStr.replace("s_quantity", "s_quantity + 1");
+			expr = "( SELECT \n" +
+					 columnsStrUpd + "\n" +
+					 "FROM " + denormTableName + "\n" +
+					 "WHERE MOD(" + partKey + ", " + UpdateMods.firstMod + ") = 1 \n" +
+					 "AND MOD(" + primaryKey + ", " + UpdateMods.secondMod + ") = 0 ) \n";
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in CreateDatabaseSparkInsertData createUpdatesExpression.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		return expr;
+	}
+	
+	
+	private String getColumnNames(Dataset<Row> dataset) {
+		String retVal = null;
+		try {
+			List<String> list = dataset.map(row -> row.getString(0), Encoders.STRING()).collectAsList();
+			String columnsStr = list.stream()
+					.map(x -> x)
+					.filter(s -> ! s.startsWith("#"))
+					.distinct()
+					.collect(Collectors.joining(", "));
+			retVal = columnsStr;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error processing results.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		return retVal;
+	}
+	
 	
 	public void saveCreateTableFile(String suffix, String tableName, String sqlCreate) {
 		try {
