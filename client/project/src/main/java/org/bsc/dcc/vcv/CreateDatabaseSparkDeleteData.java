@@ -77,7 +77,7 @@ public class CreateDatabaseSparkDeleteData {
 		this.resultsDir = commandLine.getOptionValue("results-dir");
 		this.experimentName = commandLine.getOptionValue("experiment-name");
 		this.system = commandLine.getOptionValue("system-name");
-		this.test = commandLine.getOptionValue("tpcds-test", "loaddenorm");
+		this.test = "deletedata";
 		String instanceStr = commandLine.getOptionValue("instance-number");
 		this.instance = Integer.parseInt(instanceStr);
 		//this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
