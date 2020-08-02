@@ -4,6 +4,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.commons.cli.Option;
@@ -101,8 +105,15 @@ public class RunBenchmarkSparkUpdateCLI {
 			}
 			boolean doAnalyzeDenorm = this.flags.charAt(5) == '1' ? true : false;
 			if( doAnalyzeDenorm ) {
+				String[] argsCopy = new String[args.length];
+				System.arraycopy(args, 0, argsCopy, 0, args.length);
+				argsCopy = Arrays.stream(argsCopy)
+					.filter(s -> s.contains("all-or-query-file"))
+					.map(s -> s.replace("analyze-zorder-all-or-file", "all-or-query-file"))
+					.collect(Collectors.toList())
+					.toArray(new String[0]);
 				String[] executeQueriesAnalyzeDenormArgs =
-						this.createExecuteQueriesAnalyzeDenormArgs(args);
+						this.createExecuteQueriesAnalyzeDenormArgs(argsCopy);
 				this.saveTestParameters(executeQueriesAnalyzeDenormArgs, "analyzedenorm");
 				System.out.println("\n\n\nRunning the ANALYZE DENORM test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesAnalyzeDenormArgs);
@@ -237,6 +248,24 @@ public class RunBenchmarkSparkUpdateCLI {
 		else if( this.system.equals("sparkemr") )
 			array[array.length - 1] = "--queries-dir-in-jar=AnalyzeUpdateHudi";
 		return array;
+	}
+	
+	
+	private String[] removeArg(String args[], String argName) {
+		List<String> list = new ArrayList<String>();
+		for(int i = 0; i < args.length; i++) {
+			if( ! args[i].contains(argName) )
+				list.add(args[i]);
+		}
+		return list.toArray(new String[0]);
+	}
+	
+	
+	private String[] replaceSubstringInArgs(String args[], String oldSubstr, String newSubstr) {
+		List<String> list = new ArrayList<String>();
+		for(int i = 0; i < args.length; i++)
+			list.add(args[i].replace(oldSubstr, newSubstr));
+		return list.toArray(new String[0]);
 	}
 	
 	
