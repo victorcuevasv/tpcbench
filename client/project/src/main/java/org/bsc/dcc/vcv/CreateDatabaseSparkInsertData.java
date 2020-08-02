@@ -227,7 +227,7 @@ public class CreateDatabaseSparkInsertData {
 		builder.append("WHERE MOD(" + partKey + ", " + SkipMods.firstMod + ") = 0 \n");
 		builder.append("AND MOD(" + primaryKey + ", " + SkipMods.secondMod + ") = 0 ) \n");
 		String updateExpr = this.createUpdatesExpression(denormTableName, partKey, primaryKey);
-		builder.append("UNION \n");
+		builder.append("UNION ALL\n");
 		builder.append(updateExpr);
 		return builder.toString();
 	}
