@@ -114,7 +114,7 @@ public class RunBenchmarkSparkOptions {
 				.desc( "skip data to be inserted from denorm tables" )
 				.hasArg(true).required(false).type(Boolean.class).build() );
 		options.addOption( Option.builder().longOpt( "analyze-zorder-all-or-file" )
-				.desc( "\"all\" or query file to analyze and z-order optimization" )
+				.desc( "\"all\" or query file for denorm analyze and z-order" )
 				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )

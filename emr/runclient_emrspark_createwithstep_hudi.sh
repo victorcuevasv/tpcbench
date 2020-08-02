@@ -84,6 +84,9 @@ args[18]="--denorm-all-or-file=all"
 # skip data to be inserted later
 args[19]="--denorm-apply-skip=true"
 
+# all or query file for denorm analyze and z-order
+args[20]="--analyze-zorder-all-or-file=all"
+
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
 function auto_terminate_func() {
