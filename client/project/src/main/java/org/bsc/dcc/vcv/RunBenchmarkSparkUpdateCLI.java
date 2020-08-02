@@ -106,7 +106,7 @@ public class RunBenchmarkSparkUpdateCLI {
 			boolean doAnalyzeDenorm = this.flags.charAt(5) == '1' ? true : false;
 			if( doAnalyzeDenorm ) {
 				String[] argsCopy = Arrays.stream(args)
-					.filter(s -> s.contains("all-or-query-file"))
+					.filter(s -> ! s.contains("all-or-query-file"))
 					.map(s -> s.replace("analyze-zorder-all-or-file", "all-or-query-file"))
 					.collect(Collectors.toList())
 					.toArray(new String[0]);
@@ -119,7 +119,7 @@ public class RunBenchmarkSparkUpdateCLI {
 			boolean doAnalyzeUpdate = this.flags.charAt(6) == '1' ? true : false;
 			if( doAnalyzeUpdate ) {
 				String[] argsCopy = Arrays.stream(args)
-						.filter(s -> s.contains("all-or-query-file"))
+						.filter(s -> ! s.contains("all-or-query-file"))
 						.map(s -> s.replace("analyze-zorder-all-or-file", "all-or-query-file"))
 						.collect(Collectors.toList())
 						.toArray(new String[0]);
@@ -140,7 +140,7 @@ public class RunBenchmarkSparkUpdateCLI {
 			boolean doZorderUpdate = this.flags.charAt(8) == '1' ? true : false;
 			if( doZorderUpdate ) {
 				String[] argsCopy = Arrays.stream(args)
-						.filter(s -> s.contains("all-or-query-file"))
+						.filter(s -> ! s.contains("all-or-query-file"))
 						.map(s -> s.replace("analyze-zorder-all-or-file", "all-or-query-file"))
 						.collect(Collectors.toList())
 						.toArray(new String[0]);
