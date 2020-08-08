@@ -54,7 +54,7 @@ public class UpdateDatabaseSparkGdprTest {
 	private final String denormSingleOrAll;
 	private final Map<String, String> precombineKeys;
 	private final Map<String, String> primaryKeys;
-	private final String customerSK = "";
+	private final String customerSK;
 	
 	public UpdateDatabaseSparkGdprTest(CommandLine commandLine) {
 		try {
@@ -74,7 +74,8 @@ public class UpdateDatabaseSparkGdprTest {
 		this.resultsDir = commandLine.getOptionValue("results-dir");
 		this.experimentName = commandLine.getOptionValue("experiment-name");
 		this.system = commandLine.getOptionValue("system-name");
-		this.test = commandLine.getOptionValue("tpcds-test", "loadupdate");
+		//this.test = commandLine.getOptionValue("tpcds-test", "loadupdate");
+		this.test = "gdprtest";
 		String instanceStr = commandLine.getOptionValue("instance-number");
 		this.instance = Integer.parseInt(instanceStr);
 		//this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
@@ -97,6 +98,7 @@ public class UpdateDatabaseSparkGdprTest {
 				this.system, this.test, this.instance);
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
 		this.primaryKeys = new HudiPrimaryKeys().getMap();
+		this.customerSK = commandLine.getOptionValue("gdpr-customer-sk");
 	}
 	
 

@@ -116,6 +116,10 @@ public class RunBenchmarkSparkOptions {
 		options.addOption( Option.builder().longOpt( "analyze-zorder-all-or-file" )
 				.desc( "\"all\" or query file for denorm analyze and z-order" )
 				.hasArg(true).required(false).build() );
+		options.addOption( Option.builder().longOpt( "gdpr-customer-sk" )
+				.desc( "customer surrogate key for the gdpr test" )
+				.hasArg(true).required(false).build() );
+		
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );
