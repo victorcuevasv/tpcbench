@@ -167,7 +167,7 @@ public class UpdateDatabaseSparkGdprTest {
 	private void deleteFromTableDelta(String sqlFilename, String sqlQuery, int index) {
 		QueryRecord queryRecord = null;
 		try {
-			sqlQuery = sqlQuery.replace("<CUSTOMER SK>", this.customerSK);
+			sqlQuery = sqlQuery.replace("<CUSTOMER_SK>", this.customerSK);
 			String tableName = sqlFilename.substring(0, sqlFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
@@ -220,6 +220,7 @@ public class UpdateDatabaseSparkGdprTest {
 						primaryKey, precombineKey, null, false);
 			}
 			this.saveHudiOptions("hudigdpr", tableName, hudiOptions);
+			sqlQuery = sqlQuery.replace("<CUSTOMER_SK>", this.customerSK);
 			this.spark.sql(sqlQuery)
 				.write()
 				.format("org.apache.hudi")
