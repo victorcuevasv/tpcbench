@@ -85,8 +85,9 @@ args[14]="--number-of-streams=$3"
 
 # flags (1111111111 schema         |load          |load denorm |load update   |analyze     |
 #                   analyze denorm |analyze update|zorder      |zorder update |insupd data |  
-#                   insupd test    |delete data   |delete test |power         |tput)
-args[15]="--execution-flags=111100001111100"
+#                   insupd test    |delete data   |delete test |gdpr         |power)
+#                   tput
+args[15]="--execution-flags=1111000011111100"
 # "all" or create table file
 args[16]="--all-or-create-file=all"
 # count-queries
