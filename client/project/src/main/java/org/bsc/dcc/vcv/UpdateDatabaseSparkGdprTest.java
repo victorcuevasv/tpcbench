@@ -79,7 +79,10 @@ public class UpdateDatabaseSparkGdprTest {
 		String instanceStr = commandLine.getOptionValue("instance-number");
 		this.instance = Integer.parseInt(instanceStr);
 		//this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
-		this.createTableDir = "DatabricksDeltaGdpr";
+		if( this.system.equals("sparkdatabricks") )
+			this.createTableDir = "DatabricksDeltaGdpr";
+		else
+			this.createTableDir = "EMRHudiGdpr";
 		this.extTablePrefixCreated = Optional.ofNullable(commandLine.getOptionValue("ext-tables-location"));
 		//this.format = commandLine.getOptionValue("table-format");
 		if( this.system.equalsIgnoreCase("sparkdatabricks") )
