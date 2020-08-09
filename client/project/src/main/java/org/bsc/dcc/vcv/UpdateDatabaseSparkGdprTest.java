@@ -231,7 +231,7 @@ public class UpdateDatabaseSparkGdprTest {
 				.option("hoodie.datasource.write.payload.class", 
 						"org.apache.hudi.common.model.EmptyHoodieRecordPayload")
 				.options(hudiOptions)
-				.mode(SaveMode.Overwrite)
+				.mode(SaveMode.Append)
 				.save(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/");
 			queryRecord.setSuccessful(true);
 			saveCreateTableFile("hudigdpr", tableName, sqlQuery);
