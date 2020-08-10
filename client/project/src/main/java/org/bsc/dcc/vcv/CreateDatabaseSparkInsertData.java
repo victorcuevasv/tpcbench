@@ -299,10 +299,13 @@ public class CreateDatabaseSparkInsertData {
 		try {
 			String sqlCount = "select count(*) from " + tableName;
 			System.out.print("Running count query on " + tableName + ": ");
+			this.logger.info("Running count query on " + tableName + ": ");
 			Dataset<Row> countDataset = this.spark.sql(sqlCount);
 			List<String> list = countDataset.map(row -> row.mkString(), Encoders.STRING()).collectAsList();
-			for(String s: list)
+			for(String s: list) {
 				System.out.println(s);
+				this.logger.info("Count result: " + s);
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();

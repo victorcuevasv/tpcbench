@@ -201,6 +201,9 @@ public class RunBenchmarkSparkUpdateCLI {
 			else if( this.system.equals("sparkemr")  ) {
 				this.executeCommand("aws s3 cp --recursive " + this.workDir + "/" + this.resultsDir + "/ " +
 						"s3://tpcds-results-test/" + this.resultsDir + "/");
+				this.executeCommand("aws s3 cp " + this.workDir + "/logs/all.log " +
+						"s3://tpcds-results-test/" + this.resultsDir + "/logs/" + 
+						this.experimentName + "/" + this.instance + "/all.log");
 				//this.executeCommand("mkdir -p /mnt/tpcds-results-test/" + this.resultsDir);
 				//this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /mnt/tpcds-results-test/" + this.resultsDir + "/");
 			}
