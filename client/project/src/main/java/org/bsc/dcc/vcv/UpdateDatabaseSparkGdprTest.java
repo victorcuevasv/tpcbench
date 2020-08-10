@@ -206,7 +206,7 @@ public class UpdateDatabaseSparkGdprTest {
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			if( this.doCount )
-				countRowsQuery(tableName + "_denorm_hudi_ro");
+				countRowsQuery(tableName + "_denorm_hudi_rt");
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			String primaryKey = this.primaryKeys.get(tableName);
@@ -236,7 +236,7 @@ public class UpdateDatabaseSparkGdprTest {
 			queryRecord.setSuccessful(true);
 			saveCreateTableFile("hudigdpr", tableName, sqlQuery);
 			if( this.doCount )
-				countRowsQuery(tableName + "_denorm_hudi_ro");
+				countRowsQuery(tableName + "_denorm_hudi_rt");
 		}
 		catch (Exception e) {
 			e.printStackTrace();
