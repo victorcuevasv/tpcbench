@@ -30,7 +30,7 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
 #Cluster configuration.
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
-Nodes="4"
+Nodes="16"
 MajorVersion="7"
 MinorVersion="0"
 ScalaVersion="x-scala2.12"
@@ -87,18 +87,18 @@ args[14]="--number-of-streams=$3"
 #                   analyze denorm |analyze update|zorder      |zorder update |insupd data |  
 #                   insupd test    |delete data   |delete test |gdpr         |power)
 #                   tput
-args[15]="--execution-flags=1111000011111100"
+args[15]="--execution-flags=1111000001111000"
 # "all" or create table file
 args[16]="--all-or-create-file=all"
 # count-queries
-args[17]="--count-queries=false"
+args[17]="--count-queries=true"
 # all or denorm table file
-args[18]="--denorm-all-or-file=all"
+args[18]="--denorm-all-or-file=store_sales.sql"
 # skip data to be inserted later
 args[19]="--denorm-apply-skip=true"
 
 # all or query file for denorm analyze and z-order
-args[20]="--analyze-zorder-all-or-file=all"
+args[20]="--analyze-zorder-all-or-file=query2.sql"
 # customer surrogate key for the gdpr test
 args[21]="--gdpr-customer-sk="
 

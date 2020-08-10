@@ -20,7 +20,7 @@ if [ $# -lt 3 ]; then
 fi
 
 #Cluster configuration.
-Nodes="4"
+Nodes="16"
 Version="5.30.1"
 VersionShort="530"
 AutoTerminate="true"
@@ -81,12 +81,12 @@ args[16]="--execution-flags=1111000001111100"
 # count-queries
 args[17]="--count-queries=true"
 # all or denorm table file
-args[18]="--denorm-all-or-file=all"
+args[18]="--denorm-all-or-file=store_sales.sql"
 # skip data to be inserted later
 args[19]="--denorm-apply-skip=true"
 
 # all or query file for denorm analyze and z-order
-args[20]="--analyze-zorder-all-or-file=all"
+args[20]="--analyze-zorder-all-or-file=query2.sql"
 # customer surrogate key for the gdpr test
 args[21]="--gdpr-customer-sk="
 
