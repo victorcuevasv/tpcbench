@@ -32,7 +32,7 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Nodes="16"
 MajorVersion="7"
-MinorVersion="0"
+MinorVersion="2"
 ScalaVersion="x-scala2.12"
 #Run configuration.
 Tag="$(date +%s)"
@@ -87,11 +87,11 @@ args[14]="--number-of-streams=$3"
 #                   analyze denorm |analyze update|zorder      |zorder update |insupd data |  
 #                   insupd test    |delete data   |delete test |gdpr         |power)
 #                   tput
-args[15]="--execution-flags=1111000001111000"
+args[15]="--execution-flags=1111000001111100"
 # "all" or create table file
 args[16]="--all-or-create-file=all"
 # count-queries
-args[17]="--count-queries=true"
+args[17]="--count-queries=false"
 # all or denorm table file
 args[18]="--denorm-all-or-file=store_sales.sql"
 # skip data to be inserted later
@@ -100,7 +100,7 @@ args[19]="--denorm-apply-skip=true"
 # all or query file for denorm analyze and z-order
 args[20]="--analyze-zorder-all-or-file=query2.sql"
 # customer surrogate key for the gdpr test
-args[21]="--gdpr-customer-sk="
+args[21]="--gdpr-customer-sk=221580"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 
@@ -117,6 +117,15 @@ function json_string_list() {
 
 paramsStr=$(json_string_list "${args[@]}")
 
+#Reference configuration.
+#"spark.databricks.delta.optimize.maxFileSize":"134217728",
+#"spark.databricks.delta.optimize.minFileSize":"134217728",
+#"spark.sql.crossJoin.enabled":"true",
+#"spark.databricks.optimizer.deltaTableFilesThreshold":"100",
+#"spark.sql.broadcastTimeout":"7200",
+#"spark.databricks.delta.autoCompact.maxFileSize":"134217728",
+#"hive.exec.dynamic.partition.mode":"nonstrict",
+#"hive.exec.max.dynamic.partitions":"3000"
 post_data_func()
 {
   cat <<EOF
@@ -125,14 +134,10 @@ post_data_func()
 	"new_cluster":{ 
 		"spark_version":"${MajorVersion}.${MinorVersion}.${ScalaVersion}",
         "spark_conf":{
-        	"spark.databricks.delta.optimize.maxFileSize":"134217728",
-            "spark.databricks.delta.optimize.minFileSize":"134217728",
+            "spark.databricks.delta.optimizeWrite.enabled":"true",
+            "spark.databricks.delta.autoCompact.enabled":"true",
             "spark.sql.crossJoin.enabled":"true",
-            "spark.databricks.optimizer.deltaTableFilesThreshold":"100",
-            "spark.sql.broadcastTimeout":"7200",
-            "spark.databricks.delta.autoCompact.maxFileSize":"134217728",
-            "hive.exec.dynamic.partition.mode":"nonstrict",
-            "hive.exec.max.dynamic.partitions":"3000"
+            "spark.sql.broadcastTimeout":"7200"
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
