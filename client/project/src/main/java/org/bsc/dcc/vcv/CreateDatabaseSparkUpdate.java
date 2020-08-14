@@ -255,7 +255,7 @@ public class CreateDatabaseSparkUpdate {
 				hudiOptions = this.hudiUtil.createHudiOptions(tableName + "_denorm_hudi", 
 						primaryKey, precombineKey, null, false);
 			}
-			this.saveHudiOptions("hudi", tableName, hudiOptions);
+			this.hudiUtil.saveHudiOptions("hudi", tableName, hudiOptions);
 			String sqlSelect = "SELECT * FROM " + tableName + "_denorm";
 			if( this.skipData ) {
 				String partitionKey = 
