@@ -58,6 +58,7 @@ public class UpdateDatabaseSparkDeleteTest {
 	private final String[] deleteSuffix = {"pointone", "one", "ten"};
 	private final int[] firstMod = {40, 10, 2};
 	private final int[] secondMod = {15, 8, 5};
+	private final HudiUtil hudiUtil;
 	
 	public UpdateDatabaseSparkDeleteTest(CommandLine commandLine) {
 		try {
@@ -96,6 +97,8 @@ public class UpdateDatabaseSparkDeleteTest {
 				this.system, this.test, this.instance);
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
 		this.primaryKeys = new HudiPrimaryKeys().getMap();
+		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
+				this.experimentName, this.instance);
 	}
 	
 
@@ -215,14 +218,14 @@ public class UpdateDatabaseSparkDeleteTest {
 			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
 				String partitionKey = 
 						Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
-				hudiOptions = createHudiOptions(tableName + "_denorm_hudi", 
+				hudiOptions = this.hudiUtil.createHudiOptions(tableName + "_denorm_hudi", 
 						primaryKey, precombineKey, partitionKey, true);
 			}
 			else {
-				hudiOptions = createHudiOptions(tableName + "_denorm_hudi", 
+				hudiOptions = this.hudiUtil.createHudiOptions(tableName + "_denorm_hudi", 
 						primaryKey, precombineKey, null, false);
 			}
-			this.saveHudiOptions("deletehudi", deleteTableName, hudiOptions);
+			this.hudiUtil.saveHudiOptions("deletehudi", deleteTableName, hudiOptions);
 			if( this.doCount )
 				countRowsQuery(denormHudiTableName + "_ro");
 			queryRecord = new QueryRecord(index);
@@ -284,61 +287,6 @@ public class UpdateDatabaseSparkDeleteTest {
 			builder.append("AND a." + primaryKeyComp + " = b." + primaryKeyComp + "\n");
 		builder.append("WHEN MATCHED THEN DELETE \n");
 		return builder.toString();
-	}
-	
-	
-	private Map<String, String> createHudiOptions(String tableName, String primaryKey,
-			String precombineKey, String partitionKey, boolean usePartitioning) {
-		Map<String, String> map = new HashMap<String, String>();
-		//Use only simple keys.
-		//StringTokenizer tokenizer = new StringTokenizer(primaryKey, ",");
-		//primaryKey = tokenizer.nextToken();
-		map.put("hoodie.datasource.hive_sync.database", this.dbName);
-		map.put("hoodie.datasource.write.precombine.field", precombineKey);
-		map.put("hoodie.datasource.hive_sync.table", tableName);
-		map.put("hoodie.datasource.hive_sync.enable", "true");
-		map.put("hoodie.datasource.write.recordkey.field", primaryKey);
-		map.put("hoodie.table.name", tableName);
-		//map.put("hoodie.datasource.write.storage.type", "COPY_ON_WRITE");
-		map.put("hoodie.datasource.write.storage.type", "MERGE_ON_READ");
-		map.put("hoodie.datasource.write.hive_style_partitioning", "true");
-		map.put("hoodie.parquet.max.file.size", String.valueOf(1024 * 1024 * 1024));
-		map.put("hoodie.parquet.compression.codec", "snappy");
-		if( usePartitioning ) {
-			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 
-					"org.apache.hudi.hive.MultiPartKeysValueExtractor");
-			map.put("hoodie.datasource.hive_sync.partition_fields", partitionKey);
-			map.put("hoodie.datasource.write.partitionpath.field", partitionKey);
-			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.ComplexKeyGenerator");
-			//map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.SimpleKeyGenerator");
-		}
-		else {
-			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 
-					"org.apache.hudi.hive.NonPartitionedExtractor");
-			map.put("hoodie.datasource.hive_sync.partition_fields", "");
-			map.put("hoodie.datasource.write.partitionpath.field", "");
-			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.NonpartitionedKeyGenerator");   
-		}
-		return map;
-	}
-
-	
-	public void saveCreateTableFile(String suffix, String tableName, String sqlCreate) {
-		try {
-			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + "tables" +
-					suffix + "/" + this.experimentName + "/" + this.instance +
-					"/" + tableName + ".sql";
-			File temp = new File(createTableFileName);
-			temp.getParentFile().mkdirs();
-			FileWriter fileWriter = new FileWriter(createTableFileName);
-			PrintWriter printWriter = new PrintWriter(fileWriter);
-			printWriter.println(sqlCreate);
-			printWriter.close();
-		}
-		catch (IOException ioe) {
-			ioe.printStackTrace();
-			this.logger.error(ioe);
-		}
 	}
 	
 	

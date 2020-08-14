@@ -55,6 +55,7 @@ public class CreateDatabaseSparkUpdate {
 	private final Map<String, String> precombineKeys;
 	private final Map<String, String> primaryKeys;
 	private final boolean skipData;
+	private final HudiUtil hudiUtil;
 	
 	public CreateDatabaseSparkUpdate(CommandLine commandLine) {
 		try {
@@ -99,6 +100,8 @@ public class CreateDatabaseSparkUpdate {
 		this.primaryKeys = new HudiPrimaryKeys().getMap();
 		String skipDataStr = commandLine.getOptionValue("denorm-apply-skip");
 		this.skipData = Boolean.parseBoolean(skipDataStr);
+		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
+				this.experimentName, this.instance);
 	}
 	
 
@@ -245,11 +248,11 @@ public class CreateDatabaseSparkUpdate {
 			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
 				String partitionKey = 
 						Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
-				hudiOptions = createHudiOptions(tableName + "_denorm_hudi", 
+				hudiOptions = this.hudiUtil.createHudiOptions(tableName + "_denorm_hudi", 
 						primaryKey, precombineKey, partitionKey, true);
 			}
 			else {
-				hudiOptions = createHudiOptions(tableName + "_denorm_hudi", 
+				hudiOptions = this.hudiUtil.createHudiOptions(tableName + "_denorm_hudi", 
 						primaryKey, precombineKey, null, false);
 			}
 			this.saveHudiOptions("hudi", tableName, hudiOptions);
@@ -293,42 +296,6 @@ public class CreateDatabaseSparkUpdate {
 	}
 	
 	
-	private Map<String, String> createHudiOptions(String tableName, String primaryKey,
-			String precombineKey, String partitionKey, boolean usePartitioning) {
-		Map<String, String> map = new HashMap<String, String>();
-		//Use only simple keys.
-		//StringTokenizer tokenizer = new StringTokenizer(primaryKey, ",");
-		//primaryKey = tokenizer.nextToken();
-		map.put("hoodie.datasource.hive_sync.database", this.dbName);
-		map.put("hoodie.datasource.write.precombine.field", precombineKey);
-		map.put("hoodie.datasource.hive_sync.table", tableName);
-		map.put("hoodie.datasource.hive_sync.enable", "true");
-		map.put("hoodie.datasource.write.recordkey.field", primaryKey);
-		map.put("hoodie.table.name", tableName);
-		//map.put("hoodie.datasource.write.storage.type", "COPY_ON_WRITE");
-		map.put("hoodie.datasource.write.storage.type", "MERGE_ON_READ");
-		map.put("hoodie.datasource.write.hive_style_partitioning", "true");
-		map.put("hoodie.parquet.max.file.size", String.valueOf(1024 * 1024 * 1024));
-		map.put("hoodie.parquet.compression.codec", "snappy");
-		if( usePartitioning ) {
-			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 
-					"org.apache.hudi.hive.MultiPartKeysValueExtractor");
-			map.put("hoodie.datasource.hive_sync.partition_fields", partitionKey);
-			map.put("hoodie.datasource.write.partitionpath.field", partitionKey);
-			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.ComplexKeyGenerator");
-			//map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.SimpleKeyGenerator");
-		}
-		else {
-			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 
-					"org.apache.hudi.hive.NonPartitionedExtractor");
-			map.put("hoodie.datasource.hive_sync.partition_fields", "");
-			map.put("hoodie.datasource.write.partitionpath.field", "");
-			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.NonpartitionedKeyGenerator");   
-		}
-		return map;
-	}
-	
-	
 	private void dropTable(String dropStmt) {
 		try {
 			this.spark.sql(dropStmt);
@@ -349,29 +316,6 @@ public class CreateDatabaseSparkUpdate {
 			FileWriter fileWriter = new FileWriter(createTableFileName);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			printWriter.println(sqlCreate);
-			printWriter.close();
-		}
-		catch (IOException ioe) {
-			ioe.printStackTrace();
-			this.logger.error(ioe);
-		}
-	}
-	
-	
-	private void saveHudiOptions(String suffix, String tableName, Map<String, String> map) {
-		try {
-			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + "tables" +
-					suffix + "/" + this.experimentName + "/" + this.instance +
-					"/" + tableName + ".txt";
-			StringBuilder builder = new StringBuilder();
-			for (Map.Entry<String, String> entry : map.entrySet()) {
-			    builder.append(entry.getKey() + "=" + entry.getValue().toString() + "\n");
-			}
-			File temp = new File(createTableFileName);
-			temp.getParentFile().mkdirs();
-			FileWriter fileWriter = new FileWriter(createTableFileName);
-			PrintWriter printWriter = new PrintWriter(fileWriter);
-			printWriter.println(builder.toString());
 			printWriter.close();
 		}
 		catch (IOException ioe) {

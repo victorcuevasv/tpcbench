@@ -58,6 +58,7 @@ public class UpdateDatabaseSparkInsUpdTest {
 	private final double[] fractions = {10.0};
 	//private final String[] insUpdSuffix = {"pointone", "one", "ten"};
 	private final String[] insUpdSuffix = {"ten"};
+	private final HudiUtil hudiUtil;
 	
 	public UpdateDatabaseSparkInsUpdTest(CommandLine commandLine) {
 		try {
@@ -96,6 +97,8 @@ public class UpdateDatabaseSparkInsUpdTest {
 				this.system, this.test, this.instance);
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
 		this.primaryKeys = new HudiPrimaryKeys().getMap();
+		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
+				this.experimentName, this.instance);
 	}
 	
 
@@ -284,42 +287,6 @@ public class UpdateDatabaseSparkInsUpdTest {
 		builder.append("WHEN NOT MATCHED THEN INSERT * \n");
 		return builder.toString();
 	}
-	
-	
-	private Map<String, String> createHudiOptions(String tableName, String primaryKey,
-			String precombineKey, String partitionKey, boolean usePartitioning) {
-		Map<String, String> map = new HashMap<String, String>();
-		//Use only simple keys.
-		//StringTokenizer tokenizer = new StringTokenizer(primaryKey, ",");
-		//primaryKey = tokenizer.nextToken();
-		map.put("hoodie.datasource.hive_sync.database", this.dbName);
-		map.put("hoodie.datasource.write.precombine.field", precombineKey);
-		map.put("hoodie.datasource.hive_sync.table", tableName);
-		map.put("hoodie.datasource.hive_sync.enable", "true");
-		map.put("hoodie.datasource.write.recordkey.field", primaryKey);
-		map.put("hoodie.table.name", tableName);
-		//map.put("hoodie.datasource.write.storage.type", "COPY_ON_WRITE");
-		map.put("hoodie.datasource.write.storage.type", "MERGE_ON_READ");
-		map.put("hoodie.datasource.write.hive_style_partitioning", "true");
-		map.put("hoodie.parquet.max.file.size", String.valueOf(1024 * 1024 * 1024));
-		map.put("hoodie.parquet.compression.codec", "snappy");
-		if( usePartitioning ) {
-			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 
-					"org.apache.hudi.hive.MultiPartKeysValueExtractor");
-			map.put("hoodie.datasource.hive_sync.partition_fields", partitionKey);
-			map.put("hoodie.datasource.write.partitionpath.field", partitionKey);
-			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.ComplexKeyGenerator");
-			//map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.SimpleKeyGenerator");
-		}
-		else {
-			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 
-					"org.apache.hudi.hive.NonPartitionedExtractor");
-			map.put("hoodie.datasource.hive_sync.partition_fields", "");
-			map.put("hoodie.datasource.write.partitionpath.field", "");
-			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.NonpartitionedKeyGenerator");   
-		}
-		return map;
-	}
 
 	
 	public void saveCreateTableFile(String suffix, String tableName, String sqlCreate) {
@@ -332,29 +299,6 @@ public class UpdateDatabaseSparkInsUpdTest {
 			FileWriter fileWriter = new FileWriter(createTableFileName);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			printWriter.println(sqlCreate);
-			printWriter.close();
-		}
-		catch (IOException ioe) {
-			ioe.printStackTrace();
-			this.logger.error(ioe);
-		}
-	}
-	
-	
-	private void saveHudiOptions(String suffix, String tableName, Map<String, String> map) {
-		try {
-			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + "tables" +
-					suffix + "/" + this.experimentName + "/" + this.instance +
-					"/" + tableName + ".txt";
-			StringBuilder builder = new StringBuilder();
-			for (Map.Entry<String, String> entry : map.entrySet()) {
-			    builder.append(entry.getKey() + "=" + entry.getValue().toString() + "\n");
-			}
-			File temp = new File(createTableFileName);
-			temp.getParentFile().mkdirs();
-			FileWriter fileWriter = new FileWriter(createTableFileName);
-			PrintWriter printWriter = new PrintWriter(fileWriter);
-			printWriter.println(builder.toString());
 			printWriter.close();
 		}
 		catch (IOException ioe) {
