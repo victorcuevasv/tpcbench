@@ -218,14 +218,14 @@ public class UpdateDatabaseSparkInsUpdTest {
 			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
 				String partitionKey = 
 						Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
-				hudiOptions = createHudiOptions(tableName + "_denorm_hudi", 
+				hudiOptions = this.hudiUtil.createHudiOptions(tableName + "_denorm_hudi", 
 						primaryKey, precombineKey, partitionKey, true);
 			}
 			else {
-				hudiOptions = createHudiOptions(tableName + "_denorm_hudi", 
+				hudiOptions = this.hudiUtil.createHudiOptions(tableName + "_denorm_hudi", 
 						primaryKey, precombineKey, null, false);
 			}
-			this.saveHudiOptions("insupdhudi", insUpdTableName, hudiOptions);
+			this.hudiUtil.saveHudiOptions("insupdhudi", insUpdTableName, hudiOptions);
 			if( this.doCount )
 				countRowsQuery(denormHudiTableName + "_ro");
 			queryRecord = new QueryRecord(index);
