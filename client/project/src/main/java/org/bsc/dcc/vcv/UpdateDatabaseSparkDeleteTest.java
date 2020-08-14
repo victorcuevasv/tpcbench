@@ -177,7 +177,7 @@ public class UpdateDatabaseSparkDeleteTest {
 			this.logger.info("Processing table " + index + ": " + deleteTableName);
 			String mergeSql = this.createMergeSQL(tableName, denormDeltaTableName,
 					deleteTableName, fractionIndex);
-			saveCreateTableFile("deletemerge", deleteTableName, mergeSql);
+			this.saveCreateTableFile("deletemerge", deleteTableName, mergeSql);
 			if( this.doCount )
 				countRowsQuery(denormDeltaTableName);
 			queryRecord = new QueryRecord(index);
@@ -290,20 +290,16 @@ public class UpdateDatabaseSparkDeleteTest {
 	}
 	
 	
-	private void saveHudiOptions(String suffix, String tableName, Map<String, String> map) {
+	public void saveCreateTableFile(String suffix, String tableName, String sqlCreate) {
 		try {
 			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + "tables" +
 					suffix + "/" + this.experimentName + "/" + this.instance +
-					"/" + tableName + ".txt";
-			StringBuilder builder = new StringBuilder();
-			for (Map.Entry<String, String> entry : map.entrySet()) {
-			    builder.append(entry.getKey() + "=" + entry.getValue().toString() + "\n");
-			}
+					"/" + tableName + ".sql";
 			File temp = new File(createTableFileName);
 			temp.getParentFile().mkdirs();
 			FileWriter fileWriter = new FileWriter(createTableFileName);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
-			printWriter.println(builder.toString());
+			printWriter.println(sqlCreate);
 			printWriter.close();
 		}
 		catch (IOException ioe) {
