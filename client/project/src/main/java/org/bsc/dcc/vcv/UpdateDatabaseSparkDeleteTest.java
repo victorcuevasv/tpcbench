@@ -59,6 +59,8 @@ public class UpdateDatabaseSparkDeleteTest {
 	private final int[] firstMod = {40, 10, 2};
 	private final int[] secondMod = {15, 8, 5};
 	private final HudiUtil hudiUtil;
+	private final String hudiFileSize;
+	private final boolean hudiUseMergeOnRead;
 	
 	public UpdateDatabaseSparkDeleteTest(CommandLine commandLine) {
 		try {
@@ -98,7 +100,10 @@ public class UpdateDatabaseSparkDeleteTest {
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
 		this.primaryKeys = new HudiPrimaryKeys().getMap();
 		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
-				this.experimentName, this.instance);
+				this.experimentName, this.instance, this.hudiFileSize, this.hudiUseMergeOnRead);
+		this.hudiFileSize = commandLine.getOptionValue("hudi-file-max-size");
+		String hudiUseMergeOnReadStr = commandLine.getOptionValue("hudi-merge-on-read", "true");
+		this.hudiUseMergeOnRead = Boolean.parseBoolean(hudiUseMergeOnReadStr);
 	}
 	
 

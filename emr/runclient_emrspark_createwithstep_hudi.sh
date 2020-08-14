@@ -88,7 +88,11 @@ args[19]="--denorm-apply-skip=true"
 # all or query file for denorm analyze and z-order
 args[20]="--analyze-zorder-all-or-file=query2.sql"
 # customer surrogate key for the gdpr test
-args[21]="--gdpr-customer-sk="
+args[21]="--gdpr-customer-sk=221580"
+# target size for hudi files
+args[22]="--hudi-file-max-size=134217728" #1 GB: 1073741824, 128 MB: 134217728
+# use merge on read for writing hudi files (use copy on write otherwise)
+args[23]="--hudi-merge-on-read=false"
 
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 

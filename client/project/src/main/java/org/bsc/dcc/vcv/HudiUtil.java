@@ -16,14 +16,19 @@ public class HudiUtil {
 	private final String resultsDir;
 	private final String experimentName;
 	private final int instance;
+	private final String hudiFileSize;
+	private final boolean hudiUseMergeOnRead;
 	
 	
-	public HudiUtil(String dbName, String workDir, String resultsDir, String experimentName, int instance) {
+	public HudiUtil(String dbName, String workDir, String resultsDir, String experimentName, 
+			int instance, String hudiFileSize, boolean hudiUseMergeOnRead) {
 		this.dbName = dbName;
 		this.workDir = workDir;
 		this.resultsDir = resultsDir;
 		this.experimentName = experimentName;
 		this.instance = instance;
+		this.hudiFileSize = hudiFileSize;
+		this.hudiUseMergeOnRead = hudiUseMergeOnRead;
 	}
 	
 	
@@ -39,10 +44,13 @@ public class HudiUtil {
 		map.put("hoodie.datasource.hive_sync.enable", "true");
 		map.put("hoodie.datasource.write.recordkey.field", primaryKey);
 		map.put("hoodie.table.name", tableName);
-		//map.put("hoodie.datasource.write.storage.type", "COPY_ON_WRITE");
-		map.put("hoodie.datasource.write.storage.type", "MERGE_ON_READ");
+		if( this.hudiUseMergeOnRead )
+			map.put("hoodie.datasource.write.storage.type", "MERGE_ON_READ");
+		else
+			map.put("hoodie.datasource.write.storage.type", "COPY_ON_WRITE");
 		map.put("hoodie.datasource.write.hive_style_partitioning", "true");
-		map.put("hoodie.parquet.max.file.size", String.valueOf(1024 * 1024 * 1024));
+		//map.put("hoodie.parquet.max.file.size", String.valueOf(1024 * 1024 * 1024));
+		map.put("hoodie.parquet.max.file.size", this.hudiFileSize);
 		map.put("hoodie.parquet.compression.codec", "snappy");
 		if( usePartitioning ) {
 			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 

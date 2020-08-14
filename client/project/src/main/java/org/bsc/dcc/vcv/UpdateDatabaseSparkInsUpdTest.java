@@ -59,6 +59,8 @@ public class UpdateDatabaseSparkInsUpdTest {
 	//private final String[] insUpdSuffix = {"pointone", "one", "ten"};
 	private final String[] insUpdSuffix = {"ten"};
 	private final HudiUtil hudiUtil;
+	private final String hudiFileSize;
+	private final boolean hudiUseMergeOnRead;
 	
 	public UpdateDatabaseSparkInsUpdTest(CommandLine commandLine) {
 		try {
@@ -98,7 +100,10 @@ public class UpdateDatabaseSparkInsUpdTest {
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
 		this.primaryKeys = new HudiPrimaryKeys().getMap();
 		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
-				this.experimentName, this.instance);
+				this.experimentName, this.instance, this.hudiFileSize, this.hudiUseMergeOnRead);
+		this.hudiFileSize = commandLine.getOptionValue("hudi-file-max-size");
+		String hudiUseMergeOnReadStr = commandLine.getOptionValue("hudi-merge-on-read", "true");
+		this.hudiUseMergeOnRead = Boolean.parseBoolean(hudiUseMergeOnReadStr);
 	}
 	
 

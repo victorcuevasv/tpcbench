@@ -56,6 +56,8 @@ public class CreateDatabaseSparkUpdate {
 	private final Map<String, String> primaryKeys;
 	private final boolean skipData;
 	private final HudiUtil hudiUtil;
+	private final String hudiFileSize;
+	private final boolean hudiUseMergeOnRead;
 	
 	public CreateDatabaseSparkUpdate(CommandLine commandLine) {
 		try {
@@ -101,7 +103,10 @@ public class CreateDatabaseSparkUpdate {
 		String skipDataStr = commandLine.getOptionValue("denorm-apply-skip");
 		this.skipData = Boolean.parseBoolean(skipDataStr);
 		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
-				this.experimentName, this.instance);
+				this.experimentName, this.instance, this.hudiFileSize, this.hudiUseMergeOnRead);
+		this.hudiFileSize = commandLine.getOptionValue("hudi-file-max-size");
+		String hudiUseMergeOnReadStr = commandLine.getOptionValue("hudi-merge-on-read", "true");
+		this.hudiUseMergeOnRead = Boolean.parseBoolean(hudiUseMergeOnReadStr);
 	}
 	
 

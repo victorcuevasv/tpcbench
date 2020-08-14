@@ -56,6 +56,8 @@ public class UpdateDatabaseSparkGdprTest {
 	private final Map<String, String> primaryKeys;
 	private final String customerSK;
 	private final HudiUtil hudiUtil;
+	private final String hudiFileSize;
+	private final boolean hudiUseMergeOnRead;
 	
 	public UpdateDatabaseSparkGdprTest(CommandLine commandLine) {
 		try {
@@ -104,7 +106,10 @@ public class UpdateDatabaseSparkGdprTest {
 		this.primaryKeys = new HudiPrimaryKeys().getMap();
 		this.customerSK = commandLine.getOptionValue("gdpr-customer-sk");
 		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
-				this.experimentName, this.instance);
+				this.experimentName, this.instance, this.hudiFileSize, this.hudiUseMergeOnRead);
+		this.hudiFileSize = commandLine.getOptionValue("hudi-file-max-size");
+		String hudiUseMergeOnReadStr = commandLine.getOptionValue("hudi-merge-on-read", "true");
+		this.hudiUseMergeOnRead = Boolean.parseBoolean(hudiUseMergeOnReadStr);
 	}
 	
 

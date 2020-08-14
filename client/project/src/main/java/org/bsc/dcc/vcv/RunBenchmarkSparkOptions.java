@@ -120,6 +120,13 @@ public class RunBenchmarkSparkOptions {
 				.desc( "customer surrogate key for the gdpr test" )
 				.hasArg(true).required(false).build() );
 		
+		options.addOption( Option.builder().longOpt( "hudi-file-max-size" )
+				.desc( "target size for parquet files produced by Hudi write phases" )
+				.hasArg(true).required(false).build() );
+		options.addOption( Option.builder().longOpt( "hudi-merge-on-read" )
+				.desc( "use merge on read mode to write hudi files" )
+				.hasArg(true).required(false).type(Boolean.class).build() );
+		
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );
