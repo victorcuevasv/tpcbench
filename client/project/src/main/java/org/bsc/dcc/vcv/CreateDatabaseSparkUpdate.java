@@ -283,8 +283,12 @@ public class CreateDatabaseSparkUpdate {
 				.save(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/");
 			queryRecord.setSuccessful(true);
 			saveCreateTableFile("hudidenorm", tableName, sqlSelect);
-			if( this.doCount )
-				countRowsQuery(tableName + "_denorm_hudi_ro");
+			if( this.doCount ) {
+				if( this.hudiUseMergeOnRead )
+					countRowsQuery(tableName + "_denorm_hudi_ro");
+				else
+					countRowsQuery(tableName + "_denorm_hudi");
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();

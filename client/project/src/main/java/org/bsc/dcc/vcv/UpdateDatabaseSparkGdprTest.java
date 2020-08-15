@@ -213,8 +213,12 @@ public class UpdateDatabaseSparkGdprTest {
 			String tableName = sqlFilename.substring(0, sqlFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			if( this.doCount )
-				countRowsQuery(tableName + "_denorm_hudi_rt");
+			if( this.doCount ) {
+				if( this.hudiUseMergeOnRead )
+					countRowsQuery(tableName + "_denorm_hudi_rt");
+				else
+					countRowsQuery(tableName + "_denorm_hudi");
+			}
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			String primaryKey = this.primaryKeys.get(tableName);
@@ -232,6 +236,11 @@ public class UpdateDatabaseSparkGdprTest {
 			}
 			this.hudiUtil.saveHudiOptions("hudigdpr", tableName, hudiOptions);
 			sqlQuery = sqlQuery.replace("<CUSTOMER_SK>", this.customerSK);
+			//For Merge on Read, use the _rt view.
+			if( this.hudiUseMergeOnRead )
+				sqlQuery = sqlQuery.replace("<SUFFIX>", "_rt");
+			else
+				sqlQuery = sqlQuery.replace("<SUFFIX>", "");
 			this.spark.sql(sqlQuery)
 				.write()
 				.format("org.apache.hudi")
@@ -243,8 +252,12 @@ public class UpdateDatabaseSparkGdprTest {
 				.save(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/");
 			queryRecord.setSuccessful(true);
 			saveCreateTableFile("hudigdpr", tableName, sqlQuery);
-			if( this.doCount )
-				countRowsQuery(tableName + "_denorm_hudi_rt");
+			if( this.doCount ) {
+				if( this.hudiUseMergeOnRead )
+					countRowsQuery(tableName + "_denorm_hudi_rt");
+				else
+					countRowsQuery(tableName + "_denorm_hudi");
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();

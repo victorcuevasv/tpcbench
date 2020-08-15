@@ -231,8 +231,12 @@ public class UpdateDatabaseSparkDeleteTest {
 						primaryKey, precombineKey, null, false);
 			}
 			this.hudiUtil.saveHudiOptions("deletehudi", deleteTableName, hudiOptions);
-			if( this.doCount )
-				countRowsQuery(denormHudiTableName + "_ro");
+			if( this.doCount ) {
+				if( this.hudiUseMergeOnRead )
+					countRowsQuery(denormHudiTableName + "_ro");
+				else
+					countRowsQuery(denormHudiTableName);
+			}
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(selectSql)
@@ -245,8 +249,12 @@ public class UpdateDatabaseSparkDeleteTest {
 			.mode(SaveMode.Append)
 			.save(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/");
 			queryRecord.setSuccessful(true);
-			if( this.doCount )
-				countRowsQuery(denormHudiTableName + "_ro");
+			if( this.doCount ) {
+				if( this.hudiUseMergeOnRead )
+					countRowsQuery(denormHudiTableName + "_ro");
+				else
+					countRowsQuery(denormHudiTableName);
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();

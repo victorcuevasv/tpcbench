@@ -20,7 +20,7 @@ if [ $# -lt 3 ]; then
 fi
 
 #Cluster configuration.
-Nodes="16"
+Nodes="4"
 Version="5.30.1"
 VersionShort="530"
 AutoTerminate="true"
@@ -79,7 +79,7 @@ args[15]="--number-of-streams=$3"
 #                   tput)
 args[16]="--execution-flags=1111000001111100"
 # count-queries
-args[17]="--count-queries=true"
+args[17]="--count-queries=false"
 # all or denorm table file
 args[18]="--denorm-all-or-file=store_sales.sql"
 # skip data to be inserted later
