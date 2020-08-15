@@ -99,7 +99,7 @@ public class UpdateDatabaseSparkInsUpdTest {
 				this.system, this.test, this.instance);
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
 		this.primaryKeys = new HudiPrimaryKeys().getMap();
-		this.hudiFileSize = commandLine.getOptionValue("hudi-file-max-size");
+		this.hudiFileSize = commandLine.getOptionValue("hudi-file-max-size", "1073741824");
 		String hudiUseMergeOnReadStr = commandLine.getOptionValue("hudi-merge-on-read", "true");
 		this.hudiUseMergeOnRead = Boolean.parseBoolean(hudiUseMergeOnReadStr);
 		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 

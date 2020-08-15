@@ -102,7 +102,7 @@ public class CreateDatabaseSparkUpdate {
 		this.primaryKeys = new HudiPrimaryKeys().getMap();
 		String skipDataStr = commandLine.getOptionValue("denorm-apply-skip");
 		this.skipData = Boolean.parseBoolean(skipDataStr);
-		this.hudiFileSize = commandLine.getOptionValue("hudi-file-max-size");
+		this.hudiFileSize = commandLine.getOptionValue("hudi-file-max-size", "1073741824");
 		String hudiUseMergeOnReadStr = commandLine.getOptionValue("hudi-merge-on-read", "true");
 		this.hudiUseMergeOnRead = Boolean.parseBoolean(hudiUseMergeOnReadStr);
 		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
