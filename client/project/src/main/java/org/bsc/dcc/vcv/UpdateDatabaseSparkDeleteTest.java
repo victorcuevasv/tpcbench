@@ -185,7 +185,8 @@ public class UpdateDatabaseSparkDeleteTest {
 			this.saveCreateTableFile("deletemerge", deleteTableName, mergeSql);
 			if( this.doCount )
 				countRowsQuery(denormDeltaTableName);
-			queryRecord = new QueryRecord(index);
+			//queryRecord = new QueryRecord(index);
+			queryRecord = new QueryRecord(fractionIndex);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(mergeSql);
 			queryRecord.setSuccessful(true);
