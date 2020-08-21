@@ -149,11 +149,14 @@ public class UpdateDatabaseSparkGdprTest {
 					continue;
 				}
 			}
-			if( this.format.equals("delta") )
+			if( this.format.equals("delta") ) {
 				deleteFromTableDelta(fileName, sqlQuery, i);
-			else if( this.format.equals("hudi") )
+				i++;
+			}
+			else if( this.format.equals("hudi") ) {
 				deleteFromTableHudi(fileName, sqlQuery, i);
-			i++;
+				i += 2;
+			}
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
 		//	this.closeConnection();
@@ -241,8 +244,11 @@ public class UpdateDatabaseSparkGdprTest {
 				sqlQuery = sqlQuery.replace("<SUFFIX>", "_rt");
 			else
 				sqlQuery = sqlQuery.replace("<SUFFIX>", "");
-			this.spark.sql(sqlQuery)
-				.write()
+			Dataset<Row> dataset = this.spark.sql(sqlQuery);
+			queryRecord.setSuccessful(true);
+			queryRecord = new QueryRecord(index + 1);
+			queryRecord.setStartTime(System.currentTimeMillis());
+			dataset.write()
 				.format("org.apache.hudi")
 				.option("hoodie.datasource.write.operation", "upsert")
 				.option("hoodie.datasource.write.payload.class", 

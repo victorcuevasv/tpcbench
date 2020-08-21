@@ -177,7 +177,8 @@ public class CreateDatabaseSparkInsertData {
 			saveCreateTableFile("insertcreate", insertTableName, parquetSqlCreate);
 			if( this.doCount )
 				countRowsQuery(denormTableName);
-			queryRecord = new QueryRecord(index);
+			//queryRecord = new QueryRecord(index);
+			queryRecord = new QueryRecord(fractionIndex);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(parquetSqlCreate);
 			queryRecord.setSuccessful(true);
