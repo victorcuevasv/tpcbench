@@ -55,7 +55,7 @@ public class CreateDatabaseSparkDenormSkip {
 	private final Map<String, String> precombineKeys;
 	private final Map<String, String> primaryKeys;
 	
-	public CreateDatabaseSparkUpdate(CommandLine commandLine) {
+	public CreateDatabaseSparkDenormSkip(CommandLine commandLine) {
 		try {
 
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
