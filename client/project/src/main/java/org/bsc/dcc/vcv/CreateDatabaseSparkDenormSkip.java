@@ -31,7 +31,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseSparkUpdate {
+public class CreateDatabaseSparkDenormSkip {
 
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private SparkSession spark;
@@ -54,10 +54,6 @@ public class CreateDatabaseSparkUpdate {
 	private final String denormSingleOrAll;
 	private final Map<String, String> precombineKeys;
 	private final Map<String, String> primaryKeys;
-	private final boolean skipData;
-	private final HudiUtil hudiUtil;
-	private final String hudiFileSize;
-	private final boolean hudiUseMergeOnRead;
 	
 	public CreateDatabaseSparkUpdate(CommandLine commandLine) {
 		try {
@@ -68,7 +64,7 @@ public class CreateDatabaseSparkUpdate {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkUpdate constructor.");
+			this.logger.error("Error in CreateDatabaseSparkDenormSkip constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -84,10 +80,7 @@ public class CreateDatabaseSparkUpdate {
 		this.createTableDir = "QueriesDenorm";
 		this.extTablePrefixCreated = Optional.ofNullable(commandLine.getOptionValue("ext-tables-location"));
 		//this.format = commandLine.getOptionValue("table-format");
-		if( this.system.equalsIgnoreCase("sparkdatabricks") )
-			this.format = "delta";
-		else
-			this.format = "hudi";
+		this.format = "parquet";
 		String doCountStr = commandLine.getOptionValue("count-queries", "false");
 		this.doCount = Boolean.parseBoolean(doCountStr);
 		String partitionStr = commandLine.getOptionValue("use-partitioning");
@@ -100,18 +93,11 @@ public class CreateDatabaseSparkUpdate {
 				this.system, this.test, this.instance);
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
 		this.primaryKeys = new HudiPrimaryKeys().getMap();
-		String skipDataStr = commandLine.getOptionValue("denorm-apply-skip");
-		this.skipData = Boolean.parseBoolean(skipDataStr);
-		this.hudiFileSize = commandLine.getOptionValue("hudi-file-max-size", "1073741824");
-		String hudiUseMergeOnReadStr = commandLine.getOptionValue("hudi-merge-on-read", "true");
-		this.hudiUseMergeOnRead = Boolean.parseBoolean(hudiUseMergeOnReadStr);
-		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
-				this.experimentName, this.instance, this.hudiFileSize, this.hudiUseMergeOnRead);
 	}
 	
 
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseSparkUpdate application = null;
+		CreateDatabaseSparkDenormSkip application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
@@ -121,12 +107,12 @@ public class CreateDatabaseSparkUpdate {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseSparkUpdate main.");
+			logger.error("Error in CreateDatabaseSparkDenormSkip main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseSparkUpdate(commandLine);
+		application = new CreateDatabaseSparkDenormSkip(commandLine);
 		application.createTables();
 	}
 	
@@ -146,10 +132,7 @@ public class CreateDatabaseSparkUpdate {
 					continue;
 				}
 			}
-			if( this.format.equals("delta") )
-				createTableDelta(fileName, sqlQuery, i);
-			else if( this.format.equals("hudi") )
-				createTableHudi(fileName, sqlQuery, i);
+			createTable(fileName, sqlQuery, i);
 			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -165,28 +148,34 @@ public class CreateDatabaseSparkUpdate {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkUpdate useDatabase.");
+			this.logger.error("Error in CreateDatabaseSparkDenormSkip useDatabase.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
 	
 	
-	private void createTableDelta(String sqlCreateFilename, String sqlQueryIgnored, int index) {
+	private void createTable(String sqlCreateFilename, String sqlQueryIgnored, int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			this.dropTable("drop table if exists " + tableName + "_denorm_delta");
+			this.dropTable("drop table if exists " + tableName + "_denorm_skip");
 			String primaryKey = this.primaryKeys.get(tableName);
 			String partCol = null;
 			int posPart = Arrays.asList(Partitioning.tables).indexOf(tableName);
 			if( posPart != -1 )
 				partCol = Partitioning.partKeys[posPart];
 			String sqlSelect = "SELECT * FROM " + tableName + "_denorm";
-			if( this.skipData )
-				sqlSelect = sqlSelect + "_skip";
+			StringTokenizer tokenizer = new StringTokenizer(primaryKey, ",");
+			String skipAtt = tokenizer.nextToken();
+			StringBuilder selectBuilder = new StringBuilder(sqlSelect);
+			selectBuilder.append(
+					"\nWHERE MOD(" + partCol + ", " + SkipMods.firstMod + ") <> 0");
+			selectBuilder.append(
+					"\nOR MOD(" + skipAtt + ", " + SkipMods.secondMod + ") <> 0");
+			sqlSelect = selectBuilder.toString();
 			if( this.doCount )
 				countRowsQuery(tableName + "_denorm");
 			queryRecord = new QueryRecord(index);
@@ -194,87 +183,28 @@ public class CreateDatabaseSparkUpdate {
 			if( ! this.partition ) {
 				this.spark.sql(sqlSelect).write()
 				.option("compression", "snappy")
-				.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_delta")
+				.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_skip")
 				.mode("overwrite")
-				.format("delta")
-				.saveAsTable(tableName + "_denorm_delta");
+				.format("parquet")
+				.saveAsTable(tableName + "_denorm_skip");
 			}
 			else {
 				this.spark.sql(sqlSelect).write()
 				.option("compression", "snappy")
-				.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_delta")
+				.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_skip")
 				.partitionBy(partCol)
 				.mode("overwrite")
-				.format("delta")
-				.saveAsTable(tableName + "_denorm_delta");
+				.format("parquet")
+				.saveAsTable(tableName + "_denorm_skip");
 			}
 			queryRecord.setSuccessful(true);
-			saveCreateTableFile("deltadenorm", tableName, sqlSelect);
+			saveCreateTableFile("parquetdenormskip", tableName, sqlSelect);
 			if( this.doCount )
-				countRowsQuery(tableName + "_denorm_delta");
+				countRowsQuery(tableName + "_denorm_skip");
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkUpdate createTableDelta.");
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-		}
-		finally {
-			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
-				this.recorder.record(queryRecord);
-			}
-		}
-	}
-	
-	
-	private void createTableHudi(String sqlCreateFilename, String sqlQueryIgnored, int index) {
-		QueryRecord queryRecord = null;
-		try {
-			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
-			System.out.println("Processing table " + index + ": " + tableName);
-			this.logger.info("Processing table " + index + ": " + tableName);
-			this.dropTable("drop table if exists " + tableName + "_denorm_hudi");
-			if( this.doCount )
-				countRowsQuery(tableName + "_denorm");
-			queryRecord = new QueryRecord(index);
-			queryRecord.setStartTime(System.currentTimeMillis());
-			String primaryKey = this.primaryKeys.get(tableName);
-			String precombineKey = this.precombineKeys.get(tableName);
-			Map<String, String> hudiOptions = null;
-			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
-				String partitionKey = 
-						Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
-				hudiOptions = this.hudiUtil.createHudiOptions(tableName + "_denorm_hudi", 
-						primaryKey, precombineKey, partitionKey, true);
-			}
-			else {
-				hudiOptions = this.hudiUtil.createHudiOptions(tableName + "_denorm_hudi", 
-						primaryKey, precombineKey, null, false);
-			}
-			this.hudiUtil.saveHudiOptions("hudi", tableName, hudiOptions);
-			String sqlSelect = "SELECT * FROM " + tableName + "_denorm";
-			if( this.skipData )
-				sqlSelect = sqlSelect + "_skip";
-			this.spark.sql(sqlSelect)
-				.write()
-				.format("org.apache.hudi")
-				.option("hoodie.datasource.write.operation", "insert")
-				.options(hudiOptions)
-				.mode(SaveMode.Overwrite)
-				.save(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/");
-			queryRecord.setSuccessful(true);
-			saveCreateTableFile("hudidenorm", tableName, sqlSelect);
-			if( this.doCount ) {
-				if( this.hudiUseMergeOnRead )
-					countRowsQuery(tableName + "_denorm_hudi_ro");
-				else
-					countRowsQuery(tableName + "_denorm_hudi");
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkUpdate createTableHudi.");
+			this.logger.error("Error in CreateDatabaseSparkDenormSkip createTable.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -341,7 +271,7 @@ public class CreateDatabaseSparkUpdate {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkUpdate closeConnection.");
+			this.logger.error("Error in CreateDatabaseSparkDenormSkip closeConnection.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}

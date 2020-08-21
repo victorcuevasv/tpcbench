@@ -90,20 +90,38 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the LOAD DENORM test.\n\n\n");
 				CreateDatabaseSparkDenorm.main(args);
 			}
-			boolean doLoadUpdate = this.flags.charAt(3) == '1' ? true : false;
+			boolean doLoadDenormSkip = this.flags.charAt(3) == '1' ? true : false;
+			if( doLoadDenormSkip ) {
+				this.saveTestParameters(args, "loaddenormskip");
+				System.out.println("\n\n\nRunning the LOAD DENORM SKIP test.\n\n\n");
+				CreateDatabaseSparkDenormSkip.main(args);
+			}
+			boolean doInsertData = this.flags.charAt(4) == '1' ? true : false;
+			if( doInsertData ) {
+				this.saveTestParameters(args, "insertdata");
+				System.out.println("\n\n\nRunning the CREATE INSERT DATA test.\n\n\n");
+				CreateDatabaseSparkInsertData.main(args);
+			}
+			boolean doDeleteData = this.flags.charAt(5) == '1' ? true : false;
+			if( doDeleteData ) {
+				this.saveTestParameters(args, "deletedata");
+				System.out.println("\n\n\nRunning the CREATE DELETE DATA test.\n\n\n");
+				CreateDatabaseSparkDeleteData.main(args);
+			}
+			boolean doLoadUpdate = this.flags.charAt(6) == '1' ? true : false;
 			if( doLoadUpdate ) {
 				this.saveTestParameters(args, "loadupdate");
 				System.out.println("\n\n\nRunning the LOAD UPDATE test.\n\n\n");
 				CreateDatabaseSparkUpdate.main(args);
 			}
 			//Redundant check for legacy compatibility.
-			boolean doAnalyze = this.flags.charAt(4) == '1' ? true : false;
+			boolean doAnalyze = this.flags.charAt(7) == '1' ? true : false;
 			if( this.analyze && doAnalyze) {
 				this.saveTestParameters(args, "analyze");
 				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
 				AnalyzeTablesSpark.main(args);
 			}
-			boolean doAnalyzeDenorm = this.flags.charAt(5) == '1' ? true : false;
+			boolean doAnalyzeDenorm = this.flags.charAt(8) == '1' ? true : false;
 			if( doAnalyzeDenorm ) {
 				String[] argsCopy = Arrays.stream(args)
 					.filter(s -> ! s.contains("all-or-query-file"))
@@ -116,7 +134,7 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the ANALYZE DENORM test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesAnalyzeDenormArgs);
 			}
-			boolean doAnalyzeUpdate = this.flags.charAt(6) == '1' ? true : false;
+			boolean doAnalyzeUpdate = this.flags.charAt(9) == '1' ? true : false;
 			if( doAnalyzeUpdate ) {
 				String[] argsCopy = Arrays.stream(args)
 						.filter(s -> ! s.contains("all-or-query-file"))
@@ -129,7 +147,7 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the ANALYZE UPDATE test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesAnalyzeUpdateArgs);
 			}
-			boolean doZorder = this.flags.charAt(7) == '1' ? true : false;
+			boolean doZorder = this.flags.charAt(10) == '1' ? true : false;
 			if( this.format.equalsIgnoreCase("delta") && doZorder ) {
 				String[] executeQueriesSparkDeltaZorderArgs =
 						this.createExecuteQueriesSparkDeltaZorderArgs(args);
@@ -137,7 +155,7 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the Delta Z-ORDER test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkDeltaZorderArgs);
 			}
-			boolean doZorderUpdate = this.flags.charAt(8) == '1' ? true : false;
+			boolean doZorderUpdate = this.flags.charAt(11) == '1' ? true : false;
 			if( doZorderUpdate ) {
 				String[] argsCopy = Arrays.stream(args)
 						.filter(s -> ! s.contains("all-or-query-file"))
@@ -150,37 +168,25 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the Delta Z-ORDER UPDATE test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkDeltaZorderUpdateArgs);
 			}
-			boolean doInsertData = this.flags.charAt(9) == '1' ? true : false;
-			if( doInsertData ) {
-				this.saveTestParameters(args, "insertdata");
-				System.out.println("\n\n\nRunning the CREATE INSERT DATA test.\n\n\n");
-				CreateDatabaseSparkInsertData.main(args);
-			}
-			boolean doInsUpdTest = this.flags.charAt(10) == '1' ? true : false;
+			boolean doInsUpdTest = this.flags.charAt(12) == '1' ? true : false;
 			if( doInsUpdTest ) {
 				this.saveTestParameters(args, "insupdtest");
 				System.out.println("\n\n\nRunning the INSERT/UPDATE test.\n\n\n");
 				UpdateDatabaseSparkInsUpdTest.main(args);
 			}
-			boolean doDeleteData = this.flags.charAt(11) == '1' ? true : false;
-			if( doDeleteData ) {
-				this.saveTestParameters(args, "deletedata");
-				System.out.println("\n\n\nRunning the CREATE DELETE DATA test.\n\n\n");
-				CreateDatabaseSparkDeleteData.main(args);
-			}
-			boolean doDeleteTest = this.flags.charAt(12) == '1' ? true : false;
+			boolean doDeleteTest = this.flags.charAt(13) == '1' ? true : false;
 			if( doDeleteTest ) {
 				this.saveTestParameters(args, "deletetest");
 				System.out.println("\n\n\nRunning the DELETE test.\n\n\n");
 				UpdateDatabaseSparkDeleteTest.main(args);
 			}
-			boolean doGdprTest = this.flags.charAt(13) == '1' ? true : false;
+			boolean doGdprTest = this.flags.charAt(14) == '1' ? true : false;
 			if( doGdprTest ) {
 				this.saveTestParameters(args, "gdprtest");
 				System.out.println("\n\n\nRunning the GDPR test.\n\n\n");
 				UpdateDatabaseSparkGdprTest.main(args);
 			}
-			boolean doPower = this.flags.charAt(14) == '1' ? true : false;
+			boolean doPower = this.flags.charAt(15) == '1' ? true : false;
 			if( doPower ) {
 				String[] executeQueriesSparkArgs =
 						this.createExecuteQueriesSparkArgs(args);
@@ -188,7 +194,7 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkArgs);
 			}
-			boolean doTput = this.flags.charAt(15) == '1' ? true : false;
+			boolean doTput = this.flags.charAt(16) == '1' ? true : false;
 			if( doTput ) {
 				this.saveTestParameters(args, "tput");
 				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");

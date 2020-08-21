@@ -73,11 +73,12 @@ args[14]="--all-or-query-file=all"
 
 # number of streams
 args[15]="--number-of-streams=$3"
-# flags (1111111111 schema         |load          |load denorm |load update   |analyze     |
-#                   analyze denorm |analyze update|zorder      |zorder update |insupd data |  
-#                   insupd test    |delete data   |delete test |gdpr          |power       |
-#                   tput)
-args[16]="--execution-flags=1111000001111100"
+# flags 11111110000011100
+# schema      |load          |load denorm |load skip      |insupd data    |
+# delete data |load update   |analyze     |analyze denorm |analyze update |
+# zorder      |zorder update |insupd test |delete test    |gdpr           |
+# power       |tput
+args[16]="--execution-flags=11111110000011100"
 # count-queries
 args[17]="--count-queries=false"
 # all or denorm table file
@@ -237,8 +238,6 @@ configurations_func()
       "Classification":"spark-defaults",
       "Properties":{
          "spark.driver.memory":"5692M",
-         "hive.exec.max.dynamic.partitions":"3000",
-         "hive.exec.dynamic.partition.mode":"nonstrict",
          "spark.sql.broadcastTimeout":"7200",
          "spark.sql.crossJoin.enabled":"true"
       }
