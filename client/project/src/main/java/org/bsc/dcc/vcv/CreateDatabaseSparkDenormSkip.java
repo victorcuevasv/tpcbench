@@ -52,8 +52,7 @@ public class CreateDatabaseSparkDenormSkip {
 	private final String jarFile;
 	private final String createSingleOrAll;
 	private final String denormSingleOrAll;
-	private final Map<String, String> precombineKeys;
-	private final Map<String, String> primaryKeys;
+	private final Map<String, String> skipKeys;
 	
 	public CreateDatabaseSparkDenormSkip(CommandLine commandLine) {
 		try {
@@ -91,8 +90,7 @@ public class CreateDatabaseSparkDenormSkip {
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
-		this.precombineKeys = new HudiPrecombineKeys().getMap();
-		this.primaryKeys = new HudiPrimaryKeys().getMap();
+		this.skipKeys = new SkipKeys().getMap();
 	}
 	
 
@@ -162,14 +160,12 @@ public class CreateDatabaseSparkDenormSkip {
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			this.dropTable("drop table if exists " + tableName + "_denorm_skip");
-			String primaryKey = this.primaryKeys.get(tableName);
+			String skipAtt = this.skipKeys.get(tableName);
 			String partCol = null;
 			int posPart = Arrays.asList(Partitioning.tables).indexOf(tableName);
 			if( posPart != -1 )
 				partCol = Partitioning.partKeys[posPart];
 			String sqlSelect = "SELECT * FROM " + tableName + "_denorm";
-			StringTokenizer tokenizer = new StringTokenizer(primaryKey, ",");
-			String skipAtt = tokenizer.nextToken();
 			StringBuilder selectBuilder = new StringBuilder(sqlSelect);
 			selectBuilder.append(
 					"\nWHERE MOD(" + partCol + ", " + SkipMods.firstMod + ") <> 0");
