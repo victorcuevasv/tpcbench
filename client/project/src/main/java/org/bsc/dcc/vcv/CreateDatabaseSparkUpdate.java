@@ -185,10 +185,12 @@ public class CreateDatabaseSparkUpdate {
 			if( posPart != -1 )
 				partCol = Partitioning.partKeys[posPart];
 			String sqlSelect = "SELECT * FROM " + tableName + "_denorm";
+			String skipOrNot = "";
 			if( this.skipData )
-				sqlSelect = sqlSelect + "_skip";
+				skipOrNot = "_skip";
+			sqlSelect = sqlSelect + skipOrNot;
 			if( this.doCount )
-				countRowsQuery(tableName + "_denorm");
+				countRowsQuery(tableName + "_denorm" + skipOrNot);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			if( ! this.partition ) {
