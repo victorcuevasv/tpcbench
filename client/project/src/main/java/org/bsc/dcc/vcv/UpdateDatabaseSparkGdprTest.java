@@ -246,6 +246,7 @@ public class UpdateDatabaseSparkGdprTest {
 			else
 				sqlQuery = sqlQuery.replace("<SUFFIX>", "");
 			Dataset<Row> dataset = this.spark.sql(sqlQuery);
+			long nTuples = dataset.count();
 			queryRecord1.setSuccessful(true);
 			queryRecord1.setEndTime(System.currentTimeMillis());
 			queryRecord2 = new QueryRecord(index + 1);
