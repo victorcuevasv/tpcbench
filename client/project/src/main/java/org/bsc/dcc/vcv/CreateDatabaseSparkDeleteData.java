@@ -52,8 +52,7 @@ public class CreateDatabaseSparkDeleteData {
 	private final String jarFile;
 	private final String createSingleOrAll;
 	private final String denormSingleOrAll;
-	private final Map<String, String> primaryKeys;
-	private final Map<String, String> precombineKeys;
+	private final Map<String, String> skipKeys;
 	private final double[] fractions = {0.1, 1.0, 10.0};
 	private final String[] deleteSuffix = {"pointone", "one", "ten"};
 	private final int[] firstMod = {10, 10, 3};
@@ -96,8 +95,7 @@ public class CreateDatabaseSparkDeleteData {
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
-		this.precombineKeys = new HudiPrecombineKeys().getMap();
-		this.primaryKeys = new HudiPrimaryKeys().getMap();
+		this.skipKeys = new SkipKeys().getMap();
 	}
 	
 
@@ -215,10 +213,7 @@ public class CreateDatabaseSparkDeleteData {
 			int fractionIndex) {
 		String partKey = 
 				Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
-		String primaryKeyFull = this.primaryKeys.get(tableName);
-		//For now only use simple keys.
-		StringTokenizer tokenizer = new StringTokenizer(primaryKeyFull, ",");
-		String primaryKey = tokenizer.nextToken();
+		String skipAtt = this.skipKeys.get(tableName);
 		StringBuilder builder = new StringBuilder("CREATE TABLE " + deleteTableName + "\n");
 		builder.append("USING PARQUET\n");
 		builder.append("OPTIONS ('compression'='snappy')\n");
@@ -227,7 +222,7 @@ public class CreateDatabaseSparkDeleteData {
 		builder.append("SELECT * FROM " + denormTableName + "\n");
 		builder.append("WHERE MOD(" + partKey + ", " + 
 				this.firstMod[fractionIndex] + ") = " + this.firstEqual[fractionIndex] + "\n");
-		builder.append("AND MOD(" + primaryKey + ", " + 
+		builder.append("AND MOD(" + skipAtt + ", " + 
 				this.secondMod[fractionIndex] + ") = " + this.secondEqual[fractionIndex] + "\n");
 		return builder.toString();
 	}
