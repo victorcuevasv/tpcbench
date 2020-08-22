@@ -211,7 +211,8 @@ public class UpdateDatabaseSparkGdprTest {
 	
 	
 	private void deleteFromTableHudi(String sqlFilename, String sqlQuery, int index) {
-		QueryRecord queryRecord = null;
+		QueryRecord queryRecord1 = null;
+		QueryRecord queryRecord2 = null;
 		try {
 			String tableName = sqlFilename.substring(0, sqlFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
@@ -222,8 +223,8 @@ public class UpdateDatabaseSparkGdprTest {
 				else
 					countRowsQuery(tableName + "_denorm_hudi");
 			}
-			queryRecord = new QueryRecord(index);
-			queryRecord.setStartTime(System.currentTimeMillis());
+			queryRecord1 = new QueryRecord(index);
+			queryRecord1.setStartTime(System.currentTimeMillis());
 			String primaryKey = this.primaryKeys.get(tableName);
 			String precombineKey = this.precombineKeys.get(tableName);
 			Map<String, String> hudiOptions = null;
@@ -245,9 +246,10 @@ public class UpdateDatabaseSparkGdprTest {
 			else
 				sqlQuery = sqlQuery.replace("<SUFFIX>", "");
 			Dataset<Row> dataset = this.spark.sql(sqlQuery);
-			queryRecord.setSuccessful(true);
-			queryRecord = new QueryRecord(index + 1);
-			queryRecord.setStartTime(System.currentTimeMillis());
+			queryRecord1.setSuccessful(true);
+			queryRecord1.setEndTime(System.currentTimeMillis());
+			queryRecord2 = new QueryRecord(index + 1);
+			queryRecord2.setStartTime(System.currentTimeMillis());
 			dataset.write()
 				.format("org.apache.hudi")
 				.option("hoodie.datasource.write.operation", "upsert")
@@ -256,7 +258,8 @@ public class UpdateDatabaseSparkGdprTest {
 				.options(hudiOptions)
 				.mode(SaveMode.Append)
 				.save(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/");
-			queryRecord.setSuccessful(true);
+			queryRecord2.setSuccessful(true);
+			queryRecord2.setEndTime(System.currentTimeMillis());
 			saveCreateTableFile("hudigdpr", tableName, sqlQuery);
 			if( this.doCount ) {
 				if( this.hudiUseMergeOnRead )
@@ -272,9 +275,11 @@ public class UpdateDatabaseSparkGdprTest {
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		finally {
-			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
-				this.recorder.record(queryRecord);
+			if( queryRecord1 != null ) {
+				this.recorder.record(queryRecord1);
+			}
+			if( queryRecord2 != null ) {
+				this.recorder.record(queryRecord2);
 			}
 		}
 	}
