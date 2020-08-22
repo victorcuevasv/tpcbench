@@ -56,8 +56,10 @@ public class CreateDatabaseSparkDeleteData {
 	private final Map<String, String> precombineKeys;
 	private final double[] fractions = {0.1, 1.0, 10.0};
 	private final String[] deleteSuffix = {"pointone", "one", "ten"};
-	private final int[] firstMod = {40, 10, 2};
-	private final int[] secondMod = {15, 8, 5};
+	private final int[] firstMod = {10, 10, 3};
+	private final int[] secondMod = {100, 10, 3};
+	private final int[] firstEqual = {1, 0, 0};
+	private final int[] secondEqual = {0, 0, 0};
 	
 	public CreateDatabaseSparkDeleteData(CommandLine commandLine) {
 		try {
@@ -223,8 +225,10 @@ public class CreateDatabaseSparkDeleteData {
 		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + deleteTableName + "' \n");
 		builder.append("AS\n");
 		builder.append("SELECT * FROM " + denormTableName + "\n");
-		builder.append("WHERE MOD(" + partKey + ", " + this.firstMod[fractionIndex] + ") = 0 \n");
-		builder.append("AND MOD(" + primaryKey + ", " + this.secondMod[fractionIndex] + ") = 0 \n");
+		builder.append("WHERE MOD(" + partKey + ", " + 
+				this.firstMod[fractionIndex] + ") = " + this.firstEqual[fractionIndex] + "\n");
+		builder.append("AND MOD(" + primaryKey + ", " + 
+				this.secondMod[fractionIndex] + ") = " + this.secondEqual[fractionIndex] + "\n");
 		return builder.toString();
 	}
 

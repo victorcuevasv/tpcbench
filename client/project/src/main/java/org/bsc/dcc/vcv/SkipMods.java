@@ -4,7 +4,7 @@ public class SkipMods {
 
 	public static final int firstMod = 2;
 	
-	public static final int secondMod = 3;
+	public static final int secondMod = 5;
 
 }
 
