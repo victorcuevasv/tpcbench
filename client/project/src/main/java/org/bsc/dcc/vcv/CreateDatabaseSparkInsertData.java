@@ -52,8 +52,7 @@ public class CreateDatabaseSparkInsertData {
 	private final String jarFile;
 	private final String createSingleOrAll;
 	private final String denormSingleOrAll;
-	private final Map<String, String> primaryKeys;
-	private final Map<String, String> precombineKeys;
+	private final Map<String, String> skipKeys;
 	//private final double[] fractions = {0.1, 1.0, 10.0};
 	private final double[] fractions = {10.0};
 	//private final String[] insertSuffix = {"pointone", "one", "ten"};
@@ -95,8 +94,7 @@ public class CreateDatabaseSparkInsertData {
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
-		this.precombineKeys = new HudiPrecombineKeys().getMap();
-		this.primaryKeys = new HudiPrimaryKeys().getMap();
+		this.skipKeys = new SkipKeys().getMap();
 	}
 	
 
@@ -215,10 +213,7 @@ public class CreateDatabaseSparkInsertData {
 			int fractionIndex) {
 		String partKey = 
 				Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
-		String primaryKeyFull = this.primaryKeys.get(tableName);
-		//For now only use simple keys.
-		StringTokenizer tokenizer = new StringTokenizer(primaryKeyFull, ",");
-		String primaryKey = tokenizer.nextToken();
+		String skipAtt = this.skipKeys.get(tableName);
 		StringBuilder builder = new StringBuilder("CREATE TABLE " + insertTableName + "\n");
 		builder.append("USING PARQUET\n");
 		builder.append("OPTIONS ('compression'='snappy')\n");
@@ -226,15 +221,15 @@ public class CreateDatabaseSparkInsertData {
 		builder.append("AS\n");
 		builder.append("( SELECT * FROM " + denormTableName + "\n");
 		builder.append("WHERE MOD(" + partKey + ", " + SkipMods.firstMod + ") = 0 \n");
-		builder.append("AND MOD(" + primaryKey + ", " + SkipMods.secondMod + ") = 0 ) \n");
-		String updateExpr = this.createUpdatesExpression(denormTableName, partKey, primaryKey);
+		builder.append("AND MOD(" + skipAtt + ", " + SkipMods.secondMod + ") = 0 ) \n");
+		String updateExpr = this.createUpdatesExpression(denormTableName, partKey, skipAtt);
 		builder.append("UNION ALL\n");
 		builder.append(updateExpr);
 		return builder.toString();
 	}
 
 	
-	private String createUpdatesExpression(String denormTableName, String partKey, String primaryKey) {
+	private String createUpdatesExpression(String denormTableName, String partKey, String skipAtt) {
 		String expr = null;
 		try {
 			Dataset<Row> dataset = this.spark.sql("DESCRIBE " + denormTableName);
@@ -244,7 +239,7 @@ public class CreateDatabaseSparkInsertData {
 					 columnsStrUpd + "\n" +
 					 "FROM " + denormTableName + "\n" +
 					 "WHERE MOD(" + partKey + ", " + UpdateMods.firstMod + ") = 1 \n" +
-					 "AND MOD(" + primaryKey + ", " + UpdateMods.secondMod + ") = 0 ) \n";
+					 "AND MOD(" + skipAtt + ", " + UpdateMods.secondMod + ") = 0 ) \n";
 		}
 		catch (Exception e) {
 			e.printStackTrace();
