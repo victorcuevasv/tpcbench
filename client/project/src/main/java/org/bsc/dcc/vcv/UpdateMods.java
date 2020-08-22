@@ -4,7 +4,7 @@ public class UpdateMods {
 
 	public static final int firstMod = 2;
 	
-	public static final int secondMod = 15;
+	public static final int secondMod = 25;
 
 }
 
