@@ -72,7 +72,7 @@ public class CreateDatabaseSparkDenormSkip {
 		this.resultsDir = commandLine.getOptionValue("results-dir");
 		this.experimentName = commandLine.getOptionValue("experiment-name");
 		this.system = commandLine.getOptionValue("system-name");
-		this.test = commandLine.getOptionValue("tpcds-test", "loadupdate");
+		this.test = commandLine.getOptionValue("tpcds-test", "loaddenormskip");
 		String instanceStr = commandLine.getOptionValue("instance-number");
 		this.instance = Integer.parseInt(instanceStr);
 		//this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");

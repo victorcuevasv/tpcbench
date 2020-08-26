@@ -186,7 +186,7 @@ public class UpdateDatabaseSparkDeleteTest {
 			if( this.doCount )
 				countRowsQuery(denormDeltaTableName);
 			//queryRecord = new QueryRecord(index);
-			queryRecord = new QueryRecord(fractionIndex);
+			queryRecord = new QueryRecord(fractionIndex + 1);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(mergeSql);
 			queryRecord.setSuccessful(true);
@@ -238,7 +238,8 @@ public class UpdateDatabaseSparkDeleteTest {
 				else
 					countRowsQuery(denormHudiTableName);
 			}
-			queryRecord = new QueryRecord(index);
+			//queryRecord = new QueryRecord(index);
+			queryRecord = new QueryRecord(fractionIndex + 1);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(selectSql)
 			.write()

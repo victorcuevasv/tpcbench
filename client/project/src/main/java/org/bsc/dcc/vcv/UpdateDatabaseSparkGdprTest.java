@@ -211,8 +211,7 @@ public class UpdateDatabaseSparkGdprTest {
 	
 	
 	private void deleteFromTableHudi(String sqlFilename, String sqlQuery, int index) {
-		QueryRecord queryRecord1 = null;
-		QueryRecord queryRecord2 = null;
+		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlFilename.substring(0, sqlFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
@@ -223,8 +222,8 @@ public class UpdateDatabaseSparkGdprTest {
 				else
 					countRowsQuery(tableName + "_denorm_hudi");
 			}
-			queryRecord1 = new QueryRecord(index);
-			queryRecord1.setStartTime(System.currentTimeMillis());
+			queryRecord = new QueryRecord(index);
+			queryRecord.setStartTime(System.currentTimeMillis());
 			String primaryKey = this.primaryKeys.get(tableName);
 			String precombineKey = this.precombineKeys.get(tableName);
 			Map<String, String> hudiOptions = null;
@@ -242,15 +241,17 @@ public class UpdateDatabaseSparkGdprTest {
 			sqlQuery = sqlQuery.replace("<CUSTOMER_SK>", this.customerSK);
 			//For Merge on Read, use the _rt view.
 			if( this.hudiUseMergeOnRead )
-				sqlQuery = sqlQuery.replace("<SUFFIX>", "_rt");
+				//sqlQuery = sqlQuery.replace("<SUFFIX>", "_rt");
+				sqlQuery = sqlQuery.replace("<SUFFIX>", "_temp");
 			else
-				sqlQuery = sqlQuery.replace("<SUFFIX>", "");
-			Dataset<Row> dataset = this.spark.sql(sqlQuery);
-			long nTuples = dataset.count();
-			queryRecord1.setSuccessful(true);
-			queryRecord1.setEndTime(System.currentTimeMillis());
-			queryRecord2 = new QueryRecord(index + 1);
-			queryRecord2.setStartTime(System.currentTimeMillis());
+				//sqlQuery = sqlQuery.replace("<SUFFIX>", "");
+				sqlQuery = sqlQuery.replace("<SUFFIX>", "_temp");
+			Dataset<Row> dataset = this.spark.read()
+					.format("org.apache.hudi")
+					.option("hoodie.datasource.query.type", "snapshot")
+					.load(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/*");
+			dataset.createOrReplaceTempView(tableName + "_denorm_hudi_temp");		
+			this.spark.sql(sqlQuery);
 			dataset.write()
 				.format("org.apache.hudi")
 				.option("hoodie.datasource.write.operation", "upsert")
@@ -259,8 +260,8 @@ public class UpdateDatabaseSparkGdprTest {
 				.options(hudiOptions)
 				.mode(SaveMode.Append)
 				.save(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/");
-			queryRecord2.setSuccessful(true);
-			queryRecord2.setEndTime(System.currentTimeMillis());
+			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			saveCreateTableFile("hudigdpr", tableName, sqlQuery);
 			if( this.doCount ) {
 				if( this.hudiUseMergeOnRead )
@@ -276,11 +277,8 @@ public class UpdateDatabaseSparkGdprTest {
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		finally {
-			if( queryRecord1 != null ) {
-				this.recorder.record(queryRecord1);
-			}
-			if( queryRecord2 != null ) {
-				this.recorder.record(queryRecord2);
+			if( queryRecord != null ) {
+				this.recorder.record(queryRecord);
 			}
 		}
 	}
