@@ -260,7 +260,7 @@ public class UpdateDatabaseSparkGdprTest {
 			queryRecord1.setTuples(queryRecord1.getTuples() + tuples);
 			queryRecord1.setSuccessful(true);
 			queryRecord1.setEndTime(System.currentTimeMillis());
-			queryRecord2 = new QueryRecord(index);
+			queryRecord2 = new QueryRecord(index + 1);
 			queryRecord2.setStartTime(System.currentTimeMillis());
 			resultDS.write()
 				.format("org.apache.hudi")
