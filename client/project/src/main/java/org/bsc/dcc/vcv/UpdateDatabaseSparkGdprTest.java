@@ -246,13 +246,13 @@ public class UpdateDatabaseSparkGdprTest {
 			else
 				//sqlQuery = sqlQuery.replace("<SUFFIX>", "");
 				sqlQuery = sqlQuery.replace("<SUFFIX>", "_temp");
-			Dataset<Row> dataset = this.spark.read()
+			Dataset<Row> hudiDS = this.spark.read()
 					.format("org.apache.hudi")
 					.option("hoodie.datasource.query.type", "snapshot")
 					.load(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/*");
-			dataset.createOrReplaceTempView(tableName + "_denorm_hudi_temp");		
-			this.spark.sql(sqlQuery);
-			dataset.write()
+			hudiDS.createOrReplaceTempView(tableName + "_denorm_hudi_temp");		
+			Dataset<Row> resultDS = this.spark.sql(sqlQuery);
+			resultDS.write()
 				.format("org.apache.hudi")
 				.option("hoodie.datasource.write.operation", "upsert")
 				.option("hoodie.datasource.write.payload.class", 
