@@ -211,7 +211,8 @@ public class UpdateDatabaseSparkGdprTest {
 	
 	
 	private void deleteFromTableHudi(String sqlFilename, String sqlQuery, int index) {
-		QueryRecord queryRecord = null;
+		QueryRecord queryRecord1 = null;
+		QueryRecord queryRecord2 = null;
 		try {
 			String tableName = sqlFilename.substring(0, sqlFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
@@ -222,8 +223,8 @@ public class UpdateDatabaseSparkGdprTest {
 				else
 					countRowsQuery(tableName + "_denorm_hudi");
 			}
-			queryRecord = new QueryRecord(index);
-			queryRecord.setStartTime(System.currentTimeMillis());
+			queryRecord1 = new QueryRecord(index);
+			queryRecord1.setStartTime(System.currentTimeMillis());
 			String primaryKey = this.primaryKeys.get(tableName);
 			String precombineKey = this.precombineKeys.get(tableName);
 			Map<String, String> hudiOptions = null;
@@ -252,6 +253,15 @@ public class UpdateDatabaseSparkGdprTest {
 					.load(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/*");
 			hudiDS.createOrReplaceTempView(tableName + "_denorm_hudi_temp");		
 			Dataset<Row> resultDS = this.spark.sql(sqlQuery);
+			String resFileName = this.workDir + "/" + this.resultsDir + "/gdprdata/" +
+					this.experimentName + "/" + this.instance +
+					"/" + tableName + ".txt";
+			int tuples = this.saveResults(resFileName, resultDS, false);
+			queryRecord1.setTuples(queryRecord1.getTuples() + tuples);
+			queryRecord1.setSuccessful(true);
+			queryRecord1.setEndTime(System.currentTimeMillis());
+			queryRecord2 = new QueryRecord(index);
+			queryRecord2.setStartTime(System.currentTimeMillis());
 			resultDS.write()
 				.format("org.apache.hudi")
 				.option("hoodie.datasource.write.operation", "upsert")
@@ -260,8 +270,8 @@ public class UpdateDatabaseSparkGdprTest {
 				.options(hudiOptions)
 				.mode(SaveMode.Append)
 				.save(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/");
-			queryRecord.setSuccessful(true);
-			queryRecord.setEndTime(System.currentTimeMillis());
+			queryRecord2.setSuccessful(true);
+			queryRecord2.setEndTime(System.currentTimeMillis());
 			saveCreateTableFile("hudigdpr", tableName, sqlQuery);
 			if( this.doCount ) {
 				if( this.hudiUseMergeOnRead )
@@ -277,8 +287,11 @@ public class UpdateDatabaseSparkGdprTest {
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		finally {
-			if( queryRecord != null ) {
-				this.recorder.record(queryRecord);
+			if( queryRecord1 != null ) {
+				this.recorder.record(queryRecord1);
+			}
+			if( queryRecord2 != null ) {
+				this.recorder.record(queryRecord2);
 			}
 		}
 	}
@@ -312,6 +325,29 @@ public class UpdateDatabaseSparkGdprTest {
 		}
 	}
 
+	
+	private int saveResults(String resFileName, Dataset<Row> dataset, boolean append) {
+		int tuples = 0;
+		try {
+			File tmp = new File(resFileName);
+			tmp.getParentFile().mkdirs();
+			FileWriter fileWriter = new FileWriter(resFileName, append);
+			PrintWriter printWriter = new PrintWriter(fileWriter);
+			List<String> list = dataset.map(row -> row.mkString(" | "), Encoders.STRING()).collectAsList();
+			for(String s: list)
+				printWriter.println(s);
+			printWriter.close();
+			tuples = list.size();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in saving results: " + resFileName);
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		return tuples;
+	}
+	
 	
 	private void countRowsQuery(String tableName) {
 		try {
