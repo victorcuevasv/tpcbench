@@ -77,8 +77,8 @@ args[15]="--number-of-streams=$3"
 # schema      |load          |load denorm |load skip      |insupd data    |
 # delete data |load update   |analyze     |analyze denorm |analyze update |
 # zorder      |zorder update |insupd test |delete test    |gdpr           |
-# power       |tput
-args[16]="--execution-flags=11111110000011100"
+# power       |tput          |read test
+args[16]="--execution-flags=111111100000111001"
 # count-queries
 args[17]="--count-queries=false"
 # all or denorm table file
