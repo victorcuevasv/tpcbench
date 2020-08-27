@@ -200,6 +200,12 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
 				ExecuteQueriesConcurrentSpark.main(args);
 			}
+			boolean doReadTest = this.flags.charAt(17) == '1' ? true : false;
+			if( doReadTest ) {
+				this.saveTestParameters(args, "readtest");
+				System.out.println("\n\n\nRunning the Read test.\n\n\n");
+				UpdateDatabaseSparkReadTest.main(args);
+			}
 			if( this.system.equals("sparkdatabricks")  ) {
 				this.executeCommand("mkdir -p /dbfs/mnt/tpcds-results-test/" + this.resultsDir);
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /dbfs/mnt/tpcds-results-test/" + this.resultsDir + "/");
