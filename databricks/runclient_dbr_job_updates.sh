@@ -82,12 +82,13 @@ args[12]="--use-column-stats=true"
 args[13]="--all-or-query-file=all" 
 # number of streams
 args[14]="--number-of-streams=$3"
-# flags 11111110000011100
+# flags 111111100000111111100
 # schema      |load          |load denorm |load skip      |insupd data    |
 # delete data |load update   |analyze     |analyze denorm |analyze update |
-# zorder      |zorder update |insupd test |delete test    |gdpr           |
-# power       |tput          |read test
-args[15]="--execution-flags=111111100000111001"
+# zorder      |zorder update |read test 1 |insupd test    |read test 2    |
+# delete test |read test 3   |gdpr        |read test 4    |power          |
+# tput
+args[15]="--execution-flags=111111100000111111100"
 # "all" or create table file
 args[16]="--all-or-create-file=all"
 # count-queries

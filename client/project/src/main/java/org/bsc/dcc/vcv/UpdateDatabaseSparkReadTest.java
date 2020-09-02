@@ -59,6 +59,7 @@ public class UpdateDatabaseSparkReadTest {
 	private final String hudiFileSize;
 	private final boolean hudiUseMergeOnRead;
 	private final String querySingleOrAll;
+	private final int readInstance;
 	
 	public UpdateDatabaseSparkReadTest(CommandLine commandLine) {
 		try {
@@ -73,13 +74,15 @@ public class UpdateDatabaseSparkReadTest {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+		String readInstanceStr = commandLine.getOptionValue("read-instance", "0");
+		this.readInstance = Integer.parseInt(readInstanceStr);
 		this.workDir = commandLine.getOptionValue("main-work-dir");
 		this.dbName = commandLine.getOptionValue("schema-name");
 		this.resultsDir = commandLine.getOptionValue("results-dir");
 		this.experimentName = commandLine.getOptionValue("experiment-name");
 		this.system = commandLine.getOptionValue("system-name");
 		//this.test = commandLine.getOptionValue("tpcds-test", "loadupdate");
-		this.test = "readtest";
+		this.test = "readtest" + this.readInstance;
 		String instanceStr = commandLine.getOptionValue("instance-number");
 		this.instance = Integer.parseInt(instanceStr);
 		//this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
@@ -186,8 +189,8 @@ public class UpdateDatabaseSparkReadTest {
 			queryRecord.setStartTime(System.currentTimeMillis());
 			Dataset<Row> resultDS = this.spark.sql(sqlQuery);
 			queryRecord.setSuccessful(true);
-			String resFileName = this.workDir + "/" + this.resultsDir + "/readresults/" +
-					this.experimentName + "/" + this.instance +
+			String resFileName = this.workDir + "/" + this.resultsDir + "/readresults" +
+					this.readInstance + "/" + this.experimentName + "/" + this.instance +
 					"/" + sqlFilename + ".txt";
 			int tuples = this.saveResults(resFileName, resultDS, false);
 			queryRecord.setTuples(queryRecord.getTuples() + tuples);
@@ -251,25 +254,6 @@ public class UpdateDatabaseSparkReadTest {
 		}
 		catch(Exception ignored) {
 			//Do nothing.
-		}
-	}
-
-	
-	public void saveCreateTableFile(String suffix, String tableName, String sqlCreate) {
-		try {
-			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + "tables" +
-					suffix + "/" + this.experimentName + "/" + this.instance +
-					"/" + tableName + ".sql";
-			File temp = new File(createTableFileName);
-			temp.getParentFile().mkdirs();
-			FileWriter fileWriter = new FileWriter(createTableFileName);
-			PrintWriter printWriter = new PrintWriter(fileWriter);
-			printWriter.println(sqlCreate);
-			printWriter.close();
-		}
-		catch (IOException ioe) {
-			ioe.printStackTrace();
-			this.logger.error(ioe);
 		}
 	}
 

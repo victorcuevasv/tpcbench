@@ -285,10 +285,10 @@ public class UpdateDatabaseSparkInsUpdTest {
 				Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
 		String primaryKeyFull = this.primaryKeys.get(tableName);
 		StringTokenizer tokenizer = new StringTokenizer(primaryKeyFull, ",");
-		String primaryKey = tokenizer.nextToken();
+		String primaryKey = tokenizer.nextToken().trim();
 		String primaryKeyComp = null;
 		if( tokenizer.hasMoreTokens() )
-			primaryKeyComp = tokenizer.nextToken();
+			primaryKeyComp = tokenizer.nextToken().trim();
 		StringBuilder builder = new StringBuilder();
 		builder.append("MERGE INTO " + denormDeltaTableName + " AS a \n");
 		builder.append("USING " + insUpdTableName + " AS b \n");

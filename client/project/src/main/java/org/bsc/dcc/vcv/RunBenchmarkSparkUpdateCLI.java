@@ -168,25 +168,57 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the Delta Z-ORDER UPDATE test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkDeltaZorderUpdateArgs);
 			}
-			boolean doInsUpdTest = this.flags.charAt(12) == '1' ? true : false;
+			boolean doReadTest1 = this.flags.charAt(12) == '1' ? true : false;
+			if( doReadTest1 ) {
+				String[] readTest1Args =
+						this.readTestSparkArgs(args, 1);
+				this.saveTestParameters(args, "readtest1");
+				System.out.println("\n\n\nRunning the READ test 1.\n\n\n");
+				UpdateDatabaseSparkReadTest.main(args);
+			}
+			boolean doInsUpdTest = this.flags.charAt(13) == '1' ? true : false;
 			if( doInsUpdTest ) {
 				this.saveTestParameters(args, "insupdtest");
 				System.out.println("\n\n\nRunning the INSERT/UPDATE test.\n\n\n");
 				UpdateDatabaseSparkInsUpdTest.main(args);
 			}
-			boolean doDeleteTest = this.flags.charAt(13) == '1' ? true : false;
+			boolean doReadTest2 = this.flags.charAt(14) == '1' ? true : false;
+			if( doReadTest2 ) {
+				String[] readTest2Args =
+						this.readTestSparkArgs(args, 2);
+				this.saveTestParameters(args, "readtest2");
+				System.out.println("\n\n\nRunning the READ test 2.\n\n\n");
+				UpdateDatabaseSparkReadTest.main(args);
+			}
+			boolean doDeleteTest = this.flags.charAt(15) == '1' ? true : false;
 			if( doDeleteTest ) {
 				this.saveTestParameters(args, "deletetest");
 				System.out.println("\n\n\nRunning the DELETE test.\n\n\n");
 				UpdateDatabaseSparkDeleteTest.main(args);
 			}
-			boolean doGdprTest = this.flags.charAt(14) == '1' ? true : false;
+			boolean doReadTest3 = this.flags.charAt(16) == '1' ? true : false;
+			if( doReadTest3 ) {
+				String[] readTest3Args =
+						this.readTestSparkArgs(args, 3);
+				this.saveTestParameters(args, "readtest3");
+				System.out.println("\n\n\nRunning the READ test 3.\n\n\n");
+				UpdateDatabaseSparkReadTest.main(args);
+			}
+			boolean doGdprTest = this.flags.charAt(17) == '1' ? true : false;
 			if( doGdprTest ) {
 				this.saveTestParameters(args, "gdprtest");
 				System.out.println("\n\n\nRunning the GDPR test.\n\n\n");
 				UpdateDatabaseSparkGdprTest.main(args);
 			}
-			boolean doPower = this.flags.charAt(15) == '1' ? true : false;
+			boolean doReadTest4 = this.flags.charAt(18) == '1' ? true : false;
+			if( doReadTest4 ) {
+				String[] readTest4Args =
+						this.readTestSparkArgs(args, 4);
+				this.saveTestParameters(args, "readtest4");
+				System.out.println("\n\n\nRunning the READ test 4.\n\n\n");
+				UpdateDatabaseSparkReadTest.main(args);
+			}
+			boolean doPower = this.flags.charAt(19) == '1' ? true : false;
 			if( doPower ) {
 				String[] executeQueriesSparkArgs =
 						this.createExecuteQueriesSparkArgs(args);
@@ -194,17 +226,11 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the POWER test.\n\n\n");
 				ExecuteQueriesSpark.main(executeQueriesSparkArgs);
 			}
-			boolean doTput = this.flags.charAt(16) == '1' ? true : false;
+			boolean doTput = this.flags.charAt(20) == '1' ? true : false;
 			if( doTput ) {
 				this.saveTestParameters(args, "tput");
 				System.out.println("\n\n\nRunning the TPUT test.\n\n\n");
 				ExecuteQueriesConcurrentSpark.main(args);
-			}
-			boolean doReadTest = this.flags.charAt(17) == '1' ? true : false;
-			if( doReadTest ) {
-				this.saveTestParameters(args, "readtest");
-				System.out.println("\n\n\nRunning the Read test.\n\n\n");
-				UpdateDatabaseSparkReadTest.main(args);
 			}
 			if( this.system.equals("sparkdatabricks")  ) {
 				this.executeCommand("mkdir -p /dbfs/mnt/tpcds-results-test/" + this.resultsDir);
@@ -226,6 +252,14 @@ public class RunBenchmarkSparkUpdateCLI {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+	}
+	
+	
+	private String[] readTestSparkArgs(String args[], int instance) {
+		String[] array = new String[args.length + 1];
+		System.arraycopy(args, 0, array, 0, args.length);
+		array[array.length - 1] = "--read-instance=" + instance;
+		return array;
 	}
 	
 	
