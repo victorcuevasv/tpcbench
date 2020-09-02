@@ -172,9 +172,9 @@ public class RunBenchmarkSparkUpdateCLI {
 			if( doReadTest1 ) {
 				String[] readTest1Args =
 						this.readTestSparkArgs(args, 1);
-				this.saveTestParameters(args, "readtest1");
+				this.saveTestParameters(readTest1Args, "readtest1");
 				System.out.println("\n\n\nRunning the READ test 1.\n\n\n");
-				UpdateDatabaseSparkReadTest.main(args);
+				UpdateDatabaseSparkReadTest.main(readTest1Args);
 			}
 			boolean doInsUpdTest = this.flags.charAt(13) == '1' ? true : false;
 			if( doInsUpdTest ) {
@@ -186,9 +186,9 @@ public class RunBenchmarkSparkUpdateCLI {
 			if( doReadTest2 ) {
 				String[] readTest2Args =
 						this.readTestSparkArgs(args, 2);
-				this.saveTestParameters(args, "readtest2");
+				this.saveTestParameters(readTest2Args, "readtest2");
 				System.out.println("\n\n\nRunning the READ test 2.\n\n\n");
-				UpdateDatabaseSparkReadTest.main(args);
+				UpdateDatabaseSparkReadTest.main(readTest2Args);
 			}
 			boolean doDeleteTest = this.flags.charAt(15) == '1' ? true : false;
 			if( doDeleteTest ) {
@@ -200,9 +200,9 @@ public class RunBenchmarkSparkUpdateCLI {
 			if( doReadTest3 ) {
 				String[] readTest3Args =
 						this.readTestSparkArgs(args, 3);
-				this.saveTestParameters(args, "readtest3");
+				this.saveTestParameters(readTest3Args, "readtest3");
 				System.out.println("\n\n\nRunning the READ test 3.\n\n\n");
-				UpdateDatabaseSparkReadTest.main(args);
+				UpdateDatabaseSparkReadTest.main(readTest3Args);
 			}
 			boolean doGdprTest = this.flags.charAt(17) == '1' ? true : false;
 			if( doGdprTest ) {
@@ -214,9 +214,9 @@ public class RunBenchmarkSparkUpdateCLI {
 			if( doReadTest4 ) {
 				String[] readTest4Args =
 						this.readTestSparkArgs(args, 4);
-				this.saveTestParameters(args, "readtest4");
+				this.saveTestParameters(readTest4Args, "readtest4");
 				System.out.println("\n\n\nRunning the READ test 4.\n\n\n");
-				UpdateDatabaseSparkReadTest.main(args);
+				UpdateDatabaseSparkReadTest.main(readTest4Args);
 			}
 			boolean doPower = this.flags.charAt(19) == '1' ? true : false;
 			if( doPower ) {
