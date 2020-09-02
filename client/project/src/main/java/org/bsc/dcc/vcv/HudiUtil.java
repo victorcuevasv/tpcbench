@@ -38,6 +38,7 @@ public class HudiUtil {
 		//Use only simple keys.
 		//StringTokenizer tokenizer = new StringTokenizer(primaryKey, ",");
 		//primaryKey = tokenizer.nextToken();
+		map.put("hoodie.compact.inline.max.delta.commits", "1000000");
 		map.put("hoodie.datasource.hive_sync.database", this.dbName);
 		map.put("hoodie.datasource.write.precombine.field", precombineKey);
 		map.put("hoodie.datasource.hive_sync.table", tableName);
