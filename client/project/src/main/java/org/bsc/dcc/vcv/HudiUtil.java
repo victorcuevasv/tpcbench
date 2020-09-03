@@ -18,10 +18,12 @@ public class HudiUtil {
 	private final int instance;
 	private final String hudiFileSize;
 	private final boolean hudiUseMergeOnRead;
+	private final boolean defaultCompaction;
 	
 	
 	public HudiUtil(String dbName, String workDir, String resultsDir, String experimentName, 
-			int instance, String hudiFileSize, boolean hudiUseMergeOnRead) {
+			int instance, String hudiFileSize, boolean hudiUseMergeOnRead,
+			boolean defaultCompaction) {
 		this.dbName = dbName;
 		this.workDir = workDir;
 		this.resultsDir = resultsDir;
@@ -29,6 +31,7 @@ public class HudiUtil {
 		this.instance = instance;
 		this.hudiFileSize = hudiFileSize;
 		this.hudiUseMergeOnRead = hudiUseMergeOnRead;
+		this.defaultCompaction = defaultCompaction;
 	}
 	
 	
@@ -38,7 +41,12 @@ public class HudiUtil {
 		//Use only simple keys.
 		//StringTokenizer tokenizer = new StringTokenizer(primaryKey, ",");
 		//primaryKey = tokenizer.nextToken();
-		map.put("hoodie.compact.inline.max.delta.commits", "1000000");
+		if( this.hudiUseMergeOnRead ) {
+			if( ! this.defaultCompaction )
+				map.put("hoodie.compact.inline.max.delta.commits", "1000000");
+			else
+				map.put("hoodie.compact.inline.max.delta.commits", "1");
+		}
 		map.put("hoodie.datasource.hive_sync.database", this.dbName);
 		map.put("hoodie.datasource.write.precombine.field", precombineKey);
 		map.put("hoodie.datasource.hive_sync.table", tableName);

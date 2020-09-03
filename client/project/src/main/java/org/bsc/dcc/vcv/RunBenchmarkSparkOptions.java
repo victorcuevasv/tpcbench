@@ -129,6 +129,12 @@ public class RunBenchmarkSparkOptions {
 		options.addOption( Option.builder().longOpt( "read-instance" )
 				.desc( "instance number of the read test" )
 				.hasArg(true).required(false).build() );
+		options.addOption( Option.builder().longOpt( "hudi-mor-default-compaction" )
+				.desc( "enable compaction by default for merge on read tables" )
+				.hasArg(true).required(false).type(Boolean.class).build() );
+		options.addOption( Option.builder().longOpt( "hudi-mor-force-compaction" )
+				.desc( "force compaction between tests for merge on read tables" )
+				.hasArg(true).required(false).type(Boolean.class).build() );
 		
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )

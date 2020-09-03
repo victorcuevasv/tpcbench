@@ -31,6 +31,8 @@ public class RunBenchmarkSparkUpdateCLI {
 	private final String format;
 	private final Boolean usePartitioning;
 	private final CommandLine commandLine;
+	private final boolean defaultCompaction;
+	private final boolean forceCompaction;
 	
 	
 	public RunBenchmarkSparkUpdateCLI(String args[]) throws Exception {
@@ -56,6 +58,8 @@ public class RunBenchmarkSparkUpdateCLI {
 		this.analyze = Boolean.parseBoolean(this.commandLine.getOptionValue("use-row-stats"));
 		this.format = this.commandLine.getOptionValue("table-format");
 		this.usePartitioning = Boolean.parseBoolean(this.commandLine.getOptionValue("use-partitioning"));
+		String forceCompactionStr = commandLine.getOptionValue("hudi-mor-force-compaction", "false");
+		this.forceCompaction = Boolean.parseBoolean(forceCompactionStr);
 	}
 	
 	
@@ -176,6 +180,13 @@ public class RunBenchmarkSparkUpdateCLI {
 				System.out.println("\n\n\nRunning the READ test 1.\n\n\n");
 				UpdateDatabaseSparkReadTest.main(readTest1Args);
 			}
+			if( this.forceCompaction ) {
+				String[] compactTest1Args =
+						this.compactTestSparkArgs(args, 1);
+				this.saveTestParameters(compactTest1Args, "compacttest1");
+				System.out.println("\n\n\nRunning the COMPACT test 1.\n\n\n");
+				UpdateDatabaseSparkForceCompaction.main(compactTest1Args);
+			}
 			boolean doInsUpdTest = this.flags.charAt(13) == '1' ? true : false;
 			if( doInsUpdTest ) {
 				this.saveTestParameters(args, "insupdtest");
@@ -252,6 +263,14 @@ public class RunBenchmarkSparkUpdateCLI {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+	}
+	
+	
+	private String[] compactTestSparkArgs(String args[], int instance) {
+		String[] array = new String[args.length + 1];
+		System.arraycopy(args, 0, array, 0, args.length);
+		array[array.length - 1] = "--compact-instance=" + instance;
+		return array;
 	}
 	
 	

@@ -58,6 +58,7 @@ public class CreateDatabaseSparkUpdate {
 	private final HudiUtil hudiUtil;
 	private final String hudiFileSize;
 	private final boolean hudiUseMergeOnRead;
+	private final boolean defaultCompaction;
 	
 	public CreateDatabaseSparkUpdate(CommandLine commandLine) {
 		try {
@@ -105,8 +106,11 @@ public class CreateDatabaseSparkUpdate {
 		this.hudiFileSize = commandLine.getOptionValue("hudi-file-max-size", "1073741824");
 		String hudiUseMergeOnReadStr = commandLine.getOptionValue("hudi-merge-on-read", "true");
 		this.hudiUseMergeOnRead = Boolean.parseBoolean(hudiUseMergeOnReadStr);
+		String defaultCompactionStr = commandLine.getOptionValue("hudi-mor-default-compaction", "true");
+		this.defaultCompaction = Boolean.parseBoolean(defaultCompactionStr);
 		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
-				this.experimentName, this.instance, this.hudiFileSize, this.hudiUseMergeOnRead);
+				this.experimentName, this.instance, this.hudiFileSize, this.hudiUseMergeOnRead,
+				this.defaultCompaction);
 	}
 	
 

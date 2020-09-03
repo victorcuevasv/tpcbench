@@ -31,11 +31,11 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class UpdateDatabaseSparkReadTest {
+public class UpdateDatabaseSparkForceCompaction {
 
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private SparkSession spark;
-	private final JarQueriesReaderAsZipFile queriesReader;
+	private final JarCreateTableReaderAsZipFile createTableReader;
 	private final AnalyticsRecorder recorder;
 	private final String workDir;
 	private final String dbName;
@@ -44,7 +44,7 @@ public class UpdateDatabaseSparkReadTest {
 	private final String system;
 	private final String test;
 	private final int instance;
-	private final String queriesDir;
+	private final String createTableDir;
 	private final Optional<String> extTablePrefixCreated;
 	private final String format;
 	private final boolean doCount;
@@ -55,12 +55,13 @@ public class UpdateDatabaseSparkReadTest {
 	private final Map<String, String> precombineKeys;
 	private final Map<String, String> primaryKeys;
 	private final String customerSK;
+	private final HudiUtil hudiUtil;
 	private final String hudiFileSize;
 	private final boolean hudiUseMergeOnRead;
-	private final String querySingleOrAll;
-	private final int readInstance;
+	private final boolean defaultCompaction;
+	private final int compactInstance;
 	
-	public UpdateDatabaseSparkReadTest(CommandLine commandLine) {
+	public UpdateDatabaseSparkForceCompaction(CommandLine commandLine) {
 		try {
 
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
@@ -69,23 +70,26 @@ public class UpdateDatabaseSparkReadTest {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in UpdateDatabaseSparkReadTest constructor.");
+			this.logger.error("Error in UpdateDatabaseSparkForceCompaction constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
-		String readInstanceStr = commandLine.getOptionValue("read-instance", "0");
-		this.readInstance = Integer.parseInt(readInstanceStr);
+		String compactInstanceStr = commandLine.getOptionValue("compact-instance", "0");
+		this.compactInstance = Integer.parseInt(compactInstanceStr);
 		this.workDir = commandLine.getOptionValue("main-work-dir");
 		this.dbName = commandLine.getOptionValue("schema-name");
 		this.resultsDir = commandLine.getOptionValue("results-dir");
 		this.experimentName = commandLine.getOptionValue("experiment-name");
 		this.system = commandLine.getOptionValue("system-name");
 		//this.test = commandLine.getOptionValue("tpcds-test", "loadupdate");
-		this.test = "readtest" + this.readInstance;
+		this.test = "compacttest" + this.compactInstance;
 		String instanceStr = commandLine.getOptionValue("instance-number");
 		this.instance = Integer.parseInt(instanceStr);
 		//this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
-		this.queriesDir = "ReadTestQueries";
+		if( this.system.equals("sparkdatabricks") )
+			this.createTableDir = "DatabricksDeltaGdpr";
+		else
+			this.createTableDir = "QueriesDenorm";
 		this.extTablePrefixCreated = Optional.ofNullable(commandLine.getOptionValue("ext-tables-location"));
 		//this.format = commandLine.getOptionValue("table-format");
 		if( this.system.equalsIgnoreCase("sparkdatabricks") )
@@ -99,8 +103,7 @@ public class UpdateDatabaseSparkReadTest {
 		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
 		this.denormSingleOrAll = commandLine.getOptionValue("denorm-all-or-file", "all");
 		this.jarFile = commandLine.getOptionValue("jar-file");
-		this.querySingleOrAll = commandLine.getOptionValue("all-or-query-file", "all");
-		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
+		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
@@ -109,11 +112,15 @@ public class UpdateDatabaseSparkReadTest {
 		this.hudiFileSize = commandLine.getOptionValue("hudi-file-max-size", "1073741824");
 		String hudiUseMergeOnReadStr = commandLine.getOptionValue("hudi-merge-on-read", "true");
 		this.hudiUseMergeOnRead = Boolean.parseBoolean(hudiUseMergeOnReadStr);
+		this.defaultCompaction = true;
+		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
+				this.experimentName, this.instance, this.hudiFileSize, this.hudiUseMergeOnRead,
+				this.defaultCompaction);
 	}
 	
 
 	public static void main(String[] args) throws SQLException {
-		UpdateDatabaseSparkReadTest application = null;
+		UpdateDatabaseSparkForceCompaction application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
@@ -123,36 +130,37 @@ public class UpdateDatabaseSparkReadTest {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in UpdateDatabaseSparkReadTest main.");
+			logger.error("Error in UpdateDatabaseSparkForceCompaction main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new UpdateDatabaseSparkReadTest(commandLine);
-		application.runQueries();
+		application = new UpdateDatabaseSparkForceCompaction(commandLine);
+		application.compactTables();
 	}
 	
 	
-	private void runQueries() {
+	private void compactTables() {
 		// Process each .sql create table file found in the jar file.
 		this.useDatabase(this.dbName);
 		this.recorder.header();
-		List<String> list = this.queriesReader.getFilesOrdered();
+		List<String> unorderedList = this.createTableReader.getFiles();
+		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
 		int i = 1;
-		for (final String fileName : list) {
-			String sqlQuery = this.queriesReader.getFile(fileName);
-			if( ! this.querySingleOrAll.equals("all") ) {
-				if( ! fileName.equals(this.querySingleOrAll) )
+		for (final String fileName : orderedList) {
+			String sqlQuery = this.createTableReader.getFile(fileName);
+			if( ! this.denormSingleOrAll.equals("all") ) {
+				if( ! fileName.equals(this.denormSingleOrAll) ) {
+					System.out.println("Skipping: " + fileName);
 					continue;
+				}
 			}
 			if( this.format.equals("delta") ) {
-				runQueryDelta(fileName, sqlQuery, i);
-				
+				;
 			}
 			else if( this.format.equals("hudi") ) {
-				runQueryHudi(fileName, sqlQuery, i);
+				forceCompactTableHudi(fileName, i);
 			}
-			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
 		//	this.closeConnection();
@@ -167,34 +175,62 @@ public class UpdateDatabaseSparkReadTest {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in UpdateDatabaseSparkReadTest useDatabase.");
+			this.logger.error("Error in UpdateDatabaseSparkForceCompaction useDatabase.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
 	
 	
-	private void runQueryDelta(String sqlFilename, String sqlQuery, int index) {
+	private void forceCompactTableHudi(String sqlFilename, int index) {
 		QueryRecord queryRecord = null;
 		try {
-			sqlQuery = sqlQuery.replace("<SUFFIX>", "_delta");
-			String nQueryStr = sqlFilename.replaceAll("[^\\d]", "");
-			int nQuery = Integer.parseInt(nQueryStr);
-			System.out.println("Processing query " + index + ": " + sqlFilename);
-			this.logger.info("Processing query " + index + ": " + sqlFilename);
-			queryRecord = new QueryRecord(nQuery);
+			String tableName = sqlFilename.substring(0, sqlFilename.indexOf('.'));
+			String denormTableName = tableName + "_denorm";
+			String denormHudiTableName = tableName + "_denorm_hudi";
+			System.out.println("Processing table " + index + ": " + tableName);
+			this.logger.info("Processing table " + index + ": " + tableName);
+			String selectSql = "SELECT * FROM " + denormTableName + " WHERE false LIMIT 1";
+			String primaryKey = this.primaryKeys.get(tableName);
+			String precombineKey = this.precombineKeys.get(tableName);
+			Map<String, String> hudiOptions = null;
+			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
+				String partitionKey = 
+						Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+				hudiOptions = this.hudiUtil.createHudiOptions(tableName + "_denorm_hudi", 
+						primaryKey, precombineKey, partitionKey, true);
+			}
+			else {
+				hudiOptions = this.hudiUtil.createHudiOptions(tableName + "_denorm_hudi", 
+						primaryKey, precombineKey, null, false);
+			}
+			//this.hudiUtil.saveHudiOptions("compacthudi", tableName, hudiOptions);
+			if( this.doCount ) {
+				if( this.hudiUseMergeOnRead )
+					countRowsQuery(denormHudiTableName + "_ro");
+				else
+					countRowsQuery(denormHudiTableName);
+			}
+			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
-			Dataset<Row> resultDS = this.spark.sql(sqlQuery);
+			this.spark.sql(selectSql)
+			.write()
+			.format("org.apache.hudi")
+			.option("hoodie.datasource.write.operation", "upsert")
+			.options(hudiOptions)
+			.mode(SaveMode.Append)
+			.save(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/");
 			queryRecord.setSuccessful(true);
-			String resFileName = this.workDir + "/" + this.resultsDir + "/readresults" +
-					this.readInstance + "/" + this.experimentName + "/" + this.instance +
-					"/" + sqlFilename + ".txt";
-			int tuples = this.saveResults(resFileName, resultDS, false);
-			queryRecord.setTuples(queryRecord.getTuples() + tuples);
+			if( this.doCount ) {
+				if( this.hudiUseMergeOnRead )
+					countRowsQuery(denormHudiTableName + "_ro");
+				else
+					countRowsQuery(denormHudiTableName);
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in UpdateDatabaseSparkReadTest runQueryDelta.");
+			this.logger.error("Error in UpdateDatabaseSparkForceCompaction forceCompactTableHudi.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -204,77 +240,6 @@ public class UpdateDatabaseSparkReadTest {
 				this.recorder.record(queryRecord);
 			}
 		}
-	}
-	
-	
-	private void runQueryHudi(String sqlFilename, String sqlQuery, int index) {
-		QueryRecord queryRecord = null;
-		try {
-			sqlQuery = sqlQuery.replace("<SUFFIX>", "_hudi_temp");
-			String nQueryStr = sqlFilename.replaceAll("[^\\d]", "");
-			int nQuery = Integer.parseInt(nQueryStr);
-			System.out.println("Processing query " + index + ": " + sqlFilename);
-			this.logger.info("Processing query " + index + ": " + sqlFilename);
-			queryRecord = new QueryRecord(nQuery);
-			queryRecord.setStartTime(System.currentTimeMillis());
-			Dataset<Row> hudiDS = this.spark.read()
-					.format("org.apache.hudi")
-					.option("hoodie.datasource.query.type", "snapshot")
-					.load(this.extTablePrefixCreated.get() + "/store_sales_denorm_hudi/*");
-			hudiDS.createOrReplaceTempView("store_sales_denorm_hudi_temp");		
-			Dataset<Row> resultDS = this.spark.sql(sqlQuery);
-			String resFileName = this.workDir + "/" + this.resultsDir + "/readresults/" +
-					this.experimentName + "/" + this.instance +
-					"/" + sqlFilename + ".txt";
-			int tuples = this.saveResults(resFileName, resultDS, false);
-			queryRecord.setTuples(queryRecord.getTuples() + tuples);
-			queryRecord.setSuccessful(true);
-			queryRecord.setEndTime(System.currentTimeMillis());
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			this.logger.error("Error in UpdateDatabaseSparkReadTest runQueryHudi.");
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-		}
-		finally {
-			if( queryRecord != null ) {
-				this.recorder.record(queryRecord);
-			}
-		}
-	}
-	
-	
-	private void dropTable(String dropStmt) {
-		try {
-			this.spark.sql(dropStmt);
-		}
-		catch(Exception ignored) {
-			//Do nothing.
-		}
-	}
-
-	
-	private int saveResults(String resFileName, Dataset<Row> dataset, boolean append) {
-		int tuples = 0;
-		try {
-			File tmp = new File(resFileName);
-			tmp.getParentFile().mkdirs();
-			FileWriter fileWriter = new FileWriter(resFileName, append);
-			PrintWriter printWriter = new PrintWriter(fileWriter);
-			List<String> list = dataset.map(row -> row.mkString(" | "), Encoders.STRING()).collectAsList();
-			for(String s: list)
-				printWriter.println(s);
-			printWriter.close();
-			tuples = list.size();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			this.logger.error("Error in saving results: " + resFileName);
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-		}
-		return tuples;
 	}
 	
 	
@@ -303,7 +268,7 @@ public class UpdateDatabaseSparkReadTest {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in UpdateDatabaseSparkReadTest closeConnection.");
+			this.logger.error("Error in UpdateDatabaseSparkForceCompaction closeConnection.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
