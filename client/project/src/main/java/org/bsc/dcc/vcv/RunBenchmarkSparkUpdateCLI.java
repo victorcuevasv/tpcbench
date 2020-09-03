@@ -31,7 +31,6 @@ public class RunBenchmarkSparkUpdateCLI {
 	private final String format;
 	private final Boolean usePartitioning;
 	private final CommandLine commandLine;
-	private final boolean defaultCompaction;
 	private final boolean forceCompaction;
 	
 	
