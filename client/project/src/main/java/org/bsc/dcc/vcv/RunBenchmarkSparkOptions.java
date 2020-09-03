@@ -136,6 +136,9 @@ public class RunBenchmarkSparkOptions {
 				.desc( "force compaction between tests for merge on read tables" )
 				.hasArg(true).required(false).type(Boolean.class).build() );
 		
+		options.addOption( Option.builder().longOpt( "compact-instance" )
+				.desc( "instance number of the compact test" )
+				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );
