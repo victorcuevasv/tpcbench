@@ -217,6 +217,8 @@ public class UpdateDatabaseSparkForceCompaction {
 			.write()
 			.format("org.apache.hudi")
 			.option("hoodie.datasource.write.operation", "upsert")
+			.option("hoodie.datasource.write.payload.class", 
+					"org.apache.hudi.common.model.EmptyHoodieRecordPayload")
 			.options(hudiOptions)
 			.mode(SaveMode.Append)
 			.save(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/");
