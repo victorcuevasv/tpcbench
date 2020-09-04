@@ -149,7 +149,7 @@ public class UpdateDatabaseSparkForceCompaction {
 			if( fileName.startsWith("avroSchema") ) {
 				this.saveFile(this.workDir + "/avroschema/" + fileName, sqlQuery);
 				this.executeCommand("aws s3 cp " + this.workDir + "/avroschema/" + fileName + " " +
-						this.extTablePrefixCreated + "/" + fileName);
+						this.extTablePrefixCreated.get() + "/" + fileName);
 				continue;
 			}
 			if( ! this.denormSingleOrAll.equals("all") ) {
@@ -216,7 +216,7 @@ public class UpdateDatabaseSparkForceCompaction {
 	private int scheduleCompaction(String denormHudiTableName) {
 		int retVal = -1;
 		String cmd = "(echo \"connect --path " +
-			this.extTablePrefixCreated + "/" + denormHudiTableName + "\" ; echo \"compaction schedule\") " +
+			this.extTablePrefixCreated.get() + "/" + denormHudiTableName + "\" ; echo \"compaction schedule\") " +
 			"| /usr/lib/hudi/cli/bin/hudi-cli.sh";
 		System.out.println("Schedule compaction command : \n" + cmd);
 		this.logger.info("Schedule compaction command : \n" + cmd);
@@ -228,9 +228,9 @@ public class UpdateDatabaseSparkForceCompaction {
 	private int runCompaction(String denormHudiTableName, int compactionInstant) {
 		int retVal = -1;
 		String cmd = "(echo \"connect --path " +
-			this.extTablePrefixCreated + "/" + denormHudiTableName + "\" ; echo " + 
+			this.extTablePrefixCreated.get() + "/" + denormHudiTableName + "\" ; echo " + 
 			"\"compaction run --parallelism 20 --schemaFilePath " +
-			this.extTablePrefixCreated + "/avroSchema_store_sales.json --sparkMemory  18971M --retry 1 " +
+			this.extTablePrefixCreated.get() + "/avroSchema_store_sales.json --sparkMemory  18971M --retry 1 " +
 			"--compactionInstant " + compactionInstant + ")" +
 			"| /usr/lib/hudi/cli/bin/hudi-cli.sh";
 		System.out.println("Run compaction command : \n" + cmd);
