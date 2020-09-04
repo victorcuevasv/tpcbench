@@ -86,10 +86,7 @@ public class UpdateDatabaseSparkForceCompaction {
 		String instanceStr = commandLine.getOptionValue("instance-number");
 		this.instance = Integer.parseInt(instanceStr);
 		//this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
-		if( this.system.equals("sparkdatabricks") )
-			this.createTableDir = "DatabricksDeltaGdpr";
-		else
-			this.createTableDir = "QueriesDenorm";
+		this.createTableDir = "QueriesHudiCompact";
 		this.extTablePrefixCreated = Optional.ofNullable(commandLine.getOptionValue("ext-tables-location"));
 		//this.format = commandLine.getOptionValue("table-format");
 		if( this.system.equalsIgnoreCase("sparkdatabricks") )
@@ -149,6 +146,12 @@ public class UpdateDatabaseSparkForceCompaction {
 		int i = 1;
 		for (final String fileName : orderedList) {
 			String sqlQuery = this.createTableReader.getFile(fileName);
+			if( fileName.startsWith("avroSchema") ) {
+				this.saveFile(this.workDir + "/avroschema/" + fileName, sqlQuery);
+				this.executeCommand("aws s3 cp " + this.workDir + "/avroschema/" + fileName + " " +
+						this.extTablePrefixCreated + "/" + fileName);
+				continue;
+			}
 			if( ! this.denormSingleOrAll.equals("all") ) {
 				if( ! fileName.equals(this.denormSingleOrAll) ) {
 					System.out.println("Skipping: " + fileName);
@@ -190,43 +193,10 @@ public class UpdateDatabaseSparkForceCompaction {
 			String denormHudiTableName = tableName + "_denorm_hudi";
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			String selectSql = "SELECT * FROM " + denormTableName + " LIMIT 1";
-			String primaryKey = this.primaryKeys.get(tableName);
-			String precombineKey = this.precombineKeys.get(tableName);
-			Map<String, String> hudiOptions = null;
-			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
-				String partitionKey = 
-						Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
-				hudiOptions = this.hudiUtil.createHudiOptions(tableName + "_denorm_hudi", 
-						primaryKey, precombineKey, partitionKey, true);
-			}
-			else {
-				hudiOptions = this.hudiUtil.createHudiOptions(tableName + "_denorm_hudi", 
-						primaryKey, precombineKey, null, false);
-			}
-			//this.hudiUtil.saveHudiOptions("compacthudi", tableName, hudiOptions);
-			if( this.doCount ) {
-				if( this.hudiUseMergeOnRead )
-					countRowsQuery(denormHudiTableName + "_ro");
-				else
-					countRowsQuery(denormHudiTableName);
-			}
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
-			this.spark.sql(selectSql)
-			.write()
-			.format("org.apache.hudi")
-			.option("hoodie.datasource.write.operation", "upsert")
-			.options(hudiOptions)
-			.mode(SaveMode.Append)
-			.save(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/");
-			queryRecord.setSuccessful(true);
-			if( this.doCount ) {
-				if( this.hudiUseMergeOnRead )
-					countRowsQuery(denormHudiTableName + "_ro");
-				else
-					countRowsQuery(denormHudiTableName);
-			}
+			int compactionInstant = this.scheduleCompaction(denormHudiTableName);
+			this.runCompaction(denormHudiTableName, compactionInstant);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -243,21 +213,118 @@ public class UpdateDatabaseSparkForceCompaction {
 	}
 	
 	
-	private void countRowsQuery(String tableName) {
+	private int scheduleCompaction(String denormHudiTableName) {
+		int retVal = -1;
+		String cmd = "(echo \"connect --path " +
+			this.extTablePrefixCreated + "/" + denormHudiTableName + "\" ; echo \"compaction schedule\") " +
+			"| /usr/lib/hudi/cli/bin/hudi-cli.sh";
+		System.out.println("Schedule compaction command : \n" + cmd);
+		this.logger.info("Schedule compaction command : \n" + cmd);
+		retVal = this.executeCommandCompaction(cmd);
+		return retVal;
+	}
+	
+	
+	private int runCompaction(String denormHudiTableName, int compactionInstant) {
+		int retVal = -1;
+		String cmd = "(echo \"connect --path " +
+			this.extTablePrefixCreated + "/" + denormHudiTableName + "\" ; echo " + 
+			"\"compaction run --parallelism 20 --schemaFilePath " +
+			this.extTablePrefixCreated + "/avroSchema_store_sales.json --sparkMemory  18971M --retry 1 " +
+			"--compactionInstant " + compactionInstant + ")" +
+			"| /usr/lib/hudi/cli/bin/hudi-cli.sh";
+		System.out.println("Run compaction command : \n" + cmd);
+		this.logger.info("Run compaction command : \n" + cmd);
+		retVal = this.executeCommandCompaction(cmd);
+		return retVal;
+	}
+	
+	
+	private int executeCommandCompaction(String cmd) {
+		ProcessBuilder processBuilder = new ProcessBuilder();
+		processBuilder.command("bash", "-c", cmd);
+		StringBuilder builder = new StringBuilder();
+		int retVal = -1;
 		try {
-			String sqlCount = "select count(*) from " + tableName;
-			System.out.print("Running count query on " + tableName + ": ");
-			this.logger.info("Running count query on " + tableName + ": ");
-			Dataset<Row> countDataset = this.spark.sql(sqlCount);
-			List<String> list = countDataset.map(row -> row.mkString(), Encoders.STRING()).collectAsList();
-			for(String s: list) {
-				System.out.println(s);
-				this.logger.info("Count result: " + s);
+			Process process = processBuilder.start();
+			int exitVal = process.waitFor();
+			BufferedReader input = new BufferedReader(new 
+				     InputStreamReader(process.getInputStream()));
+			String line = null;
+			while ((line = input.readLine()) != null) {
+			    if( line.contains("Compaction successfully completed for") ) {
+			    	retVal = this.extractCommitTime(line);
+			    }
+			    builder.append(line + "\n");
 			}
+		}
+		catch(IOException ioe) {
+			ioe.printStackTrace();
+		}
+		catch(InterruptedException ie) {
+			ie.printStackTrace();
+		}
+		System.out.println("Compaction command output: \n" + builder.toString());
+		this.logger.info("Compaction command output: \n" + builder.toString());
+		return retVal;
+	}
+	
+	
+	private int extractCommitTime(String line) {
+		int retVal = -1;
+		StringTokenizer tokenizer = new StringTokenizer(line);
+		while( tokenizer.hasMoreTokens() ) {
+			String token = tokenizer.nextToken();
+			if( token.length() < 14 )
+				continue;
+			boolean isNumber = true;
+			for(int i = 0; i < token.length(); i++) {
+				if( ! Character.isDigit(token.charAt(i)) ) {
+					isNumber = false;
+					break;
+				}
+			}
+			if( isNumber ) {
+				retVal = Integer.parseInt(token);
+				break;
+			}
+		}
+		return retVal;
+	}
+	
+	
+	private int executeCommand(String cmd) {
+		ProcessBuilder processBuilder = new ProcessBuilder();
+		processBuilder.command("bash", "-c", cmd);
+		int exitVal = -1;
+		try {
+			Process process = processBuilder.start();
+			exitVal = process.waitFor();
+		}
+		catch(IOException ioe) {
+			ioe.printStackTrace();
+		}
+		catch(InterruptedException ie) {
+			ie.printStackTrace();
+		}
+		return exitVal;
+	}
+	
+	
+	private void saveFile(String fileName, String contents) {
+		try {
+			File tmp = new File(fileName);
+			tmp.getParentFile().mkdirs();
+			FileWriter fileWriter = new FileWriter(fileName, false);
+			PrintWriter printWriter = new PrintWriter(fileWriter);
+			printWriter.println(contents);
+			printWriter.close();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			this.logger.error("Error in saving avro schema: " + fileName);
 			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
 	
