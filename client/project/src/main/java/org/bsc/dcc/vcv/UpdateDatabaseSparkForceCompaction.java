@@ -190,7 +190,7 @@ public class UpdateDatabaseSparkForceCompaction {
 			String denormHudiTableName = tableName + "_denorm_hudi";
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			String selectSql = "SELECT * FROM " + denormTableName + " WHERE false LIMIT 1";
+			String selectSql = "SELECT * FROM " + denormTableName + " LIMIT 1";
 			String primaryKey = this.primaryKeys.get(tableName);
 			String precombineKey = this.precombineKeys.get(tableName);
 			Map<String, String> hudiOptions = null;
