@@ -53,6 +53,7 @@ public class CreateDatabaseSparkDenormSkip {
 	private final String createSingleOrAll;
 	private final String denormSingleOrAll;
 	private final Map<String, String> skipKeys;
+	private final int dateskThreshold;
 	
 	public CreateDatabaseSparkDenormSkip(CommandLine commandLine) {
 		try {
@@ -91,6 +92,8 @@ public class CreateDatabaseSparkDenormSkip {
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		this.skipKeys = new SkipKeys().getMap();
+		String dateskThresholdStr = commandLine.getOptionValue("datesk-gt-threshold", "-1");
+		this.dateskThreshold = Integer.parseInt(dateskThresholdStr);
 	}
 	
 
@@ -165,12 +168,14 @@ public class CreateDatabaseSparkDenormSkip {
 			int posPart = Arrays.asList(Partitioning.tables).indexOf(tableName);
 			if( posPart != -1 )
 				partCol = Partitioning.partKeys[posPart];
-			String sqlSelect = "SELECT * FROM " + tableName + "_denorm";
+			String sqlSelect = "SELECT * FROM " + tableName + "_denorm \n";
 			StringBuilder selectBuilder = new StringBuilder(sqlSelect);
 			selectBuilder.append(
-					"\nWHERE MOD(" + partCol + ", " + SkipMods.firstMod + ") <> 0");
+					"WHERE MOD(" + partCol + ", " + SkipMods.firstMod + ") <> 0 \n");
+			if( this.dateskThreshold != -1 )
+				selectBuilder.append("OR " + partCol + " <= " + this.dateskThreshold + "\n");
 			selectBuilder.append(
-					"\nOR MOD(" + skipAtt + ", " + SkipMods.secondMod + ") <> 0");
+					"OR MOD(" + skipAtt + ", " + SkipMods.secondMod + ") <> 0");
 			sqlSelect = selectBuilder.toString();
 			if( this.doCount )
 				countRowsQuery(tableName + "_denorm");

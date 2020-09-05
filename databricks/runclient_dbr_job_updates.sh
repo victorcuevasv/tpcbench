@@ -102,6 +102,8 @@ args[19]="--denorm-apply-skip=true"
 args[20]="--analyze-zorder-all-or-file=query2.sql"
 # customer surrogate key for the gdpr test
 args[21]="--gdpr-customer-sk=221580"
+# greater than threshold for the date-sk attribute (2452459 for last 10%, -1 to disable)
+args[22]="--datesk-gt-threshold=-1"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 

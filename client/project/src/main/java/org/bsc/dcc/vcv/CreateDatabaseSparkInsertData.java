@@ -57,6 +57,7 @@ public class CreateDatabaseSparkInsertData {
 	private final double[] fractions = {10.0};
 	//private final String[] insertSuffix = {"pointone", "one", "ten"};
 	private final String[] insertSuffix = {"ten"};
+	private final int dateskThreshold;
 	
 	
 	public CreateDatabaseSparkInsertData(CommandLine commandLine) {
@@ -95,6 +96,8 @@ public class CreateDatabaseSparkInsertData {
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		this.skipKeys = new SkipKeys().getMap();
+		String dateskThresholdStr = commandLine.getOptionValue("datesk-gt-threshold", "-1");
+		this.dateskThreshold = Integer.parseInt(dateskThresholdStr);
 	}
 	
 
@@ -221,6 +224,8 @@ public class CreateDatabaseSparkInsertData {
 		builder.append("AS\n");
 		builder.append("( SELECT * FROM " + denormTableName + "\n");
 		builder.append("WHERE MOD(" + partKey + ", " + SkipMods.firstMod + ") = 0 \n");
+		if( this.dateskThreshold != -1 )
+			builder.append("AND " + partKey + " > " + this.dateskThreshold + "\n");
 		builder.append("AND MOD(" + skipAtt + ", " + SkipMods.secondMod + ") = 0 ) \n");
 		String updateExpr = this.createUpdatesExpression(denormTableName, partKey, skipAtt);
 		builder.append("UNION ALL\n");
@@ -235,11 +240,17 @@ public class CreateDatabaseSparkInsertData {
 			Dataset<Row> dataset = this.spark.sql("DESCRIBE " + denormTableName);
 			String columnsStr = getColumnNames(dataset);
 			String columnsStrUpd = columnsStr.replace("s_quantity", "s_quantity + 1");
-			expr = "( SELECT \n" +
+			StringBuilder builder = new StringBuilder();
+			builder.append(
+					"( SELECT \n" +
 					 columnsStrUpd + "\n" +
 					 "FROM " + denormTableName + "\n" +
-					 "WHERE MOD(" + partKey + ", " + UpdateMods.firstMod + ") = 1 \n" +
-					 "AND MOD(" + skipAtt + ", " + UpdateMods.secondMod + ") = 0 ) \n";
+					 "WHERE MOD(" + partKey + ", " + UpdateMods.firstMod + ") = 1 \n"
+					 );
+					 if( this.dateskThreshold != -1 )
+							builder.append("AND " + partKey + " > " + this.dateskThreshold + "\n");
+			builder.append("AND MOD(" + skipAtt + ", " + UpdateMods.secondMod + ") = 0 ) \n");
+			expr = builder.toString();
 		}
 		catch (Exception e) {
 			e.printStackTrace();

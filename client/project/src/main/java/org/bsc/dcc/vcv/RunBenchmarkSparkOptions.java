@@ -139,6 +139,9 @@ public class RunBenchmarkSparkOptions {
 		options.addOption( Option.builder().longOpt( "compact-instance" )
 				.desc( "instance number of the compact test" )
 				.hasArg(true).required(false).build() );
+		options.addOption( Option.builder().longOpt( "datesk-gt-threshold" )
+				.desc( "greater than threshold for the date-sk attribute to generate update data" )
+				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );

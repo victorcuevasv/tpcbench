@@ -59,6 +59,7 @@ public class CreateDatabaseSparkDeleteData {
 	private final int[] secondMod = {100, 10, 3};
 	private final int[] firstEqual = {1, 0, 0};
 	private final int[] secondEqual = {0, 0, 0};
+	private final int dateskThreshold;
 	
 	public CreateDatabaseSparkDeleteData(CommandLine commandLine) {
 		try {
@@ -96,6 +97,8 @@ public class CreateDatabaseSparkDeleteData {
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		this.skipKeys = new SkipKeys().getMap();
+		String dateskThresholdStr = commandLine.getOptionValue("datesk-gt-threshold", "-1");
+		this.dateskThreshold = Integer.parseInt(dateskThresholdStr);
 	}
 	
 
@@ -222,6 +225,8 @@ public class CreateDatabaseSparkDeleteData {
 		builder.append("SELECT * FROM " + denormTableName + "\n");
 		builder.append("WHERE MOD(" + partKey + ", " + 
 				this.firstMod[fractionIndex] + ") = " + this.firstEqual[fractionIndex] + "\n");
+		if( this.dateskThreshold != -1 )
+			builder.append("AND " + partKey + " > " + this.dateskThreshold + "\n");
 		builder.append("AND MOD(" + skipAtt + ", " + 
 				this.secondMod[fractionIndex] + ") = " + this.secondEqual[fractionIndex] + "\n");
 		return builder.toString();
