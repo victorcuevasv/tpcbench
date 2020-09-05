@@ -150,7 +150,7 @@ public class UpdateDatabaseSparkForceCompaction {
 				String fileNameNoExt = fileName.substring(0, fileName.indexOf('.'));
 				this.saveFile(this.workDir + "/avroschema/" + fileNameNoExt + ".json", sqlQuery);
 				this.executeCommand("aws s3 cp " + this.workDir + "/avroschema/" + fileNameNoExt +
-						".json " + this.extTablePrefixCreated.get() + "/" + fileName);
+						".json " + this.extTablePrefixCreated.get() + "/" + fileNameNoExt + ".json");
 				continue;
 			}
 			if( ! this.denormSingleOrAll.equals("all") ) {
