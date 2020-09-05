@@ -147,9 +147,10 @@ public class UpdateDatabaseSparkForceCompaction {
 		for (final String fileName : orderedList) {
 			String sqlQuery = this.createTableReader.getFile(fileName);
 			if( fileName.startsWith("avroSchema") ) {
-				this.saveFile(this.workDir + "/avroschema/" + fileName, sqlQuery);
-				this.executeCommand("aws s3 cp " + this.workDir + "/avroschema/" + fileName + " " +
-						this.extTablePrefixCreated.get() + "/" + fileName);
+				String fileNameNoExt = fileName.substring(0, fileName.indexOf('.'));
+				this.saveFile(this.workDir + "/avroschema/" + fileNameNoExt + ".json", sqlQuery);
+				this.executeCommand("aws s3 cp " + this.workDir + "/avroschema/" + fileNameNoExt +
+						".json " + this.extTablePrefixCreated.get() + "/" + fileName);
 				continue;
 			}
 			if( ! this.denormSingleOrAll.equals("all") ) {
