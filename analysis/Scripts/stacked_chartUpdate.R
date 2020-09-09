@@ -32,13 +32,13 @@ createPlotFromDataframe <- function(dataf, metric, metricsLabel, metricsUnit, me
     theme(axis.title.x=element_blank()) + 
     theme(axis.text=element_text(size=16), axis.title=element_text(size=18)) +
     #The str_wrap function makes the name of the column appear on multiple lines instead of just one
-    scale_x_discrete(labels = function(x) str_wrap(x, width = 20)) + 
+    scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) + 
     scale_y_continuous(paste0(metricsLabel[[metric]], " ", metricsUnit[[metric]]), limits=c(0,metricsYaxisLimit[[metric]])) + 
     #scale_y_continuous(paste0(metricsLabel[[metric]], " ", " (", metricsUnit[[metric]], ")")) + 
     #The line below to species the colors manually -must provide enough colors-
-    #scale_fill_manual(name="", values=c("#5e3c99", "#b2abd2", "#53986a", "#fdb863", "#53986a", "#e66101", "#53986a", "#a44747", "#53986a"), labels=c('load delta/hudi', 'z-order', 'read', 'upsert', 'read', 'delete', 'read', 'gdpr', 'read')) + 
+    scale_fill_manual(name="", values=c("#5e3c99", "#b2abd2", "#53986a", "#fdb863", "#53986a", "#e66101", "#53986a", "#a44747", "#53986a"), labels=c('load delta/hudi', 'z-order', 'read', 'upsert', 'read', 'delete', 'read', 'gdpr', 'read')) + 
     #scale_fill_manual(name = "", values=c(barsColor), labels=c('load', 'load_denorm', 'load_delta-hudi', 'zorder', 'insertdata', 'insupdtest', 'deletedata', 'deletetest', 'gdprtest')) +
-    scale_fill_manual(name="", values=c("greenyellow", "limegreen", "chartreuse4", "darkgreen"), labels=c('read1', 'read2', 'read3', 'read4')) +
+    #scale_fill_manual(name="", values=c("greenyellow", "limegreen", "chartreuse4", "darkgreen"), labels=c('read1', 'read2', 'read3', 'read4')) +
     theme(legend.position = "bottom") + 
     #theme(legend.position = "none") + 
     theme(legend.text=element_text(size=14)) + 
@@ -176,7 +176,7 @@ metricsDigits<-new.env()
 metricsDigits[["AVG_TOTAL_DURATION_HOUR"]] <- 2
 metricsDigits[["AVG_SPEEDUP"]] <- 2
 metricsYaxisLimit<-new.env()
-metricsYaxisLimit[["AVG_TOTAL_DURATION_HOUR"]] <- 0.6
+metricsYaxisLimit[["AVG_TOTAL_DURATION_HOUR"]] <- 10.0
 metricsYaxisLimit[["AVG_SPEEDUP"]] <- 2.0
 
 args <- commandArgs(TRUE)
@@ -184,9 +184,9 @@ dirName <- file.path(args[1])
 experiments <- NULL
 labels <- NULL
 #tests <- list('load', 'loaddenorm', 'loadupdate', 'zorderupdate', 'insertdata', 'insupdtest', 'deletedata', 'deletetest', 'gdprtest')
-#tests <- list('loadupdate', 'zorderupdate', 'readtest1', 'insupdtest', 'readtest2', 'deletetest', 'readtest3', 'gdprtest', 'readtest4')
+tests <- list('loadupdate', 'zorderupdate', 'readtest1', 'insupdtest', 'readtest2', 'deletetest', 'readtest3', 'gdprtest', 'readtest4')
 #tests <- list('gdprtest')
-tests <- list('readtest1', 'readtest2', 'readtest3', 'readtest4')
+#tests <- list('readtest1', 'readtest2', 'readtest3', 'readtest4')
 instances <- list('1')
 
 #Option 1: use all of the subdirectories found in the directory.
@@ -303,35 +303,30 @@ dev.off()
 # print(plot)
 # dev.off()
 
-
+#For each test get the total time corresponding to each system to create a table.
+#Get only the values and add the header later when converting to a dataframe.
 table <- c()
-pos <- 1
-columnNames <- c("test")
-
-i <- 2
-for(label in labels) {
-  columnNames[i] <- label
-  i <- i + 1
-}
-
-table[pos] <- list(columnNames)
-pos <- pos + 1
-
+toMinutes <- TRUE
 for(test in tests) {
   row <- c(test)
-  i <- 2
   for(label in labels) {
     t <- filter(dfSummary, LABEL == label & TEST == test)$AVG_TOTAL_DURATION_HOUR
     if( length(t) == 0 )
       t <- 0
-    row[i] <- t
-    i <- i + 1
+    if( toMinutes )
+      t <- t * 60
+    row <- c(row, t)
   }
-  table[pos] <- list(row)
-  pos <- pos + 1
+  table <- c(table, list(row))
 }
 
-tableDF <- t(as.data.frame(matrix(unlist(table), nrow=length(unlist(table[1])))))
+mat <- matrix(unlist(table), nrow=length(unlist(table[1])))
+mat <- t(mat)
+colnames(mat) <- c("test", labels)
+tableDF <- as.data.frame(mat)
+for(label in labels) {
+  tableDF[[label]] <- as.numeric(as.character(tableDF[[label]]))
+}
 
 outXlsxFile <- file.path(prefixOS, "Documents/table.xlsx")
 export(tableDF, outXlsxFile)
