@@ -28,7 +28,9 @@ fi
 printf "\n\n%s\n\n" "${blu}Compiling the client project.${end}"
 bash client/compile.sh $USER_ID $GROUP_ID
 
-mkdir $HOME/tpcds-jars/target
+if [ ! -d $HOME/tpcds-jars/target ]; then
+	mkdir $HOME/tpcds-jars/target
+fi
 cp client/project/target/client-1.2-SNAPSHOT-SHADED.jar \
 $HOME/tpcds-jars/target/$UploadedFileName
 
