@@ -28,8 +28,8 @@ fi
 printf "\n\n%s\n\n" "${blu}Compiling the client project.${end}"
 bash client/compile.sh $USER_ID $GROUP_ID
 
-cp client/project/targetjdbc/client-1.2-SNAPSHOT-SHADED.jar \
-$HOME/tpcds-jars/targetjdbc/$UploadedFileName
+cp client/project/target/client-1.2-SNAPSHOT-SHADED.jar \
+$HOME/tpcds-jars/target/$UploadedFileName
 
 echo "${blu}Uploaded file with name: ${UploadedFileName}.${end}"   
 
