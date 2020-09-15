@@ -57,7 +57,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
 	<build>
-		<directory>targetemr</directory>
+		<directory>target</directory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
