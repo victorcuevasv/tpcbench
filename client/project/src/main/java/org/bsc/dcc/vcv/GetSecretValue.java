@@ -53,7 +53,7 @@ public class GetSecretValue {
     public static void getValue(SecretsManagerClient secretsClient,String secretName) {
 
         try {
-        	this.logger.info("Retrieving secret: " + secretName);
+        	logger.info("Retrieving secret: " + secretName);
             GetSecretValueRequest valueRequest = GetSecretValueRequest.builder()
                 .secretId(secretName)
                 .build();
@@ -64,7 +64,7 @@ public class GetSecretValue {
 
         } catch (SecretsManagerException e) {
             System.err.println(e.awsErrorDetails().errorMessage());
-            this.logger.error(e);
+            logger.error(e);
             System.exit(1);
         }
     }
