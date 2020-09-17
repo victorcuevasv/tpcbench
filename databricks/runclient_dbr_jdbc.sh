@@ -43,6 +43,7 @@ DirNameResults="dbr${MajorVersion}${MinorVersion}"
 DatabaseName="tpcds_databricks_${MajorVersion}${MinorVersion}_$1gb_$2_${Tag}"
 JarFile="/mnt/tpcds-jars/targetsparkjdbc/client-1.2-SNAPSHOT-SHADED.jar"
 
+CLUSTER_NAME="TPC-DS_${Tag}_$2"
 RUN_CREATE_CLUSTER=1
 RUN_RUN_BENCHMARK=1
 
@@ -108,6 +109,7 @@ post_data_func()
   cat <<EOF
 {
     "num_workers": $Nodes,
+    "cluster_name":"$CLUSTER_NAME",
     "spark_version": "${MajorVersion}.${MinorVersion}.${ScalaVersion}",
     "spark_conf": {
         "spark.databricks.delta.autoCompact.enabled": "true",
