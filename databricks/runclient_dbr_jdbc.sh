@@ -43,6 +43,9 @@ DirNameResults="dbr${MajorVersion}${MinorVersion}"
 DatabaseName="tpcds_databricks_${MajorVersion}${MinorVersion}_$1gb_$2_${Tag}"
 JarFile="/mnt/tpcds-jars/targetsparkjdbc/client-1.2-SNAPSHOT-SHADED.jar"
 
+RUN_CREATE_CLUSTER=1
+RUN_RUN_BENCHMARK=1
+
 args=()
 
 #main work directory
@@ -100,16 +103,57 @@ function string_list() {
     echo ${list%?}
 }
 
+post_data_func()
+{
+  cat <<EOF
+{
+    "num_workers": $Nodes,
+    "spark_version": "${MajorVersion}.${MinorVersion}.${ScalaVersion}",
+    "spark_conf": {
+        "spark.databricks.delta.autoCompact.enabled": "true",
+        "spark.sql.crossJoin.enabled": "true",
+        "spark.databricks.delta.optimizeWrite.enabled": "true",
+        "spark.sql.broadcastTimeout": "7200"
+    },
+    "aws_attributes": {
+        "first_on_demand": 0,
+        "availability": "ON_DEMAND",
+        "zone_id": "us-west-2b",
+        "spot_bid_price_percent": 100,
+        "ebs_volume_count": 0
+    },
+    "node_type_id": "i3.2xlarge",
+    "ssh_public_keys": [
+        "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDjxM9WRCj8vI0aDAVhVi3DkibIaChqwjshgcPvXcth5l1cWxBZLkDdL1CCLSAbUGGL+HX79FL7L46wBCOHTJ2hhd7tjxxDG7IeH/G2Q1wPsTMt7Vpswc8Ijp6BKzbqAJS9HJAq9VPjh0x39gPd2x4vHiRpudKA+RFvTQ1jWRz0nTxI/eteZWB03jrPQxbZFo5v/29VDTwRlDBraC5q3hblfXAUk8cWQkhlFz2XagPNzsigVsY/zJvIJ/zW5ZpPI5El2VK3CEGjqbg5qt7QnIiRydly3N2eWHDIwZM3nfAMYdWig+65U8LOy9NC8J6dk8v/ZlstoOLNNm5+LSkmj9b7 pristine@al-1001"
+    ],
+    "custom_tags": {},
+    "spark_env_vars": {},
+    "enable_elastic_disk": false,
+    "init_scripts": []
+}
+EOF
+}
+
 paramsStr=$(string_list "${args[@]}")
+cluster_id=""
 
-docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
---volume $HOME/data:/data \
---volume $DIR/../client/project:/project \
---entrypoint mvn clientbuilder:dev \
-exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmark" \
--Dexec.args="$paramsStr" \
--f /project/pom.xml
+if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
+	echo "${blu}Creating cluster for benchmark execution.${end}"
+	#Must add the quotes to post_data_func to avoid error.
+	jsonClusterCreate=$(databricks clusters create --json "$(post_data_func)")
+	job_id=$(jq -j '.cluster_id'  <<<  "$jsonClusterCreate")
+	echo "${blu}Created cluster with id ${cluster_id}.${end}"
+fi
 
+if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
+	docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
+	--volume $HOME/data:/data \
+	--volume $DIR/../client/project:/project \
+	--entrypoint mvn clientbuilder:dev \
+	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmark" \
+	-Dexec.args="$paramsStr" \
+	-f /project/pom.xml
+fi
 
 
 
