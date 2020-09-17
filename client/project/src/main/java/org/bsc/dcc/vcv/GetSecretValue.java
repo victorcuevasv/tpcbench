@@ -20,8 +20,12 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 import software.amazon.awssdk.services.secretsmanager.model.SecretsManagerException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class GetSecretValue {
+	
+	private static final Logger logger = LogManager.getLogger("AllLog");
 
     public static void main(String[] args) {
 
@@ -49,6 +53,7 @@ public class GetSecretValue {
     public static void getValue(SecretsManagerClient secretsClient,String secretName) {
 
         try {
+        	this.logger.info("Retrieving secret: " + secretName);
             GetSecretValueRequest valueRequest = GetSecretValueRequest.builder()
                 .secretId(secretName)
                 .build();
@@ -59,6 +64,7 @@ public class GetSecretValue {
 
         } catch (SecretsManagerException e) {
             System.err.println(e.awsErrorDetails().errorMessage());
+            this.logger.error(e);
             System.exit(1);
         }
     }
