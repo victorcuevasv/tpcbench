@@ -143,7 +143,7 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	echo "${blu}Creating cluster for benchmark execution.${end}"
 	#Must add the quotes to post_data_func to avoid error.
 	jsonClusterCreate=$(databricks clusters create --json "$(post_data_func)")
-	job_id=$(jq -j '.cluster_id'  <<<  "$jsonClusterCreate")
+	cluster_id=$(jq -j '.cluster_id'  <<<  "$jsonClusterCreate")
 	echo "${blu}Created cluster with id ${cluster_id}.${end}"
 fi
 
