@@ -29,9 +29,9 @@ public class AWSUtil {
 
         }
         catch (SecretsManagerException e) {
-        	this.logger.error("Error in AWSUtil getValue.");
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
+        	logger.error("Error in AWSUtil getValue.");
+			logger.error(e);
+			logger.error(AppUtil.stringifyStackTrace(e));
         	System.err.println(e.awsErrorDetails().errorMessage());
             logger.error(e);
             e.printStackTrace();
