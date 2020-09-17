@@ -38,7 +38,7 @@ public class GetSecretValue {
         /* Read the name from command args */
         String secretName = args[0];
 
-        Region region = Region.US_EAST_1;
+        Region region = Region.US_WEST_2;
         SecretsManagerClient secretsClient = SecretsManagerClient.builder()
                 .region(region)
                 .build();
