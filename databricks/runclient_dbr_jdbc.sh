@@ -31,7 +31,7 @@ fi
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
-Nodes="16"
+Nodes="2"
 MajorVersion="7"
 MinorVersion="2"
 ScalaVersion="x-scala2.12"
@@ -45,7 +45,9 @@ JarFile="/mnt/tpcds-jars/targetsparkjdbc/client-1.2-SNAPSHOT-SHADED.jar"
 
 CLUSTER_NAME="TPC-DS_${Tag}_$2"
 RUN_CREATE_CLUSTER=1
+cluster_id=""
 RUN_RUN_BENCHMARK=1
+RUN_TERMINATE_CLUSTER=1
 
 args=()
 
@@ -104,14 +106,15 @@ function string_list() {
     echo ${list%?}
 }
 
-#Wait until the state of the cluster is TERMINATED by polling using the Databricks CLI.
-#$1 run_id
-#$2 pause in seconds for polling
-wait_for_running_state() {
+#Wait until the cluster is in a given state by polling using the Databricks CLI.
+#$1 cluster_id
+#$2 state waiting for
+#$3 pause in seconds for polling
+wait_for_state() {
    declare state=$(get_cluster_state $1)
-   while [ $state != "RUNNING"  ] ;
+   while [ $state != "$2"  ] ;
    do
-      sleep $2
+      sleep $3
       state=$(get_cluster_state $1)
    done
 }
@@ -157,8 +160,6 @@ post_data_func()
 EOF
 }
 
-cluster_id=""
-
 if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	echo "${blu}Creating cluster for benchmark execution.${end}"
 	#Must add the quotes to post_data_func to avoid error.
@@ -166,7 +167,7 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	cluster_id=$(jq -j '.cluster_id'  <<<  "$jsonClusterCreate")
 	echo "${blu}Launched creation of cluster with id ${cluster_id}.${end}"
 	echo "${blu}Waiting for the initialization of cluster with id ${cluster_id}.${end}"
-	wait_for_running_state $cluster_id 60
+	wait_for_state $cluster_id "RUNNING" 60
 	echo "${blu}Cluster running.${end}"
 fi
 
@@ -181,6 +182,17 @@ if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 	-Dexec.args="$paramsStr" \
 	-f /project/pom.xml
 fi
+
+if [ "$RUN_TERMINATE_CLUSTER" -eq 1 ]; then
+	echo "${blu}Terminating cluster used for benchmark execution.${end}"
+	#Must add the quotes to post_data_func to avoid error.
+	databricks clusters delete --cluster-id $cluster_id
+	echo "${blu}Launched termination of cluster with id ${cluster_id}.${end}"
+	echo "${blu}Waiting for the termination of cluster with id ${cluster_id}.${end}"
+	wait_for_state $cluster_id "TERMINATED" 60
+	echo "${blu}Cluster terminated.${end}"
+fi
+
 
 
 
