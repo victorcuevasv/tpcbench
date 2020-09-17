@@ -171,6 +171,8 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	echo "${blu}Cluster running.${end}"
 fi
 
+#add the cluster id to the parameters
+args[16]="--cluster-id=$cluster_id"
 paramsStr=$(string_list "${args[@]}")
 
 if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
@@ -189,7 +191,7 @@ if [ "$RUN_TERMINATE_CLUSTER" -eq 1 ]; then
 	databricks clusters delete --cluster-id $cluster_id
 	echo "${blu}Launched termination of cluster with id ${cluster_id}.${end}"
 	echo "${blu}Waiting for the termination of cluster with id ${cluster_id}.${end}"
-	wait_for_state $cluster_id "TERMINATED" 60
+	wait_for_state $cluster_id "TERMINATED" 20
 	echo "${blu}Cluster terminated.${end}"
 fi
 

@@ -60,6 +60,7 @@ public class CreateDatabase {
 	//This variable keeps track of that case.
 	private String systemRunning;
 	private final String createSingleOrAll;
+	private final String clusterId;
 	
 	public CreateDatabase(CommandLine commandLine) {
 		this.workDir = commandLine.getOptionValue("main-work-dir");
@@ -86,6 +87,7 @@ public class CreateDatabase {
 		this.username = commandLine.getOptionValue("connection-username");
 		this.jarFile = commandLine.getOptionValue("jar-file");
 		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
+		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
@@ -152,6 +154,7 @@ public class CreateDatabase {
 		this.hostname = args[16];
 		this.username = args[17];
 		this.createSingleOrAll = "all";
+		this.clusterId = "UNUSED";
 		this.jarFile = args[18];
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
@@ -188,11 +191,12 @@ public class CreateDatabase {
 						this.hostname + ":8889/hive/" + this.dbName, "hadoop", "");
 			}
 			else if( this.systemRunning.equals("sparkdatabricksjdbc") ) {
+				String dbrToken = AWSUtil.getValue("DatabricksToken");
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
-				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
+				this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
 				";UseNativeQuery=1");
 			}
 			else if( this.systemRunning.startsWith("spark") ) {
