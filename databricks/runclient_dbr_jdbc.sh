@@ -104,6 +104,27 @@ function string_list() {
     echo ${list%?}
 }
 
+#Wait until the state of the cluster is TERMINATED by polling using the Databricks CLI.
+#$1 run_id
+#$2 pause in seconds for polling
+wait_for_running_state() {
+   declare state=$(get_cluster_state $1)
+   while [ $state != "RUNNING"  ] ;
+   do
+      sleep $2
+      state=$(get_cluster_state $1)
+   done
+}
+
+#Get the state (PENDING, RUNNING, TERMINATED) of a cluster via its cluster_id using the Databricks CLI.
+#$1 run_id
+get_cluster_state() {
+	declare jsonStr=""
+	jsonStr=$(databricks clusters get --cluster-id $1)
+	declare state=$(jq -j '.state'  <<<  "$jsonStr")
+	echo $state
+}
+
 post_data_func()
 {
   cat <<EOF
@@ -136,7 +157,6 @@ post_data_func()
 EOF
 }
 
-paramsStr=$(string_list "${args[@]}")
 cluster_id=""
 
 if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
@@ -144,8 +164,13 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 	#Must add the quotes to post_data_func to avoid error.
 	jsonClusterCreate=$(databricks clusters create --json "$(post_data_func)")
 	cluster_id=$(jq -j '.cluster_id'  <<<  "$jsonClusterCreate")
-	echo "${blu}Created cluster with id ${cluster_id}.${end}"
+	echo "${blu}Launched creation of cluster with id ${cluster_id}.${end}"
+	echo "${blu}Waiting for the initialization of cluster with id ${cluster_id}.${end}"
+	wait_for_running_state $cluster_id 60
+	echo "${blu}Cluster running.${end}"
 fi
+
+paramsStr=$(string_list "${args[@]}")
 
 if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 	docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
