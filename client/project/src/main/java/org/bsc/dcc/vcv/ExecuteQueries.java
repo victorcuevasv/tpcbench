@@ -158,7 +158,7 @@ public class ExecuteQueries {
 						this.hostname + ":8889/hive/" + this.dbName, "hive", "");
 				setPrestoDefaultSessionOpts();
 			}
-			else if( this.systemRunning.equals("sparkdatabricksjdbc") ) {
+			else if( this.system.equals("sparkdatabricksjdbc") ) {
 				String dbrToken = AWSUtil.getValue("DatabricksToken");
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
