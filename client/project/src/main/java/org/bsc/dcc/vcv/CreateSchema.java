@@ -27,11 +27,13 @@ public class CreateSchema {
 	private final String hostname;
 	private final String system;
 	private final String dbName;
+	private final String clusterId;
 	
 	public CreateSchema(CommandLine commandLine) {
 		this.hostname = commandLine.getOptionValue("server-hostname");
 		this.system = commandLine.getOptionValue("system-name");
 		this.dbName = commandLine.getOptionValue("schema-name");
+		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
 		this.openConnection();
 	}
 	
@@ -54,6 +56,7 @@ public class CreateSchema {
 		this.hostname = args[0];
 		this.system = args[1];
 		this.dbName = args[2];
+		this.clusterId = "UNUSED";
 		this.openConnection();
 	}
 	
@@ -75,12 +78,13 @@ public class CreateSchema {
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8889/hive/", "hadoop", "");
 			}
-			else if( this.system.equals("sparkdatabricksjdbc") ) {
+			else if( this.systemRunning.equals("sparkdatabricksjdbc") ) {
+				String dbrToken = AWSUtil.getValue("DatabricksToken");
 				Class.forName(databricksDriverName);
-				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/default" +
-				";transportMode=http;ssl=1" + 
+				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
+				this.dbName + ";transportMode=http;ssl=1" + 
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
-				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
+				this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
 				";UseNativeQuery=1");
 			}
 			else if( this.system.startsWith("spark") ) {

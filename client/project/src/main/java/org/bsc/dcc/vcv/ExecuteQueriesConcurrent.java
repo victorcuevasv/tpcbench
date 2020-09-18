@@ -33,7 +33,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
-	private static final String databricksDriverName = "com.simba.spark.jdbc42.Driver";
+	private static final String databricksDriverName = "com.simba.spark.jdbc.Driver";
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
 	private Connection con;
 	private final JarQueriesReaderAsZipFile queriesReader;
@@ -64,6 +64,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	final private boolean tputChangingStreams;
 	private final boolean useCachedResultSnowflake = false;
 	private final int maxConcurrencySnowflake = 8;
+	private final String clusterId;
 	
 	public ExecuteQueriesConcurrent(CommandLine commandLine) {
 		this.workDir = commandLine.getOptionValue("main-work-dir");
@@ -92,6 +93,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.hostname = commandLine.getOptionValue("server-hostname");
 		String tputChangingStreamsStr = commandLine.getOptionValue("tput-changing-streams", "true");
 		this.tputChangingStreams = Boolean.parseBoolean(tputChangingStreamsStr);
+		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
 		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.resultsDir,
@@ -161,6 +163,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.multiple = Boolean.parseBoolean(args[16]);
 		this.random = new Random(seed);
 		this.tputChangingStreams = true;
+		this.clusterId = "UNUSED";
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
 		this.matrix = this.streamsReader.getFileAsMatrix(this.streamsReader.getFiles().get(0));
@@ -203,12 +206,13 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 						hostname + ":8889/hive/" + dbName, "hive", "");
 				setPrestoDefaultSessionOpts();
 			}
-			else if( this.system.equals("sparkdatabricksjdbc") ) {
+			else if( this.systemRunning.equals("sparkdatabricksjdbc") ) {
+				String dbrToken = AWSUtil.getValue("DatabricksToken");
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
-				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
+				this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
 				";UseNativeQuery=1");
 			}
 			else if( system.startsWith("spark") ) {

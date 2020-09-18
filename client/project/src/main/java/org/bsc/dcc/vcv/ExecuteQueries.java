@@ -26,7 +26,7 @@ public class ExecuteQueries {
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
-	private static final String databricksDriverName = "com.simba.spark.jdbc42.Driver";
+	private static final String databricksDriverName = "com.simba.spark.jdbc.Driver";
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
 	private Connection con;
 	private final JarQueriesReaderAsZipFile queriesReader;
@@ -47,6 +47,7 @@ public class ExecuteQueries {
 	private final String jarFile;
 	private final String querySingleOrAll;
 	private final boolean useCachedResultSnowflake = false;
+	private final String clusterId;
 	
 	
 	public ExecuteQueries(CommandLine commandLine) {
@@ -72,6 +73,7 @@ public class ExecuteQueries {
 			this.querySingleOrAll = "all";
 		else
 			this.querySingleOrAll = commandLine.getOptionValue("all-or-query-file");
+		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
@@ -128,6 +130,7 @@ public class ExecuteQueries {
 			this.querySingleOrAll = "all";
 		else
 			this.querySingleOrAll = args[14];
+		this.clusterId = "UNUSED";
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 						this.system, this.test, this.instance);
@@ -155,12 +158,13 @@ public class ExecuteQueries {
 						this.hostname + ":8889/hive/" + this.dbName, "hive", "");
 				setPrestoDefaultSessionOpts();
 			}
-			else if( this.system.equals("sparkdatabricksjdbc") ) {
+			else if( this.systemRunning.equals("sparkdatabricksjdbc") ) {
+				String dbrToken = AWSUtil.getValue("DatabricksToken");
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
-				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
+				this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
 				";UseNativeQuery=1");
 			}
 			else if( this.system.startsWith("spark") ) {
