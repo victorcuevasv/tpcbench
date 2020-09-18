@@ -64,7 +64,7 @@ public class GetSecretValue {
 
         } catch (SecretsManagerException e) {
             System.err.println(e.awsErrorDetails().errorMessage());
-            logger.error(e);
+            logger.error(e.awsErrorDetails().errorMessage(), e);
             System.exit(1);
         }
     }
