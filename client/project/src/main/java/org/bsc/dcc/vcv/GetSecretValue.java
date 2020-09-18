@@ -20,12 +20,12 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 import software.amazon.awssdk.services.secretsmanager.model.SecretsManagerException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GetSecretValue {
 	
-	private static final Logger logger = LogManager.getLogger("AllLog");
+	private static final Logger logger = LoggerFactory.getLogger("AllLog");
 
     public static void main(String[] args) {
 

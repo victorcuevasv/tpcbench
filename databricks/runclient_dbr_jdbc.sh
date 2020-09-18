@@ -177,10 +177,10 @@ paramsStr=$(string_list "${args[@]}")
 
 if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 	docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
-	--volume $HOME/data:/data \
+	--volume $DIR/../vols/data:/data \
 	--volume $DIR/../client/project:/project \
 	--entrypoint mvn clientbuilder:dev \
-	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmark" \
+	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmarkCLI" \
 	-Dexec.args="$paramsStr" \
 	-f /project/pom.xml
 fi

@@ -26,8 +26,7 @@
 			<artifactId>presto-jdbc</artifactId>
 			<version>0.227</version>
 		</dependency>
-		<!--  Deprecated and replaced with slf4j-log4j12 dependency
-		      (previously used log4j-api and log4j-core version 2.8.2) 
+		<!--  Previously used version 2.8.2 -->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
@@ -38,7 +37,17 @@
 			<artifactId>log4j-core</artifactId>
 			<version>2.11.2</version>
 		</dependency>
-		-->
+		<dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        <!-- Binding for Log4J -->
+    	<dependency>
+        	<groupId>org.apache.logging.log4j</groupId>
+        	<artifactId>log4j-slf4j-impl</artifactId>
+        	<version>2.12.0</version>
+    	</dependency>
 		<!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
 		<dependency>
       		<groupId>commons-cli</groupId>
@@ -61,11 +70,6 @@
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>secretsmanager</artifactId>
             <version>2.14.19</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.25</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore -->
         <!-- Necessary to avoid error with AWS SDK -->
