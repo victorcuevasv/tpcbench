@@ -29,6 +29,7 @@ public class CreateDatabase {
 	private static final String databricksDriverName = "com.simba.spark.jdbc.Driver";
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
+	private static final String synapseDriverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 	private Connection con;
 	private final JarCreateTableReaderAsZipFile createTableReader;
 	private final AnalyticsRecorder recorder;
@@ -209,6 +210,18 @@ public class CreateDatabase {
 				con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
 						"user=" + this.username + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
 						"&schema=" + this.dbName + "&warehouse=testwh");
+			}
+			else if( this.system.startsWith("synapse") ) {
+				Class.forName(synapseDriverName);
+				this.con = DriverManager.getConnection("jdbc:sqlserver://" +
+				"bsc-test.database.windows.net:1433;" +
+				"database=bsc-pool;" +
+				"user=D94rJ8L7@bsc-test;" +
+				"password={your_password_here};" +
+				"encrypt=true;" +
+				"trustServerCertificate=false;" +
+				"hostNameInCertificate=*.database.windows.net;" +
+				"loginTimeout=30;");
 			}
 			else {
 				throw new java.lang.RuntimeException("Unsupported system: " + this.systemRunning);

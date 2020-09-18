@@ -22,6 +22,7 @@ public class CreateSchema {
 	//private static final String databricksDriverName = "com.simba.spark.jdbc42.Driver";
 	private static final String databricksDriverName = "com.simba.spark.jdbc.Driver";
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
+	private static final String synapseDriverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private final String hostname;
@@ -96,6 +97,18 @@ public class CreateSchema {
 				Class.forName(snowflakeDriverName);
 				this.con = DriverManager.getConnection("jdbc:snowflake://zua56993.snowflakecomputing.com/?" +
 						"user=bsctest&password=c4[*4XYM1GIw");
+			}
+			else if( this.system.startsWith("synapse") ) {
+				Class.forName(synapseDriverName);
+				this.con = DriverManager.getConnection("jdbc:sqlserver://" +
+				"bsc-test.database.windows.net:1433;" +
+				"database=bsc-pool;" +
+				"user=D94rJ8L7@bsc-test;" +
+				"password={your_password_here};" +
+				"encrypt=true;" +
+				"trustServerCertificate=false;" +
+				"hostNameInCertificate=*.database.windows.net;" +
+				"loginTimeout=30;");
 			}
 			else {
 				throw new java.lang.RuntimeException("Unsupported system: " + this.system);
