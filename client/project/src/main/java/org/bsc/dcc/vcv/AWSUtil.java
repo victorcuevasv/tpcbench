@@ -7,6 +7,7 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRespon
 import software.amazon.awssdk.services.secretsmanager.model.SecretsManagerException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 
 public class AWSUtil {
 	
@@ -24,9 +25,10 @@ public class AWSUtil {
                 .secretId(secretName)
                 .build();
             GetSecretValueResponse valueResponse = secretsClient.getSecretValue(valueRequest);
-            String secret = valueResponse.secretString();
+            String secretJson = valueResponse.secretString();
+            JSONObject secretJsonObj = new JSONObject(secretJson);
+            String secret = secretJsonObj.getString(secretName);
             retVal = secret;
-
         }
         catch (SecretsManagerException e) {
         	logger.error("Error in AWSUtil getValue.");
