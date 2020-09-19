@@ -81,6 +81,11 @@ public class CreateSchema {
 			}
 			else if( this.system.equals("sparkdatabricksjdbc") ) {
 				String dbrToken = AWSUtil.getValue("DatabricksToken");
+				this.logger.info("jdbc:spark://" + this.hostname + ":443/" +
+						this.dbName + ";transportMode=http;ssl=1" + 
+						";httpPath=sql/protocolv1/o/538214631695239/" + 
+						this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
+						";UseNativeQuery=1");
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
