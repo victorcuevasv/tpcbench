@@ -37,11 +37,11 @@ MinorVersion="2"
 ScalaVersion="x-scala2.12"
 #Run configuration.
 Tag="$(date +%s)"
-ExperimentName="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-${Tag}"
-DirNameWarehouse="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-$2-${Tag}"
-DirNameResults="dbr${MajorVersion}${MinorVersion}"
-DatabaseName="tpcds_databricks_${MajorVersion}${MinorVersion}_$1gb_$2_${Tag}"
-JarFile="/mnt/tpcds-jars/targetsparkjdbc/client-1.2-SNAPSHOT-SHADED.jar"
+ExperimentName="tpcds-dbrjdbc-${MajorVersion}${MinorVersion}-$1gb-${Tag}"
+DirNameWarehouse="tpcds-dbrjdbc-${MajorVersion}${MinorVersion}-$1gb-$2-${Tag}"
+DirNameResults="dbr${MajorVersion}${MinorVersion}jdbc"
+DatabaseName="tpcds_dbrjdbc_${MajorVersion}${MinorVersion}_$1gb_$2_${Tag}"
+JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 
 CLUSTER_NAME="TPC-DS_${Tag}_$2"
 RUN_CREATE_CLUSTER=1

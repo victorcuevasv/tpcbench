@@ -199,6 +199,11 @@ public class CreateDatabase {
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
 				this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
 				";UseNativeQuery=1");
+				this.logger.info("jdbc:spark://" + this.hostname + ":443/" +
+						this.dbName + ";transportMode=http;ssl=1" + 
+						";httpPath=sql/protocolv1/o/538214631695239/" + 
+						this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
+						";UseNativeQuery=1");
 			}
 			else if( this.systemRunning.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
