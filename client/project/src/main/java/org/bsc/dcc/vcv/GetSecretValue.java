@@ -22,6 +22,7 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRespon
 import software.amazon.awssdk.services.secretsmanager.model.SecretsManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.json.JSONObject;
 
 public class GetSecretValue {
 	
@@ -59,7 +60,9 @@ public class GetSecretValue {
                 .build();
 
             GetSecretValueResponse valueResponse = secretsClient.getSecretValue(valueRequest);
-            String secret = valueResponse.secretString();
+            String secretJson = valueResponse.secretString();
+            JSONObject secretJsonObj = new JSONObject(secretJson);
+            String secret = secretJsonObj.getString(secretName);
             System.out.println(secret);
 
         } catch (SecretsManagerException e) {
