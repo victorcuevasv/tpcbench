@@ -95,17 +95,6 @@ args[13]="--all-or-query-file=all"
 #flags (110000 schema|load|analyze|zorder|power|tput)
 args[15]="--execution-flags=111011"
 
-function string_list() {
-    declare array=("$@")
-    declare list=""
-    for w in "${array[@]}"
-    do
-        list+="$w "
-    done
-    #Remove the last space
-    echo ${list%?}
-}
-
 #Wait until the cluster is in a given state by polling using the Databricks CLI.
 #$1 cluster_id
 #$2 state waiting for
@@ -173,7 +162,7 @@ fi
 
 #add the cluster id to the parameters
 args[16]="--cluster-id=$cluster_id"
-paramsStr=$(string_list "${args[@]}")
+paramsStr="${args[@]}"
 
 if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 	docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
