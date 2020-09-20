@@ -30,6 +30,8 @@ public class CreateDatabase {
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
 	private static final String synapseDriverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+	private static final String redshiftDriverName = "com.amazon.redshift.jdbc42.Driver";
+	
 	private Connection con;
 	private final JarCreateTableReaderAsZipFile createTableReader;
 	private final AnalyticsRecorder recorder;
@@ -199,6 +201,11 @@ public class CreateDatabase {
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
 				this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
 				";UseNativeQuery=1");
+			}
+			else if( this.system.equals("redshift") ) {
+				Class.forName(redshiftDriverName);
+				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
+				this.dbName + "?ssl=true&UID=your_username&PWD=your_password");
 			}
 			else if( this.systemRunning.startsWith("spark") ) {
 				Class.forName(hiveDriverName);

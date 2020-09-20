@@ -23,6 +23,8 @@ public class CreateSchema {
 	private static final String databricksDriverName = "com.simba.spark.jdbc.Driver";
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
 	private static final String synapseDriverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+	private static final String redshiftDriverName = "com.amazon.redshift.jdbc42.Driver";
+	
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private final String hostname;
@@ -81,17 +83,17 @@ public class CreateSchema {
 			}
 			else if( this.system.equals("sparkdatabricksjdbc") ) {
 				String dbrToken = AWSUtil.getValue("DatabricksToken");
-				this.logger.info("jdbc:spark://" + this.hostname + ":443/" +
-						this.dbName + ";transportMode=http;ssl=1" + 
-						";httpPath=sql/protocolv1/o/538214631695239/" + 
-						this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
-						";UseNativeQuery=1");
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
 				this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
 				";UseNativeQuery=1");
+			}
+			else if( this.system.equals("redshift") ) {
+				Class.forName(redshiftDriverName);
+				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
+				this.dbName + "?ssl=true&UID=your_username&PWD=your_password");
 			}
 			else if( this.system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
@@ -101,7 +103,7 @@ public class CreateSchema {
 			else if( this.system.startsWith("snowflake") ) {
 				Class.forName(snowflakeDriverName);
 				this.con = DriverManager.getConnection("jdbc:snowflake://zua56993.snowflakecomputing.com/?" +
-						"user=bsctest&password=c4[*4XYM1GIw");
+						"user=bsctest&password=");
 			}
 			else if( this.system.startsWith("synapse") ) {
 				Class.forName(synapseDriverName);
