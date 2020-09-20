@@ -11,7 +11,7 @@
 	<repositories>
     	<repository>
       		<id>redshift</id>
-      		<url>https://s3.amazonaws.com/redshift-maven-repository/release</url>
+      		<url>https://s3.amazonaws.com/redshift-maven-repository/redshift-jdbc42</url>
     	</repository>
 	</repositories>
 	<dependencies>
