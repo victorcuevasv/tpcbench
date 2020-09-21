@@ -26,7 +26,7 @@ if [ $# -lt 2 ]; then
     exit 1
 fi
 
-#Generate the Spark queries.
+#Generate the Netezza queries.
 printf "\n\n%s\n\n" "${mag}Generating query streams.${end}"
 bash $DIR/dqgen/generateStreams.sh $USER_ID $GROUP_ID $1 $2
  

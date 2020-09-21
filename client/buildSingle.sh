@@ -7,6 +7,7 @@
 #$2 user id
 #$3 group id
 #$4 use local mirror (1/0)
+#$5 build databricks jdbc client (true/false)
 
 exitCode=0
 
@@ -22,7 +23,7 @@ if [[ $mirror -eq 0 ]]; then
 	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3
 else
 	docker build --network="host" --force-rm -t clientbuilder:dev $DIR -f $DIR/DockerfileSingle \
-	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3
+	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3 --build-arg DBR_JDBC=$5
 fi
 
 if [[ $? -ne 0 ]]; then

@@ -232,7 +232,26 @@ spark.databricks.delta.autoCompact.maxFileSize 134217728
 
 
 
+Check committer time:
 
+Check log4j-active.log
+
+Search lines with:
+
+DirectoryAtomicCommitProtocol
+
+
+
+#Get all of the spark configuration values.
+
+sc.getConf.getAll.foreach(println)
+
+#Get a configuration whose identifier contains 'sql'
+
+sc.getConf.getAll.filter(t => t._1.contains("sql")).foreach(println)
+
+
+ 
 
 
 

@@ -15,29 +15,37 @@ import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 
 public class CreateDatabase {
 
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private static String driverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
-	private static final String databricksDriverName = "com.simba.spark.jdbc41.Driver";
+	private static final String databricksDriverName = "com.simba.spark.jdbc.Driver";
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
+	private static final String synapseDriverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+	private static final String redshiftDriverName = "com.amazon.redshift.jdbc42.Driver";
+	
 	private Connection con;
 	private final JarCreateTableReaderAsZipFile createTableReader;
 	private final AnalyticsRecorder recorder;
 	
 	private final String workDir;
 	private final String dbName;
-	private final String folderName;
+	private final String resultsDir;
 	private final String experimentName;
 	private final String system;
 	
 	private final String test;
 	private final int instance;
-	private final String genDataDir;
-	private final String subDir;
+	private final String rawDataDir;
+	private final String createTableDir;
 	private final String suffix;
 	
 	private final Optional<String> extTablePrefixRaw;
@@ -54,6 +62,44 @@ public class CreateDatabase {
 	//When data partitioning or bucketing is used, Presto has to be replaced by Hive.
 	//This variable keeps track of that case.
 	private String systemRunning;
+	private final String createSingleOrAll;
+	private final String clusterId;
+	
+	public CreateDatabase(CommandLine commandLine) {
+		this.workDir = commandLine.getOptionValue("main-work-dir");
+		this.dbName = commandLine.getOptionValue("schema-name");
+		this.resultsDir = commandLine.getOptionValue("results-dir");
+		this.experimentName = commandLine.getOptionValue("experiment-name");
+		this.system = commandLine.getOptionValue("system-name");
+		this.test = commandLine.getOptionValue("tpcds-test", "load");
+		String instanceStr = commandLine.getOptionValue("instance-number");
+		this.instance = Integer.parseInt(instanceStr);
+		this.rawDataDir = commandLine.getOptionValue("raw-data-dir", "UNUSED");
+		this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
+		this.suffix = commandLine.getOptionValue("text-file-suffix", "_ext");
+		this.extTablePrefixRaw = Optional.ofNullable(commandLine.getOptionValue("ext-raw-data-location"));
+		this.extTablePrefixCreated = Optional.ofNullable(commandLine.getOptionValue("ext-tables-location"));
+		this.format = commandLine.getOptionValue("table-format");
+		String doCountStr = commandLine.getOptionValue("count-queries", "false");
+		this.doCount = Boolean.parseBoolean(doCountStr);
+		String partitionStr = commandLine.getOptionValue("use-partitioning");
+		this.partition = Boolean.parseBoolean(partitionStr);
+		String bucketingStr = commandLine.getOptionValue("use-bucketing");
+		this.bucketing = Boolean.parseBoolean(bucketingStr);
+		this.hostname = commandLine.getOptionValue("server-hostname");
+		this.username = commandLine.getOptionValue("connection-username");
+		this.jarFile = commandLine.getOptionValue("jar-file");
+		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
+		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
+		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
+		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
+				this.system, this.test, this.instance);
+		this.systemRunning = this.system;
+		if( commandLine.hasOption("override-load-system") ) {
+			this.systemRunning = commandLine.getOptionValue("override-load-system");
+		}
+		this.openConnection();
+	}
 	
 	/**
 	 * @param args
@@ -85,15 +131,20 @@ public class CreateDatabase {
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
 	public CreateDatabase(String[] args) {
+		if( args.length != 19 ) {
+			System.out.println("Incorrect number of arguments: "  + args.length);
+			logger.error("Incorrect number of arguments: " + args.length);
+			System.exit(1);
+		}
 		this.workDir = args[0];
 		this.dbName = args[1];
-		this.folderName = args[2];
+		this.resultsDir = args[2];
 		this.experimentName = args[3];
 		this.system = args[4];
 		this.test = args[5];
 		this.instance = Integer.parseInt(args[6]);
-		this.genDataDir = args[7];
-		this.subDir = args[8];
+		this.rawDataDir = args[7];
+		this.createTableDir = args[8];
 		this.suffix = args[9];
 		this.extTablePrefixRaw = Optional.ofNullable(
 				args[10].equalsIgnoreCase("null") ? null : args[10]);
@@ -105,58 +156,82 @@ public class CreateDatabase {
 		this.bucketing = Boolean.parseBoolean(args[15]);
 		this.hostname = args[16];
 		this.username = args[17];
+		this.createSingleOrAll = "all";
+		this.clusterId = "UNUSED";
 		this.jarFile = args[18];
-		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.subDir);
-		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
+		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		this.systemRunning = this.system;
+		if( this.system.equals("hive") || 
+				( ( this.partition || this.bucketing ) && this.system.startsWith("presto") ) ) {
+			this.systemRunning = "hive";
+		}
+		this.openConnection();
+	}
+	
+	private void openConnection() {
 		try {
 			//IMPORTANT.
 			//Use Hive instead of Presto due to out of memory errors when using partitioning.
 			//The logs would still be organized as if Presto was used.
-			if( this.system.equals("hive") || 
-					( ( this.partition || this.bucketing ) && this.system.startsWith("presto") ) ) {
-			//if( this.system.equals("hive") ) {
+			if( this.systemRunning.equals("hive") ) {
 				Class.forName(driverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" + this.hostname + 
 					":10000/" + dbName, "hive", "");
-				this.systemRunning = "hive";
 			}
-			else if( this.system.equals("presto") ) {
+			else if( this.systemRunning.equals("presto") ) {
 				Class.forName(prestoDriverName);
 				//this.con = DriverManager.getConnection("jdbc:presto://" + 
 				//		this.hostname + ":8080/hive/" + this.dbName, "hive", "");
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8080/hive/" + this.dbName, this.username, "");
-				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
-			else if( this.system.equals("prestoemr") ) {
+			else if( this.systemRunning.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
 				//Should use hadoop to drop a table created by spark.
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8889/hive/" + this.dbName, "hadoop", "");
 			}
-			else if( this.system.equals("sparkdatabricksjdbc") ) {
+			else if( this.systemRunning.equals("sparkdatabricksjdbc") ) {
+				String dbrToken = AWSUtil.getValue("DatabricksToken");
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
-				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
+				this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
 				";UseNativeQuery=1");
 			}
-			else if( this.system.startsWith("spark") ) {
+			else if( this.system.equals("redshift") ) {
+				Class.forName(redshiftDriverName);
+				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
+				"dev" + "?ssl=true&UID=your_username&PWD=your_password");
+			}
+			else if( this.systemRunning.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" +
 						this.hostname + ":10015/" + this.dbName, "hive", "");
 			}
-			else if( system.startsWith("snowflake") ) {
+			else if( this.systemRunning.startsWith("snowflake") ) {
 				Class.forName(snowflakeDriverName);
 				con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
 						"user=" + this.username + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
 						"&schema=" + this.dbName + "&warehouse=testwh");
 			}
+			else if( this.system.startsWith("synapse") ) {
+				Class.forName(synapseDriverName);
+				this.con = DriverManager.getConnection("jdbc:sqlserver://" +
+				"bsc-test.database.windows.net:1433;" +
+				"database=bsc-pool;" +
+				"user=D94rJ8L7@bsc-test;" +
+				"password={your_password_here};" +
+				"encrypt=true;" +
+				"trustServerCertificate=false;" +
+				"hostNameInCertificate=*.database.windows.net;" +
+				"loginTimeout=30;");
+			}
 			else {
-				throw new java.lang.RuntimeException("Unsupported system: " + this.system);
+				throw new java.lang.RuntimeException("Unsupported system: " + this.systemRunning);
 			}
 		}
 		catch (ClassNotFoundException e) {
@@ -181,38 +256,61 @@ public class CreateDatabase {
 			System.exit(1);
 		}
 	}
-
 	
 	public static void main(String[] args) throws SQLException {
-		if( args.length != 19 ) {
-			System.out.println("Incorrect number of arguments: "  + args.length);
-			logger.error("Incorrect number of arguments: " + args.length);
-			System.exit(1);
+		CreateDatabase application = null;
+		//Check is GNU-like options are used.
+		boolean gnuOptions = args[0].contains("--") ? true : false;
+		if( ! gnuOptions )
+			application = new CreateDatabase(args);
+		else {
+			CommandLine commandLine = null;
+			try {
+				RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
+				Options options = runOptions.getOptions();
+				CommandLineParser parser = new DefaultParser();
+				commandLine = parser.parse(options, args);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				logger.error("Error in CreateDatabase main.");
+				logger.error(e);
+				logger.error(AppUtil.stringifyStackTrace(e));
+				System.exit(1);
+			}
+			application = new CreateDatabase(commandLine);
 		}
-		CreateDatabase prog = new CreateDatabase(args);
-		prog.createTables();
-		prog.closeConnection();
+		application.createTables();
 	}
 	
-	
 	private void createTables() {
+		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
-		// Process each .sql create table file found in the directory.
 		List<String> unorderedList = this.createTableReader.getFiles();
 		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
 		int i = 1;
 		for (final String fileName : orderedList) {
 			String sqlCreate = this.createTableReader.getFile(fileName);
-			//if( ! fileName.equals("call_center.sql") )
-			//	continue;
+			// Skip the dbgen_version table since its time attribute is not
+			// compatible with Hive.
+			if( fileName.equals("dbgen_version.sql") ) {
+				System.out.println("Skipping: " + fileName);
+				continue;
+			}
+			if( ! this.createSingleOrAll.equals("all") ) {
+				if( ! fileName.equals(this.createSingleOrAll) ) {
+					System.out.println("Skipping: " + fileName);
+					continue;
+				}
+			}
 			if( ! this.systemRunning.equals("snowflake") )
 				this.createTable(fileName, sqlCreate, i);
 			else
 				this.createTableSnowflake(fileName, sqlCreate, i);
 			i++;
 		}
+		this.recorder.close();
 	}
-
 	
 	private void createTableSnowflake(String sqlCreateFilename, String sqlCreate, int index) {
 		QueryRecord queryRecord = null;
@@ -225,12 +323,6 @@ public class CreateDatabase {
 			//Hive and Spark use the statement 'create external table ...' for raw data tables
 			String snowflakeSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, suffix, false);
 			saveCreateTableFile("snowflaketable", tableName, snowflakeSqlCreate);
-			// Skip the dbgen_version table since its time attribute is not
-			// compatible with Hive.
-			if (tableName.equals("dbgen_version")) {
-				System.out.println("Skipping: " + tableName);
-				return;
-			}
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			Statement stmt = con.createStatement();
@@ -238,8 +330,8 @@ public class CreateDatabase {
 			stmt.execute(snowflakeSqlCreate);
 			//Upload the .dat files to the table stage, which is created by default.
 			String putSql = null;
-			if( ! this.genDataDir.equals("UNUSED") ) {
-				putSql = "PUT file://" + this.genDataDir + "/" + tableName + "/*.dat @%" + tableName;
+			if( ! this.rawDataDir.equals("UNUSED") ) {
+				putSql = "PUT file://" + this.rawDataDir + "/" + tableName + "/*.dat @%" + tableName;
 				saveCreateTableFile("snowflakeput", tableName, putSql);
 				stmt.execute(putSql);
 			}
@@ -273,7 +365,6 @@ public class CreateDatabase {
 		}
 	}
 	
-	
 	// To create each table from the .dat file, an external table is first created.
 	// Then a parquet table is created and data is inserted into it from the
 	// external table.
@@ -290,18 +381,12 @@ public class CreateDatabase {
 					! this.systemRunning.startsWith("presto"), suffix, false);
 			String extSqlCreate = null;
 			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark"))
-				extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, genDataDir, 
+				extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, rawDataDir, 
 						extTablePrefixRaw);
 			else if( this.systemRunning.startsWith("presto") )
-				extSqlCreate = externalCreateTablePresto(incExtSqlCreate, tableName, genDataDir,
+				extSqlCreate = externalCreateTablePresto(incExtSqlCreate, tableName, rawDataDir,
 						extTablePrefixRaw);
 			saveCreateTableFile("textfile", tableName, extSqlCreate);
-			// Skip the dbgen_version table since its time attribute is not
-			// compatible with Hive.
-			if (tableName.equals("dbgen_version")) {
-				System.out.println("Skipping: " + tableName);
-				return;
-			}
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			Statement stmt = con.createStatement();
@@ -379,7 +464,6 @@ public class CreateDatabase {
 			}
 		}
 	}
-
 	
 	// Generate an incomplete SQL create statement to be completed for the texfile
 	// external and
@@ -424,10 +508,9 @@ public class CreateDatabase {
 		return builder.toString().replace("integer", "int    ");
 	}
 
-	
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an external textfile table in Hive.
-	private String externalCreateTableHive(String incompleteSqlCreate, String tableName, String genDataDir,
+	private String externalCreateTableHive(String incompleteSqlCreate, String tableName, String rawDataDir,
 			Optional<String> extTablePrefixRaw) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
@@ -436,14 +519,13 @@ public class CreateDatabase {
 		if( extTablePrefixRaw.isPresent() )
 			builder.append("LOCATION '" + extTablePrefixRaw.get() + "/" + tableName + "' \n");
 		else
-			builder.append("LOCATION '" + genDataDir + "/" + tableName + "' \n");
+			builder.append("LOCATION '" + rawDataDir + "/" + tableName + "' \n");
 		return builder.toString();
 	}
 	
-	
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an external textfile table in Presto.
-	private String externalCreateTablePresto(String incompleteSqlCreate, String tableName, String genDataDir,
+	private String externalCreateTablePresto(String incompleteSqlCreate, String tableName, String rawDataDir,
 			Optional<String> extTablePrefixRaw) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
@@ -451,10 +533,9 @@ public class CreateDatabase {
 		if( extTablePrefixRaw.isPresent() )
 			builder.append("external_location = '" + extTablePrefixRaw.get() + "/" + tableName + "' ) \n");
 		else
-			builder.append("external_location = '" + genDataDir + "/" + tableName + "' ) \n");
+			builder.append("external_location = '" + rawDataDir + "/" + tableName + "' ) \n");
 		return builder.toString();
 	}
-
 	
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an internal parquet table in Hive.
@@ -496,7 +577,6 @@ public class CreateDatabase {
 		return builder.toString();
 	}
 	
-	
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an internal parquet table in Presto.
 	private String internalCreateTablePresto(String incompleteSqlCreate, String tableName,
@@ -535,7 +615,6 @@ public class CreateDatabase {
 		return builder.toString();
 	}
 	
-	
 	private List<String> extractColumnNames(String sqlStr) {
 		List<String> list = new ArrayList<String>();
 		BufferedReader reader = null;
@@ -557,7 +636,6 @@ public class CreateDatabase {
 		}
 		return list;
 	}
-	
 	
 	private String shiftPartitionColumn(String sqlStr, String partitionAtt) {
 		ArrayList<String> list = new ArrayList<String>();
@@ -593,11 +671,10 @@ public class CreateDatabase {
 		}
 		return builder.toString();
 	}
-
 	
 	public void saveCreateTableFile(String suffix, String tableName, String sqlCreate) {
 		try {
-			String createTableFileName = this.workDir + "/" + this.folderName + "/" + this.subDir +
+			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + this.createTableDir +
 											suffix + "/" + this.experimentName + "/" + this.instance +
 											"/" + tableName + ".sql";
 			File temp = new File(createTableFileName);
@@ -612,7 +689,6 @@ public class CreateDatabase {
 			this.logger.error(ioe);
 		}
 	}
-
 	
 	private void countRowsQuery(Statement stmt, String tableName) {
 		try {
@@ -628,7 +704,6 @@ public class CreateDatabase {
 			this.logger.error(e);
 		}
 	}
-
 	
 	public String readFileContents(String filename) {
 		BufferedReader inBR = null;
@@ -648,7 +723,6 @@ public class CreateDatabase {
 		}
 		return retVal;
 	}
-	
 	
 	public void closeConnection() {
 		try {

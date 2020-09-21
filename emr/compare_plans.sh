@@ -31,16 +31,17 @@ done
 
 #Install graphviz in EC2 machine
 #Install C compiler and additional development tools.
-#yum groupinstall "Development tools"
+#sudo yum groupinstall "Development tools"
 #Additional dependencies for pdf format.
 #sudo yum install cairo-devel pango-devel
 #Download, compile and install.
-#wget http://www.graphviz.org/pub/graphviz/stable/SOURCES/graphviz-2.40.1.tar.gz
-#tar -xvf graphviz-2.40.1.tar.gz
-#cd graphviz-2.40.1
+##wget https://www2.graphviz.org/Packages/stable/portable_source/graphviz-2.44.0.tar.gz
+##tar -xvf graphviz-2.44.0.tar.gz
+##cd graphviz-2.44.0
 #./configure 
 #make
 #make install 
+##sudo make install
 
 
 #Obtain png graphviz visualization of the plan

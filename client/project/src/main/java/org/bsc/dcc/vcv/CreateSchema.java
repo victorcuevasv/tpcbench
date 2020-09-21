@@ -8,58 +8,117 @@ import java.sql.DriverManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 
 public class CreateSchema {
 
 	private static String driverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
-	private static final String databricksDriverName = "com.simba.spark.jdbc41.Driver";
+	//private static final String databricksDriverName = "com.simba.spark.jdbc42.Driver";
+	private static final String databricksDriverName = "com.simba.spark.jdbc.Driver";
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
+	private static final String synapseDriverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+	private static final String redshiftDriverName = "com.amazon.redshift.jdbc42.Driver";
+	
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
-
+	private final String hostname;
+	private final String system;
+	private final String dbName;
+	private final String clusterId;
+	
+	public CreateSchema(CommandLine commandLine) {
+		this.hostname = commandLine.getOptionValue("server-hostname");
+		this.system = commandLine.getOptionValue("system-name");
+		this.dbName = commandLine.getOptionValue("schema-name");
+		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
+		this.openConnection();
+	}
+	
+	/**
+	 * @param args
+	 * @throws SQLException
+	 * 
+	 * args[0] hostname of the server
+	 * args[1] system used to create the schema on the metastore
+	 * args[2] schema (database) name
+	 */
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
-	public CreateSchema(String hostname, String system) {
+	public CreateSchema(String args[]) {
+		if( args.length != 3 ) {
+			System.out.println("Incorrect number of arguments.");
+			logger.error("Insufficient arguments.");
+			System.exit(1);
+		}
+		this.hostname = args[0];
+		this.system = args[1];
+		this.dbName = args[2];
+		this.clusterId = "UNUSED";
+		this.openConnection();
+	}
+	
+	private void openConnection() {
 		try {
-			if( system.equals("hive") ) {
+			if( this.system.equals("hive") ) {
 				Class.forName(driverName);
-				con = DriverManager.getConnection("jdbc:hive2://" + hostname + 
+				this.con = DriverManager.getConnection("jdbc:hive2://" + this.hostname + 
 					":10000/", "hive", "");
 			}
-			else if( system.equals("presto") ) {
+			else if( this.system.equals("presto") ) {
 				Class.forName(prestoDriverName);
-				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8080/hive/", "hive", "");
-				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
+				this.con = DriverManager.getConnection("jdbc:presto://" + 
+						this.hostname + ":8080/hive/", "hive", "");
 			}
-			else if( system.equals("prestoemr") ) {
+			else if( this.system.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
 				//Should use hadoop to drop a table created by spark.
-				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8889/hive/", "hadoop", "");
+				this.con = DriverManager.getConnection("jdbc:presto://" + 
+						this.hostname + ":8889/hive/", "hadoop", "");
 			}
-			else if( system.equals("sparkdatabricksjdbc") ) {
+			else if( this.system.equals("sparkdatabricksjdbc") ) {
+				String dbrToken = AWSUtil.getValue("DatabricksToken");
 				Class.forName(databricksDriverName);
-				this.con = DriverManager.getConnection("jdbc:spark://" + hostname + ":443/default" +
-				";transportMode=http;ssl=1" + 
+				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
+				this.dbName + ";transportMode=http;ssl=1" + 
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
-				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
+				this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
 				";UseNativeQuery=1");
 			}
-			else if( system.startsWith("spark") ) {
-				Class.forName(hiveDriverName);
-				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10015/", "hive", "");
+			else if( this.system.equals("redshift") ) {
+				Class.forName(redshiftDriverName);
+				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
+				"dev" + "?ssl=true&UID=your_username&PWD=your_password");
 			}
-			else if( system.startsWith("snowflake") ) {
+			else if( this.system.startsWith("spark") ) {
+				Class.forName(hiveDriverName);
+				this.con = DriverManager.getConnection("jdbc:hive2://" +
+						this.hostname + ":10015/", "hive", "");
+			}
+			else if( this.system.startsWith("snowflake") ) {
 				Class.forName(snowflakeDriverName);
-				con = DriverManager.getConnection("jdbc:snowflake://zua56993.snowflakecomputing.com/?" +
-						"user=bsctest&password=c4[*4XYM1GIw");
+				this.con = DriverManager.getConnection("jdbc:snowflake://zua56993.snowflakecomputing.com/?" +
+						"user=bsctest&password=");
+			}
+			else if( this.system.startsWith("synapse") ) {
+				Class.forName(synapseDriverName);
+				this.con = DriverManager.getConnection("jdbc:sqlserver://" +
+				"bsc-test.database.windows.net:1433;" +
+				"database=bsc-pool;" +
+				"user=D94rJ8L7@bsc-test;" +
+				"password={your_password_here};" +
+				"encrypt=true;" +
+				"trustServerCertificate=false;" +
+				"hostNameInCertificate=*.database.windows.net;" +
+				"loginTimeout=30;");
 			}
 			else {
-				throw new java.lang.RuntimeException("Unsupported system: " + system);
+				throw new java.lang.RuntimeException("Unsupported system: " + this.system);
 			}
 		}
 		catch (ClassNotFoundException e) {
@@ -79,39 +138,51 @@ public class CreateSchema {
 		}
 	}
 
-	/**
-	 * @param args
-	 * @throws SQLException
-	 * 
-	 * args[0] hostname of the server
-	 * args[1] system used to create the schema on the metastore
-	 * args[2] schema (database) name
-	 */
-	public static void main(String[] args) throws SQLException {
-		if( args.length != 3 ) {
-			System.out.println("Incorrect number of arguments.");
-			logger.error("Insufficient arguments.");
-			System.exit(1);
+	public static void main(String[] args) {
+		CreateSchema application = null;
+		//Check is GNU-like options are used.
+		boolean gnuOptions = args[0].contains("--") ? true : false;
+		if( ! gnuOptions )
+			application = new CreateSchema(args);
+		else {
+			CommandLine commandLine = null;
+			try {
+				RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
+				Options options = runOptions.getOptions();
+				CommandLineParser parser = new DefaultParser();
+				commandLine = parser.parse(options, args);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				logger.error("Error in CreateSchema main.");
+				logger.error(e);
+				logger.error(AppUtil.stringifyStackTrace(e));
+				System.exit(1);
+			}
+			application = new CreateSchema(commandLine);
 		}
-		CreateSchema prog = new CreateSchema(args[0], args[1]);
-		prog.createSchema(args[2], args[1]);
-		prog.closeConnection();
+		application.createSchema();
+		//if( ! application.system.equals("sparkdatabricks") ) {
+		//	application.closeConnection();
+		//}
 	}
 
-	private void createSchema(String dbName, String system) {
+	private void createSchema() {
 		try {
-			System.out.println("Creating schema (database) " + dbName + " with " + system);
-			this.logger.info("Creating schema (database) " + dbName + " with " + system);
-			Statement stmt = con.createStatement();
+			System.out.println("Creating schema (database) " + this.dbName + " with " + this.system);
+			this.logger.info("Creating schema (database) " + this.dbName + " with " + this.system);
+			Statement stmt = this.con.createStatement();
 			if( system.startsWith("presto") )
-				stmt.execute("CREATE SCHEMA " + dbName);
+				stmt.execute("CREATE SCHEMA " + this.dbName);
 			else if( system.startsWith("spark") )
-				stmt.execute("CREATE DATABASE " + dbName);
+				stmt.execute("CREATE DATABASE " + this.dbName);
 			else if( system.startsWith("snowflake") ) {
-				stmt.execute("CREATE DATABASE " + dbName);
-				stmt.execute("USE DATABASE " + dbName);
-				stmt.execute("CREATE SCHEMA " + dbName);
+				stmt.execute("CREATE DATABASE " + this.dbName);
+				stmt.execute("USE DATABASE " + this.dbName);
+				stmt.execute("CREATE SCHEMA " + this.dbName);
 			}
+			else if( system.startsWith("redshift") )
+				stmt.execute("CREATE DATABASE " + this.dbName);
 			System.out.println("Schema (database) created.");
 			this.logger.info("Schema (database) created.");
 		}

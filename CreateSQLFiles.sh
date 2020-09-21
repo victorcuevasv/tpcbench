@@ -29,7 +29,7 @@ fi
 
 #The runclient_processcreatescript script uses the java ProcessCreateScript class.
 #Compile the java classes for the client first.
-bash $DIR/compileclient.sh
+bash $DIR/compileCreateScript.sh
 
 #First separate the multiple create table statements in the tpcds.sql file into separate files.
 #Copy the file with create table statements into the datavol directory.

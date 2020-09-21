@@ -15,32 +15,70 @@ import java.util.StringTokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 
 public class ExecuteQueries {
 
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
-	private static final String databricksDriverName = "com.simba.spark.jdbc41.Driver";
+	private static final String databricksDriverName = "com.simba.spark.jdbc.Driver";
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
 	private Connection con;
 	private final JarQueriesReaderAsZipFile queriesReader;
 	private final AnalyticsRecorder recorder;
 	private final String workDir;
 	private final String dbName;
-	private final String folderName;
+	private final String resultsDir;
 	private final String experimentName;
 	private final String system;
 	private final String test;
 	private final int instance;
 	private final String queriesDir;
-	private final String resultsDir;
-	private final String plansDir;
+	private final String resultsSubDir;
+	private final String plansSubDir;
 	private final boolean savePlans;
 	private final boolean saveResults;
 	private final String hostname;
 	private final String jarFile;
+	private final String querySingleOrAll;
 	private final boolean useCachedResultSnowflake = false;
+	private final String clusterId;
+	
+	
+	public ExecuteQueries(CommandLine commandLine) {
+		this.workDir = commandLine.getOptionValue("main-work-dir");
+		this.dbName = commandLine.getOptionValue("schema-name");
+		this.resultsDir = commandLine.getOptionValue("results-dir");
+		this.experimentName = commandLine.getOptionValue("experiment-name");
+		this.system = commandLine.getOptionValue("system-name");
+		this.test = commandLine.getOptionValue("tpcds-test", "power");
+		String instanceStr = commandLine.getOptionValue("instance-number");
+		this.instance = Integer.parseInt(instanceStr);
+		this.queriesDir = commandLine.getOptionValue("queries-dir-in-jar", "QueriesSpark");
+		this.resultsSubDir = commandLine.getOptionValue("results-subdir", "results");
+		this.plansSubDir = commandLine.getOptionValue("plans-subdir", "plans");
+		String savePlansStr = commandLine.getOptionValue("save-power-plans", "true");
+		this.savePlans = Boolean.parseBoolean(savePlansStr);
+		String saveResultsStr = commandLine.getOptionValue("save-power-results", "true");
+		this.saveResults = Boolean.parseBoolean(saveResultsStr);
+		this.jarFile = commandLine.getOptionValue("jar-file");
+		this.hostname = commandLine.getOptionValue("server-hostname");
+		//If running the zorder test, force the execution of all queries
+		if( this.test.equals("zorder") )
+			this.querySingleOrAll = "all";
+		else
+			this.querySingleOrAll = commandLine.getOptionValue("all-or-query-file");
+		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
+		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
+		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
+				this.system, this.test, this.instance);
+		this.openConnection();
+	}
 	
 	
 	/**
@@ -68,23 +106,39 @@ public class ExecuteQueries {
 	// Open the connection (the server address depends on whether the program is
 	// running locally or under docker-compose).
 	public ExecuteQueries(String[] args) {
+		if( args.length != 15 ) {
+			System.out.println("Incorrect number of arguments: "  + args.length);
+			logger.error("Insufficient arguments: " + args.length);
+			System.exit(1);
+		}
 		this.workDir = args[0];
 		this.dbName = args[1];
-		this.folderName = args[2];
+		this.resultsDir = args[2];
 		this.experimentName = args[3];
 		this.system = args[4];
 		this.test = args[5];
 		this.instance = Integer.parseInt(args[6]);
 		this.queriesDir = args[7];
-		this.resultsDir = args[8];
-		this.plansDir = args[9];
+		this.resultsSubDir = args[8];
+		this.plansSubDir = args[9];
 		this.savePlans = Boolean.parseBoolean(args[10]);
 		this.saveResults = Boolean.parseBoolean(args[11]);
 		this.hostname = args[12];
 		this.jarFile = args[13];
+		//If running the zorder test, force the execution of all queries
+		if( this.test.equals("zorder") )
+			this.querySingleOrAll = "all";
+		else
+			this.querySingleOrAll = args[14];
+		this.clusterId = "UNUSED";
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
-		this.recorder = new AnalyticsRecorder(this.workDir, this.folderName, this.experimentName,
+		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 						this.system, this.test, this.instance);
+		this.openConnection();
+	}
+	
+	
+	private void openConnection() {
 		try {
 			String driverName = "";
 			if( this.system.equals("hive") ) {
@@ -105,11 +159,12 @@ public class ExecuteQueries {
 				setPrestoDefaultSessionOpts();
 			}
 			else if( this.system.equals("sparkdatabricksjdbc") ) {
+				String dbrToken = AWSUtil.getValue("DatabricksToken");
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
-				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
+				this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
 				";UseNativeQuery=1");
 			}
 			else if( this.system.startsWith("spark") ) {
@@ -119,7 +174,7 @@ public class ExecuteQueries {
 			}
 			else if( system.startsWith("snowflake") ) {
 				Class.forName(snowflakeDriverName);
-				con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
+				this.con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
 						"user=bsctest" + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
 						"&schema=" + this.dbName + "&warehouse=testwh");
 				this.setSnowflakeDefaultSessionOpts();
@@ -223,7 +278,7 @@ public class ExecuteQueries {
 	
 	private void saveSnowflakeHistory() {
 		try {
-			String historyFile = this.workDir + "/" + this.folderName + "/analytics/" + 
+			String historyFile = this.workDir + "/" + this.resultsDir + "/analytics/" + 
 					this.experimentName + "/" + this.test + "/" + this.instance + "/history.log";
 			String columnsStr = this.createSnowflakeHistoryFileAndColumnList(historyFile);
 			this.setSnowflakeQueryTag("saveHistory");
@@ -246,25 +301,39 @@ public class ExecuteQueries {
 		}
 	}
 	
-
-	public static void main(String[] args) throws SQLException {
-		if( args.length != 15 ) {
-			System.out.println("Incorrect number of arguments: "  + args.length);
-			logger.error("Insufficient arguments: " + args.length);
-			System.exit(1);
+	
+	public static void main(String[] args) {
+		ExecuteQueries application = null;
+		//Check is GNU-like options are used.
+		boolean gnuOptions = args[0].contains("--") ? true : false;
+		if( ! gnuOptions )
+			application = new ExecuteQueries(args);
+		else {
+			CommandLine commandLine = null;
+			try {
+				RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
+				Options options = runOptions.getOptions();
+				CommandLineParser parser = new DefaultParser();
+				commandLine = parser.parse(options, args);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				logger.error("Error in ExecuteQueriesSpark main.");
+				logger.error(e);
+				logger.error(AppUtil.stringifyStackTrace(e));
+				System.exit(1);
+			}
+			application = new ExecuteQueries(commandLine);
 		}
-		ExecuteQueries prog = new ExecuteQueries(args);
-		String querySingleOrAllByNull = args[args.length-1].equalsIgnoreCase("all") ? null : args[args.length-1];
-		prog.executeQueries(querySingleOrAllByNull);
-		prog.closeConnection();
+		application.executeQueries();
 	}
 	
 	
-	public void executeQueries(String querySingleOrAllByNull) {
+	public void executeQueries() {
 		this.recorder.header();
 		for (final String fileName : this.queriesReader.getFilesOrdered()) {
-			if( querySingleOrAllByNull != null ) {
-				if( ! fileName.equals(querySingleOrAllByNull) )
+			if( ! this.querySingleOrAll.equals("all") ) {
+				if( ! fileName.equals(this.querySingleOrAll) )
 					continue;
 			}
 			String sqlStr = this.queriesReader.getFile(fileName);
@@ -305,14 +374,14 @@ public class ExecuteQueries {
 	
 	private String generateResultsFileName(String queryFileName) {
 		String noExtFileName = queryFileName.substring(0, queryFileName.indexOf('.'));
-		return this.workDir + "/" + this.folderName + "/" + this.resultsDir + "/" + this.experimentName + 
+		return this.workDir + "/" + this.resultsDir + "/" + this.resultsSubDir + "/" + this.experimentName + 
 				"/" + this.test + "/" + this.instance + "/" + noExtFileName + ".txt";
 	}
 	
 	
 	private String generatePlansFileName(String queryFileName) {
 		String noExtFileName = queryFileName.substring(0, queryFileName.indexOf('.'));
-		return this.workDir + "/" + this.folderName + "/" + this.plansDir + "/" + this.experimentName + 
+		return this.workDir + "/" + this.resultsDir + "/" + this.plansSubDir + "/" + this.experimentName + 
 				"/" + this.test + "/" + this.instance + "/" + noExtFileName + ".txt";
 	}
 	
@@ -336,12 +405,12 @@ public class ExecuteQueries {
 			}
 			// Obtain the plan for the query.
 			Statement stmt = con.createStatement();
-			if( this.savePlans ) {
+			if( this.test.equals("power") &&  this.savePlans ) {
 				String explainStr = "EXPLAIN ";
 				if( this.system.startsWith("presto") )
 					explainStr += "(FORMAT GRAPHVIZ) ";
 				ResultSet planrs = stmt.executeQuery(explainStr + sqlStr);
-				//this.saveResults(workDir + "/" + plansDir + "/" + fileName + ".txt", planrs, ! firstQuery);
+				//this.saveResults(workDir + "/" + plansSubDir + "/" + fileName + ".txt", planrs, ! firstQuery);
 				this.saveResults(this.generatePlansFileName(queryFileName), planrs, ! firstQuery);
 				planrs.close();
 			}
@@ -356,7 +425,7 @@ public class ExecuteQueries {
 				this.setSnowflakeQueryTag("");
 			// Save the results.
 			//this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, ! firstQuery);
-			if( this.saveResults ) {
+			if( this.test.equals("power") &&  this.saveResults ) {
 				int tuples = this.saveResults(this.generateResultsFileName(queryFileName), rs, ! firstQuery);
 				queryRecord.setTuples(queryRecord.getTuples() + tuples);
 			}

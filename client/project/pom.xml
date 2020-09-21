@@ -5,79 +5,224 @@
 	<groupId>org.bsc.dcc.vcv</groupId>
 	<artifactId>client</artifactId>
 	<packaging>jar</packaging>
-	<version>1.1-SNAPSHOT</version>
+	<version>1.2-SNAPSHOT-SHADED</version>
 	<name>client</name>
 	<url>http://maven.apache.org</url>
+	<repositories>
+    	<repository>
+      		<id>redshift</id>
+      		<url>https://s3.amazonaws.com/redshift-maven-repository/release</url>
+    	</repository>
+	</repositories>
 	<dependencies>
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
-			<scope>test</scope>
+      		<groupId>org.junit.jupiter</groupId>
+      		<artifactId>junit-jupiter-api</artifactId>
+      		<version>5.6.2</version>
+      		<scope>test</scope>
 		</dependency>
-		
 		<dependency>
 			<groupId>org.apache.hive</groupId>
 			<artifactId>hive-jdbc</artifactId>
-			<version>2.3.4</version>
+			<version>2.3.6</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>com.facebook.presto</groupId>
 			<artifactId>presto-jdbc</artifactId>
-			<!-- <version>0.215</version> -->
-			<version>0.220</version>
+			<version>0.227</version>
 		</dependency>
-		<dependency>
-    		<groupId>net.snowflake</groupId>
-    		<artifactId>snowflake-jdbc</artifactId>
-    		<version>3.9.2</version>
-		</dependency>
+		<!--  Previously used version 2.8.2 -->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
-				<version>2.8.2</version>
-			<!-- <version>2.11.2</version> -->
+			<version>2.11.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-				<version>2.8.2</version>
-			<!-- <version>2.11.2</version> -->
+			<version>2.11.2</version>
 		</dependency>
-		  
 		<dependency>
-			<groupId>com.simba.spark.jdbc41</groupId>
-			<artifactId>Driver</artifactId>
-			<version>2.6.3.1003</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        <!-- Binding for Log4J -->
+    	<dependency>
+        	<groupId>org.apache.logging.log4j</groupId>
+        	<artifactId>log4j-slf4j-impl</artifactId>
+        	<version>2.12.0</version>
+    	</dependency>
+		<!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
+		<dependency>
+      		<groupId>commons-cli</groupId>
+      		<artifactId>commons-cli</artifactId>
+      		<version>1.4</version>
 		</dependency>
-		
+		<dependency>
+			<groupId>com.simba.spark.jdbc42</groupId>
+			<artifactId>Driver</artifactId>
+			<version>2.6.16.1020</version>
+		</dependency>
+		<dependency>
+    		<groupId>com.microsoft.sqlserver</groupId>
+    		<artifactId>mssql-jdbc</artifactId>
+    		<version>8.4.1.jre8</version>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>bom</artifactId>
+			<version>2.14.19</version>
+			<type>pom</type>
+			<scope>import</scope>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>secretsmanager</artifactId>
+            <version>2.14.19</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore -->
+        <!-- Necessary to avoid error with AWS SDK -->
+		<dependency>
+    		<groupId>org.apache.httpcomponents</groupId>
+    		<artifactId>httpcore</artifactId>
+    		<version>4.4.13</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+		<!-- Added due to warning when using AWS SDK -->
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.12</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.json/json -->
+		<dependency>
+    		<groupId>org.json</groupId>
+    		<artifactId>json</artifactId>
+    		<version>20200518</version>
+		</dependency>
+		<dependency>
+   			<groupId>com.amazon.redshift</groupId>
+   			<artifactId>redshift-jdbc42-no-awssdk</artifactId>
+   			<version>1.2.45.1069</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
 	<build>
+		<directory>target</directory>
 		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions> 
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef> 
+							</descriptorRefs>
+							<appendAssemblyId>false</appendAssemblyId>
+							<archive>
+            					<manifest>
+              						<mainClass>org.bsc.dcc.vcv.RunBenchmarkCLI</mainClass>
+            					</manifest>
+          					</archive>
+						</configuration>
+					</execution> 
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<excludes>
-						<exclude>org/bsc/dcc/vcv/RunBenchmarkSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/AnalyzeTablesSpark.java</exclude>
+						<exclude>org/bsc/dcc/vcv/CompareResults.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSpark.java</exclude>
+						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkDeleteData.java</exclude>
+						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkDenorm.java</exclude>
+						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkDenormSkip.java</exclude>
+						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkInsertData.java</exclude>
+						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkUpdate.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateSchemaSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesConcurrentSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueriesSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/HDFSExample.java</exclude>
+						<exclude>org/bsc/dcc/vcv/HudiPrecombineKeys.java</exclude>
+						<exclude>org/bsc/dcc/vcv/HudiPrimaryKeys.java</exclude>
+						<exclude>org/bsc/dcc/vcv/HudiUtil.java</exclude>
 						<exclude>org/bsc/dcc/vcv/JavaSparkHiveExample.java</exclude>
 						<exclude>org/bsc/dcc/vcv/JavaSparkPiExample.java</exclude>
 						<exclude>org/bsc/dcc/vcv/QueryStreamSpark.java</exclude>
+						<exclude>org/bsc/dcc/vcv/RunBenchmarkSpark.java</exclude>
+						<exclude>org/bsc/dcc/vcv/RunBenchmarkSparkCLI.java</exclude>
+						<exclude>org/bsc/dcc/vcv/RunBenchmarkSparkOptions.java</exclude>
+						<exclude>org/bsc/dcc/vcv/RunBenchmarkSparkUpdateCLI.java</exclude>
+						<exclude>org/bsc/dcc/vcv/SkipKeys.java</exclude>
+						<exclude>org/bsc/dcc/vcv/SkipMods.java</exclude>
+						<exclude>org/bsc/dcc/vcv/SnowflakeHistory.java</exclude>
 						<exclude>org/bsc/dcc/vcv/SparkUtil.java</exclude>
+						<exclude>org/bsc/dcc/vcv/UpdateDatabaseSparkDeleteTest.java</exclude>
+						<exclude>org/bsc/dcc/vcv/UpdateDatabaseSparkForceCompaction.java</exclude>
+						<exclude>org/bsc/dcc/vcv/UpdateDatabaseSparkGdprTest.java</exclude>
+						<exclude>org/bsc/dcc/vcv/UpdateDatabaseSparkInsUpdTest.java</exclude>
+						<exclude>org/bsc/dcc/vcv/UpdateDatabaseSparkReadTest.java</exclude>
+						<exclude>org/bsc/dcc/vcv/UpdateMods.java</exclude>
 					</excludes>
+					<testExcludes>
+        				<testExclude>org/bsc/dcc/vcv/RunBenchmarkSparkOptionsTest.java</testExclude>
+      				</testExcludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-shade-plugin</artifactId>
+        		<version>3.2.3</version>
+        		<configuration>
+    				<filters>
+        				<filter>
+            				<artifact>*:*</artifact>
+            				<excludes>
+                				<exclude>META-INF/*.SF</exclude>
+                				<exclude>META-INF/*.DSA</exclude>
+                				<exclude>META-INF/*.RSA</exclude>
+            				</excludes>
+        				</filter>
+    				</filters>
+				</configuration>
+        		<executions>
+          			<execution>
+            			<phase>package</phase>
+            			<goals>
+              				<goal>shade</goal>
+            			</goals>
+            			<configuration>
+              				<relocations>
+                				<relocation>
+                  					<pattern>org.apache.commons.cli</pattern>
+                  					<shadedPattern>shaded.org.apache.commons.cli</shadedPattern>
+                				</relocation>
+              				</relocations>
+            			</configuration>
+          			</execution>
+        		</executions>
+      		</plugin>
+      		<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M4</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.0.0-M4</version>
+            </plugin>
 		</plugins>
 	</build>
 </project>

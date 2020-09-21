@@ -14,9 +14,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 printf "\n\n%s\n\n" "${blu}Uploading the jar using REST API.${end}"
 
 curl -n \
--H "Authorization: Bearer $(echo $DATABRICKS_TOKEN)" \
--F filedata=@"$DIR/../client/project/targetsparkdatabricks/client-1.1-SNAPSHOT-jar-with-dependencies.jar" \
--F path="/FileStore/job-jars/project/targetsparkdatabricks/client-1.1-SNAPSHOT-jar-with-dependencies.jar" \
+-H "Authorization: Bearer $DATABRICKS_TOKEN" \
+-F filedata=@"$DIR/../client/project/targetsparkdatabricks/client-1.2-SNAPSHOT-jar-with-dependencies.jar" \
+-F path="/FileStore/job-jars/project/targetsparkdatabricks/client-1.2-SNAPSHOT-jar-with-dependencies.jar" \
 -F overwrite=true \
 https://dbc-08fc9045-faef.cloud.databricks.com/api/2.0/dbfs/put
 

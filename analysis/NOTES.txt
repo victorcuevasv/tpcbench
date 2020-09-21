@@ -1,13 +1,6 @@
-#Run R studio
+Commands in windows.
 
-#Original official container image.
+"C:\Program Files\R\R-3.6.3\bin\Rscript.exe" stacked_chart.R tpcds-results-test presto-comp/analytics/ experiments.txt
 
-docker run -e PASSWORD=1234 --rm -p 8787:8787 -v $(pwd)/Documents:/home/rstudio/Documents rocker/rstudio
+"C:\Program Files\R\R-3.6.3\bin\Rscript.exe" stacked_chart.R tpcds-results-test dbr65pqtload/analytics/ experiments.txt
 
-#Extended container image.
-
-docker run -e PASSWORD=1234 --rm -p 8787:8787 -v $(pwd)/Documents:/home/rstudio/Documents rstudio:dev
-
-
-username: rstudio
-password: 1234

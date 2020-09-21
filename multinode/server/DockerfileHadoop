@@ -1,7 +1,7 @@
 FROM ubuntujava:dev
 
 ARG APACHE_MIRROR=archive.apache.org
-ARG HADOOP_VERSION=2.7.7
+ARG HADOOP_VERSION=2.8.5
 
 #Install netcat to use nc to check connections, ssh and python.
 

@@ -1,0 +1,241 @@
+
+//Running on spark-shell
+
+spark-shell --conf "spark.serializer=org.apache.spark.serializer.KryoSerializer" \
+--conf "spark.sql.hive.convertMetastoreParquet=false" \
+--jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar
+
+
+import org.apache.spark.sql.SaveMode
+import org.apache.spark.sql.functions._
+import org.apache.hudi.DataSourceWriteOptions
+import org.apache.hudi.config.HoodieWriteConfig
+import org.apache.hudi.hive.MultiPartKeysValueExtractor
+
+import org.apache.hudi.hive.NonPartitionedExtractor
+import org.apache.hudi.ComplexKeyGenerator
+import org.apache.hudi.NonpartitionedKeyGenerator
+import org.apache.hudi.SimpleKeyGenerator
+
+
+//Use partitioning
+val hudiOptions = Map[String,String](
+  HoodieWriteConfig.TABLE_NAME -> "ship_mode",
+  DataSourceWriteOptions.RECORDKEY_FIELD_OPT_KEY -> "sm_ship_mode_sk",
+  DataSourceWriteOptions.PARTITIONPATH_FIELD_OPT_KEY -> "sm_ship_mode_id",
+  DataSourceWriteOptions.PRECOMBINE_FIELD_OPT_KEY -> "sm_ship_mode_sk",
+  DataSourceWriteOptions.STORAGE_TYPE_OPT_KEY -> "COPY_ON_WRITE", 
+  DataSourceWriteOptions.HIVE_SYNC_ENABLED_OPT_KEY -> "true",
+  DataSourceWriteOptions.HIVE_TABLE_OPT_KEY -> "ship_mode",
+  DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY -> "sm_ship_mode_id",
+  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[MultiPartKeysValueExtractor].getName,
+  DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db")
+  
+val hudiOptions = Map[String,String](
+  HoodieWriteConfig.TABLE_NAME -> "catalog_sales",
+  DataSourceWriteOptions.RECORDKEY_FIELD_OPT_KEY -> "cs_item_sk",
+  DataSourceWriteOptions.PARTITIONPATH_FIELD_OPT_KEY -> "ss_sold_date_sk",
+  DataSourceWriteOptions.PRECOMBINE_FIELD_OPT_KEY -> "cs_item_sk",
+  DataSourceWriteOptions.STORAGE_TYPE_OPT_KEY -> "COPY_ON_WRITE", 
+  DataSourceWriteOptions.HIVE_SYNC_ENABLED_OPT_KEY -> "true",
+  DataSourceWriteOptions.HIVE_TABLE_OPT_KEY -> "catalog_sales",
+  DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY -> "ss_sold_date_sk",
+  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[MultiPartKeysValueExtractor].getName,
+  DataSourceWriteOptions.KEYGENERATOR_CLASS_OPT_KEY -> classOf[SimpleKeyGenerator].getName,
+  DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db")
+  
+
+//Do not use partitioning
+
+import org.apache.hudi.hive.NonPartitionedExtractor
+
+val hudiOptions = Map[String,String](
+  HoodieWriteConfig.TABLE_NAME -> "ship_mode",
+  DataSourceWriteOptions.RECORDKEY_FIELD_OPT_KEY -> "sm_ship_mode_sk",
+  DataSourceWriteOptions.PARTITIONPATH_FIELD_OPT_KEY -> "",
+  DataSourceWriteOptions.PRECOMBINE_FIELD_OPT_KEY -> "sm_ship_mode_sk",
+  DataSourceWriteOptions.STORAGE_TYPE_OPT_KEY -> "COPY_ON_WRITE", 
+  DataSourceWriteOptions.HIVE_SYNC_ENABLED_OPT_KEY -> "true",
+  DataSourceWriteOptions.HIVE_TABLE_OPT_KEY -> "ship_mode",
+  DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY -> "",
+  DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db",
+  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[NonPartitionedExtractor].getName,
+  DataSourceWriteOptions.KEYGENERATOR_CLASS_OPT_KEY -> classOf[NonpartitionedKeyGenerator].getName)
+  
+val hudiOptions = Map[String,String](
+  HoodieWriteConfig.TABLE_NAME -> "catalog_sales",
+  DataSourceWriteOptions.RECORDKEY_FIELD_OPT_KEY -> "cs_item_sk",
+  DataSourceWriteOptions.PARTITIONPATH_FIELD_OPT_KEY -> "",
+  DataSourceWriteOptions.PRECOMBINE_FIELD_OPT_KEY -> "cs_item_sk",
+  DataSourceWriteOptions.STORAGE_TYPE_OPT_KEY -> "COPY_ON_WRITE", 
+  DataSourceWriteOptions.HIVE_SYNC_ENABLED_OPT_KEY -> "true",
+  DataSourceWriteOptions.HIVE_TABLE_OPT_KEY -> "catalog_sales",
+  DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY -> "",
+  DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db",
+  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[NonPartitionedExtractor].getName)    
+
+//hoodie.datasource.write.keygenerator.class=org.apache.hudi.keygen.NonpartitionedKeyGenerator
+//hoodie.datasource.hive_sync.partition_extractor_class=org.apache.hudi.hive.NonPartitionedExtractor
+
+spark.sql("use tpcds_sparkemr_600_1gb_1_db")
+
+import scala.io.Source
+
+val createExtTableSQL = Source.fromFile("/home/hadoop/ship_mode_ext.sql").mkString
+
+spark.sql(createExtTableSQL)
+
+val extTableDF = spark.sql("select * from ship_mode_ext")
+
+// Write a DataFrame as a Hudi dataset
+extTableDF.write.format("org.apache.hudi")
+  .option(DataSourceWriteOptions.OPERATION_OPT_KEY, DataSourceWriteOptions.INSERT_OPERATION_OPT_VAL)
+  .options(hudiOptions).mode(SaveMode.Overwrite)
+  .save("s3://tpcds-warehouses-test/tpcds-warehouse-sparkemr-600-1gb-1/ship_mode/")
+  
+//Composite keys and partitioning
+
+import org.apache.hudi.ComplexKeyGenerator
+
+val hudiOptions = Map[String,String](
+  HoodieWriteConfig.TABLE_NAME -> "catalog_sales",
+  DataSourceWriteOptions.RECORDKEY_FIELD_OPT_KEY -> "cs_item_sk,cs_order_number",
+  DataSourceWriteOptions.PARTITIONPATH_FIELD_OPT_KEY -> "ss_sold_date_sk",
+  DataSourceWriteOptions.PRECOMBINE_FIELD_OPT_KEY -> "cs_order_number",
+  DataSourceWriteOptions.STORAGE_TYPE_OPT_KEY -> "COPY_ON_WRITE", 
+  DataSourceWriteOptions.HIVE_SYNC_ENABLED_OPT_KEY -> "true",
+  DataSourceWriteOptions.HIVE_TABLE_OPT_KEY -> "catalog_sales",
+  DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY -> "ss_sold_date_sk",
+  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[MultiPartKeysValueExtractor].getName,
+  DataSourceWriteOptions.KEYGENERATOR_CLASS_OPT_KEY -> classOf[ComplexKeyGenerator].getName,
+  DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db")
+
+
+key: hoodie.datasource.hive_sync.database, value: tpcds_sparkemr_600_1gb_1_db
+key: hoodie.datasource.write.precombine.field, value: cs_order_number
+key: hoodie.datasource.hive_sync.partition_fields, value: ss_sold_date_sk
+key: hoodie.datasource.hive_sync.partition_extractor_class, value: org.apache.hudi.hive.MultiPartKeysValueExtractor
+key: hoodie.datasource.hive_sync.table, value: catalog_sales
+key: hoodie.datasource.hive_sync.enable, value: true
+key: hoodie.datasource.write.recordkey.field, value: cs_item_sk,cs_order_number
+key: hoodie.table.name, value: catalog_sales
+key: hoodie.datasource.write.storage.type, value: COPY_ON_WRITE
+key: hoodie.datasource.write.keygenerator.class, value: org.apache.hudi.ComplexKeyGenerator
+key: hoodie.datasource.write.partitionpath.field, value: ss_sold_date_sk
+
+
+
+
+import org.apache.hudi.NonpartitionedKeyGenerator
+
+//Composite keys and NO partitioning (not working, cannot use ComplexKeyGenerator,
+//has to use NonpartitionedKeyGenerator instead).
+
+val hudiOptions = Map[String,String](
+  HoodieWriteConfig.TABLE_NAME -> "catalog_sales",
+  DataSourceWriteOptions.RECORDKEY_FIELD_OPT_KEY -> "cs_item_sk",
+  DataSourceWriteOptions.PARTITIONPATH_FIELD_OPT_KEY -> "",
+  DataSourceWriteOptions.PRECOMBINE_FIELD_OPT_KEY -> "cs_order_number",
+  DataSourceWriteOptions.STORAGE_TYPE_OPT_KEY -> "COPY_ON_WRITE", 
+  DataSourceWriteOptions.HIVE_SYNC_ENABLED_OPT_KEY -> "true",
+  DataSourceWriteOptions.HIVE_TABLE_OPT_KEY -> "catalog_sales",
+  DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY -> "",
+  DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY -> classOf[NonPartitionedExtractor].getName,
+  DataSourceWriteOptions.KEYGENERATOR_CLASS_OPT_KEY -> classOf[NonpartitionedKeyGenerator].getName,
+  DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY -> "tpcds_sparkemr_600_1gb_1_db")
+
+
+
+
+//Print map in scala
+
+
+for ((k,v) <- hudiOptions) printf("%s -> %s\n", k, v)
+
+//Save spark configuration to file
+import java.io._
+val fw = new FileWriter("shellSparkConf.txt", false) 
+for ((k,v) <- spark.sparkContext.getConf.getAll.sortBy(_._1)) fw.write(k + "=" + v + "\n\n")
+fw.close()
+
+
+
+
+(cs_sold_date_sk='default') LOCATION 's3://tpcds-warehouses-test/tpcds-warehouse-sparkemr-600-1gb-1/catalog_sales/default' 
+	at org.apache.hudi.hive.HoodieHiveClient.updateHiveSQL(HoodieHiveClient.java:488)
+	at org.apache.hudi.hive.HoodieHiveClient.addPartitionsToTable(HoodieHiveClient.java:141)
+	at org.apache.hudi.hive.HiveSyncTool.syncPartitions(HiveSyncTool.java:172)
+	... 42 more
+Caused by: org.apache.hive.service.cli.HiveSQLException: Error while compiling statement: FAILED: SemanticException [Error 10248]: Cannot add partition column cs_sold_date_sk of type string as it cannot be converted to type int
+	at org.apache.hive.jdbc.Utils.verifySuccess(Utils.java:256)
+	at org.apache.hive.jdbc.Utils.verifySuccessWithInfo(Utils.java:242)
+	at org.apache.hive.jdbc.HiveStatement.execute(HiveStatement.java:254)
+	at org.apache.hudi.hive.HoodieHiveClient.updateHiveSQL(HoodieHiveClient.java:486)
+	... 44 more
+Caused by: org.apache.hive.service.cli.HiveSQLException: Error while compiling statement: FAILED: SemanticException [Error 10248]: Cannot add partition column cs_sold_date_sk of type string as it cannot be converted to type int
+	at org.apache.hive.service.cli.operation.Operation.toSQLException(Operation.java:335)
+	at org.apache.hive.service.cli.operation.SQLOperation.prepare(SQLOperation.java:199)
+	at org.apache.hive.service.cli.operation.SQLOperation.runInternal(SQLOperation.java:260)
+	at org.apache.hive.service.cli.operation.Operation.run(Operation.java:247)
+	at org.apache.hive.service.cli.session.HiveSessionImpl.executeStatementInternal(HiveSessionImpl.java:541)
+	at org.apache.hive.service.cli.session.HiveSessionImpl.executeStatementAsync(HiveSessionImpl.java:527)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.apache.hive.service.cli.session.HiveSessionProxy.invoke(HiveSessionProxy.java:78)
+	at org.apache.hive.service.cli.session.HiveSessionProxy.access$000(HiveSessionProxy.java:36)
+	at org.apache.hive.service.cli.session.HiveSessionProxy$1.run(HiveSessionProxy.java:63)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1730)
+	at org.apache.hive.service.cli.session.HiveSessionProxy.invoke(HiveSessionProxy.java:59)
+	at com.sun.proxy.$Proxy46.executeStatementAsync(Unknown Source)
+	at org.apache.hive.service.cli.CLIService.executeStatementAsync(CLIService.java:312)
+	at org.apache.hive.service.cli.thrift.ThriftCLIService.ExecuteStatement(ThriftCLIService.java:562)
+	at org.apache.hive.service.rpc.thrift.TCLIService$Processor$ExecuteStatement.getResult(TCLIService.java:1557)
+	at org.apache.hive.service.rpc.thrift.TCLIService$Processor$ExecuteStatement.getResult(TCLIService.java:1542)
+	at org.apache.thrift.ProcessFunction.process(ProcessFunction.java:39)
+	at org.apache.thrift.TBaseProcessor.process(TBaseProcessor.java:39)
+	at org.apache.hive.service.auth.TSetIpAddressProcessor.process(TSetIpAddressProcessor.java:56)
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:286)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: org.apache.hadoop.hive.ql.parse.SemanticException: Cannot add partition column cs_sold_date_sk of type string as it cannot be converted to type int
+	at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.validatePartColumnType(BaseSemanticAnalyzer.java:2059)
+	at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.validatePartSpec(BaseSemanticAnalyzer.java:2013)
+	at org.apache.hadoop.hive.ql.parse.DDLSemanticAnalyzer.getValidatedPartSpec(DDLSemanticAnalyzer.java:2548)
+	at org.apache.hadoop.hive.ql.parse.DDLSemanticAnalyzer.analyzeAlterTableAddParts(DDLSemanticAnalyzer.java:3479)
+	at org.apache.hadoop.hive.ql.parse.DDLSemanticAnalyzer.analyzeInternal(DDLSemanticAnalyzer.java:325)
+	at org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer.analyze(BaseSemanticAnalyzer.java:285)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:659)
+	at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1826)
+	at org.apache.hadoop.hive.ql.Driver.compileAndRespond(Driver.java:1773)
+	at org.apache.hadoop.hive.ql.Driver.compileAndRespond(Driver.java:1768)
+	at org.apache.hadoop.hive.ql.reexec.ReExecDriver.compileAndRespond(ReExecDriver.java:126)
+	at org.apache.hive.service.cli.operation.SQLOperation.prepare(SQLOperation.java:197)
+	... 27 more
+	
+	
+	
+	
+extTableDF.write.format("org.apache.hudi").option("hoodie.datasource.write.operation", "insert")
+.options(hudiOptions).mode(SaveMode.Overwrite)
+.save("s3://tpcds-warehouses-test/tpcds-warehouse-sparkemr-600-1gb-1/catalog_sales/")
+	
+	
+
+beeline -u jdbc:hive2://localhost:10000/default -n hive -p hive
+
+USE dbName
+
+ALTER TABLE catalog_sales PARTITION (cs_sold_date_sk='default') RENAME TO PARTITION (cs_sold_date_sk='0');
+
+ALTER TABLE catalog_sales PARTITION COLUMN (cs_sold_date_sk integer);
+ 
+ALTER TABLE catalog_sales PARTITION (cs_sold_date_sk='0') RENAME TO PARTITION (cs_sold_date_sk='__HIVE_DEFAULT_PARTITION__');  
+
+
+
+

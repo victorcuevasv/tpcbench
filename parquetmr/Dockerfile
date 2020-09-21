@@ -40,22 +40,26 @@ RUN ./configure --disable-gen-erl --disable-gen-hs --without-ruby --without-hask
 
 RUN make install
 
-#Copy the parquet-mr code.
-COPY parquet-mr /opt/parquet-mr
+USER $UNAME
+
+WORKDIR /home/$UNAME
+
+RUN wget -q -P /home/$UNAME https://github.com/apache/parquet-mr/archive/apache-parquet-1.11.0.tar.gz && \
+    tar xzf /home/$UNAME/apache-parquet-1.11.0.tar.gz -C /home/$UNAME && \
+    rm -f /home/$UNAME/apache-parquet-1.11.0.tar.gz
 
 #Compile the project.
-WORKDIR /opt/parquet-mr/
+WORKDIR /home/$UNAME/parquet-mr-apache-parquet-1.11.0/
 
-RUN LC_ALL=C mvn clean install
+RUN LC_ALL=C mvn clean install -Plocal  -DskipTests
 
-#Compile the project.
-WORKDIR /opt/parquet-mr/parquet-tools
+#Compile the project (no longer necessary done in previous step).
+#WORKDIR /home/$UNAME/parquet-mr-apache-parquet-1.11.0/parquet-tools
 
-RUN mvn clean package -Plocal
+#RUN mvn clean package -DskipTests -Plocal
 
 USER $UNAME
 
 CMD ["bash"]
-
 
 

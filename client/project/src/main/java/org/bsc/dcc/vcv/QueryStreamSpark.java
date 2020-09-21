@@ -110,14 +110,14 @@ public class QueryStreamSpark implements Callable<Void> {
 
 	
 	private String generateResultsFileName(String fileName, int nStream, int item) {
-		return this.parent.workDir + "/" + this.parent.folderName + "/" + this.parent.resultsDir + 
+		return this.parent.workDir + "/" + this.parent.resultsDir + "/" + this.parent.resultsSubDir + 
 				"/" + this.parent.experimentName + "/" + this.parent.test + "/" + this.parent.instance + "/" + 
 				nStream + "_" + item + "_" + fileName + ".txt";
 	}
 	
 	
 	private String generatePlansFileName(String fileName, int nStream, int item) {
-		return this.parent.workDir + "/" + this.parent.folderName + "/" + this.parent.plansDir + 
+		return this.parent.workDir + "/" + this.parent.resultsDir + "/" + this.parent.plansSubDir + 
 				"/" + this.parent.experimentName + "/" + this.parent.test + "/" + this.parent.instance + "/" + 
 				nStream + "_" + item + "_" + fileName + ".txt";
 	}
@@ -168,7 +168,7 @@ public class QueryStreamSpark implements Callable<Void> {
 					" executing iteration " + iteration + " of query " + noExtFileName + ".");
 			// Obtain the plan for the query.
 			Dataset<Row> planDataset = this.spark.sql("EXPLAIN " + sqlStr);
-			//planDataset.write().mode(SaveMode.Append).csv(workDir + "/" + plansDir + "/" + 
+			//planDataset.write().mode(SaveMode.Append).csv(workDir + "/" + plansSubDir + "/" + 
 			//noExtFileName);
 			if( this.parent.savePlans )
 				this.saveResults(generatePlansFileName(noExtFileName, nStream, item), planDataset, ! firstQuery);
@@ -179,7 +179,7 @@ public class QueryStreamSpark implements Callable<Void> {
 					" executing iteration " + iteration + " of query " + noExtFileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
-			//dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsDir + "/" + 
+			//dataset.write().mode(SaveMode.Append).csv(workDir + "/" + resultsSubDir + "/" + 
 			//nStream + "_" + noExtFileName);
 			if( this.parent.saveResults ) {
 				int tuples = this.saveResults(generateResultsFileName(noExtFileName, nStream, item), dataset, ! firstQuery);

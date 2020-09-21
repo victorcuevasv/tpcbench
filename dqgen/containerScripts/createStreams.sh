@@ -13,8 +13,8 @@ cyn=$'\e[1;36m'
 end=$'\e[0m'
 
 #Create a directory for the Presto queries, if it doesn't exist
-if [ ! -d ../output/Streams ]; then
-  mkdir ../output/Streams
+if [ ! -d ../output/StreamsNetezza ]; then
+  mkdir ../output/StreamsNetezza
 fi
 
 #Create a temporary directory holding the query templates, copy to it the
@@ -36,9 +36,9 @@ cp ../query_templates/* ../query_templates_temp
 #Override the netezza.tpl template with netezzaLong.tpl
 cp ../netezzaLong.tpl ../query_templates_temp/netezza.tpl
 
-printf "\n\n%s\n\n" "${blu}Generating query streams with dsqgen.${end}"
+printf "\n\n%s\n\n" "${blu}Generating the Netezza query streams with dsqgen.${end}"
 
-./dsqgen -DIRECTORY ../query_templates_temp -INPUT ../query_templates_temp/templates.lst -OUTPUT_DIR ../output/Streams -dialect netezza -scale $1 -streams $2   
+./dsqgen -DIRECTORY ../query_templates_temp -INPUT ../query_templates_temp/templates.lst -OUTPUT_DIR ../output/StreamsNetezza -dialect netezza -scale $1 -streams $2   
 
 
 

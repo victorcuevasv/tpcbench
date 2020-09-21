@@ -18,16 +18,22 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.CountDownLatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 
 public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
-	private static final String databricksDriverName = "com.simba.spark.jdbc41.Driver";
+	private static final String databricksDriverName = "com.simba.spark.jdbc.Driver";
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
 	private Connection con;
 	private final JarQueriesReaderAsZipFile queriesReader;
@@ -35,18 +41,18 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private final AnalyticsRecorderConcurrent recorder;
 	private final ExecutorService executor;
 	private final BlockingQueue<QueryRecordConcurrent> resultsQueue;
-	private static final int POOL_SIZE = 100;
+	private static final int POOL_SIZE = 150;
 	private final Random random;
 	final String workDir;
 	final String dbName;
-	final String folderName;
+	final String resultsDir;
 	final String experimentName;
 	final String system;
 	final String test;
 	final int instance;
 	final String queriesDir;
-	final String resultsDir;
-	final String plansDir;
+	final String resultsSubDir;
+	final String plansSubDir;
 	final boolean savePlans;
 	final boolean saveResults;
 	final private String hostname;
@@ -55,8 +61,57 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	final private long seed;
 	final private boolean multiple;
 	final int[][] matrix;
+	final private boolean tputChangingStreams;
 	private final boolean useCachedResultSnowflake = false;
 	private final int maxConcurrencySnowflake = 8;
+	private final String clusterId;
+	
+	public ExecuteQueriesConcurrent(CommandLine commandLine) {
+		this.workDir = commandLine.getOptionValue("main-work-dir");
+		this.dbName = commandLine.getOptionValue("schema-name");
+		this.resultsDir = commandLine.getOptionValue("results-dir");
+		this.experimentName = commandLine.getOptionValue("experiment-name");
+		this.system = commandLine.getOptionValue("system-name");
+		this.test = commandLine.getOptionValue("tpcds-test", "tput");
+		String instanceStr = commandLine.getOptionValue("instance-number");
+		this.instance = Integer.parseInt(instanceStr);
+		this.queriesDir = commandLine.getOptionValue("queries-dir-in-jar", "QueriesSpark");
+		this.resultsSubDir = commandLine.getOptionValue("results-subdir", "results");
+		this.plansSubDir = commandLine.getOptionValue("plans-subdir", "plans");
+		String savePlansStr = commandLine.getOptionValue("save-tput-plans", "false");
+		this.savePlans = Boolean.parseBoolean(savePlansStr);
+		String saveResultsStr = commandLine.getOptionValue("save-tput-results", "true");
+		this.saveResults = Boolean.parseBoolean(saveResultsStr);
+		this.jarFile = commandLine.getOptionValue("jar-file");
+		String nStreamsStr = commandLine.getOptionValue("number-of-streams"); 
+		this.nStreams = Integer.parseInt(nStreamsStr);
+		String seedStr = commandLine.getOptionValue("random-seed", "1954"); 
+		this.seed = Long.parseLong(seedStr);
+		this.random = new Random(seed);
+		String multipleStr = commandLine.getOptionValue("multiple-connections", "false"); 
+		this.multiple = Boolean.parseBoolean(multipleStr);
+		this.hostname = commandLine.getOptionValue("server-hostname");
+		String tputChangingStreamsStr = commandLine.getOptionValue("tput-changing-streams", "true");
+		this.tputChangingStreams = Boolean.parseBoolean(tputChangingStreamsStr);
+		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
+		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
+		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
+		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.resultsDir,
+				this.experimentName, this.system, this.test, this.instance);
+		this.matrix = this.streamsReader.getFileAsMatrix(this.streamsReader.getFiles().get(0));
+		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
+		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
+		try {
+			if( ! this.multiple )
+				this.con = this.createConnection(this.system, this.hostname, this.dbName);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueriesConcurrent constructor.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+	}
 	
 	/**
 	 * @param args
@@ -84,16 +139,21 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	 * 
 	 */
 	public ExecuteQueriesConcurrent(String[] args) {
+		if( args.length != 17 ) {
+			System.out.println("Incorrect number of arguments: "  + args.length);
+			logger.error("Incorrect number of arguments: " + args.length);
+			System.exit(1);
+		}
 		this.workDir = args[0];
 		this.dbName = args[1];
-		this.folderName = args[2];
+		this.resultsDir = args[2];
 		this.experimentName = args[3];
 		this.system = args[4];
 		this.test = args[5];
 		this.instance = Integer.parseInt(args[6]);
 		this.queriesDir = args[7];
-		this.resultsDir = args[8];
-		this.plansDir = args[9];
+		this.resultsSubDir = args[8];
+		this.plansSubDir = args[9];
 		this.savePlans = Boolean.parseBoolean(args[10]);
 		this.saveResults = Boolean.parseBoolean(args[11]);
 		this.hostname = args[12];
@@ -102,10 +162,12 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.seed = Long.parseLong(args[15]);
 		this.multiple = Boolean.parseBoolean(args[16]);
 		this.random = new Random(seed);
+		this.tputChangingStreams = true;
+		this.clusterId = "UNUSED";
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
 		this.matrix = this.streamsReader.getFileAsMatrix(this.streamsReader.getFiles().get(0));
-		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.folderName,
+		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.resultsDir,
 				this.experimentName, this.system, this.test, this.instance);
 		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
 		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
@@ -145,11 +207,12 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 				setPrestoDefaultSessionOpts();
 			}
 			else if( this.system.equals("sparkdatabricksjdbc") ) {
+				String dbrToken = AWSUtil.getValue("DatabricksToken");
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
-				"<cluster name>;AuthMech=3;UID=token;PWD=<personal-access-token>" +
+				this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
 				";UseNativeQuery=1");
 			}
 			else if( system.startsWith("spark") ) {
@@ -265,7 +328,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	
 	public void saveSnowflakeHistory() {
 		try {
-			String historyFile = this.workDir + "/" + this.folderName + "/analytics/" + 
+			String historyFile = this.workDir + "/" + this.resultsDir + "/analytics/" + 
 					this.experimentName + "/" + this.test + "/" + this.instance + "/history.log";
 			String columnsStr = this.createSnowflakeHistoryFileAndColumnList(historyFile);
 			this.setSnowflakeQueryTag("saveHistory");
@@ -289,28 +352,54 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 
 	
-	public static void main(String[] args) throws SQLException {
-		if( args.length != 17 ) {
-			System.out.println("Incorrect number of arguments: "  + args.length);
-			logger.error("Incorrect number of arguments: " + args.length);
-			System.exit(1);
+	public static void main(String[] args) {
+		ExecuteQueriesConcurrent application = null;
+		//Check is GNU-like options are used.
+		boolean gnuOptions = args[0].contains("--") ? true : false;
+		if( ! gnuOptions )
+			application = new ExecuteQueriesConcurrent(args);
+		else {
+			CommandLine commandLine = null;
+			try {
+				RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
+				Options options = runOptions.getOptions();
+				CommandLineParser parser = new DefaultParser();
+				commandLine = parser.parse(options, args);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				logger.error("Error in ExecuteQueriesConcurrent main.");
+				logger.error(e);
+				logger.error(AppUtil.stringifyStackTrace(e));
+				System.exit(1);
+			}
+			application = new ExecuteQueriesConcurrent(commandLine);
 		}
-		ExecuteQueriesConcurrent prog = new ExecuteQueriesConcurrent(args);
-		prog.executeStreams();
+		application.executeStreams();
 	}
 	
 	
 	private void executeStreams() {
 		List<String> files = queriesReader.getFilesOrdered();
-		HashMap<Integer, String> queriesHT = createQueriesHT(files, this.queriesReader);
 		int nQueries = files.size();
 		int totalQueries = nQueries * this.nStreams;
+		CountDownLatch latch = new CountDownLatch(1);
 		QueryResultsCollector resultsCollector = new QueryResultsCollector(totalQueries, 
-				this.resultsQueue, this.recorder, this);
+				this.resultsQueue, this.recorder, this, latch);
 		ExecutorService resultsCollectorExecutor = Executors.newSingleThreadExecutor();
 		resultsCollectorExecutor.execute(resultsCollector);
 		resultsCollectorExecutor.shutdown();
 		for(int i = 0; i < this.nStreams; i++) {
+			HashMap<Integer, String> queriesHT = null;
+			if( this.tputChangingStreams ) {
+				JarQueriesReaderAsZipFile streamQueriesReader = 
+					new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir + "Stream" + i + "/");
+				List<String> filesStream = streamQueriesReader.getFilesOrdered();
+				queriesHT = createQueriesHT(filesStream, streamQueriesReader);
+			}
+			else {
+				queriesHT = createQueriesHT(files, this.queriesReader);
+			}
 			QueryStream stream = null;
 			if( ! this.multiple ) {
 				stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT,
@@ -324,6 +413,12 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			this.executor.submit(stream);
 		}
 		this.executor.shutdown();
+		try {
+            latch.await();
+        }
+		catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 	}
 	
 	

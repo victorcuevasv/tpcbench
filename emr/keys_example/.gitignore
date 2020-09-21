@@ -1,0 +1,9 @@
+/tables/
+/catalog_sales_ext.sql
+/catalog_sales_insert.sql
+/catalog_sales_int.sql
+/sparkConf/
+/shellCallCenterDescribeExt.txt
+/partitioning_catalog_sales/
+/ship_mode_ext.sql
+/ship_mode.sql

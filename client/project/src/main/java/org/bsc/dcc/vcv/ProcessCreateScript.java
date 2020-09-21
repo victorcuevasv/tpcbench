@@ -1,7 +1,6 @@
 package org.bsc.dcc.vcv;
 
 import java.io.*;
-import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

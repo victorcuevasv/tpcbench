@@ -221,12 +221,16 @@ public class RunBenchmark {
 		args[2] results folder name (e.g. for Google Drive)
 		args[3] experiment name (name of subfolder within the results folder)
 		args[4] system name (system name used within the logs)
+		
 		args[5] test name (i.e. load)
 		args[6] experiment instance number
 		args[7] compute statistics for columns (true/false)
 		args[8] hostname of the server
+		args[9] jar file
+		
+		args[10] subdirectory within the jar that contains the create table files
 		*/
-		String[] array = new String[9];
+		String[] array = new String[11];
 		array[0] = args[0];
 		array[1] = args[1];
 		array[2] = args[2];
@@ -237,6 +241,9 @@ public class RunBenchmark {
 		array[6] = args[5];
 		array[7] = args[19];
 		array[8] = args[15];
+		array[9] = args[17];
+		
+		array[10] = args[7];
 		
 		return array;
 	}

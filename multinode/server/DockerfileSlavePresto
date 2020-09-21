@@ -6,7 +6,7 @@ ARG APACHE_MIRROR=archive.apache.org
 ARG POSTGRES_DRIVER_MIRROR=jdbc.postgresql.org
 ARG PRESTO_MIRROR=repo1.maven.org
 ARG HADOOP_VERSION=2.7.7
-ARG PRESTO_VERSION=0.220
+ARG PRESTO_VERSION=0.227
 
 #Add the generated key to the authorized set.
 #The ssh server has been installed in the ubuntujavahadoop image.

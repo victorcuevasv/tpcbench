@@ -1,0 +1,13 @@
+#Run R studio
+
+#Original official container image.
+
+docker run -e PASSWORD=1234 --rm -p 8787:8787 -v $(pwd)/Documents:/home/rstudio/Documents rocker/rstudio
+
+#Extended container image.
+
+docker run -e PASSWORD=1234 --rm -p 8787:8787 -v $(pwd)/Documents:/home/rstudio/Documents rstudio:dev
+
+
+username: rstudio
+password: 1234
