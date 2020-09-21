@@ -205,7 +205,7 @@ public class CreateDatabase {
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
 				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
-				this.dbName + "?ssl=true&UID=your_username&PWD=your_password");
+				"dev" + "?ssl=true&UID=your_username&PWD=your_password");
 			}
 			else if( this.systemRunning.startsWith("spark") ) {
 				Class.forName(hiveDriverName);

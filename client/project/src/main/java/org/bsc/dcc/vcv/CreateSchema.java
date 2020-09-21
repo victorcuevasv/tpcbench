@@ -93,7 +93,7 @@ public class CreateSchema {
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
 				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
-				this.dbName + "?ssl=true&UID=your_username&PWD=your_password");
+				"dev" + "?ssl=true&UID=your_username&PWD=your_password");
 			}
 			else if( this.system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
@@ -181,6 +181,8 @@ public class CreateSchema {
 				stmt.execute("USE DATABASE " + this.dbName);
 				stmt.execute("CREATE SCHEMA " + this.dbName);
 			}
+			else if( system.startsWith("redshift") )
+				stmt.execute("CREATE DATABASE " + this.dbName);
 			System.out.println("Schema (database) created.");
 			this.logger.info("Schema (database) created.");
 		}
