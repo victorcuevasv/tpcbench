@@ -32,15 +32,12 @@ printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
 RedshiftHost=""
 Nodes="2"
-MajorVersion="7"
-MinorVersion="2"
-ScalaVersion="x-scala2.12"
 #Run configuration.
 Tag="$(date +%s)"
-ExperimentName="tpcds-dbrjdbc-${MajorVersion}${MinorVersion}-$1gb-${Tag}"
-DirNameWarehouse="tpcds-dbrjdbc-${MajorVersion}${MinorVersion}-$1gb-$2-${Tag}"
-DirNameResults="dbr${MajorVersion}${MinorVersion}jdbc"
-DatabaseName="tpcds_dbrjdbc_${MajorVersion}${MinorVersion}_$1gb_$2_${Tag}"
+ExperimentName="tpcds-redshift-$1gb-${Tag}"
+DirNameWarehouse="tpcds-redshift-$1gb-$2-${Tag}"
+DirNameResults="redshift"
+DatabaseName="tpcds_redshift_$1gb_$2_${Tag}"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 
 CLUSTER_NAME="TPC-DS_${Tag}_$2"
@@ -60,7 +57,7 @@ args[2]="--results-dir=$DirNameResults"
 #experiment name (name of subfolder within the results folder)
 args[3]="--experiment-name=$ExperimentName"
 #system name (system name used within the logs)
-args[4]="--system-name=sparkdatabricksjdbc"
+args[4]="--system-name=redshift"
 
 #experiment instance number
 args[5]="--instance-number=$2"
@@ -168,6 +165,7 @@ if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 	docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
 	--volume $DIR/../vols/data:/data \
 	--volume $DIR/../client/project:/project \
+	--volume $HOME/tpcds-jars:/mnt/tpcds-jars \
 	--entrypoint mvn clientbuilder:dev \
 	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmarkCLI" \
 	-Dexec.args="$paramsStr" \
