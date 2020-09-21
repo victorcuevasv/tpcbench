@@ -43,7 +43,7 @@ index=$((index+1))
 
 #Build the dqgen image with the TPC-DS toolkit to generate data and queries.
 printf "\n\n%s\n\n" "${mag}Creating the dqgen TPC-DS toolkit image.${end}"
-bash $DIR/../dqgen/createContainer.sh $USER_NAME $USER_ID $GROUP_ID
+bash $DIR/../dqgen2/createContainer.sh $USER_NAME $USER_ID $GROUP_ID
 buildFlags[$index]=$?
 buildLabels[$index]=tpcds
 index=$((index+1))
