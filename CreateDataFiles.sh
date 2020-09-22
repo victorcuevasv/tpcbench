@@ -21,12 +21,12 @@ GROUP_ID=$(id -g)
 #$1 scale factor (positive integer)
 
 if [ $# -lt 1 ]; then
-    printf "\n%s\n\n" "${yel}Usage bash createDataFiles.sh <scale factor>${end}"
+    printf "\n%s\n\n" "${yel}Usage bash CreateDataFiles.sh <scale factor>${end}"
     exit 1
 fi
 
 printf "\n%s\n" "${mag}Generating the data files.${end}"
-bash $DIR/dqgen/generateData.sh $1 $USER_ID $GROUP_ID
+bash $DIR/dqgen2/generateData.sh $1 $USER_ID $GROUP_ID
 
 printf "\n%s\n\n" "${mag}Moving the generated files to subdirectories.${end}"
 bash $DIR/datFiles.sh $1
