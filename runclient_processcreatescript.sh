@@ -1,4 +1,15 @@
 #!/bin/bash
+
+#Variables for console output with colors.
+
+red=$'\e[1;31m'
+grn=$'\e[1;32m'
+yel=$'\e[1;33m'
+blu=$'\e[1;34m'
+mag=$'\e[1;35m'
+cyn=$'\e[1;36m'
+end=$'\e[0m'
+
 #Execute the Java project with Maven by running the container (standalone container, no docker-compose).
 #Receives as parameters the user and group id of the user who is executing this script.
 #
@@ -13,7 +24,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #$1 scale factor (positive integer)
 
 if [ $# -lt 3 ]; then
-    echo "Usage: bash runclient_processcreatescript.sh <user id> <group id> <create tables sql file>."
+    echo "${yel}Usage: bash runclient_processcreatescript.sh <user id> <group id> <create tables sql file>.${end}"
     exit 0
 fi
 
