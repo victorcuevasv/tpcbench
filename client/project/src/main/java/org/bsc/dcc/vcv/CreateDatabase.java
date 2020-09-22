@@ -303,10 +303,12 @@ public class CreateDatabase {
 					continue;
 				}
 			}
-			if( ! this.systemRunning.equals("snowflake") )
-				this.createTable(fileName, sqlCreate, i);
-			else
+			if (this.systemRunning.equals("snowflake")) {
 				this.createTableSnowflake(fileName, sqlCreate, i);
+			} else if (this.systemRunning.equals("redshift")) {
+				this.createTableRedshift(fileName, sqlCreate, i);
+			} else
+				this.createTable(fileName, sqlCreate, i);
 			i++;
 		}
 		this.recorder.close();
@@ -347,6 +349,56 @@ public class CreateDatabase {
 						"FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = '\\\\001' ENCODING = 'ISO88591')";
 			saveCreateTableFile("snowflakecopy", tableName, copyIntoSql);
 			stmt.execute(copyIntoSql);
+			queryRecord.setSuccessful(true);
+			if( doCount )
+				countRowsQuery(stmt, tableName);
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error("Error in CreateDatabase createTable.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		finally {
+			if( queryRecord != null ) {
+				queryRecord.setEndTime(System.currentTimeMillis());
+				this.recorder.record(queryRecord);
+			}
+		}
+	}
+
+	private void createTableRedshift(String sqlCreateFilename, String sqlCreate, int index) {
+		QueryRecord queryRecord = null;
+		String suffix = "";
+		try {
+			//First, create the table, no format or options are specified, only the schema data.
+			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
+			System.out.println("Processing table " + index + ": " + tableName);
+			this.logger.info("Processing table " + index + ": " + tableName);
+			//Hive and Spark use the statement 'create external table ...' for raw data tables
+			String redshiftSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, suffix, false);
+			saveCreateTableFile("redshifttable", tableName, redshiftSqlCreate);
+			queryRecord = new QueryRecord(index);
+			queryRecord.setStartTime(System.currentTimeMillis());
+			Statement stmt = con.createStatement();
+			stmt.execute("drop table if exists " + tableName + suffix);
+			stmt.execute(redshiftSqlCreate);
+			//Upload the .dat files to the table stage, which is created by default.
+			String putSql = null;
+			if( ! this.rawDataDir.equals("UNUSED") ) {
+				putSql = "PUT file://" + this.rawDataDir + "/" + tableName + "/*.dat @%" + tableName;
+				saveCreateTableFile("redshiftput", tableName, putSql);
+				stmt.execute(putSql);
+			}
+			String copySql = null;
+			//Otherwise, move the data directly from S3 into redshift through COPY.
+			copySql = "copy " + tableName + " from " + 
+					"'" + this.rawDataDir + "/" + tableName + "/' \n" +
+					"iam_role 'arn:aws:iam::384416317380:instance-profile/tpcds-mount'\n" +
+					"delimiter '\001'\n" +
+					"region 'us-west-2;";
+			saveCreateTableFile("redshiftcopy", tableName, copySql);
+			stmt.execute(copySql);
 			queryRecord.setSuccessful(true);
 			if( doCount )
 				countRowsQuery(stmt, tableName);
