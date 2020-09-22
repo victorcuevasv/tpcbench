@@ -215,7 +215,7 @@ public class CreateDatabase {
 			else if( this.systemRunning.startsWith("snowflake") ) {
 				Class.forName(snowflakeDriverName);
 				con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
-						"user=" + this.username + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
+						"user=" + this.username + "&password=" + "&db=" + this.dbName +
 						"&schema=" + this.dbName + "&warehouse=testwh");
 			}
 			else if( this.system.startsWith("synapse") ) {

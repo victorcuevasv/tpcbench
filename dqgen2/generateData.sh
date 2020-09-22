@@ -15,7 +15,9 @@ end=$'\e[0m'
 #$3 group id
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-TPCDS_VERSION=v2.13.0rc1
+
+#The globalVars.sh script defines the TPCDS_VERSION variable.
+source $DIR/globalVars.sh
 
 #Generate the data.
 printf "\n%s\n\n" "${cyn}Generating the data.${end}"
