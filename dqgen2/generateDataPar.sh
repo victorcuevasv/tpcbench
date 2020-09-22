@@ -36,7 +36,7 @@ docker run --rm --user $2:$3 --name tpc --volume $DIR/../vols/hive:/TPC-DS/$TPCD
 end_time=$(date +%s)
 
 runtime=$((end_time-start_time))
-printf "\n%s\n\n" "${cyn}Total execution time: ${runtime} sec.${end}\n"
+printf "\n%s\n\n" "${cyn}Total execution time: ${runtime} sec.${end}"
 
 
 
