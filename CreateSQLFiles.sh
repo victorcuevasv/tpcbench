@@ -25,7 +25,8 @@ if [ $# -lt 1 ]; then
     exit 0
 fi
 
-TPCDS_VERSION=v2.13.0rc1
+#Obtain the TPC-DS Toolkit version via the TPCDS_VERSION variable in the globalVars.sh script.
+source $DIR/dqgen2/globalVars.sh
 
 #Create SQL create table statement files and the query files.
 
