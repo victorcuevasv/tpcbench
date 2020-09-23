@@ -25,9 +25,6 @@ if [ $# -lt 1 ]; then
     exit 0
 fi
 
-#Obtain the TPC-DS Toolkit version via the TPCDS_VERSION variable in the globalVars.sh script.
-source $DIR/dqgen2/globalVars.sh
-
 #Create SQL create table statement files and the query files.
 
 #The runclient_processcreatescript script uses the java ProcessCreateScript class.
@@ -37,13 +34,9 @@ bash $DIR/compileCreateScript.sh
 #First separate the multiple create table statements in the tpcds.sql file into separate files.
 #Copy the file with create table statements into the datavol directory.
 
-#cp $DIR/dqgen/v2.10.1rc3/tools/tpcds.sql $DIR/vols/data/tpcds.sql
-#cp $DIR/dqgen/tpcdsvarchar.sql $DIR/vols/data/tpcdsvarchar.sql
-cp $DIR/dqgen2/$TPCDS_VERSION/tools/tpcds.sql $DIR/vols/data/tpcds.sql
+cp $DIR/dqgen2/tpcdsvarchar.sql $DIR/vols/data/tpcdsvarchar.sql
 printf "\n\n%s\n\n" "${mag}Processing the tpcds[varchar].sql file.${end}"
-#bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID tpcds.sql
-#bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID tpcdsvarchar.sql
-bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID tpcds.sql
+bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID tpcdsvarchar.sql
 cp -r $DIR/vols/data/tables $DIR/client/project/src/main/resources/
 
 #Generate the unused Netezza queries.
