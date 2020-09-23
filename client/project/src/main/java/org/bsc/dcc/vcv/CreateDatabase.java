@@ -396,7 +396,7 @@ public class CreateDatabase {
 					"'" + this.rawDataDir + "/" + tableName + "/' \n" +
 					"iam_role 'arn:aws:iam::384416317380:instance-profile/tpcds-mount'\n" +
 					"delimiter '\001'\n" +
-					"region 'us-west-2;";
+					"region 'us-west-2';";
 			saveCreateTableFile("redshiftcopy", tableName, copySql);
 			stmt.execute(copySql);
 			queryRecord.setSuccessful(true);
