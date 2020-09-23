@@ -385,11 +385,13 @@ public class CreateDatabase {
 			stmt.execute(redshiftSqlCreate);
 			//Upload the .dat files to the table stage, which is created by default.
 			String putSql = null;
+			/*
 			if( ! this.rawDataDir.equals("UNUSED") ) {
 				putSql = "PUT file://" + this.rawDataDir + "/" + tableName + "/*.dat @%" + tableName;
 				saveCreateTableFile("redshiftput", tableName, putSql);
 				stmt.execute(putSql);
 			}
+			*/
 			String copySql = null;
 			//Otherwise, move the data directly from S3 into redshift through COPY.
 			copySql = "copy " + tableName + " from " + 
