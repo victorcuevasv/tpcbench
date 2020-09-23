@@ -397,7 +397,7 @@ public class CreateDatabase {
 			//Otherwise, move the data directly from S3 into redshift through COPY.
 			copySql = "copy " + tableName + " from " + 
 					"'" + this.extTablePrefixRaw.get() + "/" + tableName + "/' \n" +
-					"iam_role 'arn:aws:iam::384416317380:instance-profile/tpcds-mount'\n" +
+					"iam_role 'arn:aws:iam::384416317380:role/tpcds-redshift'\n" +
 					"delimiter '\001'\n" +
 					"region 'us-west-2';";
 			saveCreateTableFile("redshiftcopy", tableName, copySql);
