@@ -392,11 +392,11 @@ public class CreateDatabase {
 				stmt.execute(putSql);
 			}
 			*/
-			System.out.println("Raw Data Dir: " + this.rawDataDir);
+			System.out.println("Raw Data Dir: " + this.extTablePrefixRaw);
 			String copySql = null;
 			//Otherwise, move the data directly from S3 into redshift through COPY.
 			copySql = "copy " + tableName + " from " + 
-					"'" + this.rawDataDir + "/" + tableName + "/' \n" +
+					"'" + this.extTablePrefixRaw + "/" + tableName + "/' \n" +
 					"iam_role 'arn:aws:iam::384416317380:instance-profile/tpcds-mount'\n" +
 					"delimiter '\001'\n" +
 					"region 'us-west-2';";
