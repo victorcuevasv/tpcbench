@@ -28,6 +28,7 @@ public class ExecuteQueries {
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private static final String databricksDriverName = "com.simba.spark.jdbc.Driver";
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
+	private static final String redshiftDriverName = "com.amazon.redshift.jdbc42.Driver";
 	private Connection con;
 	private final JarQueriesReaderAsZipFile queriesReader;
 	private final AnalyticsRecorder recorder;
