@@ -39,9 +39,9 @@ define STATE = dist(fips_county,3,1);
 define _LIMIT=100;
 
 [_LIMITA] select [_LIMITB] 
-   count(distinct ws_order_number) as "order count"
-  ,sum(ws_ext_ship_cost) as "total shipping cost"
-  ,sum(ws_net_profit) as "total net profit"
+   count(distinct ws_order_number) as `order count`
+  ,sum(ws_ext_ship_cost) as `total shipping cost`
+  ,sum(ws_net_profit) as `total net profit`
 from
    web_sales ws1
   ,date_dim

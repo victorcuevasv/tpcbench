@@ -33,36 +33,39 @@
 -- Contributors:
 -- 
 
-define IMID  = random(1,1000,uniform);
-define YEAR  = random(1998,2002,uniform);
-define WSDATE = date([YEAR]+"-01-01",[YEAR]+"-04-01",sales);
+define DMS = random(1176,1224,uniform);
 define _LIMIT=100;
 
 [_LIMITA] select [_LIMITB] 
-   sum(ws_ext_discount_amt)  as `Excess Discount Amount` 
-from 
-    web_sales 
-   ,item 
-   ,date_dim
+   substr(w_warehouse_name,1,20)
+  ,sm_type
+  ,web_name
+  ,sum(case when (ws_ship_date_sk - ws_sold_date_sk <= 30 ) then 1 else 0 end)  as `30 days` 
+  ,sum(case when (ws_ship_date_sk - ws_sold_date_sk > 30) and 
+                 (ws_ship_date_sk - ws_sold_date_sk <= 60) then 1 else 0 end )  as `31-60 days` 
+  ,sum(case when (ws_ship_date_sk - ws_sold_date_sk > 60) and 
+                 (ws_ship_date_sk - ws_sold_date_sk <= 90) then 1 else 0 end)  as `61-90 days` 
+  ,sum(case when (ws_ship_date_sk - ws_sold_date_sk > 90) and
+                 (ws_ship_date_sk - ws_sold_date_sk <= 120) then 1 else 0 end)  as `91-120 days` 
+  ,sum(case when (ws_ship_date_sk - ws_sold_date_sk  > 120) then 1 else 0 end)  as `>120 days` 
+from
+   web_sales
+  ,warehouse
+  ,ship_mode
+  ,web_site
+  ,date_dim
 where
-i_manufact_id = [IMID]
-and i_item_sk = ws_item_sk 
-and d_date between '[WSDATE]' and 
-        (cast('[WSDATE]' as date) + interval 90 days)
-and d_date_sk = ws_sold_date_sk 
-and ws_ext_discount_amt  
-     > ( 
-         SELECT 
-            1.3 * avg(ws_ext_discount_amt) 
-         FROM 
-            web_sales 
-           ,date_dim
-         WHERE 
-              ws_item_sk = i_item_sk 
-          and d_date between '[WSDATE]' and
-                             (cast('[WSDATE]' as date) + interval 90 days)
-          and d_date_sk = ws_sold_date_sk 
-      ) 
-order by sum(ws_ext_discount_amt)
-[_LIMITC]; 
+    d_month_seq between [DMS] and [DMS] + 11
+and ws_ship_date_sk   = d_date_sk
+and ws_warehouse_sk   = w_warehouse_sk
+and ws_ship_mode_sk   = sm_ship_mode_sk
+and ws_web_site_sk    = web_site_sk
+group by
+   substr(w_warehouse_name,1,20)
+  ,sm_type
+  ,web_name
+order by substr(w_warehouse_name,1,20)
+        ,sm_type
+       ,web_name
+[_LIMITC];
 
