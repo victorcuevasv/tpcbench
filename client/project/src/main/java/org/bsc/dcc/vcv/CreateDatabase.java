@@ -399,6 +399,7 @@ public class CreateDatabase {
 					"'" + this.extTablePrefixRaw.get() + "/" + tableName + "/' \n" +
 					"iam_role 'arn:aws:iam::384416317380:role/tpcds-redshift'\n" +
 					"delimiter '\001'\n" +
+					"ACCEPTINVCHARS\n" +
 					"region 'us-west-2';";
 			saveCreateTableFile("redshiftcopy", tableName, copySql);
 			stmt.execute(copySql);
