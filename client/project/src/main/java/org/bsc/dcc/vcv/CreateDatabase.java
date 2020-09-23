@@ -392,6 +392,7 @@ public class CreateDatabase {
 				stmt.execute(putSql);
 			}
 			*/
+			System.out.println("Raw Data Dir: " + this.rawDataDir)
 			String copySql = null;
 			//Otherwise, move the data directly from S3 into redshift through COPY.
 			copySql = "copy " + tableName + " from " + 
