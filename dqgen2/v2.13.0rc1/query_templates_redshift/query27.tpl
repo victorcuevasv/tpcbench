@@ -46,7 +46,7 @@
  define _LIMIT=100;
 
 with results as
- (_LIMITA] select [_LIMITB] i_item_id,
+ ([_LIMITA] select [_LIMITB] i_item_id,
         s_state, 0 as g_state,
         ss_quantity agg1,
         ss_list_price agg2,
