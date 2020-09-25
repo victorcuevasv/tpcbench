@@ -15,7 +15,9 @@ end=$'\e[0m'
 #$3 group id
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-TPCDS_VERSION=v2.13.0rc1
+
+#The globalVars.sh script defines the TPCDS_VERSION variable.
+source $DIR/globalVars.sh
 
 #Generate the data.
 printf "\n%s\n\n" "${cyn}Generating the data.${end}"
@@ -33,6 +35,6 @@ docker run --rm --user $2:$3 --name tpc --volume $DIR/../vols/hive:/TPC-DS/$TPCD
 end_time=$(date +%s)
 
 runtime=$((end_time-start_time))
-printf "\n%s\n\n" "${cyn}Total execution time: ${runtime} sec.${end}\n"
+printf "\n%s\n\n" "${cyn}Total execution time: ${runtime} sec.${end}"
 
 

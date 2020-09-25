@@ -18,6 +18,10 @@ if [ $# -lt 1 ]; then
     exit 0
 fi
 
+if [ ! -d $HOME/tpcds-jars/targetsparkdatabricks ]; then
+   mkdir $HOME/tpcds-jars/targetsparkdatabricks
+fi
+
 Timestamp="$(date +%s)"
 UploadedFileName="client-1.2-SNAPSHOT-SHADED.jar"
 if [ $1 -eq 1 ]; then

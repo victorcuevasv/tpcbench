@@ -176,7 +176,7 @@ public class ExecuteQueries {
 			else if( this.system.startsWith("snowflake") ) {
 				Class.forName(snowflakeDriverName);
 				this.con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
-						"user=bsctest" + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
+						"user=bsctest" + "&password=" + "&db=" + this.dbName +
 						"&schema=" + this.dbName + "&warehouse=testwh");
 				this.setSnowflakeDefaultSessionOpts();
 			} else if( this.system.equals("redshift") ) {

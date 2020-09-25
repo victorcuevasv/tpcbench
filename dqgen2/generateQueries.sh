@@ -14,7 +14,9 @@ end=$'\e[0m'
 #$3 scale
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-TPCDS_VERSION=v2.13.0rc1
+
+#The globalVars.sh script defines the TPCDS_VERSION variable.
+source $DIR/globalVars.sh
 
 #Build the client project.
 printf "\n\n%s\n\n" "${blu}Generating queries.${end}"

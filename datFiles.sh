@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#$1 scale factor that determines the directory in which the files are stored.
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 #For each .dat file, create a directory with that name and move the .dat file to

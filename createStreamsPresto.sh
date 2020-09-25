@@ -28,6 +28,6 @@ fi
 
 #Generate the Presto queries.
 printf "\n\n%s\n\n" "${mag}Generating the Presto query streams.${end}"
-bash $DIR/dqgen/generateStreamsPresto.sh $USER_ID $GROUP_ID $1 $2
+bash $DIR/dqgen2/generateStreamsPresto.sh $USER_ID $GROUP_ID $1 $2
 
 

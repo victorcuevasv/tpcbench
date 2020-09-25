@@ -28,7 +28,7 @@ fi
 
 #Generate the Netezza queries.
 printf "\n\n%s\n\n" "${mag}Generating query streams.${end}"
-bash $DIR/dqgen/generateStreams.sh $USER_ID $GROUP_ID $1 $2
+bash $DIR/dqgen2/generateStreams.sh $USER_ID $GROUP_ID $1 $2
  
 
 

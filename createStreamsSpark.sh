@@ -28,7 +28,7 @@ fi
 
 #Generate the Spark queries.
 printf "\n\n%s\n\n" "${mag}Generating the Spark query streams.${end}"
-bash $DIR/dqgen/generateStreamsSpark.sh $USER_ID $GROUP_ID $1 $2
+bash $DIR/dqgen2/generateStreamsSpark.sh $USER_ID $GROUP_ID $1 $2
 
 
 

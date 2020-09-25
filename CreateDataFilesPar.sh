@@ -26,7 +26,7 @@ if [ $# -lt 2 ]; then
 fi
 
 printf "\n%s\n" "${mag}Generating the data files with parallelism.${end}"
-bash $DIR/dqgen/generateDataPar.sh $1 $USER_ID $GROUP_ID $2
+bash $DIR/dqgen2/generateDataPar.sh $1 $USER_ID $GROUP_ID $2
 
 #The script generation process uses the java ProcessParallelDataFiles class.
 #Compile the java classes for the client first.
