@@ -114,7 +114,7 @@
     )
    )
 group by r_reason_desc
-order by substingr(r_reason_desc,1,20)
+order by substring(r_reason_desc,1,20)
         ,avg(ws_quantity)
         ,avg(wr_refunded_cash)
         ,avg(wr_fee)

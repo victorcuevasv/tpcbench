@@ -70,7 +70,7 @@
      promotion
  where cs_sold_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and dateadd(day, 30, (cast('[SALES_DATE]' as date))
+                  and dateadd(day, 30, (cast('[SALES_DATE]' as date)))
         and cs_catalog_page_sk = cp_catalog_page_sk
        and cs_item_sk = i_item_sk
        and i_current_price > 50
