@@ -96,7 +96,7 @@ with  cross_items as
          and d_year between [YEAR] and [YEAR] + 2) x)
 ,
   results as
- ([_LIMITA] select [_LIMITB] channel, i_brand_id,i_class_id,i_category_id,sum(sales), sum(number_sales)
+ ([_LIMITA] select [_LIMITB] channel, i_brand_id, i_class_id, i_category_id, sum(sales) sum_sales, sum(number_sales) number_sales
  from(
        select 'store' channel, i_brand_id,i_class_id
              ,i_category_id,sum(ss_quantity*ss_list_price) sales

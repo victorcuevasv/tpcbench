@@ -48,10 +48,10 @@
 with results as
  (_LIMITA] select [_LIMITB] i_item_id,
         s_state, 0 as g_state,
-        avg(ss_quantity) agg1,
-        avg(ss_list_price) agg2,
-        avg(ss_coupon_amt) agg3,
-        avg(ss_sales_price) agg4
+        ss_quantity agg1,
+        ss_list_price agg2,
+        ss_coupon_amt agg3,
+        ss_sales_price agg4
  from store_sales, customer_demographics, date_dim, store, item
  where ss_sold_date_sk = d_date_sk and
        ss_item_sk = i_item_sk and

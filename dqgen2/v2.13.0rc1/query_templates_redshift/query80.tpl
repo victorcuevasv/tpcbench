@@ -98,7 +98,9 @@ group by cp_catalog_page_id)
        and ws_promo_sk = p_promo_sk
        and p_channel_tv = 'N'
 group by web_site_id)
- [_LIMITA] select [_LIMITB] channel
+,
+results as 
+ ([_LIMITA] select [_LIMITB] channel
         , id
         , sum(sales) as sales
         , sum(returns) as returns
@@ -125,7 +127,20 @@ group by web_site_id)
         , profit
  from   wsr
  ) x
- group by rollup (channel, id)
+ group by channel, id)
+
+ select  channel
+        , id
+        , sales
+        , returns
+        , profit
+ from (
+   select channel, id, sales, returns, profit from  results
+   union
+   select channel, NULL AS id, sum(sales) as sales, sum(returns) as returns, sum(profit) as profit from  results group by channel
+   union
+   select NULL AS channel, NULL AS id, sum(sales) as sales, sum(returns) as returns, sum(profit) as profit from  results
+ ) foo
  order by channel
          ,id
  [_LIMITC];

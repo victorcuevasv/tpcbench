@@ -45,7 +45,8 @@
  define _LIMIT=100;
  
  with results as
- ([_LIMITA] select [_LIMITB] 
+ ([_LIMITA] select [_LIMITB]
+    sum(ss_net_profit) as ss_net_profit, sum(ss_ext_sales_price) as ss_ext_sales_price,
     sum(ss_net_profit)/sum(ss_ext_sales_price) as gross_margin
    ,i_category
    ,i_class

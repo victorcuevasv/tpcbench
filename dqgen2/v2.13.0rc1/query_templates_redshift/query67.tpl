@@ -36,8 +36,8 @@
  define _LIMIT=100;
 
 with results as
-([_LIMITA] select [_LIMITB] *
-from (select i_category
+([_LIMITA] select [_LIMITB] 
+            i_category
             ,i_class
             ,i_brand
             ,i_product_name

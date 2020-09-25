@@ -44,13 +44,13 @@
         ca_country,
         ca_state, 
         ca_county,
-        avg( cast(cs_quantity as decimal(12,2))) agg1,
-        avg( cast(cs_list_price as decimal(12,2))) agg2,
-        avg( cast(cs_coupon_amt as decimal(12,2))) agg3,
-        avg( cast(cs_sales_price as decimal(12,2))) agg4,
-        avg( cast(cs_net_profit as decimal(12,2))) agg5,
-        avg( cast(c_birth_year as decimal(12,2))) agg6,
-        avg( cast(cd1.cd_dep_count as decimal(12,2))) agg7
+        cast(cs_quantity as decimal(12,2)) agg1,
+        cast(cs_list_price as decimal(12,2)) agg2,
+        cast(cs_coupon_amt as decimal(12,2)) agg3,
+        cast(cs_sales_price as decimal(12,2)) agg4,
+        cast(cs_net_profit as decimal(12,2)) agg5,
+        cast(c_birth_year as decimal(12,2)) agg6,
+        cast(cd1.cd_dep_count as decimal(12,2)) agg7
  from catalog_sales, customer_demographics cd1, 
       customer_demographics cd2, customer, customer_address, date_dim, item
  where cs_sold_date_sk = d_date_sk and
