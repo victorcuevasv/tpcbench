@@ -94,7 +94,9 @@ with  cross_items as
            ,date_dim
        where ws_sold_date_sk = d_date_sk
          and d_year between [YEAR] and [YEAR] + 2) x)
- [_LIMITA] select [_LIMITB] channel, i_brand_id,i_class_id,i_category_id,sum(sales), sum(number_sales)
+,
+  results as
+ ([_LIMITA] select [_LIMITB] channel, i_brand_id,i_class_id,i_category_id,sum(sales), sum(number_sales)
  from(
        select 'store' channel, i_brand_id,i_class_id
              ,i_category_id,sum(ss_quantity*ss_list_price) sales
@@ -134,7 +136,22 @@ with  cross_items as
        group by i_brand_id,i_class_id,i_category_id
        having sum(ws_quantity*ws_list_price) > (select average_sales from avg_sales)
  ) y
- group by rollup (channel, i_brand_id,i_class_id,i_category_id)
+ group by channel, i_brand_id,i_class_id,i_category_id)
+
+ select  channel, i_brand_id, i_class_id, i_category_id, sum_sales, number_sales
+from (
+      select channel, i_brand_id, i_class_id, i_category_id, sum_sales, number_sales from results
+      union
+      select channel, i_brand_id, i_class_id,  null as i_category_id, sum(sum_sales), sum(number_sales) from results
+      group by channel, i_brand_id, i_class_id
+union
+      select channel, i_brand_id, null as i_class_id, null as i_category_id, sum(sum_sales), sum(number_sales) from results
+      group by channel, i_brand_id
+      union
+      select channel, null as i_brand_id, null as i_class_id, null as i_category_id, sum(sum_sales), sum(number_sales) from results
+      group by channel
+      union
+      select null as channel, null as i_brand_id, null as i_class_id, null as i_category_id, sum(sum_sales), sum(number_sales) from results) z
  order by channel,i_brand_id,i_class_id,i_category_id
  [_LIMITC];
  

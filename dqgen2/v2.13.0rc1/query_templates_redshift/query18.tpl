@@ -39,7 +39,8 @@
  define MONTH=ulist(random(1,12,uniform),6);
  define _LIMIT=100;
  
- [_LIMITA] select [_LIMITB] i_item_id,
+ with results as
+ ([_LIMITA] select [_LIMITB] i_item_id,
         ca_country,
         ca_state, 
         ca_county,
@@ -64,7 +65,33 @@
        d_year = [YEAR] and
        ca_state in ('[STATE.1]','[STATE.2]','[STATE.3]'
                    ,'[STATE.4]','[STATE.5]','[STATE.6]','[STATE.7]')
- group by rollup (i_item_id, ca_country, ca_state, ca_county)
+ )
+  select  i_item_id, ca_country, ca_state, ca_county, agg1, agg2, agg3, agg4, agg5, agg6, agg7
+ from (
+     select i_item_id, ca_country, ca_state, ca_county, avg(agg1) agg1,
+         avg(agg2) agg2, avg(agg3) agg3, avg(agg4) agg4, avg(agg5) agg5, avg(agg6) agg6, avg(agg7) agg7
+     from results
+    group by i_item_id, ca_country, ca_state, ca_county
+     union all
+     select i_item_id, ca_country, ca_state, NULL as county, avg(agg1) agg1, avg(agg2) agg2, avg(agg3) agg3,
+        avg(agg4) agg4, avg(agg5) agg5, avg(agg6) agg6, avg(agg7) agg7
+    from results
+    group by i_item_id, ca_country, ca_state
+     union all
+    select i_item_id, ca_country, NULL as ca_state, NULL as county, avg(agg1) agg1, avg(agg2) agg2, avg(agg3) agg3,
+        avg(agg4) agg4, avg(agg5) agg5, avg(agg6) agg6, avg(agg7) agg7
+    from results
+     group by i_item_id, ca_country
+     union all
+     select i_item_id, NULL as ca_country, NULL as ca_state, NULL as county, avg(agg1) agg1, avg(agg2) agg2, avg(agg3) agg3,
+        avg(agg4) agg4, avg(agg5) agg5, avg(agg6) agg6, avg(agg7) agg7
+    from results
+    group by i_item_id
+    union all
+    select NULL AS i_item_id, NULL as ca_country, NULL as ca_state, NULL as county, avg(agg1) agg1, avg(agg2) agg2, avg(agg3) agg3,
+        avg(agg4) agg4, avg(agg5) agg5, avg(agg6) agg6, avg(agg7) agg7
+    from results
+ ) foo
  order by ca_country,
         ca_state, 
         ca_county,

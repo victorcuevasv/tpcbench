@@ -34,8 +34,9 @@
 -- 
 
 define _LIMIT=100;
-define DMS = random(1176,1224,uniform); 
-[_LIMITA] select [_LIMITB] i_product_name
+define DMS = random(1176,1224,uniform);
+with results as 
+([_LIMITA] select [_LIMITB] i_product_name
              ,i_brand
              ,i_class
              ,i_category
@@ -46,9 +47,30 @@ define DMS = random(1176,1224,uniform);
        where inv_date_sk=d_date_sk
               and inv_item_sk=i_item_sk
               and d_month_seq between [DMS] and [DMS] + 11
-       group by rollup(i_product_name
+       group by i_product_name
                        ,i_brand
                        ,i_class
-                       ,i_category)
-order by qoh, i_product_name, i_brand, i_class, i_category
+                       ,i_category),
+results_rollup as
+(select i_product_name, i_brand, i_class, i_category,avg(qoh) qoh
+from results
+group by i_product_name,i_brand,i_class,i_category
+union all
+select i_product_name, i_brand, i_class, null i_category,avg(qoh) qoh
+from results
+group by i_product_name,i_brand,i_class
+union all
+select i_product_name, i_brand, null i_class, null i_category,avg(qoh) qoh
+from results
+group by i_product_name,i_brand
+union all
+select i_product_name, null i_brand, null i_class, null i_category,avg(qoh)  qoh
+from results
+group by i_product_name
+union all
+select null i_product_name, null i_brand, null i_class, null i_category,avg(qoh) qoh
+from results)
+ select  i_product_name, i_brand, i_class, i_category,qoh
+      from results_rollup
+      order by qoh, i_product_name, i_brand, i_class, i_category
 [_LIMITC];

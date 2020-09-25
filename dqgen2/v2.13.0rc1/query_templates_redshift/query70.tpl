@@ -35,15 +35,12 @@
  define DMS = random(1176,1224,uniform);
  define _LIMIT=100;
  
- [_LIMITA] select [_LIMITB] 
+ with results as
+ ( [_LIMITA] select [_LIMITB] 
     sum(ss_net_profit) as total_sum
    ,s_state
    ,s_county
-   ,grouping(s_state)+grouping(s_county) as lochierarchy
-   ,rank() over (
- 	partition by grouping(s_state)+grouping(s_county),
- 	case when grouping(s_county) = 0 then s_state end 
- 	order by sum(ss_net_profit) desc) as rank_within_parent
+   ,0 as gstate, 0 as g_county
  from
     store_sales
    ,date_dim       d1
@@ -64,7 +61,19 @@
                      ) tmp1 
                where ranking <= 5
              )
- group by rollup(s_state,s_county)
+ group by s_state,s_county),
+ results_rollup as
+(select total_sum ,s_state ,s_county, 0 as g_state, 0 as g_county, 0 as lochierarchy from results
+ union
+ select sum(total_sum) as total_sum,s_state, NULL as s_county, 0 as g_state, 1 as g_county, 1 as lochierarchy from results group by s_state
+ union
+ select sum(total_sum) as total_sum ,NULL as s_state ,NULL as s_county, 1 as g_state, 1 as g_county, 2 as lochierarchy from results)
+  select  total_sum ,s_state ,s_county, lochierarchy
+  ,rank() over (
+     partition by lochierarchy,
+     case when g_county = 0 then s_state end
+     order by total_sum desc) as rank_within_parent
+ from results_rollup
  order by
    lochierarchy desc
   ,case when lochierarchy = 0 then s_state end
