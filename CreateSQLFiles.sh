@@ -59,6 +59,11 @@ printf "\n\n%s\n\n" "${mag}Generating the Snowflake queries.${end}"
 bash $DIR/dqgen2/generateQueriesSnowflake.sh $USER_ID $GROUP_ID $1
 cp -r $DIR/vols/data/QueriesSnowflake $DIR/client/project/src/main/resources/
 
+#Generate the Redshift queries.
+printf "\n\n%s\n\n" "${mag}Generating the Redshift queries.${end}"
+bash $DIR/dqgen2/generateQueriesRedshift.sh $USER_ID $GROUP_ID $1
+cp -r $DIR/vols/data/QueriesRedshift $DIR/client/project/src/main/resources/
+
 
 
 

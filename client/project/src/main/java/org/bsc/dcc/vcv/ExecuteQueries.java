@@ -28,6 +28,7 @@ public class ExecuteQueries {
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private static final String databricksDriverName = "com.simba.spark.jdbc.Driver";
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
+	private static final String redshiftDriverName = "com.amazon.redshift.jdbc42.Driver";
 	private Connection con;
 	private final JarQueriesReaderAsZipFile queriesReader;
 	private final AnalyticsRecorder recorder;
@@ -172,12 +173,16 @@ public class ExecuteQueries {
 				this.con = DriverManager.getConnection("jdbc:hive2://" +
 						this.hostname + ":10015/" + this.dbName, "hive", "");
 			}
-			else if( system.startsWith("snowflake") ) {
+			else if( this.system.startsWith("snowflake") ) {
 				Class.forName(snowflakeDriverName);
 				this.con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
 						"user=bsctest" + "&password=" + "&db=" + this.dbName +
 						"&schema=" + this.dbName + "&warehouse=testwh");
 				this.setSnowflakeDefaultSessionOpts();
+			} else if( this.system.equals("redshift") ) {
+				Class.forName(redshiftDriverName);
+				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
+				"dev" + "?ssl=true&UID=bsc-dcc-fjjm&PWD=Databr|cks1");
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
