@@ -60,6 +60,16 @@ printf "\n\n%s\n\n" "${mag}Generating the Snowflake queries.${end}"
 bash $DIR/dqgen2/generateQueriesSnowflake.sh $USER_ID $GROUP_ID $1
 cp -r $DIR/vols/data/QueriesSnowflake $DIR/client/project/src/main/resources/
 
+#Generate the Redshift queries.
+printf "\n\n%s\n\n" "${mag}Generating the Redshift queries.${end}"
+bash $DIR/dqgen2/generateQueriesRedshift.sh $USER_ID $GROUP_ID $1
+cp -r $DIR/vols/data/QueriesRedshift $DIR/client/project/src/main/resources/
+
+#Generate the Synapse queries.
+printf "\n\n%s\n\n" "${mag}Generating the Synapse queries.${end}"
+bash $DIR/dqgen2/generateQueriesSynapse.sh $USER_ID $GROUP_ID $1
+cp -r $DIR/vols/data/QueriesSynapse $DIR/client/project/src/main/resources/
+
 #Generate the unused Netezza query streams.
 printf "\n\n%s\n\n" "${mag}Generating the Netezza query streams.${end}"
 bash $DIR/createStreams.sh $1 $2
