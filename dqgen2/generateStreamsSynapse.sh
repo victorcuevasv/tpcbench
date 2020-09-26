@@ -12,15 +12,16 @@ end=$'\e[0m'
 #$1 user id
 #$2 group id
 #$3 scale
+#$4 number of streams
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 #The globalVars.sh script defines the TPCDS_VERSION variable.
 source $DIR/globalVars.sh
 
-#Build the client project.
-printf "\n\n%s\n\n" "${blu}Generating Redshift queries.${end}"
+printf "\n\n%s\n\n" "${blu}Generating the Synapse query stream files.${end}"
 
 docker run --rm --user $1:$2 --name tpc --volume $DIR/../vols/data:/TPC-DS/$TPCDS_VERSION/output \
-	tpcds:dev /TPC-DS/$TPCDS_VERSION/tools/createQueriesRedshift.sh $3       
+	tpcds:dev /TPC-DS/$TPCDS_VERSION/tools/createStreamsSynapse.sh $3 $4    
+	
 
