@@ -101,17 +101,20 @@ public class CreateSchema {
 						this.hostname + ":10015/", "hive", "");
 			}
 			else if( this.system.startsWith("snowflake") ) {
+				String snowflakePwd = AWSUtil.getValue("SnowflakePassword");
 				Class.forName(snowflakeDriverName);
-				this.con = DriverManager.getConnection("jdbc:snowflake://zua56993.snowflakecomputing.com/?" +
-						"user=bsctest&password=");
+				this.con = DriverManager.getConnection("jdbc:snowflake://" + 
+				"zua56993.snowflakecomputing.com" + "/?" +
+						"user=bsctest&password=" + snowflakePwd);
 			}
 			else if( this.system.startsWith("synapse") ) {
+				String synapsePwd = AWSUtil.getValue("SynapsePassword");
 				Class.forName(synapseDriverName);
 				this.con = DriverManager.getConnection("jdbc:sqlserver://" +
-				"bsc-test.database.windows.net:1433;" +
-				"database=bsc-pool;" +
-				"user=D94rJ8L7@bsc-test;" +
-				"password={your_password_here};" +
+				this.hostname + ":1433;" +
+				"database=bsc-tpcds-test-pool;" +
+				"user=azureuser@bsctest;" +
+				"password=" + synapsePwd + ";" +
 				"encrypt=true;" +
 				"trustServerCertificate=false;" +
 				"hostNameInCertificate=*.database.windows.net;" +
@@ -172,19 +175,30 @@ public class CreateSchema {
 			System.out.println("Creating schema (database) " + this.dbName + " with " + this.system);
 			this.logger.info("Creating schema (database) " + this.dbName + " with " + this.system);
 			Statement stmt = this.con.createStatement();
-			if( system.startsWith("presto") )
+			if( system.startsWith("presto") ) {
 				stmt.execute("CREATE SCHEMA " + this.dbName);
-			else if( system.startsWith("spark") )
+			}
+			else if( system.startsWith("spark") ) {
 				stmt.execute("CREATE DATABASE " + this.dbName);
+			}
 			else if( system.startsWith("snowflake") ) {
 				stmt.execute("CREATE DATABASE " + this.dbName);
 				stmt.execute("USE DATABASE " + this.dbName);
 				stmt.execute("CREATE SCHEMA " + this.dbName);
 			}
-			else if( system.startsWith("redshift") )
+			else if( system.startsWith("redshift") ) {
 				stmt.execute("CREATE DATABASE " + this.dbName);
-			System.out.println("Schema (database) created.");
-			this.logger.info("Schema (database) created.");
+			}
+			else if( system.startsWith("synapse") ) {
+				stmt.execute("CREATE SCHEMA " + this.dbName);
+				stmt.execute("ALTER USER tpcds_user WITH DEFAULT_SCHEMA = " + this.dbName);
+				stmt.execute("GRANT ALTER ON SCHEMA::" + this.dbName + " TO tpcds_user");
+			}
+			else {
+				throw new java.lang.RuntimeException("Unsupported system: " + this.system);
+			}
+			System.out.println("Schema (database) " + this.dbName + " created for " + this.system + ".");
+			this.logger.info("Schema (database) " + this.dbName + " created for " + this.system + ".");
 		}
 		catch (SQLException e) {
 			e.printStackTrace();

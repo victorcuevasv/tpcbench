@@ -219,12 +219,13 @@ public class CreateDatabase {
 						"&schema=" + this.dbName + "&warehouse=testwh");
 			}
 			else if( this.system.startsWith("synapse") ) {
+				String synapsePwd = AWSUtil.getValue("SynapsePassword");
 				Class.forName(synapseDriverName);
 				this.con = DriverManager.getConnection("jdbc:sqlserver://" +
-				"bsc-test.database.windows.net:1433;" +
-				"database=bsc-pool;" +
-				"user=D94rJ8L7@bsc-test;" +
-				"password={your_password_here};" +
+				this.hostname + ":1433;" +
+				"database=" + this.dbName + ";" +
+				"user=tpcds_user@bsctest;" +
+				"password=" + synapsePwd + ";" +
 				"encrypt=true;" +
 				"trustServerCertificate=false;" +
 				"hostNameInCertificate=*.database.windows.net;" +
@@ -305,9 +306,14 @@ public class CreateDatabase {
 			}
 			if (this.systemRunning.equals("snowflake")) {
 				this.createTableSnowflake(fileName, sqlCreate, i);
-			} else if (this.systemRunning.equals("redshift")) {
+			}
+			else if (this.systemRunning.equals("redshift")) {
 				this.createTableRedshift(fileName, sqlCreate, i);
-			} else
+			}
+			else if (this.systemRunning.equals("synapse")) {
+				this.createTableSynapse(fileName, sqlCreate, i);
+			}
+			else
 				this.createTable(fileName, sqlCreate, i);
 			i++;
 		}
@@ -356,6 +362,52 @@ public class CreateDatabase {
 		catch (SQLException e) {
 			e.printStackTrace();
 			this.logger.error("Error in CreateDatabase createTable.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		finally {
+			if( queryRecord != null ) {
+				queryRecord.setEndTime(System.currentTimeMillis());
+				this.recorder.record(queryRecord);
+			}
+		}
+	}
+	
+	private void createTableSynapse(String sqlCreateFilename, String sqlCreate, int index) {
+		QueryRecord queryRecord = null;
+		String suffix = "";
+		try {
+			//First, create the table, no format or options are specified, only the schema data.
+			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
+			System.out.println("Processing table " + index + ": " + tableName);
+			this.logger.info("Processing table " + index + ": " + tableName);
+			//Hive and Spark use the statement 'create external table ...' for raw data tables
+			String synapseSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, suffix, false);
+			saveCreateTableFile("synapsetable", tableName, synapseSqlCreate);
+			queryRecord = new QueryRecord(index);
+			queryRecord.setStartTime(System.currentTimeMillis());
+			Statement stmt = con.createStatement();
+			stmt.execute("drop table if exists " + tableName + suffix);
+			stmt.execute(synapseSqlCreate);
+			String synapseToken = AWSUtil.getValue("SynapseToken");
+			String copySql = "COPY INTO" + tableName + " FROM '" + 
+						this.extTablePrefixRaw.get() + "/" + tableName + "/' \n" +
+						"WITH (" + 
+						"\tFILE_TYPE = 'CSV', \n" + 
+						"\tFIELDTERMINATOR = '0x01', \n" +
+						"\tROWTERMINATOR = '0x0A', \n" + 
+						"\tCREDENTIAL=(IDENTITY= 'Shared Access Signature', " +
+						"SECRET='" + synapseToken + "') \n" +
+						") \n";
+			saveCreateTableFile("synapsecopy", tableName, copySql);
+			stmt.execute(copySql);
+			queryRecord.setSuccessful(true);
+			if( doCount )
+				countRowsQuery(stmt, tableName);
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error("Error in CreateDatabase createTableSynapse.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}

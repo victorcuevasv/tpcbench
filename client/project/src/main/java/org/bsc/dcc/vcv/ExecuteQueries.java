@@ -29,6 +29,7 @@ public class ExecuteQueries {
 	private static final String databricksDriverName = "com.simba.spark.jdbc.Driver";
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
 	private static final String redshiftDriverName = "com.amazon.redshift.jdbc42.Driver";
+	private static final String synapseDriverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 	private Connection con;
 	private final JarQueriesReaderAsZipFile queriesReader;
 	private final AnalyticsRecorder recorder;
@@ -179,10 +180,24 @@ public class ExecuteQueries {
 						"user=bsctest" + "&password=" + "&db=" + this.dbName +
 						"&schema=" + this.dbName + "&warehouse=testwh");
 				this.setSnowflakeDefaultSessionOpts();
-			} else if( this.system.equals("redshift") ) {
+			}
+			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
 				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
 				"dev" + "?ssl=true&UID=bsc-dcc-fjjm&PWD=Databr|cks1");
+			}
+			else if( this.system.startsWith("synapse") ) {
+				String synapsePwd = AWSUtil.getValue("SynapsePassword");
+				Class.forName(synapseDriverName);
+				this.con = DriverManager.getConnection("jdbc:sqlserver://" +
+				this.hostname + ":1433;" +
+				"database=" + this.dbName + ";" +
+				"user=tpcds_user@bsctest;" +
+				"password=" + synapsePwd + ";" +
+				"encrypt=true;" +
+				"trustServerCertificate=false;" +
+				"hostNameInCertificate=*.database.windows.net;" +
+				"loginTimeout=30;");
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
