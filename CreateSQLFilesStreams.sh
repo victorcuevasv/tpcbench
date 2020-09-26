@@ -104,5 +104,27 @@ do
 	cp -r $DIR/vols/data/StreamsSnowflakeProcessed/stream$i $DIR/client/project/src/main/resources/QueriesSnowflakeStream$i
 done
 
+#Generate the Redshift query streams.
+printf "\n\n%s\n\n" "${mag}Generating the Redshift query streams.${end}"
+bash $DIR/createStreamsRedshift.sh $1 $2
+bash $DIR/runclient_processStreamFilesQueries.sh Redshift
+START=0
+END=$2
+for (( i=$START; i<$END; i++ ))
+do
+	cp -r $DIR/vols/data/StreamsRedshiftProcessed/stream$i $DIR/client/project/src/main/resources/QueriesRedshiftStream$i
+done
+
+#Generate the Synapse query streams.
+printf "\n\n%s\n\n" "${mag}Generating the Synapse query streams.${end}"
+bash $DIR/createStreamsSynapse.sh $1 $2
+bash $DIR/runclient_processStreamFilesQueries.sh Synapse
+START=0
+END=$2
+for (( i=$START; i<$END; i++ ))
+do
+	cp -r $DIR/vols/data/StreamsSynapseProcessed/stream$i $DIR/client/project/src/main/resources/QueriesSynapseStream$i
+done
+
 
 
