@@ -191,7 +191,7 @@ public class ExecuteQueries {
 				Class.forName(synapseDriverName);
 				this.con = DriverManager.getConnection("jdbc:sqlserver://" +
 				this.hostname + ":1433;" +
-				"database=" + this.dbName + ";" +
+				"database=bsc-tpcds-test-pool;" +
 				"user=tpcds_user@bsctest;" +
 				"password=" + synapsePwd + ";" +
 				"encrypt=true;" +
