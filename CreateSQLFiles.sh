@@ -64,6 +64,11 @@ printf "\n\n%s\n\n" "${mag}Generating the Redshift queries.${end}"
 bash $DIR/dqgen2/generateQueriesRedshift.sh $USER_ID $GROUP_ID $1
 cp -r $DIR/vols/data/QueriesRedshift $DIR/client/project/src/main/resources/
 
+#Generate the Synapse queries.
+printf "\n\n%s\n\n" "${mag}Generating the Synapse queries.${end}"
+bash $DIR/dqgen2/generateQueriesSynapse.sh $USER_ID $GROUP_ID $1
+cp -r $DIR/vols/data/QueriesSynapse $DIR/client/project/src/main/resources/
+
 
 
 
