@@ -32,40 +32,25 @@
 -- 
 -- Contributors:
 -- 
-
-define DMS = random(1176,1224,uniform);
-define _LIMIT=100;
-
-[_LIMITA] select [_LIMITB] 
-   substring(w_warehouse_name,1,20)
-  ,sm_type
-  ,web_name
-  ,sum(case when (ws_ship_date_sk - ws_sold_date_sk <= 30 ) then 1 else 0 end)  as '30 days' 
-  ,sum(case when (ws_ship_date_sk - ws_sold_date_sk > 30) and 
-                 (ws_ship_date_sk - ws_sold_date_sk <= 60) then 1 else 0 end )  as '31-60 days' 
-  ,sum(case when (ws_ship_date_sk - ws_sold_date_sk > 60) and 
-                 (ws_ship_date_sk - ws_sold_date_sk <= 90) then 1 else 0 end)  as '61-90 days' 
-  ,sum(case when (ws_ship_date_sk - ws_sold_date_sk > 90) and
-                 (ws_ship_date_sk - ws_sold_date_sk <= 120) then 1 else 0 end)  as '91-120 days' 
-  ,sum(case when (ws_ship_date_sk - ws_sold_date_sk  > 120) then 1 else 0 end)  as '>120 days' 
-from
-   web_sales
-  ,warehouse
-  ,ship_mode
-  ,web_site
-  ,date_dim
-where
-    d_month_seq between [DMS] and [DMS] + 11
-and ws_ship_date_sk   = d_date_sk
-and ws_warehouse_sk   = w_warehouse_sk
-and ws_ship_mode_sk   = sm_ship_mode_sk
-and ws_web_site_sk    = web_site_sk
-group by
-   substring(w_warehouse_name,1,20)
-  ,sm_type
-  ,web_name
-order by substring(w_warehouse_name,1,20)
-        ,sm_type
-       ,web_name
-[_LIMITC];
+ define YEAR=random(1998,2002,uniform);
+ define QOY=random(1,2,uniform);
+ define _LIMIT=100;
+ 
+ [_LIMITA] select [_LIMITB] ca_zip
+       ,sum(cs_sales_price)
+ from catalog_sales
+     ,customer
+     ,customer_address
+     ,date_dim
+ where cs_bill_customer_sk = c_customer_sk
+ 	and c_current_addr_sk = ca_address_sk 
+ 	and ( substring(ca_zip,1,5) in ('85669', '86197','88274','83405','86475',
+                                   '85392', '85460', '80348', '81792')
+ 	      or ca_state in ('CA','WA','GA')
+ 	      or cs_sales_price > 500)
+ 	and cs_sold_date_sk = d_date_sk
+ 	and d_qoy = [QOY] and d_year = [YEAR]
+ group by ca_zip
+ order by ca_zip
+ [_LIMITC];
 
