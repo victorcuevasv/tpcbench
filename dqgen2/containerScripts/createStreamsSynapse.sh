@@ -36,12 +36,12 @@ cp ../query_templates/* ../query_templates_temp
 #Override the modified templates for Synapse
 cp ../query_templates_synapse/* ../query_templates_temp
 
-#Override the db2.tpl template with db2Long.tpl
-cp ../db2Long.tpl ../query_templates_temp/db2.tpl
+#Override the ansi.tpl template with ansiLong.tpl
+cp ../ansiLong.tpl ../query_templates_temp/ansi.tpl
 
 printf "\n\n%s\n\n" "${blu}Generating the Synapse query streams with dsqgen.${end}"
 
-./dsqgen -DIRECTORY ../query_templates_temp -INPUT ../query_templates_temp/templates.lst -OUTPUT_DIR ../output/StreamsSynapse -dialect db2 -scale $1 -streams $2   
+./dsqgen -DIRECTORY ../query_templates_temp -INPUT ../query_templates_temp/templates.lst -OUTPUT_DIR ../output/StreamsSynapse -dialect ansi -scale $1 -streams $2   
 
 
 

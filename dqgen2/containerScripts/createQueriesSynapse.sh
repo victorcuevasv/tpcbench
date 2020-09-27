@@ -41,7 +41,7 @@ printf "\n\n%s\n\n" "${blu}Generating Synapse queries.${end}"
 #and output to the QueriesSynapse directory.
 
 for f in ../query_templates_temp/query*.tpl ; do 
-   ./dsqgen -template $(basename "$f") -OUTPUT_DIR ../output/QueriesSynapse -directory ../query_templates_temp -dialect db2 -scale $1
+   ./dsqgen -template $(basename "$f") -OUTPUT_DIR ../output/QueriesSynapse -directory ../query_templates_temp -dialect ansi -scale $1
    mv ../output/QueriesSynapse/query_0.sql ../output/QueriesSynapse/$(basename "$f" .tpl).sql  ; #.tpl is removed with this invocation of basename
 done
 

@@ -22,10 +22,10 @@ COPY containerScripts/* /TPC-DS/$TPCDS_VERSION/tools/
 #Make the scripts executable.
 RUN chmod +x /TPC-DS/$TPCDS_VERSION/tools/*.sh
 
-#Copy the modified netezza and db2 templates.
+#Copy the modified netezza and ansi templates.
 #Template used to generate queries.
 COPY netezza.tpl /TPC-DS/$TPCDS_VERSION/query_templates
-COPY db2.tpl /TPC-DS/$TPCDS_VERSION/query_templates
+COPY ansi.tpl /TPC-DS/$TPCDS_VERSION/query_templates
 #Templates used to generate query stream files to extract
 #the query sequences.
 COPY netezzaLong.tpl /TPC-DS/$TPCDS_VERSION

@@ -33,8 +33,8 @@
 -- Contributors:
 -- 
 define __LIMITA = "";
-define __LIMITB = "";
-define __LIMITC = " fetch first %d rows only";
-define _BEGIN = "";
-define _END = "";
+define __LIMITB = "top %d";
+define __LIMITC = "";
+define _BEGIN = "-- start query " + [_QUERY] + " in stream " + [_STREAM] + " using template " + [_TEMPLATE];
+define _END = "-- end query " + [_QUERY] + " in stream " + [_STREAM] + " using template " + [_TEMPLATE];
 
