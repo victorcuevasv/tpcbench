@@ -36,8 +36,8 @@ cp ../query_templates/* ../query_templates_temp
 #Override the modified templates for Synapse
 cp ../query_templates_synapse/* ../query_templates_temp
 
-#Override the netezza.tpl template with netezzaLong.tpl
-cp ../netezzaLong.tpl ../query_templates_temp/netezza.tpl
+#Override the db2.tpl template with db2Long.tpl
+cp ../db2Long.tpl ../query_templates_temp/db2.tpl
 
 printf "\n\n%s\n\n" "${blu}Generating the Synapse query streams with dsqgen.${end}"
 
