@@ -391,7 +391,7 @@ public class CreateDatabase {
 					tableName + suffix);
 			stmt.execute(synapseSqlCreate);
 			String synapseToken = AWSUtil.getValue("SynapseToken");
-			String copySql = "COPY INTO" + tableName + " FROM '" + 
+			String copySql = "COPY INTO " + tableName + " FROM '" + 
 						this.extTablePrefixRaw.get() + "/" + tableName + "/' \n" +
 						"WITH (" + 
 						"\tFILE_TYPE = 'CSV', \n" + 
