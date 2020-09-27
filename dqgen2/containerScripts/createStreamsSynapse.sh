@@ -41,7 +41,7 @@ cp ../netezzaLong.tpl ../query_templates_temp/netezza.tpl
 
 printf "\n\n%s\n\n" "${blu}Generating the Synapse query streams with dsqgen.${end}"
 
-./dsqgen -DIRECTORY ../query_templates_temp -INPUT ../query_templates_temp/templates.lst -OUTPUT_DIR ../output/StreamsSynapse -dialect netezza -scale $1 -streams $2   
+./dsqgen -DIRECTORY ../query_templates_temp -INPUT ../query_templates_temp/templates.lst -OUTPUT_DIR ../output/StreamsSynapse -dialect db2 -scale $1 -streams $2   
 
 
 
