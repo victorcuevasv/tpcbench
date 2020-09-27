@@ -387,7 +387,8 @@ public class CreateDatabase {
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			Statement stmt = con.createStatement();
-			stmt.execute("drop table if exists " + tableName + suffix);
+			stmt.execute("if object_id ('" + tableName + suffix +  "','U') is not null drop table " + 
+					tableName + suffix);
 			stmt.execute(synapseSqlCreate);
 			String synapseToken = AWSUtil.getValue("SynapseToken");
 			String copySql = "COPY INTO" + tableName + " FROM '" + 
