@@ -29,7 +29,7 @@ COPY ansi.tpl /TPC-DS/$TPCDS_VERSION/query_templates
 #Templates used to generate query stream files to extract
 #the query sequences.
 COPY netezzaLong.tpl /TPC-DS/$TPCDS_VERSION
-COPY db2Long.tpl /TPC-DS/$TPCDS_VERSION
+COPY ansiLong.tpl /TPC-DS/$TPCDS_VERSION
 
 #Create the output directory.
 RUN mkdir /TPC-DS/$TPCDS_VERSION/output 
