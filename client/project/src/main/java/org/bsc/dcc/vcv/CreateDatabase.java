@@ -391,8 +391,8 @@ public class CreateDatabase {
 			//Hive and Spark use the statement 'create external table ...' for raw data tables
 			String synapseSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, suffix, false);
 			String distKey = this.distKeys.get(tableName);
-			String sortKey = this.distKeys.get(tableName);
-			synapseSqlCreate += "\nWITH( DISTRIBUTION = ";
+			String sortKey = this.sortKeys.get(tableName);
+			synapseSqlCreate += "WITH( DISTRIBUTION = ";
 			if( distKey.equals("all") )
 				synapseSqlCreate += "REPLICATE";
 			else if( distKey.equals("none") )
