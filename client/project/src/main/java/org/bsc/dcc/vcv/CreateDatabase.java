@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.StringTokenizer;
 import java.sql.DriverManager;
@@ -64,6 +65,8 @@ public class CreateDatabase {
 	private String systemRunning;
 	private final String createSingleOrAll;
 	private final String clusterId;
+	private final Map<String, String> distKeys;
+	private final Map<String, String> sortKeys;
 	
 	public CreateDatabase(CommandLine commandLine) {
 		this.workDir = commandLine.getOptionValue("main-work-dir");
@@ -91,6 +94,8 @@ public class CreateDatabase {
 		this.jarFile = commandLine.getOptionValue("jar-file");
 		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
+		this.distKeys = new DistKeys().getMap();
+		this.sortKeys = new DistKeys().getMap();
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
@@ -158,6 +163,8 @@ public class CreateDatabase {
 		this.username = args[17];
 		this.createSingleOrAll = "all";
 		this.clusterId = "UNUSED";
+		this.distKeys = new DistKeys().getMap();
+		this.sortKeys = new DistKeys().getMap();
 		this.jarFile = args[18];
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
@@ -383,6 +390,19 @@ public class CreateDatabase {
 			this.logger.info("Processing table " + index + ": " + tableName);
 			//Hive and Spark use the statement 'create external table ...' for raw data tables
 			String synapseSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, suffix, false);
+			String distKey = this.distKeys.get(tableName);
+			String sortKey = this.distKeys.get(tableName);
+			synapseSqlCreate += "\nWITH( DISTRIBUTION = ";
+			if( distKey.equals("all") )
+				synapseSqlCreate += "REPLICATE";
+			else if( distKey.equals("none") )
+				synapseSqlCreate += "ROUND ROBIN";
+			else
+				synapseSqlCreate += "HASH(" + distKey + ")";
+			synapseSqlCreate += ", CLUSTERED COLUMNSTORE INDEX";
+			if( ! sortKey.equals("none") )
+				synapseSqlCreate += " ORDER(" + sortKey + ")";
+			synapseSqlCreate += ")\n";
 			saveCreateTableFile("synapsetable", tableName, synapseSqlCreate);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
