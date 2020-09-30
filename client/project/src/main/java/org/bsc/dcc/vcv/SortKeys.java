@@ -20,7 +20,7 @@ public class SortKeys {
 		map.put("household_demographics", "none");
 		map.put("income_band", "none");
 		map.put("inventory", "inv_date_sk");
-		map.put("item", "i_category");
+		map.put("item", "i_category_id");
 		map.put("promotion", "none");
 		map.put("reason", "none");
 		map.put("ship_mode", "none");
