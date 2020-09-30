@@ -95,7 +95,7 @@ public class CreateDatabase {
 		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
 		this.distKeys = new DistKeys().getMap();
-		this.sortKeys = new DistKeys().getMap();
+		this.sortKeys = new SortKeys().getMap();
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
@@ -164,7 +164,7 @@ public class CreateDatabase {
 		this.createSingleOrAll = "all";
 		this.clusterId = "UNUSED";
 		this.distKeys = new DistKeys().getMap();
-		this.sortKeys = new DistKeys().getMap();
+		this.sortKeys = new SortKeys().getMap();
 		this.jarFile = args[18];
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
