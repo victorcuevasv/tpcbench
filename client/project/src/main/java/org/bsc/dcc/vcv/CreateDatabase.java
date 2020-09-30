@@ -418,9 +418,10 @@ public class CreateDatabase {
 						"\tFIELDTERMINATOR = '0x01', \n" +
 						"\tROWTERMINATOR = '0x0A', \n" + 
 						"\tCREDENTIAL=(IDENTITY= 'Shared Access Signature', " +
-						"SECRET='" + synapseToken + "') \n" +
+						"SECRET='<SECRET>') \n" +
 						") \n";
 			saveCreateTableFile("synapsecopy", tableName, copySql);
+			copySql = copySql.replace("<SECRET>", synapseToken);
 			stmt.execute(copySql);
 			queryRecord.setSuccessful(true);
 			if( doCount )
