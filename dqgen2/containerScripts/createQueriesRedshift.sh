@@ -38,11 +38,14 @@ cp ../query_templates_redshift/* ../query_templates_temp
 printf "\n\n%s\n\n" "${blu}Generating Redshift queries.${end}"
 
 #Process the templates in the created temporary directory.
-#and output to the QueriesSnowflake directory.
+#and output to the QueriesRedshift directory.
+# Use sed to replace substr by substring and remove the keyworkd'days'
 
-for f in ../query_templates_temp/query*.tpl ; do 
-   ./dsqgen -template $(basename "$f") -OUTPUT_DIR ../output/QueriesRedshift -directory ../query_templates_temp -dialect netezza -scale $1
-   mv ../output/QueriesRedshift/query_0.sql ../output/QueriesRedshift/$(basename "$f" .tpl).sql  ; #.tpl is removed with this invocation of basename
+for f in ../query_templates_temp/query*.tpl ; do
+  sed -i 's/substr/substring/g' $f 
+  sed -i 's/ days)/)/g' $f
+  ./dsqgen -template $(basename "$f") -OUTPUT_DIR ../output/QueriesRedshift -directory ../query_templates_temp -dialect netezza -scale $1
+  mv ../output/QueriesRedshift/query_0.sql ../output/QueriesRedshift/$(basename "$f" .tpl).sql  ; #.tpl is removed with this invocation of basename
 done
 
 
