@@ -23,12 +23,12 @@ public class DistKeys {
 		map.put("item", "i_item_sk");
 		map.put("promotion", "all");
 		map.put("reason", "all");
-		map.put("ship_mode", "sm_ship_mode_sk");
+		map.put("ship_mode", "all");
 		map.put("store", "all");
 		map.put("store_returns", "sr_item_sk");
 		map.put("store_sales", "ss_item_sk");
 		map.put("time_dim", "all");
-		map.put("warehouse", "w_warehouse_sk");
+		map.put("warehouse", "all");
 		map.put("web_page", "all");
 		map.put("web_returns", "wr_order_number");
 		map.put("web_sales", "ws_order_number");
