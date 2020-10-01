@@ -289,9 +289,6 @@ public class CreateDatabase {
 			application = new CreateDatabase(commandLine);
 		}
 		application.createTables();
-		// Close the connection if using redshift as the driver leaves threads on the background that prevent the
-		// application from closing. 
-		if (application.synapse.equals("redshift")) application.closeConnection();
 	}
 	
 	private void createTables() {
@@ -328,6 +325,10 @@ public class CreateDatabase {
 			i++;
 		}
 		this.recorder.close();
+		//Close the connection if using redshift as the driver leaves threads on the background
+		//that prevent the application from closing. 
+		if (this.system.equals("redshift") || this.system.equals("synapse"))
+			this.closeConnection();
 	}
 	
 	private void createTableSnowflake(String sqlCreateFilename, String sqlCreate, int index) {
