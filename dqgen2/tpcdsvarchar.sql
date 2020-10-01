@@ -283,7 +283,7 @@ create table customer
     c_birth_country           varchar(20)                   ,
     c_login                   varchar(13)                      ,
     c_email_address           varchar(50)                      ,
-    c_last_review_date_sk        varchar(10)                      ,
+    c_last_review_date_sk     integer                      ,
     primary key (c_customer_sk)
 );
 
