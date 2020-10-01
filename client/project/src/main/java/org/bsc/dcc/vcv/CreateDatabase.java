@@ -289,6 +289,9 @@ public class CreateDatabase {
 			application = new CreateDatabase(commandLine);
 		}
 		application.createTables();
+		// Close the connection if using redshift as the driver leaves threads on the background that prevent the
+		// application from closing. 
+		if (application.synapse.equals("redshift")) application.closeConnection();
 	}
 	
 	private void createTables() {
