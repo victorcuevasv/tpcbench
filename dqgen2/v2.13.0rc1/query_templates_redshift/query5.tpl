@@ -63,7 +63,7 @@
      store
  where date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date) 
-                  and dateadd(day, 14, (cast('[SALES_DATE]' as date)))
+                  and (cast('[SALES_DATE]' as date) +  14 )
        and store_sk = s_store_sk
  group by s_store_id)
  ,
@@ -94,7 +94,7 @@
      catalog_page
  where date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and dateadd(day, 14, (cast('[SALES_DATE]' as date)))
+                  and (cast('[SALES_DATE]' as date) +  14 )
        and page_sk = cp_catalog_page_sk
  group by cp_catalog_page_id)
  ,
@@ -127,11 +127,12 @@
      web_site
  where date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and dateadd(day, 14, (cast('[SALES_DATE]' as date)))
+                  and (cast('[SALES_DATE]' as date) +  14 )
        and wsr_web_site_sk = web_site_sk
- group by web_site_id),
- results as 
- ([_LIMITA] select [_LIMITB] channel
+ group by web_site_id)
+ ,
+ results as
+ (select channel
         , id
         , sum(sales) as sales
         , sum(returns) as returns
@@ -159,14 +160,11 @@
  from   wsr
  ) x
  group by channel, id)
- select  channel, id, sales, returns, profit from (
-        select channel, id, sales, returns, profit from results
-        union
-        select channel, null as id, sum(sales), sum(returns), sum(profit) from results group by channel
-        union
-        select null as channel, null as id, sum(sales), sum(returns), sum(profit) from results) foo
- order by channel
-         ,id
- [_LIMITC];
- 
-
+[_LIMITA] select [_LIMITB] channel, id, sales, returns, profit from ( 
+  select channel, id, sales, returns, profit from results
+  union
+  select channel, null as id, sum(sales), sum(returns), sum(profit) from results group by channel
+  union
+  select null as channel, null as id, sum(sales), sum(returns), sum(profit) from results) foo
+order by channel, id
+[_LIMITC];

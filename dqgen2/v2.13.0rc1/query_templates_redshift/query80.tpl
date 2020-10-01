@@ -34,7 +34,7 @@
 -- 
  define YEAR = random(1998, 2002, uniform);
  define SALES_DATE=date([YEAR]+"-08-01",[YEAR]+"-08-30",sales);
- define _LIMIT=100; 
+ define _LIMIT=100;
  
  with ssr as
  (select  s_store_id as store_id,
@@ -49,7 +49,7 @@
      promotion
  where ss_sold_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date) 
-                  and dateadd(day, 30, (cast('[SALES_DATE]' as date)))
+                  and (cast('[SALES_DATE]' as date) +  30 )
        and ss_store_sk = s_store_sk
        and ss_item_sk = i_item_sk
        and i_current_price > 50
@@ -70,7 +70,7 @@
      promotion
  where cs_sold_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and dateadd(day, 30, (cast('[SALES_DATE]' as date)))
+                  and (cast('[SALES_DATE]' as date) +  30 )
         and cs_catalog_page_sk = cp_catalog_page_sk
        and cs_item_sk = i_item_sk
        and i_current_price > 50
@@ -91,7 +91,7 @@ group by cp_catalog_page_id)
      promotion
  where ws_sold_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and dateadd(day, 30, (cast('[SALES_DATE]' as date)))
+                  and (cast('[SALES_DATE]' as date) +  30 )
         and ws_web_site_sk = web_site_sk
        and ws_item_sk = i_item_sk
        and i_current_price > 50
@@ -99,8 +99,8 @@ group by cp_catalog_page_id)
        and p_channel_tv = 'N'
 group by web_site_id)
 ,
-results as 
- ([_LIMITA] select [_LIMITB] channel
+results as
+ (select channel
         , id
         , sum(sales) as sales
         , sum(returns) as returns
@@ -128,8 +128,8 @@ results as
  from   wsr
  ) x
  group by channel, id)
-
- select  channel
+ 
+ [_LIMITA] select [_LIMITB] channel
         , id
         , sales
         , returns
@@ -141,6 +141,5 @@ results as
    union
    select NULL AS channel, NULL AS id, sum(sales) as sales, sum(returns) as returns, sum(profit) as profit from  results
  ) foo
- order by channel
-         ,id
+ order by channel, id
  [_LIMITC];

@@ -45,7 +45,7 @@
       store
  where ss_sold_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date) 
-                  and dateadd(day, 30, (cast('[SALES_DATE]' as date))) 
+                  and (cast('[SALES_DATE]' as date) +  30 ) 
        and ss_store_sk = s_store_sk
  group by s_store_sk)
  ,
@@ -58,7 +58,7 @@
       store
  where sr_returned_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and dateadd(day, 30, (cast('[SALES_DATE]' as date)))
+                  and (cast('[SALES_DATE]' as date) +  30 )
        and sr_store_sk = s_store_sk
  group by s_store_sk), 
  cs as
@@ -69,19 +69,19 @@
       date_dim
  where cs_sold_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and dateadd(day, 30, (cast('[SALES_DATE]' as date)))
+                  and (cast('[SALES_DATE]' as date) +  30 )
  group by cs_call_center_sk 
  ), 
  cr as
- (select 
+ (select cr_call_center_sk,
          sum(cr_return_amount) as returns,
          sum(cr_net_loss) as profit_loss
  from catalog_returns,
       date_dim
  where cr_returned_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and dateadd(day, 30, (cast('[SALES_DATE]' as date)))
- ), 
+                  and (cast('[SALES_DATE]' as date) +  30 )
+ group by cr_call_center_sk), 
  ws as
  ( select wp_web_page_sk,
         sum(ws_ext_sales_price) as sales,
@@ -91,7 +91,7 @@
       web_page
  where ws_sold_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and dateadd(day, 30, (cast('[SALES_DATE]' as date)))
+                  and (cast('[SALES_DATE]' as date) +  30 )
        and ws_web_page_sk = wp_web_page_sk
  group by wp_web_page_sk), 
  wr as
@@ -103,12 +103,12 @@
       web_page
  where wr_returned_date_sk = d_date_sk
        and d_date between cast('[SALES_DATE]' as date)
-                  and dateadd(day, 30, (cast('[SALES_DATE]' as date)))
+                  and (cast('[SALES_DATE]' as date) +  30 )
        and wr_web_page_sk = wp_web_page_sk
  group by wp_web_page_sk)
  ,
-results as
- ([_LIMITA] select [_LIMITB] channel
+ results as
+ (select channel
         , id
         , sum(sales) as sales
         , sum(returns) as returns
@@ -138,8 +138,9 @@ results as
  from   ws left join wr
         on  ws.wp_web_page_sk = wr.wp_web_page_sk
  ) x
- group by channel, id)
-   select  *
+ group by channel, id )
+
+ [_LIMITA] select [_LIMITB] *
  from (
  select channel, id, sales, returns, profit from  results
  union
@@ -147,8 +148,5 @@ results as
  union
  select NULL AS channel, NULL AS id, sum(sales) as sales, sum(returns) as returns, sum(profit) as profit from  results
 ) foo
- order by channel
-         ,id
+order by channel, id
  [_LIMITC];
- 
-

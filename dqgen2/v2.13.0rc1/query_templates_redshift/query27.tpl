@@ -46,7 +46,7 @@
  define _LIMIT=100;
 
 with results as
- ([_LIMITA] select [_LIMITB] i_item_id,
+ (select i_item_id,
         s_state, 0 as g_state,
         ss_quantity agg1,
         ss_list_price agg2,
@@ -64,7 +64,7 @@ with results as
        s_state in ('[STATE_A]','[STATE_B]', '[STATE_C]', '[STATE_D]', '[STATE_E]', '[STATE_F]')
  )
 
-select  i_item_id,
+ [_LIMITA] select [_LIMITB] i_item_id,
   s_state, g_state, agg1, agg2, agg3, agg4
    from (
         select i_item_id, s_state, 0 as g_state, avg(agg1) agg1, avg(agg2) agg2, avg(agg3) agg3, avg(agg4) agg4 from results
@@ -77,7 +77,5 @@ select  i_item_id,
         select NULL AS i_item_id, NULL as s_state, 1 as g_state, avg(agg1) agg1, avg(agg2) agg2, avg(agg3) agg3,
          avg(agg4) agg4 from results
         ) foo
- order by i_item_id
-         ,s_state
- [_LIMITC];
-
+  order by i_item_id, s_state
+ [_LIMITC]; 
