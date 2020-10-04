@@ -93,7 +93,7 @@ public class CreateSchema {
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
 				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
-				"dev" + "?ssl=true&UID=your_username&PWD=your_password");
+				"dev" + "?ssl=true&UID=bsc-dcc-fjjm&PWD=Databr|cks1");
 			}
 			else if( this.system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);

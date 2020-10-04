@@ -447,40 +447,43 @@ public class CreateDatabase {
 	private void createTableRedshift(String sqlCreateFilename, String sqlCreate, int index) {
 		QueryRecord queryRecord = null;
 		String suffix = "";
+
 		try {
 			//First, create the table, no format or options are specified, only the schema data.
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			//Hive and Spark use the statement 'create external table ...' for raw data tables
-			String redshiftSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, suffix, false);
+			// The provided tpc-ds ddl works out of the box on Redshift, we only have to add the distribution and partition 
+			// keys without the last semicolon and newline character (The reader ast a trailing newline)
+			String redshiftSqlCreate = sqlCreate.substring(0, sqlCreate.length()-2);
+			// Get the distribution key for the table (usually the PK) and add the relevant statement. If the table is to be distributed to
+			// all nodes (distkey "all") then add "diststyle all" instead.
+			String distKey = RedshiftDistKeys.getDistKey(tableName);
+			if (distKey.equals("all")) redshiftSqlCreate += " diststyle all";
+			else if (distKey != null) redshiftSqlCreate += (" distkey(" + distKey + ")");
+
+			// Add the sorkey if one has been assigned to the table
+			String sortKey = RedshiftSortKeys.getSortKey(tableName);
+			if (sortKey != null) redshiftSqlCreate += (" sortkey(" + sortKey + ")");
+			redshiftSqlCreate += ";";
 			saveCreateTableFile("redshifttable", tableName, redshiftSqlCreate);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			Statement stmt = con.createStatement();
 			stmt.execute("drop table if exists " + tableName + suffix);
 			stmt.execute(redshiftSqlCreate);
-			//Upload the .dat files to the table stage, which is created by default.
-			String putSql = null;
-			/*
-			if( ! this.rawDataDir.equals("UNUSED") ) {
-				putSql = "PUT file://" + this.rawDataDir + "/" + tableName + "/*.dat @%" + tableName;
-				saveCreateTableFile("redshiftput", tableName, putSql);
-				stmt.execute(putSql);
-			}
-			*/
-			System.out.println("Raw Data Dir: " + this.extTablePrefixRaw.get());
 			String copySql = null;
-			//Otherwise, move the data directly from S3 into redshift through COPY.
+			// Move the data directly from S3 into Redshift through COPY. Invalid chars need to be accepted due to one of the tuples having an
+			// special comma.
 			copySql = "copy " + tableName + " from " + 
 					"'" + this.extTablePrefixRaw.get() + "/" + tableName + "/' \n" +
 					"iam_role 'arn:aws:iam::384416317380:role/tpcds-redshift'\n" +
 					"delimiter '\001'\n" +
 					"ACCEPTINVCHARS\n" +
 					"region 'us-west-2';";
-			saveCreateTableFile("redshiftcopy", tableName, copySql);
 			stmt.execute(copySql);
 			queryRecord.setSuccessful(true);
+			saveCreateTableFile("redshiftcopy", tableName, copySql);	// Save the string to file after stopping recording time.
 			if( doCount )
 				countRowsQuery(stmt, tableName);
 		}
