@@ -228,7 +228,7 @@ public class CreateDatabase {
 				this.con = DriverManager.getConnection("jdbc:snowflake://" + 
 						this.hostname + "/?" +
 						"user=" + this.userId + "&password=" + snowflakePwd +
-						"&warehouse=" + this.clusterId);
+						"&warehouse=" + this.clusterId + "&schema=" + this.dbName);
 			}
 			else if( this.system.startsWith("synapse") ) {
 				String synapsePwd = AWSUtil.getValue("SynapsePassword");

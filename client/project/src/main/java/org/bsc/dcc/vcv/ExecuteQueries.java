@@ -183,7 +183,7 @@ public class ExecuteQueries {
 				this.con = DriverManager.getConnection("jdbc:snowflake://" + 
 						this.hostname + "/?" +
 						"user=" + this.userId + "&password=" + snowflakePwd +
-						"&warehouse=" + this.clusterId);
+						"&warehouse=" + this.clusterId + "&schema=" + this.dbName);
 				this.setSnowflakeDefaultSessionOpts();
 			}
 			else if( this.system.equals("redshift") ) {
