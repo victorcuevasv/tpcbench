@@ -466,13 +466,13 @@ public class CreateDatabase {
 			String redshiftSqlCreate = sqlCreate.substring(0, sqlCreate.length()-2);
 			// Get the distribution key for the table (usually the PK) and add the relevant statement. If the table is to be distributed to
 			// all nodes (distkey "all") then add "diststyle all" instead.
-			String distKey = RedshiftDistKeys.getDistKey(tableName);
+			String distKey = this.distKeys.get(tableName);
 			if (distKey.equals("all")) redshiftSqlCreate += " diststyle all";
 			else if (distKey != null) redshiftSqlCreate += (" distkey(" + distKey + ")");
 
 			// Add the sorkey if one has been assigned to the table
-			String sortKey = RedshiftSortKeys.getSortKey(tableName);
-			if (sortKey != null) redshiftSqlCreate += (" sortkey(" + sortKey + ")");
+			String sortKey = this.sortKeys.get(tableName);
+			if (!sortKey.equals("none")) redshiftSqlCreate += (" sortkey(" + sortKey + ")");
 			redshiftSqlCreate += ";";
 			saveCreateTableFile("redshifttable", tableName, redshiftSqlCreate);
 			queryRecord = new QueryRecord(index);
