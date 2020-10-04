@@ -49,7 +49,9 @@ public class ExecuteQueries {
 	private final String jarFile;
 	private final String querySingleOrAll;
 	private final boolean useCachedResultSnowflake = false;
+	private final boolean saveSnowflakeHistory = false;
 	private final String clusterId;
+	private final String userId;
 	
 	
 	public ExecuteQueries(CommandLine commandLine) {
@@ -76,6 +78,7 @@ public class ExecuteQueries {
 		else
 			this.querySingleOrAll = commandLine.getOptionValue("all-or-query-file");
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
+		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
@@ -133,6 +136,7 @@ public class ExecuteQueries {
 		else
 			this.querySingleOrAll = args[14];
 		this.clusterId = "UNUSED";
+		this.userId = "UNUSED";
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 						this.system, this.test, this.instance);
@@ -175,10 +179,12 @@ public class ExecuteQueries {
 						this.hostname + ":10015/" + this.dbName, "hive", "");
 			}
 			else if( this.system.startsWith("snowflake") ) {
+				String snowflakePwd = AWSUtil.getValue("SnowflakePassword");
 				Class.forName(snowflakeDriverName);
-				this.con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
-						"user=bsctest" + "&password=" + "&db=" + this.dbName +
-						"&schema=" + this.dbName + "&warehouse=testwh");
+				this.con = DriverManager.getConnection("jdbc:snowflake://" + 
+						this.hostname + "/?" +
+						"user=" + this.userId + "&password=" + snowflakePwd +
+						"&warehouse=" + this.clusterId + "&schema=" + this.dbName);
 				this.setSnowflakeDefaultSessionOpts();
 			}
 			else if( this.system.equals("redshift") ) {
@@ -346,13 +352,12 @@ public class ExecuteQueries {
 			application = new ExecuteQueries(commandLine);
 		}
 		application.executeQueries();
-		// Close the connection if using redshift as the driver leaves threads on the background that prevent the
-		// application from closing. 
-		if (application.synapse.equals("redshift")) application.closeConnection();
 	}
 	
 	
 	public void executeQueries() {
+		if( this.system.startsWith("snowflake") )
+			this.useDatabaseQuery(this.dbName);
 		this.recorder.header();
 		for (final String fileName : this.queriesReader.getFilesOrdered()) {
 			if( ! this.querySingleOrAll.equals("all") ) {
@@ -390,8 +395,12 @@ public class ExecuteQueries {
 			}
 		}
 		this.recorder.close();
-		if( this.system.startsWith("snowflake") )
+		if( this.system.startsWith("snowflake") && this.saveSnowflakeHistory )
 			this.saveSnowflakeHistory();
+		//Close the connection if using redshift as the driver leaves threads on the background
+		//that prevent the application from closing. 
+		if (this.system.equals("redshift") || this.system.equals("synapse"))
+			this.closeConnection();
 	}
 	
 	
@@ -498,6 +507,18 @@ public class ExecuteQueries {
 			this.logger.error(ioe);
 		}
 		return retVal;
+	}
+	
+	private void useDatabaseQuery(String dbName) {
+		try {
+			Statement sessionStmt = con.createStatement();
+			sessionStmt.executeUpdate("USE DATABASE " + dbName);
+			sessionStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
 	}
 	
 	private void closeConnection() {

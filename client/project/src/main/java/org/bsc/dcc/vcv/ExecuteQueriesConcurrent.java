@@ -65,6 +65,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private final boolean useCachedResultSnowflake = false;
 	private final int maxConcurrencySnowflake = 8;
 	private final String clusterId;
+	private final String userId;
 	
 	public ExecuteQueriesConcurrent(CommandLine commandLine) {
 		this.workDir = commandLine.getOptionValue("main-work-dir");
@@ -94,6 +95,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		String tputChangingStreamsStr = commandLine.getOptionValue("tput-changing-streams", "true");
 		this.tputChangingStreams = Boolean.parseBoolean(tputChangingStreamsStr);
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
+		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
 		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.resultsDir,
@@ -164,6 +166,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.random = new Random(seed);
 		this.tputChangingStreams = true;
 		this.clusterId = "UNUSED";
+		this.userId = "UNUSED";
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
 		this.matrix = this.streamsReader.getFileAsMatrix(this.streamsReader.getFiles().get(0));
@@ -221,10 +224,12 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 						hostname + ":10015/" + dbName, "hive", "");
 			}
 			else if( system.startsWith("snowflake") ) {
+				String snowflakePwd = AWSUtil.getValue("SnowflakePassword");
 				Class.forName(snowflakeDriverName);
-				con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
-						"user=bsctest" + "&password=c4[*4XYM1GIw" + "&db=" + this.dbName +
-						"&schema=" + this.dbName + "&warehouse=testwh");
+				this.con = DriverManager.getConnection("jdbc:snowflake://" + 
+						this.hostname + "/?" +
+						"user=" + this.userId + "&password=" + snowflakePwd +
+						"&warehouse=" + this.clusterId + "&schema=" + this.dbName);
 				this.setSnowflakeDefaultSessionOpts();
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
