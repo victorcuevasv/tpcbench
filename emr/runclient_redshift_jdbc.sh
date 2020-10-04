@@ -84,7 +84,7 @@ args[17]="--server-hostname=$RedshiftHost"
 #username for the connection
 args[18]="--connection-username=UNUSED"
 #queries dir within the jar
-args[19]="--queries-dir-in-jar=QueriesSpark"
+args[19]="--queries-dir-in-jar=QueriesRedshift"
 #all or create table file
 args[22]="--all-or-create-file=all"
 #"all" or query file
