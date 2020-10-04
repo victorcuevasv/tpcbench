@@ -297,11 +297,8 @@ public class CreateDatabase {
 	}
 	
 	private void createTables() {
-		if( this.system.startsWith("snowflake") ) {
-			Statement sessionStmt = con.createStatement();
-			sessionStmt.executeUpdate("USE DATABASE " + this.dbName);
-			sessionStmt.close();
-		}
+		if( this.system.startsWith("snowflake") )
+			this.useDatabaseQuery(this.dbName);
 		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
 		List<String> unorderedList = this.createTableReader.getFiles();
@@ -831,6 +828,18 @@ public class CreateDatabase {
 		catch (IOException ioe) {
 			ioe.printStackTrace();
 			this.logger.error(ioe);
+		}
+	}
+	
+	private void useDatabaseQuery(String dbName) {
+		try {
+			Statement sessionStmt = con.createStatement();
+			sessionStmt.executeUpdate("USE DATABASE " + dbName);
+			sessionStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
 		}
 	}
 	

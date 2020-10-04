@@ -356,11 +356,8 @@ public class ExecuteQueries {
 	
 	
 	public void executeQueries() {
-		if( this.system.startsWith("snowflake") ) {
-			Statement sessionStmt = con.createStatement();
-			sessionStmt.executeUpdate("USE DATABASE " + this.dbName);
-			sessionStmt.close();
-		}
+		if( this.system.startsWith("snowflake") )
+			this.useDatabaseQuery(this.dbName);
 		this.recorder.header();
 		for (final String fileName : this.queriesReader.getFilesOrdered()) {
 			if( ! this.querySingleOrAll.equals("all") ) {
@@ -510,6 +507,18 @@ public class ExecuteQueries {
 			this.logger.error(ioe);
 		}
 		return retVal;
+	}
+	
+	private void useDatabaseQuery(String dbName) {
+		try {
+			Statement sessionStmt = con.createStatement();
+			sessionStmt.executeUpdate("USE DATABASE " + dbName);
+			sessionStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
 	}
 	
 	private void closeConnection() {
