@@ -65,6 +65,7 @@ public class CreateDatabase {
 	private String systemRunning;
 	private final String createSingleOrAll;
 	private final String clusterId;
+	private final String userId;
 	private final Map<String, String> distKeys;
 	private final Map<String, String> sortKeys;
 	
@@ -94,6 +95,7 @@ public class CreateDatabase {
 		this.jarFile = commandLine.getOptionValue("jar-file");
 		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
+		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.distKeys = new DistKeys().getMap();
 		this.sortKeys = new SortKeys().getMap();
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
@@ -163,6 +165,7 @@ public class CreateDatabase {
 		this.username = args[17];
 		this.createSingleOrAll = "all";
 		this.clusterId = "UNUSED";
+		this.userId = "UNUSED";
 		this.distKeys = new DistKeys().getMap();
 		this.sortKeys = new SortKeys().getMap();
 		this.jarFile = args[18];
@@ -220,10 +223,12 @@ public class CreateDatabase {
 						this.hostname + ":10015/" + this.dbName, "hive", "");
 			}
 			else if( this.systemRunning.startsWith("snowflake") ) {
+				String snowflakePwd = AWSUtil.getValue("SnowflakePassword");
 				Class.forName(snowflakeDriverName);
-				con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
-						"user=" + this.username + "&password=" + "&db=" + this.dbName +
-						"&schema=" + this.dbName + "&warehouse=testwh");
+				this.con = DriverManager.getConnection("jdbc:snowflake://" + 
+						this.hostname + "/?" +
+						"user=" + this.userId + "&password=" + snowflakePwd +
+						"&warehouse=" + this.clusterId);
 			}
 			else if( this.system.startsWith("synapse") ) {
 				String synapsePwd = AWSUtil.getValue("SynapsePassword");

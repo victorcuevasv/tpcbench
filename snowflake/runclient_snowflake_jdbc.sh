@@ -22,7 +22,7 @@ GROUP_ID=$(id -g)
 #$3 number of streams (positive integer)
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_synapse_jdbc.sh <scale factor> <experiment instance number> <number of streams>${end}"
+    echo "${yel}Usage: bash runclient_snowflake_jdbc.sh <scale factor> <experiment instance number> <number of streams>${end}"
     exit 0
 fi
 
@@ -30,13 +30,13 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
-SynapseHost="bsctest.database.windows.net"
+SnowflakeHost="zua56993.snowflakecomputing.com"
 #Run configuration.
 Tag="$(date +%s)"
-ExperimentName="tpcds-synapse-$1gb-${Tag}"
-DirNameWarehouse="tpcds-synapse-$1gb-$2-${Tag}"
-DirNameResults="synapse"
-DatabaseName="tpcds_synapse_$1gb_$2_${Tag}"
+ExperimentName="tpcds-snowflake-$1gb-${Tag}"
+DirNameWarehouse="tpcds-snowflake-$1gb-$2-${Tag}"
+DirNameResults="snowflake"
+DatabaseName="tpcds_snowflake_$1gb_$2_${Tag}"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 
 RUN_RUN_BENCHMARK=1
@@ -52,16 +52,16 @@ args[2]="--results-dir=$DirNameResults"
 #experiment name (name of subfolder within the results folder)
 args[3]="--experiment-name=$ExperimentName"
 #system name (system name used within the logs)
-args[4]="--system-name=synapse"
+args[4]="--system-name=snowflake"
 
 #experiment instance number
 args[5]="--instance-number=$2"
 #prefix of external location for raw data tables (e.g. S3 bucket), null for none
-args[6]="--ext-raw-data-location=https://bsctpcds.blob.core.windows.net/tpcds-datasets/$1GB"
+args[6]="--ext-raw-data-location=TPCDSDB$1GB_S3_STAGE/$1GB"
 #prefix of external location for created tables (e.g. S3 bucket), null for none
-args[7]="--ext-tables-location=s3://tpcds-warehouses-test/$DirNameWarehouse"
+args[7]="null"
 #format for column-storage tables (PARQUET, DELTA)
-args[8]="--table-format=parquet"
+args[8]="--table-format=UNUSED"
 #whether to use data partitioning for the tables (true/false)
 args[9]="--use-partitioning=false"
 
@@ -74,18 +74,21 @@ args[12]="--use-column-stats=true"
 #number of streams
 args[13]="--number-of-streams=$3"
 #hostname of the server
-args[14]="--server-hostname=$SynapseHost"
+args[14]="--server-hostname=$SnowflakeHost"
 
 #username for the connection
-args[15]="--connection-username=UNUSED"
+args[15]="--connection-username=bsctest"
+#cluster id or name of cluster to use
+args[16]="--connection-username=testwhxsmall"
 #queries dir within the jar
-args[16]="--queries-dir-in-jar=QueriesSynapse"
+args[17]="--queries-dir-in-jar=QueriesSnowflake"
 #all or create table file
-args[17]="--all-or-create-file=all"
+args[18]="--all-or-create-file=all"
 #"all" or query file
-args[18]="--all-or-query-file=all" 
+args[19]="--all-or-query-file=all" 
+
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[19]="--execution-flags=110010"
+args[20]="--execution-flags=110010"
 
 paramsStr="${args[@]}"
 

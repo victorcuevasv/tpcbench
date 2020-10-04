@@ -107,6 +107,11 @@
    			<artifactId>redshift-jdbc42-no-awssdk</artifactId>
    			<version>1.2.45.1069</version>
 		</dependency>
+		<dependency>
+   			<groupId>net.snowflake</groupId>
+   			<artifactId>snowflake-jdbc</artifactId>
+   			<version>3.12.10</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<maven.compiler.target>1.8</maven.compiler.target>

@@ -50,6 +50,7 @@ public class ExecuteQueries {
 	private final String querySingleOrAll;
 	private final boolean useCachedResultSnowflake = false;
 	private final String clusterId;
+	private final String userId;
 	
 	
 	public ExecuteQueries(CommandLine commandLine) {
@@ -76,6 +77,7 @@ public class ExecuteQueries {
 		else
 			this.querySingleOrAll = commandLine.getOptionValue("all-or-query-file");
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
+		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
@@ -133,6 +135,7 @@ public class ExecuteQueries {
 		else
 			this.querySingleOrAll = args[14];
 		this.clusterId = "UNUSED";
+		this.userId = "UNUSED";
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 						this.system, this.test, this.instance);
@@ -175,10 +178,12 @@ public class ExecuteQueries {
 						this.hostname + ":10015/" + this.dbName, "hive", "");
 			}
 			else if( this.system.startsWith("snowflake") ) {
+				String snowflakePwd = AWSUtil.getValue("SnowflakePassword");
 				Class.forName(snowflakeDriverName);
-				this.con = DriverManager.getConnection("jdbc:snowflake://" + this.hostname + "/?" +
-						"user=bsctest" + "&password=" + "&db=" + this.dbName +
-						"&schema=" + this.dbName + "&warehouse=testwh");
+				this.con = DriverManager.getConnection("jdbc:snowflake://" + 
+						this.hostname + "/?" +
+						"user=" + this.userId + "&password=" + snowflakePwd +
+						"&warehouse=" + this.clusterId);
 				this.setSnowflakeDefaultSessionOpts();
 			}
 			else if( this.system.equals("redshift") ) {
