@@ -49,6 +49,7 @@ public class ExecuteQueries {
 	private final String jarFile;
 	private final String querySingleOrAll;
 	private final boolean useCachedResultSnowflake = false;
+	private final boolean saveSnowflakeHistory = false;
 	private final String clusterId;
 	private final String userId;
 	
@@ -355,6 +356,11 @@ public class ExecuteQueries {
 	
 	
 	public void executeQueries() {
+		if( this.system.startsWith("snowflake") ) {
+			Statement sessionStmt = con.createStatement();
+			sessionStmt.executeUpdate("USE DATABASE " + this.dbName);
+			sessionStmt.close();
+		}
 		this.recorder.header();
 		for (final String fileName : this.queriesReader.getFilesOrdered()) {
 			if( ! this.querySingleOrAll.equals("all") ) {
@@ -392,7 +398,7 @@ public class ExecuteQueries {
 			}
 		}
 		this.recorder.close();
-		if( this.system.startsWith("snowflake") )
+		if( this.system.startsWith("snowflake") && this.saveSnowflakeHistory )
 			this.saveSnowflakeHistory();
 		//Close the connection if using redshift as the driver leaves threads on the background
 		//that prevent the application from closing. 

@@ -297,6 +297,11 @@ public class CreateDatabase {
 	}
 	
 	private void createTables() {
+		if( this.system.startsWith("snowflake") ) {
+			Statement sessionStmt = con.createStatement();
+			sessionStmt.executeUpdate("USE DATABASE " + this.dbName);
+			sessionStmt.close();
+		}
 		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
 		List<String> unorderedList = this.createTableReader.getFiles();
