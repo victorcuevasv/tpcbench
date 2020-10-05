@@ -30,7 +30,7 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
-SnowflakeHost="zua56993.snowflakecomputing.com"
+Host="zua56993.snowflakecomputing.com"
 #Run configuration.
 Tag="$(date +%s)"
 ExperimentName="tpcds-snowflake-$1gb-${Tag}"
@@ -75,7 +75,7 @@ args[12]="--use-column-stats=true"
 #number of streams
 args[13]="--number-of-streams=$3"
 #hostname of the server
-args[14]="--server-hostname=$SnowflakeHost"
+args[14]="--server-hostname=$Host"
 
 #username for the connection
 args[15]="--connection-username=bsctest"

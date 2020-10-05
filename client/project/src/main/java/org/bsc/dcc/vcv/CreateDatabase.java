@@ -66,6 +66,7 @@ public class CreateDatabase {
 	private final String createSingleOrAll;
 	private final String clusterId;
 	private final String userId;
+	private final String columnDelimiter;
 	private final Map<String, String> distKeys;
 	private final Map<String, String> sortKeys;
 	
@@ -95,6 +96,7 @@ public class CreateDatabase {
 		this.jarFile = commandLine.getOptionValue("jar-file");
 		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
+		this.columnDelimiter = commandLine.getOptionValue("raw-column-delimiter", "SOH");
 		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.distKeys = new DistKeys().getMap();
 		this.sortKeys = new SortKeys().getMap();
@@ -165,6 +167,7 @@ public class CreateDatabase {
 		this.username = args[17];
 		this.createSingleOrAll = "all";
 		this.clusterId = "UNUSED";
+		this.columnDelimiter = "SOH";
 		this.userId = "UNUSED";
 		this.distKeys = new DistKeys().getMap();
 		this.sortKeys = new SortKeys().getMap();
@@ -365,6 +368,9 @@ public class CreateDatabase {
 				saveCreateTableFile("snowflakeput", tableName, putSql);
 				stmt.execute(putSql);
 			}
+			String fieldDelimiter = "'\\\\001'";
+			if( this.columnDelimiter.equals("PIPE") )
+				fieldDelimiter = "'|'";
 			String copyIntoSql = null;
 			//A null extTablePrefixRaw indicates to use local files for table creation.
 			if( ! this.extTablePrefixRaw.isPresent() )
@@ -376,7 +382,7 @@ public class CreateDatabase {
 						//"@" + this.extTablePrefixRaw.get() + "/" + tableName + "/ \n" +
 						//Update: the name of the stage is formed by this.dbName + "_stage"
 						"@" + this.dbName + "_stage" + "/" + tableName + "/ \n" +
-						"FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = '\\\\001' ENCODING = 'ISO88591')";
+						"FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = " + fieldDelimiter + " ENCODING = 'ISO88591')";
 			saveCreateTableFile("snowflakecopy", tableName, copyIntoSql);
 			stmt.execute(copyIntoSql);
 			queryRecord.setSuccessful(true);
@@ -428,11 +434,14 @@ public class CreateDatabase {
 					tableName + suffix);
 			stmt.execute(synapseSqlCreate);
 			String synapseToken = AWSUtil.getValue("SynapseToken");
+			String fieldTerminator = "'0x01'";
+			if( this.columnDelimiter.equals("PIPE") )
+				fieldTerminator = "'|'";
 			String copySql = "COPY INTO " + tableName + " FROM '" + 
 						this.extTablePrefixRaw.get() + "/" + tableName + "/' \n" +
 						"WITH (" + 
 						"\tFILE_TYPE = 'CSV', \n" + 
-						"\tFIELDTERMINATOR = '0x01', \n" +
+						"\tFIELDTERMINATOR = " + fieldTerminator + ", \n" +
 						"\tROWTERMINATOR = '0x0A', \n" + 
 						"\tCREDENTIAL=(IDENTITY= 'Shared Access Signature', " +
 						"SECRET='<SECRET>') \n" +
@@ -664,7 +673,10 @@ public class CreateDatabase {
 			Optional<String> extTablePrefixRaw) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
-		builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY '\001' \n");
+		String fieldTerminatedBy = "'\001'";
+		if( this.columnDelimiter.equals("PIPE") )
+			fieldTerminatedBy = "'|'";
+		builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY " + fieldTerminatedBy + " \n");
 		builder.append("STORED AS TEXTFILE \n");
 		if( extTablePrefixRaw.isPresent() )
 			builder.append("LOCATION '" + extTablePrefixRaw.get() + "/" + tableName + "' \n");

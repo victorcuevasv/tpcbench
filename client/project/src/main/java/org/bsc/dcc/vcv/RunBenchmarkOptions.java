@@ -125,6 +125,9 @@ public class RunBenchmarkOptions {
 		options.addOption( Option.builder().longOpt( "cluster-id" )
 				.desc( "identifier of the cluster to use to evaluate queries" )
 				.hasArg(true).required(false).build() );
+		options.addOption( Option.builder().longOpt( "raw-column-delimiter" )
+				.desc( "character used to separate columns (PIPE, SOH) default SOH" )
+				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );

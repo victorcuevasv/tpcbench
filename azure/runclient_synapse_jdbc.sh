@@ -30,7 +30,7 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
-SynapseHost="bsctest.database.windows.net"
+Host="bsctest.database.windows.net"
 #Run configuration.
 Tag="$(date +%s)"
 ExperimentName="tpcds-synapse-$1gb-${Tag}"
@@ -40,6 +40,7 @@ DatabaseName="tpcds_synapse_$1gb_$2_${Tag}"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 
 RUN_RUN_BENCHMARK=1
+COPY_RESULTS_TO_S3=1
 
 args=()
 
@@ -74,7 +75,7 @@ args[12]="--use-column-stats=true"
 #number of streams
 args[13]="--number-of-streams=$3"
 #hostname of the server
-args[14]="--server-hostname=$SynapseHost"
+args[14]="--server-hostname=$Host"
 
 #username for the connection
 args[15]="--connection-username=UNUSED"
@@ -100,7 +101,9 @@ if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 	-f /project/pom.xml
 fi
 
-
+if [ "$COPY_RESULTS_TO_S3" -eq 1 ]; then
+	aws s3 cp --recursive $DIR/../vols/data/$DirNameResults/ s3://tpcds-results-test/$DirNameResults/
+fi
 
 
 
