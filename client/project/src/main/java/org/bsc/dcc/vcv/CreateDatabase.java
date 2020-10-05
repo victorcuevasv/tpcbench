@@ -69,6 +69,7 @@ public class CreateDatabase {
 	private final String columnDelimiter;
 	private final Map<String, String> distKeys;
 	private final Map<String, String> sortKeys;
+	private final Map<String, String> clusterByKeys;
 	
 	public CreateDatabase(CommandLine commandLine) {
 		this.workDir = commandLine.getOptionValue("main-work-dir");
@@ -100,6 +101,7 @@ public class CreateDatabase {
 		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.distKeys = new DistKeys().getMap();
 		this.sortKeys = new SortKeys().getMap();
+		this.clusterByKeys = new ClusterByKeys().getMap();
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
@@ -355,6 +357,9 @@ public class CreateDatabase {
 			this.logger.info("Processing table " + index + ": " + tableName);
 			//Hive and Spark use the statement 'create external table ...' for raw data tables
 			String snowflakeSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, suffix, false);
+			String clusterByKey = this.clusterByKeys.get(tableName);
+			if( clusterByKey != null )
+				snowflakeSqlCreate = snowflakeSqlCreate + "\n CLUSTER BY(" + clusterByKey + ")";
 			saveCreateTableFile("snowflaketable", tableName, snowflakeSqlCreate);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
