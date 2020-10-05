@@ -372,7 +372,9 @@ public class CreateDatabase {
 			//Otherwise, extTablePrefixRaw indicates the Snowflake stage associated with the S3 bucket.
 			else 
 				copyIntoSql = "COPY INTO " + tableName + " FROM " + 
-						"@" + this.extTablePrefixRaw.get() + "/" + tableName + "/ \n" +
+						//"@" + this.extTablePrefixRaw.get() + "/" + tableName + "/ \n" +
+						//Update: the name of the stage is formed by this.dbName + "_stage"
+						"@" + this.dbName + "_stage" + "/" + tableName + "/ \n" +
 						"FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = '\\\\001' ENCODING = 'ISO88591')";
 			saveCreateTableFile("snowflakecopy", tableName, copyIntoSql);
 			stmt.execute(copyIntoSql);
