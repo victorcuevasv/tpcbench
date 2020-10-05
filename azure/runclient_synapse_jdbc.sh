@@ -58,11 +58,11 @@ args[4]="--system-name=synapse"
 #experiment instance number
 args[5]="--instance-number=$2"
 #prefix of external location for raw data tables (e.g. S3 bucket), null for none
-args[6]="--ext-raw-data-location=https://bsctpcds.blob.core.windows.net/tpcds-datasets/$1GB"
+args[6]="--ext-raw-data-location=https://bsctpcds.blob.core.windows.net/tpcds-datasets-factory/$1GB"
 #prefix of external location for created tables (e.g. S3 bucket), null for none
-args[7]="--ext-tables-location=s3://tpcds-warehouses-test/$DirNameWarehouse"
+args[7]="--ext-tables-location=null"
 #format for column-storage tables (PARQUET, DELTA)
-args[8]="--table-format=parquet"
+args[8]="--table-format=UNUSED"
 #whether to use data partitioning for the tables (true/false)
 args[9]="--use-partitioning=false"
 
