@@ -30,7 +30,7 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
-RedshiftHost="jdbc:redshift://bsc-redshift-test.cha8h2ua3ess.us-west-2.redshift.amazonaws.com:5439/dev"
+RedshiftHost="bsc-redshift-test.cha8h2ua3ess.us-west-2.redshift.amazonaws.com"
 Nodes="2"
 #Run configuration.
 Tag="$(date +%s)"
@@ -38,7 +38,7 @@ ExperimentName="tpcds-redshift-$1gb-${Tag}"
 DirNameWarehouse="tpcds-redshift-$1gb-$2-${Tag}"
 DirNameResults="redshift"
 DatabaseName="tpcds_redshift_$1gb_$2_${Tag}"
-JarFile="/mnt/tpcds-jars/target/redshift-test/client-1.2-SNAPSHOT-SHADED.jar"
+JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 
 CLUSTER_NAME="TPC-DS_${Tag}_$2"
 RUN_CREATE_CLUSTER=0
@@ -84,13 +84,13 @@ args[17]="--server-hostname=$RedshiftHost"
 #username for the connection
 args[18]="--connection-username=UNUSED"
 #queries dir within the jar
-args[19]="--queries-dir-in-jar=QueriesSpark"
+args[19]="--queries-dir-in-jar=QueriesRedshift"
 #all or create table file
 args[22]="--all-or-create-file=all"
 #"all" or query file
 args[13]="--all-or-query-file=all" 
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=100000"
+args[15]="--execution-flags=110010"
 
 #Wait until the cluster is in a given state by polling using the Databricks CLI.
 #$1 cluster_id
