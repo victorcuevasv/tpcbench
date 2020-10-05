@@ -852,7 +852,7 @@ public class CreateDatabase {
 	private void useSchemaQuery(String schemaName) {
 		try {
 			Statement stmt = con.createStatement();
-			stmt.executeUpdate("USE DATABASE " + schemaName);
+			stmt.executeUpdate("USE SCHEMA " + schemaName);
 			stmt.close();
 		}
 		catch (SQLException e) {
