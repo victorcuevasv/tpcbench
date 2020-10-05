@@ -297,8 +297,11 @@ public class CreateDatabase {
 	}
 	
 	private void createTables() {
-		if( this.system.startsWith("snowflake") )
+		if( this.system.startsWith("snowflake") ) {
 			this.useDatabaseQuery(this.dbName);
+			this.useSchemaQuery(this.dbName);
+			this.createSnowflakeStageQuery(this.dbName + "_stage");
+		}
 		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
 		List<String> unorderedList = this.createTableReader.getFiles();
@@ -833,9 +836,35 @@ public class CreateDatabase {
 	
 	private void useDatabaseQuery(String dbName) {
 		try {
-			Statement sessionStmt = con.createStatement();
-			sessionStmt.executeUpdate("USE DATABASE " + dbName);
-			sessionStmt.close();
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate("USE DATABASE " + dbName);
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
+	}
+	
+	private void useSchemaQuery(String schemaName) {
+		try {
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate("USE DATABASE " + schemaName);
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
+	}
+	
+	private void createSnowflakeStageQuery(String stageName) {
+		try {
+			Statement stmt = con.createStatement();
+			stmt.execute("CREATE STAGE " + stageName + 
+					" storage_integration = s3_integration url = '" + 
+					this.extTablePrefixRaw.get() + "'");
+			stmt.close();
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
