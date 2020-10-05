@@ -40,6 +40,7 @@ DatabaseName="tpcds_snowflake_$1gb_$2_${Tag}"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 
 RUN_RUN_BENCHMARK=1
+COPY_RESULTS_TO_S3=1
 
 args=()
 
@@ -103,8 +104,9 @@ if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 	-f /project/pom.xml
 fi
 
-
-
+if [ "$COPY_RESULTS_TO_S3" -eq 1 ]; then
+	aws s3 cp --recursive $DIR/../vols/${args[0]}/${args[2]}/ s3://tpcds-results-test/${args[2]}/
+fi
 
 
 
