@@ -105,7 +105,7 @@ if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 fi
 
 if [ "$COPY_RESULTS_TO_S3" -eq 1 ]; then
-	aws s3 cp --recursive $DIR/../vols/${args[0]}/${args[2]}/ s3://tpcds-results-test/${args[2]}/
+	aws s3 cp --recursive $DIR/../vols/data/$DirNameResults/ s3://tpcds-results-test/$DirNameResults/
 fi
 
 
