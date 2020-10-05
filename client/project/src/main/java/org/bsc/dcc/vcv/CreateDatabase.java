@@ -173,6 +173,7 @@ public class CreateDatabase {
 		this.userId = "UNUSED";
 		this.distKeys = new DistKeys().getMap();
 		this.sortKeys = new SortKeys().getMap();
+		this.clusterByKeys = new ClusterByKeys().getMap();
 		this.jarFile = args[18];
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
