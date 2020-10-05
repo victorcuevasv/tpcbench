@@ -300,6 +300,7 @@ public class CreateDatabase {
 		if( this.system.startsWith("snowflake") ) {
 			this.useDatabaseQuery(this.dbName);
 			this.useSchemaQuery(this.dbName);
+			this.useSnowflakeWarehouseQuery(this.clusterId);
 			this.createSnowflakeStageQuery(this.dbName + "_stage");
 		}
 		// Process each .sql create table file found in the jar file.
@@ -855,6 +856,18 @@ public class CreateDatabase {
 		try {
 			Statement stmt = con.createStatement();
 			stmt.executeUpdate("USE SCHEMA " + schemaName);
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
+	}
+	
+	private void useSnowflakeWarehouseQuery(String warehouseName) {
+		try {
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate("USE WAREHOUSE " + warehouseName);
 			stmt.close();
 		}
 		catch (SQLException e) {
