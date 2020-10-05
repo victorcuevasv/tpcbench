@@ -85,8 +85,11 @@ args[16]="--queries-dir-in-jar=QueriesSynapse"
 args[17]="--all-or-create-file=all"
 #"all" or query file
 args[18]="--all-or-query-file=all" 
+#delimiter for the columns in the raw data (SOH, PIPE) default SOH
+args[19]="--raw-column-delimiter=SOH" 
+
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[19]="--execution-flags=110010"
+args[20]="--execution-flags=110010"
 
 paramsStr="${args[@]}"
 

@@ -126,7 +126,7 @@ public class RunBenchmarkOptions {
 				.desc( "identifier of the cluster to use to evaluate queries" )
 				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "raw-column-delimiter" )
-				.desc( "character used to separate columns (PIPE, SOH) default SOH" )
+				.desc( "delimiter for the columns in the raw data (SOH, PIPE) default SOH" )
 				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )

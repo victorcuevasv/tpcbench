@@ -88,8 +88,10 @@ args[18]="--all-or-create-file=all"
 #"all" or query file
 args[19]="--all-or-query-file=all" 
 
+#delimiter for the columns in the raw data (SOH, PIPE) default SOH
+args[20]="--raw-column-delimiter=SOH"
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[20]="--execution-flags=110010"
+args[21]="--execution-flags=110010"
 
 paramsStr="${args[@]}"
 
