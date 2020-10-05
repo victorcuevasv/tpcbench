@@ -297,8 +297,12 @@ public class CreateDatabase {
 	}
 	
 	private void createTables() {
-		if( this.system.startsWith("snowflake") )
+		if( this.system.startsWith("snowflake") ) {
 			this.useDatabaseQuery(this.dbName);
+			this.useSchemaQuery(this.dbName);
+			this.useSnowflakeWarehouseQuery(this.clusterId);
+			this.createSnowflakeStageQuery(this.dbName + "_stage");
+		}
 		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
 		List<String> unorderedList = this.createTableReader.getFiles();
@@ -369,7 +373,9 @@ public class CreateDatabase {
 			//Otherwise, extTablePrefixRaw indicates the Snowflake stage associated with the S3 bucket.
 			else 
 				copyIntoSql = "COPY INTO " + tableName + " FROM " + 
-						"@" + this.extTablePrefixRaw.get() + "/" + tableName + "/ \n" +
+						//"@" + this.extTablePrefixRaw.get() + "/" + tableName + "/ \n" +
+						//Update: the name of the stage is formed by this.dbName + "_stage"
+						"@" + this.dbName + "_stage" + "/" + tableName + "/ \n" +
 						"FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = '\\\\001' ENCODING = 'ISO88591')";
 			saveCreateTableFile("snowflakecopy", tableName, copyIntoSql);
 			stmt.execute(copyIntoSql);
@@ -836,9 +842,47 @@ public class CreateDatabase {
 	
 	private void useDatabaseQuery(String dbName) {
 		try {
-			Statement sessionStmt = con.createStatement();
-			sessionStmt.executeUpdate("USE DATABASE " + dbName);
-			sessionStmt.close();
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate("USE DATABASE " + dbName);
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
+	}
+	
+	private void useSchemaQuery(String schemaName) {
+		try {
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate("USE SCHEMA " + schemaName);
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
+	}
+	
+	private void useSnowflakeWarehouseQuery(String warehouseName) {
+		try {
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate("USE WAREHOUSE " + warehouseName);
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
+	}
+	
+	private void createSnowflakeStageQuery(String stageName) {
+		try {
+			Statement stmt = con.createStatement();
+			stmt.execute("CREATE STAGE " + stageName + 
+					" storage_integration = s3_integration url = '" + 
+					this.extTablePrefixRaw.get() + "'");
+			stmt.close();
 		}
 		catch (SQLException e) {
 			e.printStackTrace();

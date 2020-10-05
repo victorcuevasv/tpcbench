@@ -356,8 +356,11 @@ public class ExecuteQueries {
 	
 	
 	public void executeQueries() {
-		if( this.system.startsWith("snowflake") )
+		if( this.system.startsWith("snowflake") ) {
 			this.useDatabaseQuery(this.dbName);
+			this.useSchemaQuery(this.dbName);
+			this.useSnowflakeWarehouseQuery(this.clusterId);
+		}
 		this.recorder.header();
 		for (final String fileName : this.queriesReader.getFilesOrdered()) {
 			if( ! this.querySingleOrAll.equals("all") ) {
@@ -514,6 +517,30 @@ public class ExecuteQueries {
 			Statement sessionStmt = con.createStatement();
 			sessionStmt.executeUpdate("USE DATABASE " + dbName);
 			sessionStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
+	}
+	
+	private void useSchemaQuery(String schemaName) {
+		try {
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate("USE SCHEMA " + schemaName);
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
+	}
+	
+	private void useSnowflakeWarehouseQuery(String warehouseName) {
+		try {
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate("USE WAREHOUSE " + warehouseName);
+			stmt.close();
 		}
 		catch (SQLException e) {
 			e.printStackTrace();

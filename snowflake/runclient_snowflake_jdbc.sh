@@ -40,6 +40,7 @@ DatabaseName="tpcds_snowflake_$1gb_$2_${Tag}"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 
 RUN_RUN_BENCHMARK=1
+COPY_RESULTS_TO_S3=1
 
 args=()
 
@@ -57,9 +58,9 @@ args[4]="--system-name=snowflake"
 #experiment instance number
 args[5]="--instance-number=$2"
 #prefix of external location for raw data tables (e.g. S3 bucket), null for none
-args[6]="--ext-raw-data-location=TPCDSDB$1GB_S3_STAGE/$1GB"
+args[6]="--ext-raw-data-location=s3://tpcds-datasets/$1GB"
 #prefix of external location for created tables (e.g. S3 bucket), null for none
-args[7]="null"
+args[7]="--ext-tables-location=null"
 #format for column-storage tables (PARQUET, DELTA)
 args[8]="--table-format=UNUSED"
 #whether to use data partitioning for the tables (true/false)
@@ -79,7 +80,7 @@ args[14]="--server-hostname=$SnowflakeHost"
 #username for the connection
 args[15]="--connection-username=bsctest"
 #cluster id or name of cluster to use
-args[16]="--connection-username=testwhxsmall"
+args[16]="--cluster-id=testwhxsmall"
 #queries dir within the jar
 args[17]="--queries-dir-in-jar=QueriesSnowflake"
 #all or create table file
@@ -103,8 +104,9 @@ if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 	-f /project/pom.xml
 fi
 
-
-
+if [ "$COPY_RESULTS_TO_S3" -eq 1 ]; then
+	aws s3 cp --recursive $DIR/../vols/data/$DirNameResults/ s3://tpcds-results-test/$DirNameResults/
+fi
 
 
 
