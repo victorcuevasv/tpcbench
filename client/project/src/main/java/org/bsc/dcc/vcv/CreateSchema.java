@@ -91,14 +91,9 @@ public class CreateSchema {
 				";UseNativeQuery=1");
 			}
 			else if( this.system.equals("databrickssql") ) {
-				String dbrToken = "dapifd4db58404ae64629dc7b41d57f3a769";
+				//String dbrToken = "dapifd4db58404ae64629dc7b41d57f3a769";
+				String dbrToken = AWSUtil.getValue("DatabricksToken");
 				Class.forName(databricksDriverName);
-				System.out.println("jdbc:spark://"
-				+ this.hostname + ":443/" + this.dbName
-				+ ";transportMode=http;ssl=1;AuthMech=3"
-				+ ";httpPath=/sql/1.0/endpoints/a57e3bc75ae9786b"
-				+ ";UID=token;PWD=" + dbrToken
-				+ ";UseNativeQuery=1");
 				this.con = DriverManager.getConnection("jdbc:spark://"
 					+ this.hostname + ":443/" + this.dbName
 					+ ";transportMode=http;ssl=1;AuthMech=3"
