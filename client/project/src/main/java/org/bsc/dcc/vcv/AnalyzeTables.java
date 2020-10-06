@@ -26,6 +26,7 @@ public class AnalyzeTables {
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private static final String databricksDriverName = "com.simba.spark.jdbc.Driver";
+	private static final String redshiftDriverName = "com.amazon.redshift.jdbc42.Driver";
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private final AnalyticsRecorder recorder;
@@ -162,6 +163,11 @@ public class AnalyzeTables {
 					+ ";UID=token;PWD=" + dbrToken
 					+ ";UseNativeQuery=1");
 			}
+			else if( this.system.equals("redshift") ) {
+				Class.forName(redshiftDriverName);
+				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
+				"dev" + "?ssl=true&UID=bsc-dcc-fjjm&PWD=Databr|cks1");
+			}
 			else if( systemRunning.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" +
@@ -245,6 +251,10 @@ public class AnalyzeTables {
 			i++;
 		}
 		this.recorder.close();
+		//Close the connection if using redshift as the driver leaves threads on the background
+		//that prevent the application from closing. 
+		if (this.system.equals("redshift") || this.system.equals("synapse"))
+			this.closeConnection();
 	}
 
 	
@@ -283,7 +293,7 @@ public class AnalyzeTables {
 			Statement stmt = this.con.createStatement();
 			String sqlStr = null;
 			queryRecord.setStartTime(System.currentTimeMillis());
-			if( this.systemRunning.startsWith("presto") ) {
+			if( this.systemRunning.startsWith("presto") || this.systemRunning.equals("redshift")) {
 				sqlStr = "ANALYZE " + tableName;
 				this.saveAnalyzeTableFile("analyze", tableName, sqlStr);
 				stmt.executeUpdate(sqlStr);
