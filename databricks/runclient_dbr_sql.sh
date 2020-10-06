@@ -58,13 +58,13 @@ args[4]="--system-name=databrickssql"
 #experiment instance number
 args[5]="--instance-number=$2"
 #prefix of external location for raw data tables (e.g. S3 bucket), null for none
-args[6]="--ext-raw-data-location=s3:/mnt/tpcdsbucket/$1GB"
+args[6]="--ext-raw-data-location=dbfs:/mnt/tpcdsbucket/$1GB"
 #prefix of external location for created tables (e.g. S3 bucket), null for none
-args[7]="--ext-tables-location=/mnt/tpcds-warehouses-test/$DirNameWarehouse"
+args[7]="--ext-tables-location=dbfs:/mnt/tpcds-warehouses-test/$DirNameWarehouse"
 #format for column-storage tables (PARQUET, DELTA)
-args[8]="--table-format=parquet"
+args[8]="--table-format=delta"
 #whether to use data partitioning for the tables (true/false)
-args[9]="--use-partitioning=false"
+args[9]="--use-partitioning=true"
 
 #jar file
 args[10]="--jar-file=$JarFile"
@@ -86,7 +86,7 @@ args[22]="--all-or-create-file=all"
 #"all" or query file
 args[13]="--all-or-query-file=all" 
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=100000"
+args[15]="--execution-flags=011000"
 
 paramsStr="${args[@]}"
 
