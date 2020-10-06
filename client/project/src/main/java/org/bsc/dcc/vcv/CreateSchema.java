@@ -91,10 +91,12 @@ public class CreateSchema {
 				";UseNativeQuery=1");
 			}
 			else if( this.system.equals("databrickssql") ) {
+				String dbrToken = AWSUtil.getValue("DatabricksToken");
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://"
 					+ this.hostname + ":443/" + this.dbName
 					+ ";transportMode=http;ssl=1;AuthMech=3;"
+					+ "UID=token;PWD=" + dbrToken
 					+ "httpPath=/sql/1.0/endpoints/a57e3bc75ae9786b;");
 			}
 			else if( this.system.equals("redshift") ) {
