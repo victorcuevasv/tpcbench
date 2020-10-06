@@ -375,8 +375,14 @@ public class ExecuteQueries {
 		}
 		// If the system is Redshift disable query result caching
 		if (this.system.startsWith("redshift")) {
-			Statement stmt = con.createStatement();
-			stmt.execute("SET enable_result_cache_for_session TO off");
+			try {
+				Statement stmt = con.createStatement();
+				stmt.execute("SET enable_result_cache_for_session TO off");
+			} catch(Exception e) {
+				e.printStackTrace();
+				this.logger.error("Error processing: " + fileName);
+				this.logger.error(e);
+				this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		this.recorder.header();
 		for (final String fileName : this.queriesReader.getFilesOrdered()) {
