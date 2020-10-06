@@ -517,7 +517,7 @@ public class CreateDatabase {
 			saveCreateTableFile("redshifttable", tableName, redshiftSqlCreate);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
-			Statement stmt = con.createStatement();
+			stmt = con.createStatement();
 			stmt.execute("drop table if exists " + tableName + suffix);
 			stmt.execute(redshiftSqlCreate);
 			String copySql = null;
