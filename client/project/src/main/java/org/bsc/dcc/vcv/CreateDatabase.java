@@ -494,7 +494,12 @@ public class CreateDatabase {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			// The provided tpc-ds ddl works out of the box on Redshift, we only have to add the distribution and partition 
+
+			// Disable auto-analyze for Redshift by setting the property 'auto_analyze' to false;
+			Statement stmt = con.createStatement();
+			stmt.execute("SET auto_analyze TO false;")
+
+			// The DDL provided by TPC works out of the box on Redshift, we only have to add the distribution and partition 
 			// keys without the last semicolon and newline character (The reader ast a trailing newline)
 			String redshiftSqlCreate = sqlCreate.substring(0, sqlCreate.length()-2);
 			// Get the distribution key for the table (usually the PK) and add the relevant statement. If the table is to be distributed to
@@ -516,10 +521,13 @@ public class CreateDatabase {
 			String copySql = null;
 			// Move the data directly from S3 into Redshift through COPY. Invalid chars need to be accepted due to one of the tuples having an
 			// special comma.
+			String fieldDelimiter = "'\001'";
+			if( this.columnDelimiter.equals("PIPE") )
+				fieldDelimiter = "'|'";
 			copySql = "copy " + tableName + " from " + 
 					"'" + this.extTablePrefixRaw.get() + "/" + tableName + "/' \n" +
 					"iam_role 'arn:aws:iam::384416317380:role/tpcds-redshift'\n" +
-					//"delimiter '\001'\n" +
+					"delimiter " + fieldDelimiter + "\n" +
 					"ACCEPTINVCHARS\n" +
 					"region 'us-west-2';";
 			stmt.execute(copySql);
