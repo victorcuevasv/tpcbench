@@ -557,7 +557,7 @@ public class CreateDatabase {
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, 
 					! this.systemRunning.startsWith("presto"), suffix, false);
 			String extSqlCreate = null;
-			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark"))
+			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark") || this.systemRunning.startsWith("databricks"))
 				extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, rawDataDir, 
 						extTablePrefixRaw);
 			else if( this.systemRunning.startsWith("presto") )
@@ -573,7 +573,7 @@ public class CreateDatabase {
 				countRowsQuery(stmt, tableName + suffix);
 			String incIntSqlCreate = null;
 			String intSqlCreate = null;
-			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark") ) {
+			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark") || this.systemRunning.startsWith("databricks")) {
 				//For Hive the partition attribute should NOT be included in the create table attributes list.
 				incIntSqlCreate = null;
 				if( this.partition )
@@ -596,7 +596,7 @@ public class CreateDatabase {
 			stmt.execute("drop table if exists " + tableName);
 			stmt.execute(intSqlCreate);
 			String insertSql = null;
-			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark") ) {
+			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark") || this.systemRunning.startsWith("databricks")) {
 				insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
 				if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
 					//The partition attribute was removed from the attributes list in the create table
