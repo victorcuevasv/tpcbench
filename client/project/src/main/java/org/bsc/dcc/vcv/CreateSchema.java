@@ -82,7 +82,7 @@ public class CreateSchema {
 						this.hostname + ":8889/hive/", "hadoop", "");
 			}
 			else if( this.system.equals("sparkdatabricksjdbc") ) {
-				String dbrToken = "dapifd4db58404ae64629dc7b41d57f3a769";
+				String dbrToken = AWSUtil.getValue("DatabricksToken");
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
@@ -91,7 +91,7 @@ public class CreateSchema {
 				";UseNativeQuery=1");
 			}
 			else if( this.system.equals("databrickssql") ) {
-				String dbrToken = AWSUtil.getValue("DatabricksToken");
+				String dbrToken = AWSUtil.getValue("dapifd4db58404ae64629dc7b41d57f3a769");
 				Class.forName(databricksDriverName);
 				System.out.println("jdbc:spark://"
 				+ this.hostname + ":443/" + this.dbName
