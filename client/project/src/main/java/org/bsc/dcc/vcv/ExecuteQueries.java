@@ -173,6 +173,18 @@ public class ExecuteQueries {
 				this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
 				";UseNativeQuery=1");
 			}
+			else if( this.system.equals("databrickssql") ) {
+				// IMPORTANT: HAD TO HARDCODE THIS DUE TO LACK OF PERMISSION TO MANAGE SECRETS.
+				// UPDATE TO PROPER PERMISSIONS WHEN TESTS ARE DONE.
+				String dbrToken = "dapifd4db58404ae64629dc7b41d57f3a769";
+				Class.forName(databricksDriverName);
+				this.con = DriverManager.getConnection("jdbc:spark://"
+					+ this.hostname + ":443/" + this.dbName
+					+ ";transportMode=http;ssl=1;AuthMech=3"
+					+ ";httpPath=/sql/1.0/endpoints/a57e3bc75ae9786b"
+					+ ";UID=token;PWD=" + dbrToken
+					+ ";UseNativeQuery=1");
+			}
 			else if( this.system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" +
