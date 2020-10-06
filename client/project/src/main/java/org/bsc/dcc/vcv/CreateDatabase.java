@@ -86,7 +86,7 @@ public class CreateDatabase {
 		this.extTablePrefixRaw = Optional.ofNullable(commandLine.getOptionValue("ext-raw-data-location"));
 		this.extTablePrefixCreated = Optional.ofNullable(commandLine.getOptionValue("ext-tables-location"));
 		this.format = commandLine.getOptionValue("table-format");
-		String doCountStr = commandLine.getOptionValue("count-queries", "false");
+		String doCountStr = commandLine.getOptionValue("count-queries", "true");
 		this.doCount = Boolean.parseBoolean(doCountStr);
 		String partitionStr = commandLine.getOptionValue("use-partitioning");
 		this.partition = Boolean.parseBoolean(partitionStr);
@@ -486,6 +486,63 @@ public class CreateDatabase {
 	}
 
 	private void createTableRedshift(String sqlCreateFilename, String sqlCreate, int index) {
+		QueryRecord queryRecord = null;
+		String suffix = "";
+
+		try {
+			//First, create the table, no format or options are specified, only the schema data.
+			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
+			System.out.println("Processing table " + index + ": " + tableName);
+			this.logger.info("Processing table " + index + ": " + tableName);
+			// The provided tpc-ds ddl works out of the box on Redshift, we only have to add the distribution and partition 
+			// keys without the last semicolon and newline character (The reader ast a trailing newline)
+			String redshiftSqlCreate = sqlCreate.substring(0, sqlCreate.length()-2);
+			// Get the distribution key for the table (usually the PK) and add the relevant statement. If the table is to be distributed to
+			// all nodes (distkey "all") then add "diststyle all" instead.
+			String distKey = this.distKeys.get(tableName);
+			if (distKey.equals("all")) redshiftSqlCreate += " diststyle all";
+			else if (distKey != null) redshiftSqlCreate += (" distkey(" + distKey + ")");
+
+			// Add the sorkey if one has been assigned to the table
+			String sortKey = this.sortKeys.get(tableName);
+			if (!sortKey.equals("none")) redshiftSqlCreate += (" sortkey(" + sortKey + ")");
+			redshiftSqlCreate += ";";
+			saveCreateTableFile("redshifttable", tableName, redshiftSqlCreate);
+			queryRecord = new QueryRecord(index);
+			queryRecord.setStartTime(System.currentTimeMillis());
+			Statement stmt = con.createStatement();
+			stmt.execute("drop table if exists " + tableName + suffix);
+			stmt.execute(redshiftSqlCreate);
+			String copySql = null;
+			// Move the data directly from S3 into Redshift through COPY. Invalid chars need to be accepted due to one of the tuples having an
+			// special comma.
+			copySql = "copy " + tableName + " from " + 
+					"'" + this.extTablePrefixRaw.get() + "/" + tableName + "/' \n" +
+					"iam_role 'arn:aws:iam::384416317380:role/tpcds-redshift'\n" +
+					//"delimiter '\001'\n" +
+					"ACCEPTINVCHARS\n" +
+					"region 'us-west-2';";
+			stmt.execute(copySql);
+			queryRecord.setSuccessful(true);
+			saveCreateTableFile("redshiftcopy", tableName, copySql);	// Save the string to file after stopping recording time.
+			if( doCount )
+				countRowsQuery(stmt, tableName);
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error("Error in CreateDatabase createTable.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		finally {
+			if( queryRecord != null ) {
+				queryRecord.setEndTime(System.currentTimeMillis());
+				this.recorder.record(queryRecord);
+			}
+		}
+	}
+
+	private void createTableDatabricksSQL(String sqlCreateFilename, String sqlCreate, int index) {
 		QueryRecord queryRecord = null;
 		String suffix = "";
 
