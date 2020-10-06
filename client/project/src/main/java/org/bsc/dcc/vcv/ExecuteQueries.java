@@ -376,8 +376,10 @@ public class ExecuteQueries {
 		// If the system is Redshift disable query result caching
 		if (this.system.startsWith("redshift")) {
 			try {
+				System.out.print("Disabling result caching...");
 				Statement stmt = con.createStatement();
 				stmt.execute("SET enable_result_cache_for_session TO off");
+				System.out.println("done");
 			} catch(Exception e) {
 				e.printStackTrace();
 				this.logger.error("Error when disabling results caching");
