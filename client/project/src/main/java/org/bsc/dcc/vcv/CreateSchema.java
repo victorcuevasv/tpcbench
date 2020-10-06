@@ -31,14 +31,12 @@ public class CreateSchema {
 	private final String system;
 	private final String dbName;
 	private final String clusterId;
-	private final String userId;
 	
 	public CreateSchema(CommandLine commandLine) {
 		this.hostname = commandLine.getOptionValue("server-hostname");
 		this.system = commandLine.getOptionValue("system-name");
 		this.dbName = commandLine.getOptionValue("schema-name");
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
-		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.openConnection();
 	}
 	
@@ -62,7 +60,6 @@ public class CreateSchema {
 		this.system = args[1];
 		this.dbName = args[2];
 		this.clusterId = "UNUSED";
-		this.userId = "UNUSED";
 		this.openConnection();
 	}
 	
@@ -93,6 +90,13 @@ public class CreateSchema {
 				this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
 				";UseNativeQuery=1");
 			}
+			else if( this.system.equals("databrickssql") ) {
+				Class.forName(databricksDriverName);
+				this.con = DriverManager.getConnection("jdbc:spark://"
+					+ this.hostname + ":443/" + this.dbName
+					+ ";transportMode=http;ssl=1;AuthMech=3;"
+					+ "httpPath=/sql/1.0/endpoints/a57e3bc75ae9786b;"
+			}
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
 				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
@@ -107,9 +111,8 @@ public class CreateSchema {
 				String snowflakePwd = AWSUtil.getValue("SnowflakePassword");
 				Class.forName(snowflakeDriverName);
 				this.con = DriverManager.getConnection("jdbc:snowflake://" + 
-						this.hostname + "/?" +
-						"user=" + this.userId + "&password=" + snowflakePwd +
-						"&warehouse=" + this.clusterId);
+				"zua56993.snowflakecomputing.com" + "/?" +
+						"user=bsctest&password=" + snowflakePwd);
 			}
 			else if( this.system.startsWith("synapse") ) {
 				String synapsePwd = AWSUtil.getValue("SynapsePassword");
@@ -169,6 +172,12 @@ public class CreateSchema {
 			application = new CreateSchema(commandLine);
 		}
 		application.createSchema();
+		// Close the connection if using redshift as the driver leaves threads on the background that prevent the
+		// application from closing. 
+		if (application.synapse.equals("redshift")) application.closeConnection();
+		//if( ! application.system.equals("sparkdatabricks") ) {
+		//	application.closeConnection();
+		//}
 	}
 
 	private void createSchema() {
@@ -204,12 +213,6 @@ public class CreateSchema {
 		catch (SQLException e) {
 			e.printStackTrace();
 			this.logger.error(e);
-		}
-		finally {
-			//Close the connection if using redshift as the driver leaves threads on the background
-			//that prevent the application from closing. 
-			if (this.system.equals("redshift") || this.system.equals("synapse"))
-				this.closeConnection();
 		}
 	}
 	
