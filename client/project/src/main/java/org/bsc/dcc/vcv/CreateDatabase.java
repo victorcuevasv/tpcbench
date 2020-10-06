@@ -497,10 +497,6 @@ public class CreateDatabase {
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 
-			// Disable auto-analyze for Redshift by setting the property 'auto_analyze' to false;
-			Statement stmt = con.createStatement();
-			stmt.execute("SET auto_analyze TO false;");
-
 			// The DDL provided by TPC works out of the box on Redshift, we only have to add the distribution and partition 
 			// keys without the last semicolon and newline character (The reader ast a trailing newline)
 			String redshiftSqlCreate = sqlCreate.substring(0, sqlCreate.length()-2);
