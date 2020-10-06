@@ -40,6 +40,8 @@ DirNameResults="dbrsql"
 DatabaseName="tpcds_dbrsql_$1gb_$2_${Tag}"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 
+RUN_RUN_BENCHMARK=1
+
 args=()
 
 #main work directory
