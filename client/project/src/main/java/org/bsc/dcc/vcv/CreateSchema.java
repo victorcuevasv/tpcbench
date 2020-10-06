@@ -95,7 +95,7 @@ public class CreateSchema {
 				this.con = DriverManager.getConnection("jdbc:spark://"
 					+ this.hostname + ":443/" + this.dbName
 					+ ";transportMode=http;ssl=1;AuthMech=3;"
-					+ "httpPath=/sql/1.0/endpoints/a57e3bc75ae9786b;";
+					+ "httpPath=/sql/1.0/endpoints/a57e3bc75ae9786b;");
 			}
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
