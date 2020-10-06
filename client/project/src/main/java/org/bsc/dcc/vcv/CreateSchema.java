@@ -174,10 +174,8 @@ public class CreateSchema {
 		application.createSchema();
 		// Close the connection if using redshift as the driver leaves threads on the background that prevent the
 		// application from closing. 
-		if (application.synapse.equals("redshift")) application.closeConnection();
-		//if( ! application.system.equals("sparkdatabricks") ) {
-		//	application.closeConnection();
-		//}
+		if (this.system.equals("redshift") || this.system.equals("synapse"))
+			this.closeConnection();
 	}
 
 	private void createSchema() {
