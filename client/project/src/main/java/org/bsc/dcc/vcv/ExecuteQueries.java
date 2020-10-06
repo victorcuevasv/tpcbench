@@ -383,6 +383,7 @@ public class ExecuteQueries {
 				this.logger.error("Error processing: " + fileName);
 				this.logger.error(e);
 				this.logger.error(AppUtil.stringifyStackTrace(e));
+			}
 		}
 		this.recorder.header();
 		for (final String fileName : this.queriesReader.getFilesOrdered()) {
