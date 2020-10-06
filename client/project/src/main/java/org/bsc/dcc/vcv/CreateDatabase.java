@@ -86,7 +86,7 @@ public class CreateDatabase {
 		this.extTablePrefixRaw = Optional.ofNullable(commandLine.getOptionValue("ext-raw-data-location"));
 		this.extTablePrefixCreated = Optional.ofNullable(commandLine.getOptionValue("ext-tables-location"));
 		this.format = commandLine.getOptionValue("table-format");
-		String doCountStr = commandLine.getOptionValue("count-queries", "true");
+		String doCountStr = commandLine.getOptionValue("count-queries", "false");
 		this.doCount = Boolean.parseBoolean(doCountStr);
 		String partitionStr = commandLine.getOptionValue("use-partitioning");
 		this.partition = Boolean.parseBoolean(partitionStr);
