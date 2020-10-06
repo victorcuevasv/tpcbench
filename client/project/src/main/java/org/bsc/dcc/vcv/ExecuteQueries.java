@@ -373,6 +373,11 @@ public class ExecuteQueries {
 			this.useSchemaQuery(this.dbName);
 			this.useSnowflakeWarehouseQuery(this.clusterId);
 		}
+		// If the system is Redshift disable query result caching
+		if (this.system.startsWith("redshift")) {
+			Statement stmt = con.createStatement();
+			stmt.execute("SET enable_result_cache_for_session TO off");
+		}
 		this.recorder.header();
 		for (final String fileName : this.queriesReader.getFilesOrdered()) {
 			if( ! this.querySingleOrAll.equals("all") ) {
