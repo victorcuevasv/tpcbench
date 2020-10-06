@@ -88,6 +88,8 @@ args[13]="--all-or-query-file=all"
 #flags (110000 schema|load|analyze|zorder|power|tput)
 args[15]="--execution-flags=100000"
 
+paramsStr="${args[@]}"
+
 if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 	docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
 	--volume $DIR/../vols/data:/data \
