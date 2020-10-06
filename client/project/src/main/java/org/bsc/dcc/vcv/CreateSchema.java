@@ -172,10 +172,6 @@ public class CreateSchema {
 			application = new CreateSchema(commandLine);
 		}
 		application.createSchema();
-		// Close the connection if using redshift as the driver leaves threads on the background that prevent the
-		// application from closing. 
-		if (this.system.equals("redshift") || this.system.equals("synapse"))
-			this.closeConnection();
 	}
 
 	private void createSchema() {
@@ -212,6 +208,11 @@ public class CreateSchema {
 			e.printStackTrace();
 			this.logger.error(e);
 		}
+
+		// Close the connection if using redshift as the driver leaves threads on the background that prevent the
+		// application from closing. 
+		if (this.system.equals("redshift") || this.system.equals("synapse"))
+			this.closeConnection();
 	}
 	
 	public void closeConnection() {
