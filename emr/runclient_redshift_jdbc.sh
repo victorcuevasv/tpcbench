@@ -86,8 +86,8 @@ args[13]="--all-or-query-file=all"
 #flags (110000 schema|load|analyze|zorder|power|tput)
 args[15]="--execution-flags=110010"
 
-args[16]="--count-queries=true"
-args[17]="--raw-column-delimiter=PIPE"
+args[23]="--count-queries=true"
+args[24]="--raw-column-delimiter=PIPE"
 
 paramsStr="${args[@]}"
 
