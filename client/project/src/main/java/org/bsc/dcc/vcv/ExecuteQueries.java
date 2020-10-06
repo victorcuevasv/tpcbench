@@ -380,7 +380,7 @@ public class ExecuteQueries {
 				stmt.execute("SET enable_result_cache_for_session TO off");
 			} catch(Exception e) {
 				e.printStackTrace();
-				this.logger.error("Error processing: " + fileName);
+				this.logger.error("Error when disabling results caching");
 				this.logger.error(e);
 				this.logger.error(AppUtil.stringifyStackTrace(e));
 			}
