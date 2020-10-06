@@ -191,7 +191,7 @@ public class CreateSchema {
 			if( system.startsWith("presto") ) {
 				stmt.execute("CREATE SCHEMA " + this.dbName);
 			}
-			else if( system.startsWith("spark") ) {
+			else if( system.startsWith("spark") || system.startsWith("databricks") ) {
 				stmt.execute("CREATE DATABASE " + this.dbName);
 			}
 			else if( system.startsWith("snowflake") ) {
