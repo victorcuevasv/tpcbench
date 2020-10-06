@@ -94,6 +94,7 @@ public class CreateSchema {
 				//String dbrToken = "dapifd4db58404ae64629dc7b41d57f3a769";
 				String dbrToken = AWSUtil.getValue("DatabricksToken");
 				Class.forName(databricksDriverName);
+				System.out.println("DBR TOKEN: " + dbrToken);
 				this.con = DriverManager.getConnection("jdbc:spark://"
 					+ this.hostname + ":443/" + this.dbName
 					+ ";transportMode=http;ssl=1;AuthMech=3"
