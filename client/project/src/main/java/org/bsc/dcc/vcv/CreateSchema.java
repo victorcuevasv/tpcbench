@@ -95,9 +95,10 @@ public class CreateSchema {
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://"
 					+ this.hostname + ":443/" + this.dbName
-					+ ";transportMode=http;ssl=1;AuthMech=3;"
-					+ "UID=token;PWD=" + dbrToken
-					+ "httpPath=/sql/1.0/endpoints/a57e3bc75ae9786b;");
+					+ ";transportMode=http;ssl=1;AuthMech=3"
+					+ ";UID=token;PWD=" + dbrToken
+					+ ";httpPath=/sql/1.0/endpoints/a57e3bc75ae9786b"
+					+ ";UseNativeQuery=1");
 			}
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
