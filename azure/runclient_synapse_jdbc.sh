@@ -91,7 +91,7 @@ args[19]="--raw-column-delimiter=SOH"
 #number of runs to perform for the power test (default 1)
 args[20]="--power-test-runs=1"
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[20]="--execution-flags=110010"
+args[21]="--execution-flags=110010"
 
 paramsStr="${args[@]}"
 
