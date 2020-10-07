@@ -349,6 +349,8 @@ public class CreateDatabase {
 			else if (this.systemRunning.equals("synapse")) {
 				this.createTableSynapse(fileName, sqlCreate, i);
 			}
+			else if (this.systemRunning.equals("databrickssql"))
+				this.createTableDatabricksSQL(fileName, sqlCreate, i);
 			else
 				this.createTable(fileName, sqlCreate, i);
 			i++;
@@ -551,7 +553,7 @@ public class CreateDatabase {
 	private void createTableDatabricksSQL(String sqlCreateFilename, String sqlCreate, int index) {
 		QueryRecord queryRecord = null;
 		Statement stmt = null;
-		String suffix = "";
+		String suffix = "_ext";
 
 		try {
 			//First, create the table, no format or options are specified, only the schema data.
@@ -564,10 +566,10 @@ public class CreateDatabase {
 			
 			// Drop the external table if it exists
 			stmt = con.createStatement();
-			stmt.exectute("drop table if exists " + tableName + this.suffix);
+			stmt.execute("drop table if exists " + tableName + this.suffix);
 			// Create again the external table
 			stmt = con.createStatement();
-			stmt.exectute(extSqlCreate);
+			stmt.execute(extSqlCreate);
 			// If count is enabled, count the number of rows and print them to console
 			if( this.doCount ) {
 				stmt = con.createStatement();
@@ -580,10 +582,10 @@ public class CreateDatabase {
 			saveCreateTableFile(format, tableName, intSqlCreate);
 			// Drop the internal table if it exists
 			stmt = con.createStatement();
-			stmt.exectute("drop table if exists " + tableName);
+			stmt.execute("drop table if exists " + tableName);
 			// Create the internal table
 			stmt = con.createStatement();
-			stmt.exectute(intSqlCreate);
+			stmt.execute(intSqlCreate);
 			String insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
 			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
 				List<String> columns = extractColumnNames(incIntSqlCreate);
@@ -632,7 +634,7 @@ public class CreateDatabase {
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, 
 					! this.systemRunning.startsWith("presto"), suffix, false);
 			String extSqlCreate = null;
-			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark") || this.systemRunning.startsWith("databricks"))
+			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark"))
 				extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, rawDataDir, 
 						extTablePrefixRaw);
 			else if( this.systemRunning.startsWith("presto") )
@@ -648,7 +650,7 @@ public class CreateDatabase {
 				countRowsQuery(stmt, tableName + suffix);
 			String incIntSqlCreate = null;
 			String intSqlCreate = null;
-			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark") || this.systemRunning.startsWith("databricks")) {
+			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark")) {
 				//For Hive the partition attribute should NOT be included in the create table attributes list.
 				incIntSqlCreate = null;
 				if( this.partition )
@@ -671,7 +673,7 @@ public class CreateDatabase {
 			stmt.execute("drop table if exists " + tableName);
 			stmt.execute(intSqlCreate);
 			String insertSql = null;
-			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark") || this.systemRunning.startsWith("databricks")) {
+			if( this.systemRunning.equals("hive") || this.systemRunning.startsWith("spark")) {
 				insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
 				if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
 					//The partition attribute was removed from the attributes list in the create table
