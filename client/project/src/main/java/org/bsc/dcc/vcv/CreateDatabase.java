@@ -597,7 +597,7 @@ public class CreateDatabase {
 			// Start measuring time just before running the actual load
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
-			stmt.exectute(insertSql);
+			stmt.execute(insertSql);
 			// If enabled, count the number of rows
 			queryRecord.setSuccessful(true);
 			if( this.doCount ) {
