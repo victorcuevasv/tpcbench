@@ -564,7 +564,7 @@ public class CreateDatabase {
 			extSb.append("USING com.databricks.spark.csv\n");
 			String fieldDelimiter = "'\001'";
 			if( this.columnDelimiter.equals("PIPE")) fieldDelimiter = "'|'";
-			extSb.append("OPTIONS (path '"); extSb.append(this.extTablePrefixRaw); extSb.append("/"); extSb.append(tableName);
+			extSb.append("OPTIONS (path '"); extSb.append(this.extTablePrefixRaw.get()); extSb.append("/"); extSb.append(tableName);
 			extSb.append("', header 'false', inferSchema 'false', delimiter "); extSb.append(fieldDelimiter);
 			extSb.append("', nullValue '');");
 			String extSqlCreate = extSb.toString();
