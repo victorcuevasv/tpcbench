@@ -88,6 +88,8 @@ args[18]="--all-or-query-file=all"
 #delimiter for the columns in the raw data (SOH, PIPE) default SOH
 args[19]="--raw-column-delimiter=SOH" 
 
+#number of runs to perform for the power test (default 1)
+args[20]="--power-test-runs=1"
 #flags (110000 schema|load|analyze|zorder|power|tput)
 args[20]="--execution-flags=110010"
 

@@ -3,6 +3,7 @@ package org.bsc.dcc.vcv;
 public class QueryRecord {
 	
 	private int query;
+	private int run;
 	private long startTime;
 	private long endTime;
 	private boolean successful;
@@ -63,6 +64,14 @@ public class QueryRecord {
 	
 	public int getTuples() {
 		return this.tuples;
+	}
+	
+	public void setRun(int run) {
+		this.run = run;
+	}
+	
+	public int getRun() {
+		return this.run;
 	}
 
 }
