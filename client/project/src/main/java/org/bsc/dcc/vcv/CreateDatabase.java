@@ -522,7 +522,7 @@ public class CreateDatabase {
 			// Move the data directly from S3 into Redshift through COPY. Invalid chars need to be accepted due to one of the tuples having an
 			// special comma.
 			String fieldDelimiter = "'\001'";
-			if(this.columnDelimiter.equals("PIPE") fieldDelimiter = "'|'";
+			if(this.columnDelimiter.equals("PIPE")) fieldDelimiter = "'|'";
 			copySql = "copy " + tableName + " from " + 
 					"'" + this.extTablePrefixRaw.get() + "/" + tableName + "/' \n" +
 					"iam_role 'arn:aws:iam::384416317380:role/tpcds-redshift'\n" +
@@ -572,11 +572,11 @@ public class CreateDatabase {
 			stmt.execute(intSqlCreate);
 
 			String fieldDelimiter = "'\001'";
-			if(this.columnDelimiter.equals("PIPE") fieldDelimiter = "'|'";
+			if(this.columnDelimiter.equals("PIPE")) fieldDelimiter = "'|'";
 			String copySql = "COPY INTO " + tableName + "\n" 
 				+ "FROM '" + this.extTablePrefixRaw.get() + "/" + tableName + "/' \n"
 				+ "FILEFORMAT CSV"
-				+ "FORMAT OPTIONS('sep'," + fieldDelimiter + ");"
+				+ "FORMAT OPTIONS('sep'," + fieldDelimiter + ");";
 			/*
 			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
 				List<String> columns = extractColumnNames(incIntSqlCreate);
