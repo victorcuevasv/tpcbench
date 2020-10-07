@@ -561,8 +561,8 @@ public class CreateDatabase {
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, this.suffix, false);
-			String extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, this.rawDataDir, this.extTablePrefixRaw);
-			saveCreateTableFile("textfile", tableName, extSqlCreate);
+			String extSqlCreate = externalCreateTableDatabricks(incExtSqlCreate, tableName, this.rawDataDir, this.extTablePrefixRaw);
+			saveCreateTableFile("external", tableName, extSqlCreate);
 			
 			// Drop the external table if it exists
 			stmt = con.createStatement();
@@ -791,6 +791,26 @@ public class CreateDatabase {
 			builder.append("external_location = '" + extTablePrefixRaw.get() + "/" + tableName + "' ) \n");
 		else
 			builder.append("external_location = '" + rawDataDir + "/" + tableName + "' ) \n");
+		return builder.toString();
+	}
+
+	private String externalCreateTableDatabricks(String incompleteSqlCreate, String tableName, String rawDataDir,
+			Optional<String> extTablePrefixRaw) {
+		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
+		// Add the stored as statement.
+		if( format.equalsIgnoreCase("DELTA") )
+			builder.append("USING DELTA\n");
+		else {
+			String fieldTerminatedBy = "'\001'";
+			if( this.columnDelimiter.equals("PIPE") )
+				fieldTerminatedBy = "'|'";
+			builder.append("ROW FORMAT DELIMITED FIELDS TERMINATED BY " + fieldTerminatedBy + " \n");
+			builder.append("STORED AS TEXTFILE \n");
+		}
+		if( extTablePrefixRaw.isPresent() )
+			builder.append("LOCATION '" + extTablePrefixRaw.get() + "/" + tableName + "' \n");
+		else
+			builder.append("LOCATION '" + rawDataDir + "/" + tableName + "' \n");
 		return builder.toString();
 	}
 	
