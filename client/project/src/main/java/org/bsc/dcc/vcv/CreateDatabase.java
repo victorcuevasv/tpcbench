@@ -559,7 +559,7 @@ public class CreateDatabase {
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, this.suffix, false);
-			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName, this.rawDataDir, this.extTablePrefixRaw);
+			String extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, this.rawDataDir, this.extTablePrefixRaw);
 			saveCreateTableFile("textfile", tableName, extSqlCreate);
 			
 			// Drop the external table if it exists
@@ -569,8 +569,13 @@ public class CreateDatabase {
 			stmt = con.createStatement();
 			stmt.exectute(extSqlCreate);
 			// If count is enabled, count the number of rows and print them to console
-			if( this.doCount ) countRowsQuery(tableName + this.suffix);
+			if( this.doCount ) {
+				stmt = con.createStatement();
+				countRowsQuery(stmt, tableName + this.suffix);
+			}
+			
 			// Generate the internal create table sql and write it to file
+			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", false);
 			String intSqlCreate = internalCreateTableDatabricks(incIntSqlCreate, tableName, this.extTablePrefixCreated, this.format);
 			saveCreateTableFile(format, tableName, intSqlCreate);
 			// Drop the internal table if it exists
@@ -593,8 +598,10 @@ public class CreateDatabase {
 			stmt.exectute(insertSql);
 			// If enabled, count the number of rows
 			queryRecord.setSuccessful(true);
-			if( this.doCount )
-				countRowsQuery(tableName);
+			if( this.doCount ) {
+				stmt = con.createStatement();
+				countRowsQuery(stmt, tableName + this.suffix);
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();
