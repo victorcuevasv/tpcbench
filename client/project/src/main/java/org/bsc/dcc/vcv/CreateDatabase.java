@@ -560,7 +560,7 @@ public class CreateDatabase {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			String extSb = new StringBuilder(sqlCreate.substring(0, sqlCreate.length()-2)
+			StringBuilder extSb = new StringBuilder(sqlCreate.substring(0, sqlCreate.length()-2)
 				.replace("table " + tableName, "table " + tableName + "_ext")
 				.replace("integer", "int"));
 			extSb.append("USING com.databricks.start.csv\n");
