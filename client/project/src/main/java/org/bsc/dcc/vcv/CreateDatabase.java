@@ -571,9 +571,12 @@ public class CreateDatabase {
 			
 			saveCreateTableFile("csv", tableName, extSqlCreate);
 			
+			System.out.println("Dropping table " + tableName + "_ext");
 			// Drop the external table if it exists
 			stmt = con.createStatement();
 			stmt.execute("drop table if exists " + tableName + this.suffix);
+
+			System.out.println("Creating table " + tableName + "_ext");
 			// Create again the external table
 			stmt = con.createStatement();
 			stmt.execute(extSqlCreate);
@@ -590,6 +593,8 @@ public class CreateDatabase {
 			// Drop the internal table if it exists
 			stmt = con.createStatement();
 			stmt.execute("drop table if exists " + tableName);
+
+			System.out.println("Creating table " + tableName);
 			// Create the internal table
 			stmt = con.createStatement();
 			stmt.execute(intSqlCreate);
