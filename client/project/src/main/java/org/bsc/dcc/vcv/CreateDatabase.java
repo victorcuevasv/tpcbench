@@ -566,7 +566,7 @@ public class CreateDatabase {
 			if( this.columnDelimiter.equals("PIPE")) fieldDelimiter = "'|'";
 			extSb.append("OPTIONS (path '"); extSb.append(this.extTablePrefixRaw.get()); extSb.append("/"); extSb.append(tableName);
 			extSb.append("', header 'false', inferSchema 'false', delimiter "); extSb.append(fieldDelimiter);
-			extSb.append("', nullValue '');");
+			extSb.append(", nullValue '');");
 			String extSqlCreate = extSb.toString();
 			
 			saveCreateTableFile("csv", tableName, extSqlCreate);
