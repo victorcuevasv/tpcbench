@@ -52,6 +52,7 @@ public class ExecuteQueries {
 	private final boolean saveSnowflakeHistory = false;
 	private final String clusterId;
 	private final String userId;
+	private final int runs;
 	
 	
 	public ExecuteQueries(CommandLine commandLine) {
@@ -79,6 +80,8 @@ public class ExecuteQueries {
 			this.querySingleOrAll = commandLine.getOptionValue("all-or-query-file");
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
 		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
+		String runsStr = commandLine.getOptionValue("power-test-runs", "1");
+		this.runs = Integer.parseInt(runsStr);
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
@@ -137,6 +140,7 @@ public class ExecuteQueries {
 			this.querySingleOrAll = args[14];
 		this.clusterId = "UNUSED";
 		this.userId = "UNUSED";
+		this.iterations = 1;
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 						this.system, this.test, this.instance);
@@ -339,6 +343,25 @@ public class ExecuteQueries {
 		}
 	}
 	
+	private void prepareRedshift() {
+		try {
+			System.out.print("Disabling result caching...");
+			Statement stmt = con.createStatement();
+			stmt.execute("SET enable_result_cache_for_session TO off");
+			System.out.println("done");
+		} catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error when disabling results caching");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+	}
+	
+	private void prepareSnowflake() {
+		this.useDatabaseQuery(this.dbName);
+		this.useSchemaQuery(this.dbName);
+		this.useSnowflakeWarehouseQuery(this.clusterId);	
+	}
 	
 	public static void main(String[] args) {
 		ExecuteQueries application = null;
@@ -368,59 +391,47 @@ public class ExecuteQueries {
 	
 	
 	public void executeQueries() {
-		if( this.system.startsWith("snowflake") ) {
-			this.useDatabaseQuery(this.dbName);
-			this.useSchemaQuery(this.dbName);
-			this.useSnowflakeWarehouseQuery(this.clusterId);
-		}
+		if( this.system.startsWith("snowflake") )
+			this.prepareSnowflake();
 		// If the system is Redshift disable query result caching
-		if (this.system.startsWith("redshift")) {
-			try {
-				System.out.print("Disabling result caching...");
-				Statement stmt = con.createStatement();
-				stmt.execute("SET enable_result_cache_for_session TO off");
-				System.out.println("done");
-			} catch(Exception e) {
-				e.printStackTrace();
-				this.logger.error("Error when disabling results caching");
-				this.logger.error(e);
-				this.logger.error(AppUtil.stringifyStackTrace(e));
-			}
-		}
+		if (this.system.startsWith("redshift"))
+			this.prepareRedshift();
 		this.recorder.header();
-		for (final String fileName : this.queriesReader.getFilesOrdered()) {
-			if( ! this.querySingleOrAll.equals("all") ) {
-				if( ! fileName.equals(this.querySingleOrAll) )
-					continue;
-			}
-			String sqlStr = this.queriesReader.getFile(fileName);
-			String nQueryStr = fileName.replaceAll("[^\\d]", "");
-			int nQuery = Integer.parseInt(nQueryStr);
-			if( this.system.equals("prestoemr") ) {
-				this.setPrestoDefaultSessionOpts();
-			}
-			QueryRecord queryRecord = new QueryRecord(nQuery);
-			this.logger.info("\nExecuting query: " + fileName + "\n" + sqlStr);
-			try {
-				this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
-				if( this.saveResults ) {
-					String queryResultsFileName = this.generateResultsFileName(fileName);
-					File resultsFile = new File(queryResultsFileName);
-					queryRecord.setResultsSize(resultsFile.length());
+		for(int i = 1; i <= this.runs; i++) {
+			for (final String fileName : this.queriesReader.getFilesOrdered()) {
+				if( ! this.querySingleOrAll.equals("all") ) {
+					if( ! fileName.equals(this.querySingleOrAll) )
+						continue;
 				}
-				else
-					queryRecord.setResultsSize(0);
-				queryRecord.setSuccessful(true);
-			}
-			catch(Exception e) {
-				e.printStackTrace();
-				this.logger.error("Error processing: " + fileName);
-				this.logger.error(e);
-				this.logger.error(AppUtil.stringifyStackTrace(e));
-			}
-			finally {
-				queryRecord.setEndTime(System.currentTimeMillis());
-				this.recorder.record(queryRecord);
+				String sqlStr = this.queriesReader.getFile(fileName);
+				String nQueryStr = fileName.replaceAll("[^\\d]", "");
+				int nQuery = Integer.parseInt(nQueryStr);
+				if( this.system.equals("prestoemr") )
+					this.setPrestoDefaultSessionOpts();
+				QueryRecord queryRecord = new QueryRecord(nQuery);
+				queryRecord.setRun(i);
+				this.logger.info("\nExecuting query: " + fileName + "\n" + sqlStr);
+				try {
+					this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
+					if( this.saveResults ) {
+						String queryResultsFileName = this.generateResultsFileName(fileName);
+						File resultsFile = new File(queryResultsFileName);
+						queryRecord.setResultsSize(resultsFile.length());
+					}
+					else
+						queryRecord.setResultsSize(0);
+					queryRecord.setSuccessful(true);
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+					this.logger.error("Error processing: " + fileName);
+					this.logger.error(e);
+					this.logger.error(AppUtil.stringifyStackTrace(e));
+				}
+				finally {
+					queryRecord.setEndTime(System.currentTimeMillis());
+					this.recorder.record(queryRecord);
+				}
 			}
 		}
 		this.recorder.close();

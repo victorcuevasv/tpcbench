@@ -62,7 +62,7 @@ public class AnalyticsRecorder {
 	
 	
 	public void header() {
-		String[] titles = {"QUERY", "SUCCESSFUL", "DURATION", "RESULTS_SIZE", "SYSTEM", 
+		String[] titles = {"QUERY", "RUN", "SUCCESSFUL", "DURATION", "RESULTS_SIZE", "SYSTEM", 
 						   "STARTDATE_EPOCH", "STOPDATE_EPOCH", "DURATION_MS", "STARTDATE",
 						   "STOPDATE", "TUPLES"};
 		StringBuilder builder = new StringBuilder();
@@ -78,6 +78,7 @@ public class AnalyticsRecorder {
 		String colFormat = "%-" + spaces + "s|";
 		StringBuilder builder = new StringBuilder();
 		builder.append(String.format(colFormat, queryRecord.getQuery()));
+		builder.append(String.format(colFormat, queryRecord.getRun()));
 		builder.append(String.format(colFormat, queryRecord.isSuccessful()));
 		long durationMs = queryRecord.getEndTime() - queryRecord.getStartTime();
 		String durationFormatted = String.format("%.3f", ((double) durationMs / 1000.0d));
