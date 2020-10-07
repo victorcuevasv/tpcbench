@@ -563,12 +563,12 @@ public class CreateDatabase {
 			String extSb = StringBuilder(sqlCreate.substring(0, sqlCreate.length()-2)
 				.replace("table " + tableName, "table " + tableName + "_ext")
 				.replace("integer", "int"));
-			extSb.append("USING com.databricks.start.csv\n")
+			extSb.append("USING com.databricks.start.csv\n");
 			String fieldDelimiter = "'\001'";
 			if( this.columnDelimiter.equals("PIPE")) fieldDelimiter = "'|'";
 			extSb.append("OPTIONS (path '"); extSb.append(this.extTablePrefixRaw); extSb.append("/"); extSb.append(tableName);
 			extSb.append("', header 'false', inferSchema 'false', delimiter "); extSb.append(fieldDelimiter);
-			extSb.append("', nullValue '');")
+			extSb.append("', nullValue '');");
 			String extSqlCreate = extSb.toString();
 			
 			saveCreateTableFile("csv", tableName, extSqlCreate);
