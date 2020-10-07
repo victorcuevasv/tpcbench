@@ -522,8 +522,7 @@ public class CreateDatabase {
 			// Move the data directly from S3 into Redshift through COPY. Invalid chars need to be accepted due to one of the tuples having an
 			// special comma.
 			String fieldDelimiter = "'\001'";
-			if( this.columnDelimiter.equals("PIPE") )
-				fieldDelimiter = "'|'";
+			if(this.columnDelimiter.equals("PIPE") fieldDelimiter = "'|'";
 			copySql = "copy " + tableName + " from " + 
 					"'" + this.extTablePrefixRaw.get() + "/" + tableName + "/' \n" +
 					"iam_role 'arn:aws:iam::384416317380:role/tpcds-redshift'\n" +
@@ -560,21 +559,6 @@ public class CreateDatabase {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, this.suffix, false);
-			String extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, this.rawDataDir, this.extTablePrefixRaw);
-			saveCreateTableFile("textfile", tableName, extSqlCreate);
-			
-			// Drop the external table if it exists
-			stmt = con.createStatement();
-			stmt.execute("drop table if exists " + tableName + this.suffix);
-			// Create again the external table
-			stmt = con.createStatement();
-			stmt.execute(extSqlCreate);
-			// If count is enabled, count the number of rows and print them to console
-			if( this.doCount ) {
-				stmt = con.createStatement();
-				countRowsQuery(stmt, tableName + this.suffix);
-			}
 			
 			// Generate the internal create table sql and write it to file
 			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", false);
@@ -586,18 +570,26 @@ public class CreateDatabase {
 			// Create the internal table
 			stmt = con.createStatement();
 			stmt.execute(intSqlCreate);
-			String insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
+
+			String fieldDelimiter = "'\001'";
+			if(this.columnDelimiter.equals("PIPE") fieldDelimiter = "'|'";
+			String copySql = "COPY INTO " + tableName + "\n" 
+				+ "FROM '" + this.extTablePrefixRaw.get() + "/" + tableName + "/' \n"
+				+ "FILEFORMAT CSV"
+				+ "FORMAT OPTIONS('sep'," + fieldDelimiter + ");"
+			/*
 			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
 				List<String> columns = extractColumnNames(incIntSqlCreate);
 				insertSql = createPartitionInsertStmt(tableName, columns, this.suffix, this.format);
 			}
-			// Save the Insert Overwrite file
-			saveCreateTableFile("insert", tableName, insertSql);
+			*/
+			// Save the COPY INTO statement to file
+			saveCreateTableFile("copy", tableName, copySql);
 			stmt = con.createStatement();
 			// Start measuring time just before running the actual load
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
-			stmt.execute(insertSql);
+			stmt.execute(copySql);
 			// If enabled, count the number of rows
 			queryRecord.setSuccessful(true);
 			if( this.doCount ) {
