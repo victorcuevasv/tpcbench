@@ -550,6 +550,7 @@ public class CreateDatabase {
 
 	private void createTableDatabricksSQL(String sqlCreateFilename, String sqlCreate, int index) {
 		QueryRecord queryRecord = null;
+		Statement stmt = null;
 		String suffix = "";
 
 		try {
@@ -557,43 +558,47 @@ public class CreateDatabase {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			// The provided tpc-ds ddl works out of the box on Redshift, we only have to add the distribution and partition 
-			// keys without the last semicolon and newline character (The reader ast a trailing newline)
-			String redshiftSqlCreate = sqlCreate.substring(0, sqlCreate.length()-2);
-			// Get the distribution key for the table (usually the PK) and add the relevant statement. If the table is to be distributed to
-			// all nodes (distkey "all") then add "diststyle all" instead.
-			String distKey = this.distKeys.get(tableName);
-			if (distKey.equals("all")) redshiftSqlCreate += " diststyle all";
-			else if (distKey != null) redshiftSqlCreate += (" distkey(" + distKey + ")");
-
-			// Add the sorkey if one has been assigned to the table
-			String sortKey = this.sortKeys.get(tableName);
-			if (!sortKey.equals("none")) redshiftSqlCreate += (" sortkey(" + sortKey + ")");
-			redshiftSqlCreate += ";";
-			saveCreateTableFile("redshifttable", tableName, redshiftSqlCreate);
+			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, this.suffix, false);
+			String extSqlCreate = externalCreateTable(incExtSqlCreate, tableName, this.rawDataDir, this.extTablePrefixRaw);
+			saveCreateTableFile("textfile", tableName, extSqlCreate);
+			
+			// Drop the external table if it exists
+			stmt = con.createStatement();
+			stmt.exectute("drop table if exists " + tableName + this.suffix);
+			// Create again the external table
+			stmt = con.createStatement();
+			stmt.exectute(extSqlCreate);
+			// If count is enabled, count the number of rows and print them to console
+			if( this.doCount ) countRowsQuery(tableName + this.suffix);
+			// Generate the internal create table sql and write it to file
+			String intSqlCreate = internalCreateTableDatabricks(incIntSqlCreate, tableName, this.extTablePrefixCreated, this.format);
+			saveCreateTableFile(format, tableName, intSqlCreate);
+			// Drop the internal table if it exists
+			stmt = con.createStatement();
+			stmt.exectute("drop table if exists " + tableName);
+			// Create the internal table
+			stmt = con.createStatement();
+			stmt.exectute(intSqlCreate);
+			String insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
+			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
+				List<String> columns = extractColumnNames(incIntSqlCreate);
+				insertSql = createPartitionInsertStmt(tableName, columns, this.suffix, this.format);
+			}
+			// Save the Insert Overwrite file
+			saveCreateTableFile("insert", tableName, insertSql);
+			stmt = con.createStatement();
+			// Start measuring time just before running the actual load
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
-			Statement stmt = con.createStatement();
-			stmt.execute("drop table if exists " + tableName + suffix);
-			stmt.execute(redshiftSqlCreate);
-			String copySql = null;
-			// Move the data directly from S3 into Redshift through COPY. Invalid chars need to be accepted due to one of the tuples having an
-			// special comma.
-			copySql = "copy " + tableName + " from " + 
-					"'" + this.extTablePrefixRaw.get() + "/" + tableName + "/' \n" +
-					"iam_role 'arn:aws:iam::384416317380:role/tpcds-redshift'\n" +
-					//"delimiter '\001'\n" +
-					"ACCEPTINVCHARS\n" +
-					"region 'us-west-2';";
-			stmt.execute(copySql);
+			stmt.exectute(insertSql);
+			// If enabled, count the number of rows
 			queryRecord.setSuccessful(true);
-			saveCreateTableFile("redshiftcopy", tableName, copySql);	// Save the string to file after stopping recording time.
-			if( doCount )
-				countRowsQuery(stmt, tableName);
+			if( this.doCount )
+				countRowsQuery(tableName);
 		}
-		catch (SQLException e) {
+		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabase createTable.");
+			this.logger.error("Error in CreateDatabaseSpark createTable.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -841,6 +846,38 @@ public class CreateDatabase {
 			}
 		}
 		builder.append(") \n");
+		return builder.toString();
+	}
+
+	private String internalCreateTableDatabricks(String incompleteSqlCreate, String tableName,
+			Optional<String> extTablePrefixCreated, String format) {
+		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
+		// Add the stored as statement.
+		if( extTablePrefixCreated.isPresent() ) {
+			if( format.equalsIgnoreCase("DELTA") )
+				builder.append("USING DELTA \n");
+			else
+				//builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
+				builder.append("USING PARQUET \n" + "OPTIONS ('compression'='snappy') \n");
+			if( this.partition ) {
+				int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
+				if( pos != -1 )
+					builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n" );
+			}
+			builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
+		}
+		else {
+			builder.append("USING PARQUET \n" + "OPTIONS ('compression'='snappy') \n");
+			if( this.partition ) {
+				int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
+				if( pos != -1 )
+					//Use for Hive format.
+					//builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + " integer) \n" );
+					builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n");
+			}
+			//Use for Hive format.
+			//builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
+		}
 		return builder.toString();
 	}
 	
