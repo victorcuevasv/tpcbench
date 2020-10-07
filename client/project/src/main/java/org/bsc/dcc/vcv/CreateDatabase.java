@@ -576,13 +576,8 @@ public class CreateDatabase {
 			stmt = con.createStatement();
 			stmt.execute("drop table if exists " + tableName + this.suffix);
 
-			System.out.println("Creating table " + tableName + "_ext");
-			// Create again the external table
-			stmt = con.createStatement();
-			stmt.execute(extSqlCreate);
 			// If count is enabled, count the number of rows and print them to console
 			if( this.doCount ) {
-				stmt = con.createStatement();
 				countRowsQuery(stmt, tableName + this.suffix);
 			}
 			
@@ -591,29 +586,38 @@ public class CreateDatabase {
 			String intSqlCreate = internalCreateTableDatabricks(incIntSqlCreate, tableName, this.extTablePrefixCreated, this.format);
 			saveCreateTableFile(format, tableName, intSqlCreate);
 			// Drop the internal table if it exists
-			stmt = con.createStatement();
 			stmt.execute("drop table if exists " + tableName);
 
-			System.out.println("Creating table " + tableName);
-			// Create the internal table
-			stmt = con.createStatement();
-			stmt.execute(intSqlCreate);
-			String insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
-			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
-				List<String> columns = extractColumnNames(incIntSqlCreate);
-				insertSql = createPartitionInsertStmt(tableName, columns, this.suffix, this.format);
-			}
+			StringBuilder sbInsert = new StringBuilder("INSERT OVERWRITE TABLE ");
+			sbInsert.append(tableName); sbInsert.append(" SELECT * FROM "); sbInsert.append(tableName); sbInsert.append(suffix); sbInsert.append("\n");
+			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName))
+				sbInsert.append("DISTRIBUTE BY " + Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
+			String insertSql = sbInsert.toString();
+
 			// Save the Insert Overwrite file
 			saveCreateTableFile("insert", tableName, insertSql);
 			stmt = con.createStatement();
 			// Start measuring time just before running the actual load
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
+
+			System.out.println("Creating table " + tableName + "_ext");
+			// Create again the external table
+			stmt.execute(extSqlCreate);
+
+			System.out.println("Creating table " + tableName);
+			// Create the internal table
+			stmt = con.createStatement();
+			stmt.execute(intSqlCreate);
+
+			// Insert into the delta table
+			System.out.println("Inserting data into table " + tableName);
+
 			stmt.execute(insertSql);
+			
 			// If enabled, count the number of rows
 			queryRecord.setSuccessful(true);
 			if( this.doCount ) {
-				stmt = con.createStatement();
 				countRowsQuery(stmt, tableName + this.suffix);
 			}
 		}
