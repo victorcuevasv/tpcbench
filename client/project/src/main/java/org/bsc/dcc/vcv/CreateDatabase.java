@@ -560,10 +560,8 @@ public class CreateDatabase {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			StringBuilder extSb = new StringBuilder(sqlCreate.substring(0, sqlCreate.length()-2)
-				.replace("table " + tableName, "table " + tableName + "_ext")
-				.replace("integer", "int"));
-			extSb.append("USING com.databricks.start.csv\n");
+			StringBuilder extSb = new StringBuilder(incompleteCreateTable(sqlCreate, tableName, false, "_ext", false));
+			extSb.append("USING com.databricks.spark.csv\n");
 			String fieldDelimiter = "'\001'";
 			if( this.columnDelimiter.equals("PIPE")) fieldDelimiter = "'|'";
 			extSb.append("OPTIONS (path '"); extSb.append(this.extTablePrefixRaw); extSb.append("/"); extSb.append(tableName);
