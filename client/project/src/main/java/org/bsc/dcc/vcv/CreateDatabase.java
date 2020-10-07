@@ -556,13 +556,20 @@ public class CreateDatabase {
 		String suffix = "_ext";
 
 		try {
-			//First, create the table, no format or options are specified, only the schema data.
+			// Create the external table as explained by Mostafa
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			String incExtSqlCreate = incompleteCreateTable(sqlCreate, tableName, true, this.suffix, false);
-			String extSqlCreate = externalCreateTableHive(incExtSqlCreate, tableName, this.rawDataDir, this.extTablePrefixRaw);
-			saveCreateTableFile("textfile", tableName, extSqlCreate);
+			String extSb = StringBuilder(sqlCreate.substring(0, sqlCreate.length()-2).replace("integer", "int"));
+			extSb.append("USING com.databricks.start.csv\n")
+			String fieldDelimiter = "'\001'";
+			if( this.columnDelimiter.equals("PIPE")) fieldDelimiter = "'|'";
+			extSb.append("OPTIONS (path '"); extSb.append(this.extTablePrefixRaw); extSb.append("/"); extSb.append(tableName);
+			extSb.append("', header 'false', inferSchema 'false', delimiter "); extSb.append(fieldDelimiter);
+			extSb.append("', nullValue '');")
+			String extSqlCreate = extSb.toString();
+			
+			saveCreateTableFile("csv", tableName, extSqlCreate);
 			
 			// Drop the external table if it exists
 			stmt = con.createStatement();
