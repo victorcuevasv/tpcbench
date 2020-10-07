@@ -579,8 +579,9 @@ public class CreateDatabase {
 			String fieldDelimiter = "'\001'";
 			if(this.columnDelimiter.equals("PIPE")) fieldDelimiter = "'|'";
 			String copySql = "COPY INTO " + tableName + "\n" 
-				+ "FROM '" + this.extTablePrefixRaw.get() + "/" + tableName + "/' \n"
+				+ "FROM (SELECT * FROM '" + this.extTablePrefixRaw.get() + "'\n"
 				+ "FILEFORMAT CSV"
+				+ "PATTERN = '" + tableName + "/*.dat'"
 				+ "FORMAT OPTIONS('sep'," + fieldDelimiter + ");";
 			/*
 			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
