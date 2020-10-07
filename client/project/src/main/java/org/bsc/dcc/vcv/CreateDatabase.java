@@ -566,10 +566,14 @@ public class CreateDatabase {
 			saveCreateTableFile(format, tableName, intSqlCreate);
 			// Drop the internal table if it exists
 			stmt = con.createStatement();
+			System.out.print("Dropping existing table " + tableName + "...");
 			stmt.execute("drop table if exists " + tableName);
+			System.out.println("done.");
 			// Create the internal table
 			stmt = con.createStatement();
+			System.out.print("Creating internal table " + tableName + "...");
 			stmt.execute(intSqlCreate);
+			System.out.println("done.");
 
 			String fieldDelimiter = "'\001'";
 			if(this.columnDelimiter.equals("PIPE")) fieldDelimiter = "'|'";
@@ -587,11 +591,13 @@ public class CreateDatabase {
 			saveCreateTableFile("copy", tableName, copySql);
 			stmt = con.createStatement();
 			// Start measuring time just before running the actual load
+			System.out.print("Copying data from " + this.extTablePrefixRaw.get() + "...");
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			stmt.execute(copySql);
 			// If enabled, count the number of rows
 			queryRecord.setSuccessful(true);
+			System.out.println("done.");
 			if( this.doCount ) {
 				stmt = con.createStatement();
 				countRowsQuery(stmt, tableName + this.suffix);
