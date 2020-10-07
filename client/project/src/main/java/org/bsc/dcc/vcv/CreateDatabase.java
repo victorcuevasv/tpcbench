@@ -572,6 +572,7 @@ public class CreateDatabase {
 			// Create the internal table
 			stmt = con.createStatement();
 			System.out.print("Creating internal table " + tableName + "...");
+			this.logger.info("Creating internal table " + tableName + "...");
 			stmt.execute(intSqlCreate);
 			System.out.println("done.");
 
@@ -591,7 +592,8 @@ public class CreateDatabase {
 			saveCreateTableFile("copy", tableName, copySql);
 			stmt = con.createStatement();
 			// Start measuring time just before running the actual load
-			System.out.print("Copying data from " + this.extTablePrefixRaw.get() + "...");
+			System.out.print("Copying data from " + this.extTablePrefixRaw.get() + "/" + tableName + "/...");
+			this.logger.info("Copying data from " + this.extTablePrefixRaw.get() + "/" + tableName + "/...");
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			stmt.execute(copySql);
