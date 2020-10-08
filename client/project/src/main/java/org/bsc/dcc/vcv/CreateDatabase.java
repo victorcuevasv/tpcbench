@@ -527,6 +527,7 @@ public class CreateDatabase {
 					"delimiter " + fieldDelimiter + "\n" +
 					"ACCEPTINVCHARS\n" +
 					"STATUPDATE OFF\n" +
+					"EMPTYASNULL\n" +
 					"region 'us-west-2';";
 
 			saveCreateTableFile("redshiftcopy", tableName, copySql);	// Save the string to file after stopping recording time.

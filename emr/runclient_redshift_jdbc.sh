@@ -85,14 +85,14 @@ args[13]="--all-or-query-file=all"
 #flags (110000 schema|load|analyze|zorder|power|tput)
 args[15]="--execution-flags=011010"
 
-args[23]="--count-queries=true"
+#args[23]="--count-queries=true"
 args[24]="--raw-column-delimiter=PIPE"
-args[25]="--power-test-runs=4"
+args[25]="--power-test-runs=3"
 args[26]="--save-power-plans=false"
 
 paramsStr="${args[@]}"
 
-docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
+docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainerredshift -ti \
 --volume $DIR/../vols/data:/data \
 --volume $DIR/../client/project:/project \
 --volume $HOME/tpcds-jars:/mnt/tpcds-jars \
