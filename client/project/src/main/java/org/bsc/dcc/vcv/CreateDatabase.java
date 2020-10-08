@@ -514,25 +514,32 @@ public class CreateDatabase {
 			redshiftSqlCreate += ";";
 			saveCreateTableFile("redshifttable", tableName, redshiftSqlCreate);
 			queryRecord = new QueryRecord(index);
-			queryRecord.setStartTime(System.currentTimeMillis());
+			
 			Statement stmt = con.createStatement();
 			stmt.execute("drop table if exists " + tableName + suffix);
-			stmt.execute(redshiftSqlCreate);
-			String copySql = null;
-			// Move the data directly from S3 into Redshift through COPY. Invalid chars need to be accepted due to one of the tuples having an
-			// special comma.
+
 			String fieldDelimiter = "'\001'";
 			if( this.columnDelimiter.equals("PIPE") )
 				fieldDelimiter = "'|'";
-			copySql = "copy " + tableName + " from " + 
+			String copySql = "copy " + tableName + " from " + 
 					"'" + this.extTablePrefixRaw.get() + "/" + tableName + "/' \n" +
 					"iam_role 'arn:aws:iam::384416317380:role/tpcds-redshift'\n" +
 					"delimiter " + fieldDelimiter + "\n" +
 					"ACCEPTINVCHARS\n" +
+					"STATUPDATE OFF\n" +
 					"region 'us-west-2';";
+
+			saveCreateTableFile("redshiftcopy", tableName, copySql);	// Save the string to file after stopping recording time.
+
+			queryRecord.setStartTime(System.currentTimeMillis());
+			stmt.execute(redshiftSqlCreate);
+			
+			// Move the data directly from S3 into Redshift through COPY. Invalid chars need to be accepted due to one of the tuples having an
+			// special comma.
+			
 			stmt.execute(copySql);
 			queryRecord.setSuccessful(true);
-			saveCreateTableFile("redshiftcopy", tableName, copySql);	// Save the string to file after stopping recording time.
+			
 			if( doCount )
 				countRowsQuery(stmt, tableName);
 		}
