@@ -233,7 +233,7 @@ public class CreateDatabase {
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
 				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
-				"dev" + "?ssl=true&UID=bsc-dcc-fjjm&PWD=Databr|cks1");
+				this.dbName + "?ssl=true&UID=bsc-dcc-fjjm&PWD=Databr|cks1");
 			}
 			else if( this.systemRunning.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
@@ -514,25 +514,32 @@ public class CreateDatabase {
 			redshiftSqlCreate += ";";
 			saveCreateTableFile("redshifttable", tableName, redshiftSqlCreate);
 			queryRecord = new QueryRecord(index);
-			queryRecord.setStartTime(System.currentTimeMillis());
+			
 			Statement stmt = con.createStatement();
 			stmt.execute("drop table if exists " + tableName + suffix);
-			stmt.execute(redshiftSqlCreate);
-			String copySql = null;
-			// Move the data directly from S3 into Redshift through COPY. Invalid chars need to be accepted due to one of the tuples having an
-			// special comma.
+
 			String fieldDelimiter = "'\001'";
 			if( this.columnDelimiter.equals("PIPE") )
 				fieldDelimiter = "'|'";
-			copySql = "copy " + tableName + " from " + 
+			String copySql = "copy " + tableName + " from " + 
 					"'" + this.extTablePrefixRaw.get() + "/" + tableName + "/' \n" +
 					"iam_role 'arn:aws:iam::384416317380:role/tpcds-redshift'\n" +
 					"delimiter " + fieldDelimiter + "\n" +
 					"ACCEPTINVCHARS\n" +
+					"STATUPDATE OFF\n" +
 					"region 'us-west-2';";
+
+			saveCreateTableFile("redshiftcopy", tableName, copySql);	// Save the string to file after stopping recording time.
+
+			queryRecord.setStartTime(System.currentTimeMillis());
+			stmt.execute(redshiftSqlCreate);
+			
+			// Move the data directly from S3 into Redshift through COPY. Invalid chars need to be accepted due to one of the tuples having an
+			// special comma.
+			
 			stmt.execute(copySql);
 			queryRecord.setSuccessful(true);
-			saveCreateTableFile("redshiftcopy", tableName, copySql);	// Save the string to file after stopping recording time.
+			
 			if( doCount )
 				countRowsQuery(stmt, tableName);
 		}
