@@ -32,7 +32,7 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Nodes="16"
 MajorVersion="7"
-MinorVersion="2"
+MinorVersion="3"
 ScalaVersion="x-scala2.12"
 #Run configuration.
 Tag="$(date +%s)"
@@ -139,6 +139,7 @@ post_data_func()
         "spark_conf":{
             "spark.databricks.delta.optimizeWrite.enabled":"true",
             "spark.databricks.delta.autoCompact.enabled":"true",
+            "spark.databricks.delta.optimizeWrite.numShuffleBlocks":"5000000",
             "spark.sql.crossJoin.enabled":"true",
             "spark.sql.broadcastTimeout":"7200"
          },
