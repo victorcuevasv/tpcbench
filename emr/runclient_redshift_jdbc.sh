@@ -37,7 +37,7 @@ Tag="$(date +%s)"
 ExperimentName="tpcds-redshift-$1gb-${Tag}"
 DirNameWarehouse="tpcds-redshift-$1gb-$2-${Tag}"
 DirNameResults="redshift"
-DatabaseName="tpcds_redshift_$1gb_$2_${Tag}"
+DatabaseName="dev"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 
 args=()
