@@ -87,7 +87,8 @@ args[13]="--all-or-query-file=all"
 args[15]="--execution-flags=110010"
 
 args[23]="--count-queries=true"
-args[24]="--raw-column-delimiter=PIPE"
+#args[24]="--raw-column-delimiter=PIPE"
+args[25]="--power-test-runs=3"
 
 paramsStr="${args[@]}"
 

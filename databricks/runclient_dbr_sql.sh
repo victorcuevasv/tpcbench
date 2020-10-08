@@ -88,6 +88,10 @@ args[13]="--all-or-query-file=all"
 #flags (110000 schema|load|analyze|zorder|power|tput)
 args[15]="--execution-flags=011000"
 
+args[23]="--count-queries=true"
+#args[24]="--raw-column-delimiter=PIPE"
+args[25]="--power-test-runs=3"
+
 paramsStr="${args[@]}"
 
 if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
