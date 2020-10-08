@@ -31,7 +31,6 @@ fi
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
 RedshiftHost="bsc-redshift-test.cha8h2ua3ess.us-west-2.redshift.amazonaws.com"
-Nodes="2"
 #Run configuration.
 Tag="$(date +%s)"
 ExperimentName="tpcds-redshift-$1gb-${Tag}"
@@ -56,7 +55,7 @@ args[4]="--system-name=redshift"
 #experiment instance number
 args[5]="--instance-number=$2"
 #prefix of external location for raw data tables (e.g. S3 bucket), null for none
-args[6]="--ext-raw-data-location=s3://tpcds-datasets/$1GB"
+args[6]="--ext-raw-data-location=s3://tpcds-datasets/databricks/tpcds_$1_datafiles"
 #prefix of external location for created tables (e.g. S3 bucket), null for none
 args[7]="--ext-tables-location=s3://tpcds-warehouses-test/$DirNameWarehouse"
 #format for column-storage tables (PARQUET, DELTA)
@@ -84,11 +83,12 @@ args[22]="--all-or-create-file=all"
 #"all" or query file
 args[13]="--all-or-query-file=all" 
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=110010"
+args[15]="--execution-flags=011010"
 
 args[23]="--count-queries=true"
-#args[24]="--raw-column-delimiter=PIPE"
-args[25]="--power-test-runs=3"
+args[24]="--raw-column-delimiter=PIPE"
+args[25]="--power-test-runs=4"
+args[26]="--save-power-plans=false"
 
 paramsStr="${args[@]}"
 
