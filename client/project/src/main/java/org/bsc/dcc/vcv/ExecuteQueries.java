@@ -111,8 +111,7 @@ public class ExecuteQueries {
 	 * args[14] "all" or query file
 	 * 
 	 */
-	// Open the connection (the server address depends on whether the program is
-	// running locally or under docker-compose).
+	// Deprecated. No longer able to set up all of the options.
 	public ExecuteQueries(String[] args) {
 		if( args.length != 15 ) {
 			System.out.println("Incorrect number of arguments: "  + args.length);
@@ -396,6 +395,8 @@ public class ExecuteQueries {
 		// If the system is Redshift disable query result caching
 		if (this.system.startsWith("redshift"))
 			this.prepareRedshift();
+		if( this.test.equals("power") && this.savePlans )
+			this.savePlans();
 		this.recorder.header();
 		for(int i = 1; i <= this.runs; i++) {
 			for (final String fileName : this.queriesReader.getFilesOrdered()) {
@@ -410,11 +411,13 @@ public class ExecuteQueries {
 					this.setPrestoDefaultSessionOpts();
 				QueryRecord queryRecord = new QueryRecord(nQuery);
 				queryRecord.setRun(i);
-				this.logger.info("\nExecuting query: " + fileName + "\n" + sqlStr);
+				this.logger.info("\nExecuting query: " + fileName + " (run " + i + ")\n" + sqlStr);
 				try {
 					this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
+					//The results should have been saved by executeQueryMultipleCalls,
+					//check the generated file to obtain the results size.
 					if( this.saveResults ) {
-						String queryResultsFileName = this.generateResultsFileName(fileName);
+						String queryResultsFileName = this.generateResultsFileName(fileName, i);
 						File resultsFile = new File(queryResultsFileName);
 						queryRecord.setResultsSize(resultsFile.length());
 					}
@@ -444,8 +447,48 @@ public class ExecuteQueries {
 	}
 	
 	
-	private String generateResultsFileName(String queryFileName) {
+	private void savePlans() {
+		for (final String fileName : this.queriesReader.getFilesOrdered()) {
+			if( ! this.querySingleOrAll.equals("all") ) {
+				if( ! fileName.equals(this.querySingleOrAll) )
+					continue;
+			}
+			String sqlStrFull = this.queriesReader.getFile(fileName);
+			String nQueryStr = fileName.replaceAll("[^\\d]", "");
+			int nQuery = Integer.parseInt(nQueryStr);
+			this.logger.info("\nGenerating query plan for: " + fileName);
+			// Split the various queries and obtain the plan for each.
+			StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
+			boolean firstQuery = true;
+			while (tokenizer.hasMoreTokens()) {
+				String sqlStr = tokenizer.nextToken().trim();
+				if( sqlStr.length() == 0 )
+					continue;	
+				try {
+					Statement stmt = this.con.createStatement();
+					String explainStr = "EXPLAIN ";
+					if( this.system.startsWith("presto") )
+						explainStr += "(FORMAT GRAPHVIZ) ";
+					ResultSet planRS = stmt.executeQuery(explainStr + sqlStr);
+					this.saveResults(this.generatePlansFileName(fileName), planRS, ! firstQuery);
+					planRS.close();
+					stmt.close();
+					firstQuery = false;
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+					this.logger.error("Error generating plan for: " + fileName);
+					this.logger.error(e);
+					this.logger.error(AppUtil.stringifyStackTrace(e));
+				}
+			}
+		}
+	}
+	
+	
+	private String generateResultsFileName(String queryFileName, int run) {
 		String noExtFileName = queryFileName.substring(0, queryFileName.indexOf('.'));
+		noExtFileName += ("_" + run);
 		return this.workDir + "/" + this.resultsDir + "/" + this.resultsSubDir + "/" + this.experimentName + 
 				"/" + this.test + "/" + this.instance + "/" + noExtFileName + ".txt";
 	}
@@ -475,30 +518,22 @@ public class ExecuteQueries {
 				sessionStmt.close();
 				continue;
 			}
-			// Obtain the plan for the query.
-			Statement stmt = con.createStatement();
-			if( this.test.equals("power") &&  this.savePlans ) {
-				String explainStr = "EXPLAIN ";
-				if( this.system.startsWith("presto") )
-					explainStr += "(FORMAT GRAPHVIZ) ";
-				ResultSet planrs = stmt.executeQuery(explainStr + sqlStr);
-				//this.saveResults(workDir + "/" + plansSubDir + "/" + fileName + ".txt", planrs, ! firstQuery);
-				this.saveResults(this.generatePlansFileName(queryFileName), planrs, ! firstQuery);
-				planrs.close();
-			}
 			// Execute the query.
+			Statement stmt = con.createStatement();
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
-			System.out.println("Executing iteration " + iteration + " of query " + queryFileName + ".");
+			System.out.println("Executing iteration " + iteration + " of query " + 
+				queryFileName + " (run " + queryRecord.getRun() + ").");
 			if( this.system.startsWith("snowflake") )
-				this.setSnowflakeQueryTag("q" + queryRecord.getQuery() + "_" + iteration);
+				this.setSnowflakeQueryTag("q" + queryRecord.getQuery() + "_i" + 
+						iteration + "_r" + queryRecord.getRun());
 			ResultSet rs = stmt.executeQuery(sqlStr);
 			if( this.system.startsWith("snowflake") )
 				this.setSnowflakeQueryTag("");
 			// Save the results.
-			//this.saveResults(workDir + "/" + resultsDir + "/" + fileName + ".txt", rs, ! firstQuery);
 			if( this.test.equals("power") &&  this.saveResults ) {
-				int tuples = this.saveResults(this.generateResultsFileName(queryFileName), rs, ! firstQuery);
+				int tuples = this.saveResults(
+						this.generateResultsFileName(queryFileName, queryRecord.getRun()), rs, ! firstQuery);
 				queryRecord.setTuples(queryRecord.getTuples() + tuples);
 			}
 			stmt.close();
