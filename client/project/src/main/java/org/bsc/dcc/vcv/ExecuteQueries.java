@@ -456,8 +456,8 @@ public class ExecuteQueries {
 			String sqlStrFull = this.queriesReader.getFile(fileName);
 			String nQueryStr = fileName.replaceAll("[^\\d]", "");
 			int nQuery = Integer.parseInt(nQueryStr);
-			this.logger.info("\nGenerating query plan for: " + fileName);
-			System.out.println("\nGenerating query plan for: " + fileName);
+			this.logger.info("Generating query plan for: " + fileName);
+			System.out.println("Generating query plan for: " + fileName);
 			// Split the various queries and obtain the plan for each.
 			StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
 			boolean firstQuery = true;
