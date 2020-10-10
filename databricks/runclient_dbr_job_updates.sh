@@ -140,6 +140,7 @@ post_data_func()
             "spark.databricks.delta.optimizeWrite.enabled":"true",
             "spark.databricks.delta.autoCompact.enabled":"true",
             "spark.databricks.delta.optimizeWrite.numShuffleBlocks":"5000000",
+            "spark.databricks.adaptive.autoOptimizeShuffle.enabled":"true",
             "spark.sql.crossJoin.enabled":"true",
             "spark.sql.broadcastTimeout":"7200"
          },
