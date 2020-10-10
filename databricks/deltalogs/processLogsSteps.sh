@@ -20,7 +20,7 @@ fi
 i=0
 for f in $DIR/*.json ; do 
    mkdir $i
-   mv $DIR/$f $DIR/$i.json
+   mv $f $DIR/$i.json
    processStep $i
    i=$((i+1))
 done
