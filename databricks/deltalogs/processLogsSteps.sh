@@ -17,14 +17,6 @@ if [ $# -lt 1 ]; then
     exit 0
 fi
 
-i=0
-for f in $DIR/*.json ; do 
-   mkdir $i
-   mv $f $DIR/$i.json
-   processStep $i
-   i=$((i+1))
-done
-
 #$1 step number
 processStep() {
 	#Separate the added files from the removed files.
@@ -50,6 +42,16 @@ processStep() {
 	done < removed.txt
 	rm removed.txt
 }
+
+i=0
+for f in $DIR/*.json ; do 
+   mkdir $i
+   mv $f $DIR/$i.json
+   processStep $i
+   i=$((i+1))
+done
+
+
 
 
 
