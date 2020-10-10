@@ -17,7 +17,7 @@ if [ $# -lt 1 ]; then
     exit 0
 fi
 
-i=1
+i=0
 for f in $DIR/*.json ; do 
    mkdir $i
    mv $DIR/$f $DIR/$i.json
@@ -40,6 +40,7 @@ processStep() {
 		size=$(echo $line | jq '.add.size' | sed '1s/^.//' | sed '$ s/.$//')
 		printf "${path},${records},${size},${partition}\n" >> $DIR/$1/added.csv 
 	done < added.txt
+	rm added.txt
 	
 	printf "path|records|size|partition\n" >> $DIR/$1/removed.csv 
 	while read -r line || [[ -n "$line" ]]; do 
@@ -47,6 +48,7 @@ processStep() {
 		partition=$(echo $path | cut -c17-23)
 		printf "${path}|||${partition}\n" >> removedRecords.txt
 	done < removed.txt
+	rm removed.txt
 }
 
 
