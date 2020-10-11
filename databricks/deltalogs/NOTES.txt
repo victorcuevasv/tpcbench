@@ -1,5 +1,5 @@
 
-CREATE TABLE LOG(
+CREATE TABLE filelog(
 	experiment varchar(200),
 	step int,
 	operation varchar(20),
@@ -7,84 +7,54 @@ CREATE TABLE LOG(
 	records int,
 	size bigint,
 	partition int
-)
+);
 
+CREATE TABLE filecommits(
+	experiment varchar(200),
+	state int,
+	path varchar(500),
+	records int,
+	size bigint,
+	partition int
+);
 
-COPY LOG
+COPY filelog
 FROM 'C:\Users\bscuser\Desktop\log.csv'
 DELIMITER '|'
 CSV HEADER;
 
-
-create table commit0 as select * from log where step = 0 and operation = 'add';
-
-
-create table commit1 as (
-	(select *
-	from commit0
-	where not exists (select *
-					  from log
-					  where step = 1
-					  and operation = 'remove'
-					  and log.path = commit0.path))
-	union
-	(select * from log where step = 1 and operation = 'add')
-);
+INSERT INTO filecommits
+SELECT experiment, 0, path, records, size, partition
+FROM filelog WHERE step = 0 and operation = 'add';
 
 do $$
 declare
-	i int := 1;
+	i int := 0;
 	maxCommit int := 5;
 	stmt text;
 begin
 	loop
-		exit when i = maxCommit + 1; 
-		stmt = FORMAT('create table commit%2$s as (
-		(select *
-		from commit%1$s
-		where not exists (select *
-						  from log
-						  where step = %2$s
-						  and operation = ''remove''
-						  and log.path = commit%1$s.path))
-		union
-		(select * from log where step = %2$s and operation = ''add''))', i-1, i);
+		exit when i = maxCommit; 
+		stmt = FORMAT('INSERT INTO filecommits
+		(SELECT experiment, %2$s, path, records, size, partition
+		FROM filecommits
+		WHERE state = %1$s AND 
+			NOT EXISTS (SELECT *
+						  FROM filelog
+						  WHERE step = %2$s
+						  AND operation = ''remove''
+						  AND filelog.path = filecommits.path))
+		UNION
+		(SELECT experiment, %2$s, path, records, size, partition
+		FROM filelog WHERE step = %2$s AND operation = ''add'')', i, i+1);
 		EXECUTE stmt;
 		RAISE NOTICE '%' , stmt;
 		i := i + 1;
 	end loop;	
 end; $$
 
-
-
-stmt = FORMAT('create table commit%2$s as (
-	(select *
-	from commit%1$s
-	where not exists (select *
-					  from log
-					  where step = %2$s
-					  and operation = ''remove''
-					  and log.path = commit%1$s.path))
-	union
-	(select * from log where step = %2$s and operation = ''add'')', '0', '1');
-	
-
-(select 'commit0', count(*), sum(records), sum(size)/(1024*1024), count(distinct partition) from commit0)
-union
-(select 'commit1', count(*), sum(records), sum(size)/(1024*1024), count(distinct partition) from commit1)
-union
-(select 'commit2', count(*), sum(records), sum(size)/(1024*1024), count(distinct partition) from commit2)
-union
-(select 'commit3', count(*), sum(records), sum(size)/(1024*1024), count(distinct partition) from commit3)
-union
-(select 'commit4', count(*), sum(records), sum(size)/(1024*1024), count(distinct partition) from commit4)
-union
-(select 'commit5', count(*), sum(records), sum(size)/(1024*1024), count(distinct partition) from commit5)
-order by 1;
-
-
-
-
-
+SELECT state, count(*), sum(records), sum(size)/(1024*1024), count(distinct partition) 
+FROM filecommits
+GROUP BY state
 
 

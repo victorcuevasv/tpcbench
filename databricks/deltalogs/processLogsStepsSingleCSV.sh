@@ -26,8 +26,12 @@ processStep() {
 	grep '{"remove"' "$f" > removed.txt
 	 
 	while read -r line || [[ -n "$line" ]]; do
-		#To convert the stats element text to json, remove with sed the \ character, then the first character, and finally the last character.
-		records=$(echo $line | jq '.add.stats'  |  sed 's/\\//g' | sed '1s/^.//' | sed '$ s/.$//' | jq '.numRecords')
+		#To convert the stats element text to json, remove with tr the \ character
+		#and then the start and end quotes.    
+		records=$(echo $line | jq '.add.stats' | tr -d '\\')
+	    records=${records:1}
+	    records=${records%?}
+	    records=$(echo $records | jq -r '.numRecords')
 	    path=$(echo $line | jq -r '.add.path')
 		partition=$(echo $path | cut -c17-23)
 		size=$(echo $line | jq -r '.add.size')
@@ -36,7 +40,7 @@ processStep() {
 	rm added.txt
 	
 	while read -r line || [[ -n "$line" ]]; do 
-		path=$(echo $line | jq '.remove.path' | sed '1s/^.//' | sed '$ s/.$//')
+		path=$(echo $line | jq -r '.remove.path')
 		partition=$(echo $path | cut -c17-23)
 		printf "$3|$2|remove|${path}|||${partition}\n" >> $DIR/log.csv
 	done < removed.txt
@@ -46,7 +50,11 @@ processStep() {
 printf "experiment|step|operation|path|records|size|partition\n" >> $DIR/log.csv
 i=0
 for f in $DIR/*.json ; do 
+   printf "Processing %s.\n" $f
    processStep $f $i $2
+   if [ $i -eq $1 ]; then
+   	break
+   fi
    i=$((i+1))
 done
 
