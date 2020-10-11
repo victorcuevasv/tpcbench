@@ -159,7 +159,7 @@ public class AnalyzeTables {
 				this.con = DriverManager.getConnection("jdbc:spark://"
 					+ this.hostname + ":443/" + this.dbName
 					+ ";transportMode=http;ssl=1;AuthMech=3"
-					+ ";httpPath=/sql/1.0/endpoints/a57e3bc75ae9786b"
+					+ ";httpPath=/sql/1.0/endpoints/930f6d130b29ff01"
 					+ ";UID=token;PWD=" + dbrToken
 					+ ";UseNativeQuery=1");
 			}
@@ -244,7 +244,7 @@ public class AnalyzeTables {
 					continue;
 				}
 			}
-			if( this.systemRunning.startsWith("spark") )
+			if( this.systemRunning.startsWith("spark") || this.systemRunning.startsWith("databrickssql"))
 				this.executeAnalyzeTableSpark(fileName, i);
 			else
 				this.executeAnalyzeTable(fileName, i);
@@ -344,10 +344,15 @@ public class AnalyzeTables {
 			queryRecord.setStartTime(System.currentTimeMillis());
 			Statement stmt = con.createStatement();
 			if( this.computeForCols ) {
-				ResultSet rs = stmt.executeQuery("DESCRIBE " + tableName);
-				String columnsStr = extractColumns(rs, 0);
-				String sqlStrCols = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR COLUMNS " + 
-						columnsStr;
+				String sqlStrCols = "";
+				if (this.systemRunning.startsWith("databrickssql")) 
+					sqlStrCols = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR ALL COLUMNS;";
+				else {
+					ResultSet rs = stmt.executeQuery("DESCRIBE " + tableName);
+					String columnsStr = extractColumns(rs, 0);
+					sqlStrCols = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR COLUMNS " + 
+							columnsStr;
+				}
 				this.saveAnalyzeTableFile("analyze", tableName, sqlStrCols);
 				stmt.executeUpdate(sqlStrCols);
 			}
