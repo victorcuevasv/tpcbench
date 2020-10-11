@@ -28,9 +28,9 @@ processStep() {
 	while read -r line || [[ -n "$line" ]]; do
 		#To convert the stats element text to json, remove with sed the \ character, then the first character, and finally the last character.
 		records=$(echo $line | jq '.add.stats'  |  sed 's/\\//g' | sed '1s/^.//' | sed '$ s/.$//' | jq '.numRecords')
-	    path=$(echo $line | jq '.add.path' | sed '1s/^.//' | sed '$ s/.$//')
+	    path=$(echo $line | jq -r '.add.path')
 		partition=$(echo $path | cut -c17-23)
-		size=$(echo $line | jq '.add.size' | sed '1s/^.//' | sed '$ s/.$//')
+		size=$(echo $line | jq -r '.add.size')
 		printf "$3|$2|add|${path}|${records}|${size}|${partition}\n" >> $DIR/log.csv 
 	done < added.txt
 	rm added.txt
