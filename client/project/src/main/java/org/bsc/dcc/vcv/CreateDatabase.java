@@ -226,7 +226,7 @@ public class CreateDatabase {
 				this.con = DriverManager.getConnection("jdbc:spark://"
 					+ this.hostname + ":443/" + this.dbName
 					+ ";transportMode=http;ssl=1;AuthMech=3"
-					+ ";httpPath=/sql/1.0/endpoints/930f6d130b29ff01"
+					+ ";httpPath=/sql/1.0/endpoints/48338af431f45d31"
 					+ ";UID=token;PWD=" + dbrToken
 					+ ";UseNativeQuery=1");
 			}
@@ -320,6 +320,11 @@ public class CreateDatabase {
 			this.useSchemaQuery(this.dbName);
 			this.useSnowflakeWarehouseQuery(this.clusterId);
 			this.createSnowflakeStageQuery(this.dbName + "_stage");
+		}
+		if (this.system.startsWith("databrickssql")) {
+			Statement stmt = con.createStatement();
+			// Optimized Writes is disabled by default in Analytics SQL, enable it for the session.
+			stmt.execute("SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite = true;");
 		}
 		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
@@ -577,10 +582,7 @@ public class CreateDatabase {
 			extSb.append(", nullValue '');");
 			String extSqlCreate = extSb.toString();
 			
-			saveCreateTableFile("csv", tableName, extSqlCreate);
-
-			stmt = con.createStatement();
-			stmt.execute("SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite = true;");
+			saveCreateTableFile("csv", tableName, extSqlCreate);			
 
 			System.out.println("Dropping table " + tableName + "_ext");
 			// Drop the external table if it exists

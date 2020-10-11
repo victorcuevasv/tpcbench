@@ -159,7 +159,7 @@ public class AnalyzeTables {
 				this.con = DriverManager.getConnection("jdbc:spark://"
 					+ this.hostname + ":443/" + this.dbName
 					+ ";transportMode=http;ssl=1;AuthMech=3"
-					+ ";httpPath=/sql/1.0/endpoints/930f6d130b29ff01"
+					+ ";httpPath=/sql/1.0/endpoints/48338af431f45d31"
 					+ ";UID=token;PWD=" + dbrToken
 					+ ";UseNativeQuery=1");
 			}
