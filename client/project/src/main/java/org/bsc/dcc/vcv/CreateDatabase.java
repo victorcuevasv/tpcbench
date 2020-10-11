@@ -580,7 +580,7 @@ public class CreateDatabase {
 			saveCreateTableFile("csv", tableName, extSqlCreate);
 
 			stmt = con.createStatement();
-			stmt.execute("SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite = true;")
+			stmt.execute("SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite = true;");
 
 			System.out.println("Dropping table " + tableName + "_ext");
 			// Drop the external table if it exists
