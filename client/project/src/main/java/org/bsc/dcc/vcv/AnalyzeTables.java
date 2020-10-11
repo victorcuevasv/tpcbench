@@ -244,7 +244,7 @@ public class AnalyzeTables {
 					continue;
 				}
 			}
-			if( this.systemRunning.startsWith("spark") )
+			if( this.systemRunning.startsWith("spark") || this.systemRunning.startsWith("databrickssql"))
 				this.executeAnalyzeTableSpark(fileName, i);
 			else
 				this.executeAnalyzeTable(fileName, i);
