@@ -344,9 +344,9 @@ public class AnalyzeTables {
 			queryRecord.setStartTime(System.currentTimeMillis());
 			Statement stmt = con.createStatement();
 			if( this.computeForCols ) {
-				ResultSet rs = stmt.executeQuery("DESCRIBE " + tableName);
+				ResultSet rs = stmt.executeQuery("DESCRIBE " + this.dbName + "." + tableName);
 				String columnsStr = extractColumns(rs, 0);
-				String sqlStrCols = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR COLUMNS " + 
+				String sqlStrCols = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR ALL COLUMNS" + 
 						columnsStr;
 				this.saveAnalyzeTableFile("analyze", tableName, sqlStrCols);
 				stmt.executeUpdate(sqlStrCols);
