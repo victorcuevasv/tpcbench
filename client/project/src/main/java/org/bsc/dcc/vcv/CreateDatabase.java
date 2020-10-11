@@ -593,7 +593,7 @@ public class CreateDatabase {
 
 			System.out.println("Dropping table " + tableName + "_ext");
 			// Drop the external table if it exists
-			
+			stmt = con.createStatement();
 			stmt.execute("drop table if exists " + tableName + this.suffix);
 
 			// If count is enabled, count the number of rows and print them to console
