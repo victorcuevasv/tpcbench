@@ -42,6 +42,8 @@ SELECT s1.experiment, s1.step, s1.operation, s1.path, s2.records, s2.size, s1.pa
 FROM filelog_stage s1, filelog_stage s2
 WHERE s1.operation = 'remove' AND s2.operation = 'add' AND s1.path = s2.path;
 
+DROP TABLE filelog_stage;
+
 INSERT INTO filecommits
 SELECT experiment, 0, path, records, size, partition
 FROM filelog WHERE step = 0 and operation = 'add';
@@ -78,7 +80,7 @@ end; $$
 SELECT state AS state, count(*) AS "total files", SUM(records) AS "total records", 
 ROUND(SUM(size)/(1024*1024*1024), 2) AS "total size (GB)", COUNT(DISTINCT partition) AS "total partitions"
 FROM filecommits
-GROUP BY state
+GROUP BY state;
 
 --Query to summarize the changes induced by each operation
 
@@ -92,6 +94,6 @@ ROUND(SUM(CASE WHEN operation = 'remove' THEN size ELSE 0 END)/(1024*1024*1024),
 COUNT(DISTINCT CASE WHEN operation = 'add' THEN partition ELSE null END) AS "partitions added to",
 COUNT(DISTINCT CASE WHEN operation = 'remove' THEN partition ELSE null END) AS "partitions removed from"
 FROM filelog
-GROUP BY step
+GROUP BY step;
 
 
