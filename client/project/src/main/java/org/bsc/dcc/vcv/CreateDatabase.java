@@ -598,8 +598,8 @@ public class CreateDatabase {
 
 			StringBuilder sbInsert = new StringBuilder("INSERT OVERWRITE TABLE ");
 			sbInsert.append(tableName); sbInsert.append(" SELECT * FROM "); sbInsert.append(tableName); sbInsert.append(suffix); sbInsert.append("\n");
-			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName))
-				sbInsert.append("DISTRIBUTE BY " + Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
+			//if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName))
+			//	sbInsert.append("DISTRIBUTE BY " + Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
 			String insertSql = sbInsert.toString();
 
 			// Save the Insert Overwrite file
