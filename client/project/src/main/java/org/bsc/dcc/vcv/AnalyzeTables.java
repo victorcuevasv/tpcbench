@@ -350,7 +350,7 @@ public class AnalyzeTables {
 				else {
 					ResultSet rs = stmt.executeQuery("DESCRIBE " + tableName);
 					String columnsStr = extractColumns(rs, 0);
-					String sqlStrCols = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR COLUMNS " + 
+					sqlStrCols = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR COLUMNS " + 
 							columnsStr;
 				}
 				this.saveAnalyzeTableFile("analyze", tableName, sqlStrCols);
