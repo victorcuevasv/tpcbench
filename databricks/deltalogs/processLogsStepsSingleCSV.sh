@@ -12,42 +12,41 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 #$1 number of steps to process
 
-if [ $# -lt 1 ]; then
-    echo "${yel}Usage: bash processLogsSteps.sh <n steps>.${end}"
+if [ $# -lt 2 ]; then
+    echo "${yel}Usage: bash processLogsSteps.sh <n steps> <experiment name>.${end}"
     exit 0
 fi
 
-#$1 step number
+#$1 file
+#$2 step number
+#$3 experiment name
 processStep() {
 	#Separate the added files from the removed files.
-	grep '{"add"' "$DIR/$1.json" > added.txt
-	grep '{"remove"' "$DIR/$1.json" > removed.txt
-	
-	printf "path|records|size|partition\n" >> $DIR/$1/added.csv 
+	grep '{"add"' "$f" > added.txt
+	grep '{"remove"' "$f" > removed.txt
+	 
 	while read -r line || [[ -n "$line" ]]; do
 		#To convert the stats element text to json, remove with sed the \ character, then the first character, and finally the last character.
 		records=$(echo $line | jq '.add.stats'  |  sed 's/\\//g' | sed '1s/^.//' | sed '$ s/.$//' | jq '.numRecords')
 	    path=$(echo $line | jq '.add.path' | sed '1s/^.//' | sed '$ s/.$//')
 		partition=$(echo $path | cut -c17-23)
 		size=$(echo $line | jq '.add.size' | sed '1s/^.//' | sed '$ s/.$//')
-		printf "${path}|${records}|${size}|${partition}\n" >> $DIR/$1/added.csv 
+		printf "$3|$2|add|${path}|${records}|${size}|${partition}\n" >> $DIR/log.csv 
 	done < added.txt
 	rm added.txt
 	
-	printf "path|records|size|partition\n" >> $DIR/$1/removed.csv 
 	while read -r line || [[ -n "$line" ]]; do 
 		path=$(echo $line | jq '.remove.path' | sed '1s/^.//' | sed '$ s/.$//')
 		partition=$(echo $path | cut -c17-23)
-		printf "${path}|||${partition}\n" >> $DIR/$1/removed.csv
+		printf "$3|$2|remove|${path}|||${partition}\n" >> $DIR/log.csv
 	done < removed.txt
 	rm removed.txt
 }
 
+printf "experiment|step|operation|path|records|size|partition\n" >> $DIR/log.csv
 i=0
 for f in $DIR/*.json ; do 
-   mkdir $i
-   mv $f $DIR/$i.json
-   processStep $i
+   processStep $f $i $2
    i=$((i+1))
 done
 
