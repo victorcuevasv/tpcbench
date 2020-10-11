@@ -322,9 +322,16 @@ public class CreateDatabase {
 			this.createSnowflakeStageQuery(this.dbName + "_stage");
 		}
 		if (this.system.startsWith("databrickssql")) {
-			Statement stmt = con.createStatement();
-			// Optimized Writes is disabled by default in Analytics SQL, enable it for the session.
-			stmt.execute("SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite = true;");
+			try {
+				Statement stmt = con.createStatement();
+				// Optimized Writes is disabled by default in Analytics SQL, enable it for the session.
+				stmt.execute("SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite = true;");
+			} catch (SQLException e) {
+				e.printStackTrace();
+				this.logger.error("Error in CreateDatabase createTable.");
+				this.logger.error(e);
+				this.logger.error(AppUtil.stringifyStackTrace(e));
+			}
 		}
 		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
