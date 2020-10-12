@@ -81,7 +81,6 @@ public class ExecuteQueries {
 			this.querySingleOrAll = commandLine.getOptionValue("all-or-query-file");
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
 		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
-		this.httpPath = commandLine.getOptionValue("http-path", "UNUSED");
 		this.dbPassword = commandLine.getOptionValue("db-password", "UNUSED");
 		String runsStr = commandLine.getOptionValue("power-test-runs", "1");
 		this.runs = Integer.parseInt(runsStr);
