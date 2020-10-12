@@ -118,6 +118,7 @@ public class AnalyzeTables {
 		this.createSingleOrAll = "all";
 		this.clusterId = "UNUSED";
 		this.userId = "UNUSED";
+		this.dbPassword = "UNUSED";
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		this.analyzeTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
