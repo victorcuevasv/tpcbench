@@ -45,6 +45,7 @@ public class AnalyzeTables {
 	private final String createSingleOrAll;
 	private String systemRunning;
 	private final String clusterId;
+	private final String userId;
 	private final String dbPassword;
 	
 	
