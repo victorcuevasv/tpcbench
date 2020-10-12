@@ -594,7 +594,7 @@ public class CreateDatabase {
 			extSb.append("  timestampFormat='yyyy-MM-dd HH:mm:ss[.SSS]', -- spec: yyyy-mm-dd hh:mm:ss.s\n");
 			extSb.append("  mode='PERMISSIVE',\n");
 			extSb.append("  multiLine='false',\n");
-			extSb.append("  locale='en-US',"\n);
+			extSb.append("  locale='en-US',\n");
 			extSb.append("  lineSep='\\n'\n");
 			extSb.append(");");
 			
