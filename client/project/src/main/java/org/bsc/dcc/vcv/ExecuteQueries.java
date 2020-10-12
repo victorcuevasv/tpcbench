@@ -141,6 +141,7 @@ public class ExecuteQueries {
 			this.querySingleOrAll = args[14];
 		this.clusterId = "UNUSED";
 		this.userId = "UNUSED";
+		this.dbPassword = "UNUSED";
 		this.runs = 1;
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
