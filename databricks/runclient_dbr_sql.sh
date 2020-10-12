@@ -35,10 +35,12 @@ Nodes="2"
 #Run configuration.
 Tag="$(date +%s)"
 ExperimentName="tpcds-dbrsql-$1gb-${Tag}"
-DirNameWarehouse="tpcds-dbrsql-$1gb-$2-${Tag}"
+DirNameWarehouse="UNUSED"
 DirNameResults="dbrsql"
 DatabaseName="bsc_dbrsql_sf3000_xl"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
+clusterId="<CLUSTERID>"
+dbPass="<PASS>"
 
 RUN_RUN_BENCHMARK=1
 
@@ -92,6 +94,8 @@ args[15]="--execution-flags=011010"
 args[24]="--raw-column-delimiter=PIPE"
 args[25]="--power-test-runs=3"
 args[26]="--save-power-plans=false"
+args[27]="--cluster-id=${clusterId}"
+args[28]="--db-password=${dbPassword}"
 
 paramsStr="${args[@]}"
 
