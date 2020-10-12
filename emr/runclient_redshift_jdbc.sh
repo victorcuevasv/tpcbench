@@ -38,6 +38,8 @@ DirNameWarehouse="tpcds-redshift-$1gb-$2-${Tag}"
 DirNameResults="redshift"
 DatabaseName="dev"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
+dbUsername="<USER>"
+dbPassword="<PASS>"
 
 args=()
 
@@ -89,6 +91,8 @@ args[15]="--execution-flags=011010"
 args[24]="--raw-column-delimiter=PIPE"
 args[25]="--power-test-runs=3"
 args[26]="--save-power-plans=false"
+args[27]="--db-password=${dbPassword}"
+args[28]="--connection-username=${dbUsername}"
 
 paramsStr="${args[@]}"
 
