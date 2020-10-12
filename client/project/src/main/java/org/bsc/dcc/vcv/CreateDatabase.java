@@ -582,12 +582,22 @@ public class CreateDatabase {
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			StringBuilder extSb = new StringBuilder(incompleteCreateTable(sqlCreate, tableName, false, "_ext", false));
-			extSb.append("USING com.databricks.spark.csv\n");
 			String fieldDelimiter = "'\001'";
 			if( this.columnDelimiter.equals("PIPE")) fieldDelimiter = "'|'";
-			extSb.append("OPTIONS (path '"); extSb.append(this.extTablePrefixRaw.get()); extSb.append("/"); extSb.append(tableName);
-			extSb.append("', header 'false', inferSchema 'false', delimiter "); extSb.append(fieldDelimiter);
-			extSb.append(", nullValue '');");
+			extSb.append("USING CSV\n");
+			extSb.append("OPTIONS(\n");
+			extSb.append("  sep="+fieldDelimiter+",\n");
+			extSb.append("  header='false',\n");
+			extSb.append("  emptyValue='',\n");
+			extSb.append("  charset='iso-8859-1',\n");
+			extSb.append("  dateFormat='yyy-MM-dd'\n");
+			extSb.append("  timestampFormat='yyyy-MM-dd HH:mm:ss[.SSS]', -- spec: yyyy-mm-dd hh:mm:ss.s\n");
+			extSb.append("  mode='PERMISSIVE',\n");
+			extSb.append("  multiLine='false',\n");
+			extSb.append("  locale='en-US',"\n);
+			extSb.append("  lineSep='\\n'\n");
+			extSb.append(");");
+			
 			String extSqlCreate = extSb.toString();
 			
 			saveCreateTableFile("csv", tableName, extSqlCreate);			
