@@ -226,7 +226,7 @@ public class CreateDatabase {
 				this.con = DriverManager.getConnection("jdbc:spark://"
 					+ this.hostname + ":443/" + this.dbName
 					+ ";transportMode=http;ssl=1;AuthMech=3"
-					+ ";httpPath=/sql/1.0/endpoints/48338af431f45d31"
+					+ ";httpPath=/sql/1.0/endpoints/d931ec01baf4b431"
 					+ ";UID=token;PWD=" + dbrToken
 					+ ";UseNativeQuery=1");
 			}
