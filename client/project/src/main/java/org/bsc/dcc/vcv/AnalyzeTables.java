@@ -45,6 +45,8 @@ public class AnalyzeTables {
 	private final String createSingleOrAll;
 	private String systemRunning;
 	private final String clusterId;
+	private final String httpPath;
+	private final String dbPassword;
 	
 	
 	public AnalyzeTables(CommandLine commandLine) {
@@ -63,6 +65,8 @@ public class AnalyzeTables {
 		this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
 		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
+		this.httpPath = commandLine.getOptionValue("http-path", "UNUSED");
+		this.dbPassword = commandLine.getOptionValue("db-password", "UNUSED");
 		this.analyzeTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
@@ -152,21 +156,18 @@ public class AnalyzeTables {
 				";UseNativeQuery=1");
 			}
 			else if( this.system.equals("databrickssql") ) {
-				// IMPORTANT: HAD TO HARDCODE THIS DUE TO LACK OF PERMISSION TO MANAGE SECRETS.
-				// UPDATE TO PROPER PERMISSIONS WHEN TESTS ARE DONE.
-				String dbrToken = "dapifd4db58404ae64629dc7b41d57f3a769";
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://"
 					+ this.hostname + ":443/" + this.dbName
 					+ ";transportMode=http;ssl=1;AuthMech=3"
-					+ ";httpPath=/sql/1.0/endpoints/d931ec01baf4b431"
-					+ ";UID=token;PWD=" + dbrToken
+					+ ";httpPath=/sql/1.0/endpoints/" + this.clusterId
+					+ ";UID=token;PWD=" + this.dbPassword
 					+ ";UseNativeQuery=1");
 			}
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
 				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
-				"dev" + "?ssl=true&UID=bsc-dcc-fjjm&PWD=Databr|cks1");
+				this.dbName + "?ssl=true&UID=" + this.userId + "&PWD=" + this.dbPassword);
 			}
 			else if( systemRunning.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
