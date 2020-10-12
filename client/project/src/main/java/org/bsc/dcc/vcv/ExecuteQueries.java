@@ -53,7 +53,6 @@ public class ExecuteQueries {
 	private final String clusterId;
 	private final String userId;
 	private final int runs;
-	private final String httpPath;
 	private final String dbPassword;
 	
 	

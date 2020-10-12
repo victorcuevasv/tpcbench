@@ -45,7 +45,6 @@ public class AnalyzeTables {
 	private final String createSingleOrAll;
 	private String systemRunning;
 	private final String clusterId;
-	private final String httpPath;
 	private final String dbPassword;
 	
 	
@@ -65,8 +64,8 @@ public class AnalyzeTables {
 		this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
 		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
-		this.httpPath = commandLine.getOptionValue("http-path", "UNUSED");
 		this.dbPassword = commandLine.getOptionValue("db-password", "UNUSED");
+		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.analyzeTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
