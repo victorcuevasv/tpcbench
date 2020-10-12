@@ -418,7 +418,7 @@ public class CreateDatabase {
 						"@" + this.dbName + "_stage" + "/" + tableName + "/ \n" +
 						"FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = " + fieldDelimiter + " ENCODING = 'ISO88591'" +
 						"\n ERROR_ON_COLUMN_COUNT_MISMATCH = FALSE EMPTY_FIELD_AS_NULL = TRUE " +
-						"\n DATE_INPUT_FORMAT = 'YYYY-MM-DD')";
+						"\n DATE_FORMAT = 'YYYY-MM-DD')";
 			saveCreateTableFile("snowflakecopy", tableName, copyIntoSql);
 			stmt.execute(copyIntoSql);
 			queryRecord.setSuccessful(true);
