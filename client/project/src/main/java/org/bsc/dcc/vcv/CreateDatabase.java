@@ -408,7 +408,8 @@ public class CreateDatabase {
 			if( ! this.extTablePrefixRaw.isPresent() )
 				copyIntoSql = "COPY INTO " + tableName + " FROM " + "'@%" + tableName + "' \n" +
 								"FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = '\\\\001' ENCODING = 'ISO88591'" +
-								" ERROR_ON_COLUMN_COUNT_MISMATCH = FALSE)";
+								"\n ERROR_ON_COLUMN_COUNT_MISMATCH = FALSE EMPTY_FIELD_AS_NULL = TRUE " +
+								"\n DATE_FORMAT = 'YYYY-MM-DD')";
 			//Otherwise, extTablePrefixRaw indicates the Snowflake stage associated with the S3 bucket.
 			else 
 				copyIntoSql = "COPY INTO " + tableName + " FROM " + 
@@ -416,7 +417,8 @@ public class CreateDatabase {
 						//Update: the name of the stage is formed by this.dbName + "_stage"
 						"@" + this.dbName + "_stage" + "/" + tableName + "/ \n" +
 						"FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = " + fieldDelimiter + " ENCODING = 'ISO88591'" +
-						" ERROR_ON_COLUMN_COUNT_MISMATCH = FALSE)";
+						"\n ERROR_ON_COLUMN_COUNT_MISMATCH = FALSE EMPTY_FIELD_AS_NULL = TRUE " +
+						"\n DATE_FORMAT = 'YYYY-MM-DD')";
 			saveCreateTableFile("snowflakecopy", tableName, copyIntoSql);
 			stmt.execute(copyIntoSql);
 			queryRecord.setSuccessful(true);
