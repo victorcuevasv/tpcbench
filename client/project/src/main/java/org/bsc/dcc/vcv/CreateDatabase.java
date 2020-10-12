@@ -173,6 +173,7 @@ public class CreateDatabase {
 		this.clusterId = "UNUSED";
 		this.columnDelimiter = "SOH";
 		this.userId = "UNUSED";
+		this.dbPassword = "UNUSED";
 		this.distKeys = new DistKeys().getMap();
 		this.sortKeys = new SortKeys().getMap();
 		this.clusterByKeys = new ClusterByKeys().getMap();
