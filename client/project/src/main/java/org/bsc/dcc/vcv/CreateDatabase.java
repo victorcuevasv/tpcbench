@@ -321,18 +321,6 @@ public class CreateDatabase {
 			this.useSnowflakeWarehouseQuery(this.clusterId);
 			this.createSnowflakeStageQuery(this.dbName + "_stage");
 		}
-		if (this.system.startsWith("databrickssql")) {
-			try {
-				Statement stmt = con.createStatement();
-				// Optimized Writes is disabled by default in Analytics SQL, enable it for the session.
-				stmt.execute("SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite = true;");
-			} catch (SQLException e) {
-				e.printStackTrace();
-				this.logger.error("Error in CreateDatabase createTable.");
-				this.logger.error(e);
-				this.logger.error(AppUtil.stringifyStackTrace(e));
-			}
-		}
 		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
 		List<String> unorderedList = this.createTableReader.getFiles();
@@ -622,9 +610,13 @@ public class CreateDatabase {
 
 			StringBuilder sbInsert = new StringBuilder("INSERT OVERWRITE TABLE ");
 			sbInsert.append(tableName); sbInsert.append(" SELECT * FROM "); sbInsert.append(tableName); sbInsert.append(suffix); sbInsert.append("\n");
-			//if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName))
-			//	sbInsert.append("DISTRIBUTE BY " + Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
+			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName))
+				String partKey = Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+				String distKey = this.distKeys.get(tableName);
+				sbInsert.append("DISTRIBUTE BY CASE WHEN " + partKey + " IS NOT NULL THEN " + partKey + " ELSE " + distKey + " % 601 END;\n");
 			String insertSql = sbInsert.toString();
+
+			case when ss.ss_sold_date_sk is not null then ss.ss_sold_date_sk else ss.ss_ticket_number % 601 end;
 
 			// Save the Insert Overwrite file
 			saveCreateTableFile("insert", tableName, insertSql);
