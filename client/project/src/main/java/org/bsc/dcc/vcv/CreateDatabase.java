@@ -54,6 +54,7 @@ public class CreateDatabase {
 	private final String format;
 	private final boolean doCount;
 	private final boolean partition;
+	private final int numCores;
 	
 	private final boolean bucketing;
 	private final String hostname;
@@ -101,6 +102,8 @@ public class CreateDatabase {
 		this.columnDelimiter = commandLine.getOptionValue("raw-column-delimiter", "SOH");
 		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.dbPassword = commandLine.getOptionValue("db-password", "UNUSED");
+		String numCoresStr = commandLine.getOptionValue("num-cores", "-1");
+		this.numCores = Integer.parseInt(numCoresStr);
 		this.distKeys = new DistKeys().getMap();
 		this.sortKeys = new SortKeys().getMap();
 		this.clusterByKeys = new ClusterByKeys().getMap();
@@ -174,6 +177,7 @@ public class CreateDatabase {
 		this.columnDelimiter = "SOH";
 		this.userId = "UNUSED";
 		this.dbPassword = "UNUSED";
+		this.numCores = -1;
 		this.distKeys = new DistKeys().getMap();
 		this.sortKeys = new SortKeys().getMap();
 		this.clusterByKeys = new ClusterByKeys().getMap();
@@ -327,6 +331,18 @@ public class CreateDatabase {
 			this.useSchemaQuery(this.dbName);
 			this.useSnowflakeWarehouseQuery(this.clusterId);
 			this.createSnowflakeStageQuery(this.dbName + "_stage");
+		}
+		if( this.system.startsWith("databrickssql") && (this.numCores > 0)) {
+			try {
+				Statement stmt = con.createStatement();
+				// Set the number of shuffle partitions (default 200) to the number of cores to be able to load large datasets.
+				stmt.execute("SET spark.sql.shuffle.partitions = " + this.numCores + ";");
+			}	catch (Exception e) {
+					e.printStackTrace();
+					this.logger.error("Error in CreateDatabaseSpark createTable.");
+					this.logger.error(e);
+					this.logger.error(AppUtil.stringifyStackTrace(e));
+				}
 		}
 		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
