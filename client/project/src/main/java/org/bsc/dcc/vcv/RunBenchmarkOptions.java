@@ -131,6 +131,9 @@ public class RunBenchmarkOptions {
 		options.addOption( Option.builder().longOpt( "power-test-runs" )
 				.desc( "number of runs to perform for the power test (default 1)" )
 				.hasArg(true).required(false).type(Integer.class).build() );
+				options.addOption( Option.builder().longOpt( "db-password" )
+				.desc( "database password" )
+				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );
