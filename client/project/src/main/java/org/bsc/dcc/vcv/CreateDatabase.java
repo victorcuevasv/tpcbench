@@ -223,6 +223,13 @@ public class CreateDatabase {
 			}
 			else if( this.system.equals("databrickssql") ) {
 				Class.forName(databricksDriverName);
+
+				System.out.println("jdbc:spark://"
+				+ this.hostname + ":443/" + this.dbName
+				+ ";transportMode=http;ssl=1;AuthMech=3"
+				+ ";httpPath=/sql/1.0/endpoints/" + this.clusterId
+				+ ";UID=token;PWD=" + this.dbPassword
+				+ ";UseNativeQuery=1");
 				this.con = DriverManager.getConnection("jdbc:spark://"
 					+ this.hostname + ":443/" + this.dbName
 					+ ";transportMode=http;ssl=1;AuthMech=3"
