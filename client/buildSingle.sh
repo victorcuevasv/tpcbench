@@ -20,7 +20,7 @@ if [[ $mirror -eq 0 ]]; then
 	docker build --network="host" --force-rm -t clientbuilder:dev $DIR -f $DIR/DockerfileSingle \
 	--build-arg APACHE_MIRROR=localhost:8888 \
 	--build-arg PRESTO_MIRROR=localhost:443 \
-	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3
+	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3 --build-arg DBR_JDBC=$5
 else
 	docker build --network="host" --force-rm -t clientbuilder:dev $DIR -f $DIR/DockerfileSingle \
 	--build-arg UNAME=$1 --build-arg UID=$2 --build-arg GID=$3 --build-arg DBR_JDBC=$5
