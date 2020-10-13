@@ -339,7 +339,7 @@ public class CreateDatabase {
 				stmt.execute("SET spark.sql.shuffle.partitions = " + this.numCores + ";");
 				stmt.execute("SET spark.databricks.delta.optimizeWrite.binSize = 2048;");
 				stmt.execute("SET spark.databricks.adaptive.autoOptimizeShuffle.enabled = true;");
-				stmt.execute("SET spark.driver.maxResultSize = 0;");
+				//stmt.execute("SET spark.driver.maxResultSize = 0;"); // DBR SQL does not allow to change this with the cluster running
 				stmt.execute("SET spark.databricks.delta.optimizeWrite.numShuffleBlocks = 50000000;");
 				stmt.execute("SET spark.databricks.delta.optimizeWrite.enabled = true;");
 				
@@ -641,7 +641,7 @@ public class CreateDatabase {
 			stmt.execute("drop table if exists " + tableName);
 
 			StringBuilder sbInsert = new StringBuilder("INSERT OVERWRITE TABLE ");
-			sbInsert.append(tableName); sbInsert.append(" SELECT /*+ COALESCE(" + this.numCores + "*/ * FROM "); sbInsert.append(tableName); sbInsert.append(suffix); sbInsert.append("\n");
+			sbInsert.append(tableName); sbInsert.append(" SELECT /*+ COALESCE(" + this.numCores + ") */ * FROM "); sbInsert.append(tableName); sbInsert.append(suffix); sbInsert.append("\n");
 			//if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
 			//	String partKey = Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
 			//	String distKey = this.distKeys.get(tableName);
