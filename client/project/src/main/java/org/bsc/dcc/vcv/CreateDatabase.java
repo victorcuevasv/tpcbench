@@ -622,9 +622,7 @@ public class CreateDatabase {
 				String distKey = this.distKeys.get(tableName);
 				sbInsert.append("DISTRIBUTE BY CASE WHEN " + partKey + " IS NOT NULL THEN " + partKey + " ELSE " + distKey + " % 601 END;\n");
 			String insertSql = sbInsert.toString();
-
-			case when ss.ss_sold_date_sk is not null then ss.ss_sold_date_sk else ss.ss_ticket_number % 601 end;
-
+			
 			// Save the Insert Overwrite file
 			saveCreateTableFile("insert", tableName, insertSql);
 			stmt = con.createStatement();
