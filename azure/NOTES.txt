@@ -1,0 +1,279 @@
+
+To install the azure cli on an AWS EC2 vm it is necessary to first install python3.
+(https://tecadmin.net/install-python-3-7-amazon-linux/)
+
+1) Install prerequisites
+
+yum install gcc openssl-devel bzip2-devel libffi-devel
+
+2) Download and decompress python3
+
+cd /opt
+sudo wget https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz
+sudo tar xzf Python-3.7.9.tgz
+
+3) Install python3 (make altinstall is used to prevent replacing the default python binary
+file /usr/bin/python)
+
+cd Python-3.7.9
+sudo ./configure --enable-optimizations
+sudo make altinstall
+
+4) Remove downloaded source files
+
+sudo rm /usr/src/Python-3.7.9.tgz
+
+5) Test python3
+
+python3
+
+
+Then it is possible to download the azure cli package and install it without dependency.
+(https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-yum?view=azure-cli-latest)
+(see: Install on RHEL 7.6 or other systems without Python 3)
+
+sudo yum install yum-utils
+sudo yumdownloader azure-cli
+sudo rpm -ivh --nodeps azure-cli-*.rpm
+
+
+Install powershell on Amazon linux (use Red Hat Enterprise Linux (RHEL) 7 instructions).
+(https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7)
+
+# Register the Microsoft RedHat repository
+curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo
+
+# Install PowerShell
+sudo yum install -y powershell
+
+# Start PowerShell
+pwsh
+
+
+Install the Azure PowerShell module (for all users)
+(https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-4.7.0)
+
+#Run the powershell under sudo
+
+sudo pwsh
+
+#Paste the following code and press enter, when prompted answer Y
+
+if ($PSVersionTable.PSEdition -eq 'Desktop' -and (Get-Module -Name AzureRM -ListAvailable)) {
+    Write-Warning -Message ('Az module not installed. Having both the AzureRM and ' +
+      'Az modules installed at the same time is not supported.')
+} else {
+    Install-Module -Name Az -AllowClobber -Scope AllUsers
+}
+
+
+Install azcopy to copy data from AWS S3 to Azure blob storage
+(https://www.thomasmaurer.ch/2019/05/how-to-install-azcopy-for-azure-storage/)
+
+#Download AzCopy
+wget https://aka.ms/downloadazcopy-v10-linux
+ 
+#Expand Archive
+tar -xvf downloadazcopy-v10-linux
+ 
+#(Optional) Remove existing AzCopy version
+sudo rm /usr/bin/azcopy
+ 
+#Move AzCopy to the destination you want to store it
+sudo cp ./azcopy_linux_amd64_*/azcopy /usr/bin/
+
+#Then login via the browser and code as for the azure cli
+
+azcopy login
+
+
+
+
+To copy data from AWS S3 to Azure blob storage it is necessary to authenticate in both.
+
+In the case of AWS S3 it suffices to set the keys as environment variables (provided the AWS CLI is installed)
+
+export AWS_ACCESS_KEY_ID=<the key id>
+export AWS_SECRET_ACCESS_KEY=<the secret key>
+
+However, for Azure blob storage it is necessary to generate an SAS token that is included with the
+uri of the storage container. The uri with the token can be generated via the containerSASURI.ps1
+powershell script, once setting the appropriate parameters within the script.
+
+The script is described in:
+https://techcommunity.microsoft.com/t5/itops-talk-blog/how-to-upload-files-to-azure-blob-storage-using-powershell-and/ba-p/650309?WT.mc_id=thomasmaurer-blog-thmaure
+
+# Invoke the containerSASURI powershell script to generate the URI with the SAS token for the storage container
+
+pwsh ./containerSASURI.ps1
+
+
+Example generated URI:
+
+https://bsctpcds.blob.core.windows.net/tpcds-datasets?sv=2019-07-07&sr=c&sig=MvN2I%2BTqp4hM4IeAEDphBca%2BQWDdj15icAHzcMbgsxY%3D&se=2020-09-24T14%3A35%3A13Z&sp=rw     
+
+Example azcopy command using the uri above:
+
+azcopy cp "https://tpcds-datasets.s3-us-west-2.amazonaws.com/1GB" "https://bsctpcds.blob.core.windows.net/tpcds-datasets?sv=2019-07-07&sr=c&sig=MvN2I%2BTqp4hM4IeAEDphBca%2BQWDdj15icAHzcMbgsxY%3D&se=2020-09-24T14%3A35%3A13Z&sp=rw" --recursive=true       
+
+
+
+
+
+
+
+
+
+Azure Synapse (SQL DW) notes.
+
+--Interval not supported, query can be expressed with DATEADD
+--SELECT cast ('2019-08-13' as date) + interval '19 days';
+SELECT DATEADD(DAY, 19 , cast ('2019-08-13' as date));
+
+--Projected column names cannot use "" or ``, can use ''
+SELECT '>120 days' as col
+
+
+
+Example copy into statement:
+
+COPY INTO customer
+FROM 
+'https://bsctpcds.blob.core.windows.net/tpcds-datasets/1GB/customer/'
+WITH ( 
+	FILE_TYPE = 'CSV',
+	FIELDTERMINATOR = '0x01',
+	ROWTERMINATOR = '0x0A',
+    CREDENTIAL=(IDENTITY= 'Shared Access Signature', SECRET='?sv=2019-12-12&ss=bfqt&srt=sco&sp=rwdlacupx&se=2020-10-31T21:33:16Z&st=2020-09-25T12:33:16Z&spr=https&sig=5YbMa5I6VWSAaa0Piz7QNrc7R8G9YkYqUYvQneS1gq0%3D')
+);
+
+
+Check: https://stackoverflow.com/questions/48763390/using-a-non-printable-char-other-then-0-n-t-as-fieldterminator-argument-in
+For a discussion of the field terminator.
+The rowterminator is specified in hexadecimal, and corresponds to the line feed character, 012 octal, 10 decimal.
+
+
+      
+
+https://bsctpcds.blob.core.windows.net/tpcds-datasets?sv=2019-07-07&sr=c&sig=sccqhOtOwFS%2F7EP2TqgyVGpKDbhuCKjUE47eemafQWo%3D&se=2020-09-25T13%3A18%3A14Z&sp=rwdl
+
+?sv=2019-12-12&ss=bfqt&srt=sco&sp=rwdlacupx&se=2020-10-31T21:33:16Z&st=2020-09-25T12:33:16Z&spr=https&sig=5YbMa5I6VWSAaa0Piz7QNrc7R8G9YkYqUYvQneS1gq0%3D
+
+jdbc:sqlserver://bsctest.database.windows.net:1433;database=bsc-tpcds-test-pool;user=azureuser@bsctest;password={your_password_here};encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;     
+
+
+The first statement hast to be run from Azure Data Studio under the master database.
+
+CREATE LOGIN tpcds_user WITH PASSWORD = 'M748dEh7!8F9';
+
+CREATE USER tpcds_user FROM LOGIN tpcds_user WITH DEFAULT_SCHEMA = tpcds_test;
+
+GRANT CREATE TABLE TO tpcds_user;
+
+GRANT ALTER ON SCHEMA::tpcds_test TO tpcds_user;
+
+GRANT SELECT TO tpcds_user;
+
+GRANT ADMINISTER DATABASE BULK OPERATIONS TO tpcds_user;
+
+GRANT INSERT TO tpcds_user;
+
+GRANT SHOWPLAN TO tpcds_user;
+
+
+List all schemas
+
+select s.name as schema_name,
+    s.schema_id,
+    u.name as schema_owner
+from sys.schemas s
+    inner join sys.sysusers u
+        on u.uid = s.principal_id
+order by s.name
+
+List all users
+
+select name as username,
+       create_date,
+       modify_date,
+       type_desc as type,
+       authentication_type_desc as authentication_type
+from sys.database_principals
+where type not in ('A', 'G', 'R', 'X')
+      and sid is not null
+order by username;
+
+List all databases
+
+select [name] as database_name,
+    database_id,
+    create_date
+from sys.databases
+order by name
+
+
+Check if a table exits
+
+if object_id ('income_band','U') is not null drop table income_band;
+
+
+
+
+CREATE SCHEMA tpcds_test2;
+
+ALTER USER tpcds_user WITH DEFAULT_SCHEMA = tpcds_test2;
+
+GRANT ALTER ON SCHEMA::tpcds_test2 TO tpcds_user;
+
+
+
+Generate drop table statements for all of the tables of a given schema.
+
+select 'drop table ' + schema_name(t.schema_id) + '.' + t.name + ';'
+from sys.tables t
+where schema_name(t.schema_id) = 'tpcds_synapse_1gb_1_1601225246'
+order by t.name;
+
+
+--Test if attributes are saved correctly
+SELECT CASE WHEN cc_rec_end_date IS NULL THEN 'NULL' ELSE CAST(DATEADD(DAY, 1, cc_rec_end_date) as VARCHAR(20)) END
+FROM [tpcds_synapse_3000gb_1_1602148665].[call_center]
+WHERE cc_call_center_sk = 1;
+
+
+--Check is automatic generation of table statistics is on
+SELECT name, is_auto_create_stats_on
+FROM sys.databases;
+
+--Check statistics.
+SELECT s.* 
+      ,c.name AS column_name  
+      ,sc.stats_column_id  
+FROM sys.stats AS s  
+INNER JOIN sys.stats_columns AS sc   
+    ON s.object_id = sc.object_id AND s.stats_id = sc.stats_id  
+INNER JOIN sys.columns AS c   
+    ON sc.object_id = c.object_id AND c.column_id = sc.column_id  
+WHERE s.object_id = OBJECT_ID('tpcds_synapse_3000gb_1_1602148665.store_sales');
+
+--Get the number of tuples in each table of a schema
+select schema_name(tab.schema_id) + '.' + tab.name as [table],
+       sum(part.rows) as [rows]
+   from sys.tables as tab
+        inner join sys.partitions as part
+            on tab.object_id = part.object_id
+where part.index_id IN (1, 0) -- 0 - table without PK, 1 table with PK
+and schema_name(tab.schema_id) = 'tpcds_synapse_3000gb_1_1602148665'
+group by schema_name(tab.schema_id) + '.' + tab.name
+order by schema_name(tab.schema_id) + '.' + tab.name
+--order by sum(part.rows) desc
+
+
+
+
+
+
+
+
+
+
