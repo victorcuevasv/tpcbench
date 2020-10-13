@@ -582,9 +582,12 @@ public class CreateDatabase {
 			if( this.columnDelimiter.equals("PIPE")) fieldDelimiter = "'|'";
 			extSb.append("USING CSV\n");
 			extSb.append("OPTIONS(\n");
+			extSb.append("  path='" + this.extTablePrefixRaw.get() + "/" + tableName + "',\n");
+			extSb.append("  inferSchchema='false',\n");
 			extSb.append("  sep="+fieldDelimiter+",\n");
 			extSb.append("  header='false',\n");
 			extSb.append("  emptyValue='',\n");
+			extSb.append("  nullValue='',\n");
 			extSb.append("  charset='iso-8859-1',\n");
 			extSb.append("  dateFormat='yyy-MM-dd',\n");
 			extSb.append("  timestampFormat='yyyy-MM-dd HH:mm:ss[.SSS]', -- spec: yyyy-mm-dd hh:mm:ss.s\n");
