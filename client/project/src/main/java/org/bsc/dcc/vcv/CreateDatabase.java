@@ -54,6 +54,7 @@ public class CreateDatabase {
 	private final String format;
 	private final boolean doCount;
 	private final boolean partition;
+	private final int numCores;
 	
 	private final boolean bucketing;
 	private final String hostname;
@@ -101,6 +102,8 @@ public class CreateDatabase {
 		this.columnDelimiter = commandLine.getOptionValue("raw-column-delimiter", "SOH");
 		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.dbPassword = commandLine.getOptionValue("db-password", "UNUSED");
+		String numCoresStr = commandLine.getOptionValue("num-cores", "-1");
+		this.numCores = Integer.parseInt(numCoresStr);
 		this.distKeys = new DistKeys().getMap();
 		this.sortKeys = new SortKeys().getMap();
 		this.clusterByKeys = new ClusterByKeys().getMap();
@@ -174,6 +177,7 @@ public class CreateDatabase {
 		this.columnDelimiter = "SOH";
 		this.userId = "UNUSED";
 		this.dbPassword = "UNUSED";
+		this.numCores = -1;
 		this.distKeys = new DistKeys().getMap();
 		this.sortKeys = new SortKeys().getMap();
 		this.clusterByKeys = new ClusterByKeys().getMap();
@@ -223,6 +227,13 @@ public class CreateDatabase {
 			}
 			else if( this.system.equals("databrickssql") ) {
 				Class.forName(databricksDriverName);
+
+				System.out.println("jdbc:spark://"
+				+ this.hostname + ":443/" + this.dbName
+				+ ";transportMode=http;ssl=1;AuthMech=3"
+				+ ";httpPath=/sql/1.0/endpoints/" + this.clusterId
+				+ ";UID=token;PWD=" + this.dbPassword
+				+ ";UseNativeQuery=1");
 				this.con = DriverManager.getConnection("jdbc:spark://"
 					+ this.hostname + ":443/" + this.dbName
 					+ ";transportMode=http;ssl=1;AuthMech=3"
@@ -321,17 +332,17 @@ public class CreateDatabase {
 			this.useSnowflakeWarehouseQuery(this.clusterId);
 			this.createSnowflakeStageQuery(this.dbName + "_stage");
 		}
-		if (this.system.startsWith("databrickssql")) {
+		if( this.system.startsWith("databrickssql") && (this.numCores > 0)) {
 			try {
 				Statement stmt = con.createStatement();
-				// Optimized Writes is disabled by default in Analytics SQL, enable it for the session.
-				stmt.execute("SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite = true;");
-			} catch (SQLException e) {
-				e.printStackTrace();
-				this.logger.error("Error in CreateDatabase createTable.");
-				this.logger.error(e);
-				this.logger.error(AppUtil.stringifyStackTrace(e));
-			}
+				// Set the number of shuffle partitions (default 200) to the number of cores to be able to load large datasets.
+				stmt.execute("SET spark.sql.shuffle.partitions = " + this.numCores + ";");
+			}	catch (Exception e) {
+					e.printStackTrace();
+					this.logger.error("Error in CreateDatabaseSpark createTable.");
+					this.logger.error(e);
+					this.logger.error(AppUtil.stringifyStackTrace(e));
+				}
 		}
 		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
@@ -587,11 +598,14 @@ public class CreateDatabase {
 			if( this.columnDelimiter.equals("PIPE")) fieldDelimiter = "'|'";
 			extSb.append("USING CSV\n");
 			extSb.append("OPTIONS(\n");
+			extSb.append("  path='" + this.extTablePrefixRaw.get() + "/" + tableName + "',\n");
+			extSb.append("  inferSchchema='false',\n");
 			extSb.append("  sep="+fieldDelimiter+",\n");
 			extSb.append("  header='false',\n");
 			extSb.append("  emptyValue='',\n");
+			extSb.append("  nullValue='',\n");
 			extSb.append("  charset='iso-8859-1',\n");
-			extSb.append("  dateFormat='yyy-MM-dd'\n");
+			extSb.append("  dateFormat='yyy-MM-dd',\n");
 			extSb.append("  timestampFormat='yyyy-MM-dd HH:mm:ss[.SSS]', -- spec: yyyy-mm-dd hh:mm:ss.s\n");
 			extSb.append("  mode='PERMISSIVE',\n");
 			extSb.append("  multiLine='false',\n");
@@ -622,8 +636,11 @@ public class CreateDatabase {
 
 			StringBuilder sbInsert = new StringBuilder("INSERT OVERWRITE TABLE ");
 			sbInsert.append(tableName); sbInsert.append(" SELECT * FROM "); sbInsert.append(tableName); sbInsert.append(suffix); sbInsert.append("\n");
-			//if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName))
-			//	sbInsert.append("DISTRIBUTE BY " + Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
+			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
+				String partKey = Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+				String distKey = this.distKeys.get(tableName);
+				sbInsert.append("DISTRIBUTE BY CASE WHEN " + partKey + " IS NOT NULL THEN " + partKey + " ELSE " + distKey + " % 601 END;\n");
+			}
 			String insertSql = sbInsert.toString();
 
 			// Save the Insert Overwrite file
