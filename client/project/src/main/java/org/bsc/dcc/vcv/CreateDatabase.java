@@ -586,7 +586,7 @@ public class CreateDatabase {
 			extSb.append("  header='false',\n");
 			extSb.append("  emptyValue='',\n");
 			extSb.append("  charset='iso-8859-1',\n");
-			extSb.append("  dateFormat='yyy-MM-dd'\n");
+			extSb.append("  dateFormat='yyy-MM-dd',\n");
 			extSb.append("  timestampFormat='yyyy-MM-dd HH:mm:ss[.SSS]', -- spec: yyyy-mm-dd hh:mm:ss.s\n");
 			extSb.append("  mode='PERMISSIVE',\n");
 			extSb.append("  multiLine='false',\n");
