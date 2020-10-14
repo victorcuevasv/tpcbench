@@ -355,6 +355,20 @@ public class ExecuteQueries {
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
+
+	private void prepareDatabricksSql() {
+		try {
+			System.out.print("Disabling result caching...");
+			Statement stmt = con.createStatement();
+			stmt.execute("SET spark.databricks.execution.resultCaching.enabled=false;");
+			System.out.println("done");
+		} catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error when disabling results caching");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+	}
 	
 	private void prepareSnowflake() {
 		this.useDatabaseQuery(this.dbName);
@@ -395,6 +409,8 @@ public class ExecuteQueries {
 		// If the system is Redshift disable query result caching
 		if (this.system.startsWith("redshift"))
 			this.prepareRedshift();
+		if this.synapse.startsWith("databrickssql;")
+			this.prepareDatabricksSql();
 		if( this.test.equals("power") && this.savePlans )
 			this.savePlans();
 		this.recorder.header();
