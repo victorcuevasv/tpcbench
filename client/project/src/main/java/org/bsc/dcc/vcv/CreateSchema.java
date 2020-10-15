@@ -13,6 +13,11 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import com.google.cloud.bigquery.BigQuery;
+import com.google.cloud.bigquery.BigQueryException;
+import com.google.cloud.bigquery.BigQueryOptions;
+import com.google.cloud.bigquery.Dataset;
+import com.google.cloud.bigquery.DatasetInfo;
 
 public class CreateSchema {
 
@@ -132,6 +137,9 @@ public class CreateSchema {
 				"hostNameInCertificate=*.database.windows.net;" +
 				"loginTimeout=30;");
 			}
+			else if( this.system.startsWith("bigquery") ) {
+				;
+			}
 			else {
 				throw new java.lang.RuntimeException("Unsupported system: " + this.system);
 			}
@@ -183,6 +191,10 @@ public class CreateSchema {
 		try {
 			System.out.println("Creating schema (database) " + this.dbName + " with " + this.system);
 			this.logger.info("Creating schema (database) " + this.dbName + " with " + this.system);
+			if( system.startsWith("bigquery") ) {
+				this.createDataset(this.dbName);
+				return;
+			}
 			Statement stmt = this.con.createStatement();
 			if( system.startsWith("presto") ) {
 				stmt.execute("CREATE SCHEMA " + this.dbName);
@@ -227,6 +239,23 @@ public class CreateSchema {
 		catch (SQLException e) {
 			e.printStackTrace();
 			this.logger.error(e);
+		}
+	}
+	
+	private void createDataset(String datasetName) {
+		try {
+			// Initialize client that will be used to send requests.
+			// This client only needs to be created once, and can be reused for multiple requests.
+		    BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
+
+		    DatasetInfo datasetInfo = DatasetInfo.newBuilder(datasetName).build();
+
+		    Dataset newDataset = bigquery.create(datasetInfo);
+		    String newDatasetName = newDataset.getDatasetId().getDataset();
+		    System.out.println(newDatasetName + " created successfully");
+		}
+		catch (BigQueryException e) {
+			System.out.println("Dataset was not created. \n" + e.toString());
 		}
 	}
 
