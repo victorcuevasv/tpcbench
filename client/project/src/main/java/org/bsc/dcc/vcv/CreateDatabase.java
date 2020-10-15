@@ -336,12 +336,12 @@ public class CreateDatabase {
 			try {
 				Statement stmt = con.createStatement();
 				// Set the number of shuffle partitions (default 200) to the number of cores to be able to load large datasets.
-				stmt.execute("SET spark.sql.shuffle.partitions = " + this.numCores + ";");
-				stmt.execute("SET spark.databricks.delta.optimizeWrite.binSize = 2048;");
-				stmt.execute("SET spark.databricks.adaptive.autoOptimizeShuffle.enabled = true;");
+				//stmt.execute("SET spark.sql.shuffle.partitions = " + this.numCores + ";");
+				//stmt.execute("SET spark.databricks.delta.optimizeWrite.binSize = 2048;");
+				//stmt.execute("SET spark.databricks.adaptive.autoOptimizeShuffle.enabled = true;");
 				//stmt.execute("SET spark.driver.maxResultSize = 0;"); // DBR SQL does not allow to change this with the cluster running
-				stmt.execute("SET spark.databricks.delta.optimizeWrite.numShuffleBlocks = 50000000;");
-				stmt.execute("SET spark.databricks.delta.optimizeWrite.enabled = true;");
+				//stmt.execute("SET spark.databricks.delta.optimizeWrite.numShuffleBlocks = 50000000;");
+				//stmt.execute("SET spark.databricks.delta.optimizeWrite.enabled = true;");
 				
 			}	catch (Exception e) {
 					e.printStackTrace();
@@ -642,13 +642,15 @@ public class CreateDatabase {
 
 			StringBuilder sbInsert = new StringBuilder("INSERT OVERWRITE TABLE ");
 			sbInsert.append(tableName); sbInsert.append("SELECT ");
-			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName))
-				sbInsert.append("/*+ COALESCE(" + this.numCores + ") */ ");
+			
+			//	sbInsert.append("/*+ COALESCE(" + this.numCores + ") */ ");
 			sbInsert.append("* FROM "); sbInsert.append(tableName); sbInsert.append(suffix); sbInsert.append("\n");
-			//	String partKey = Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
-			//	String distKey = this.distKeys.get(tableName);
-			//	sbInsert.append("DISTRIBUTE BY CASE WHEN " + partKey + " IS NOT NULL THEN " + partKey + " ELSE " + distKey + " % 601 END;\n");
-			//}
+			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName))
+			{
+				String partKey = Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+				String distKey = this.distKeys.get(tableName);
+				sbInsert.append("DISTRIBUTE BY CASE WHEN " + partKey + " IS NOT NULL THEN " + partKey + " ELSE " + distKey + " % 601 END;\n");
+			}
 			String insertSql = sbInsert.toString();
 
 			// Save the Insert Overwrite file
