@@ -641,8 +641,10 @@ public class CreateDatabase {
 			stmt.execute("drop table if exists " + tableName);
 
 			StringBuilder sbInsert = new StringBuilder("INSERT OVERWRITE TABLE ");
-			sbInsert.append(tableName); sbInsert.append(" SELECT /*+ COALESCE(" + this.numCores + ") */ * FROM "); sbInsert.append(tableName); sbInsert.append(suffix); sbInsert.append("\n");
-			//if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
+			sbInsert.append(tableName); sbInsert.append("SELECT ");
+			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
+				sbInsert.append("/*+ COALESCE(" + this.numCores + ") */ ")
+			sbInsert.append("* FROM "); sbInsert.append(tableName); sbInsert.append(suffix); sbInsert.append("\n");
 			//	String partKey = Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
 			//	String distKey = this.distKeys.get(tableName);
 			//	sbInsert.append("DISTRIBUTE BY CASE WHEN " + partKey + " IS NOT NULL THEN " + partKey + " ELSE " + distKey + " % 601 END;\n");
