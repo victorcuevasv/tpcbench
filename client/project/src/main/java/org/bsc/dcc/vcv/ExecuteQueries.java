@@ -54,7 +54,6 @@ public class ExecuteQueries {
 	private final String userId;
 	private final int runs;
 	private final String dbPassword;
-	private final int numCores;
 	
 	
 	public ExecuteQueries(CommandLine commandLine) {
@@ -84,8 +83,6 @@ public class ExecuteQueries {
 		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.dbPassword = commandLine.getOptionValue("db-password", "UNUSED");
 		String runsStr = commandLine.getOptionValue("power-test-runs", "1");
-		String numCoresStr = commandLine.getOptionValue("num-cores", "-1");
-		this.numCores = Integer.parseInt(numCoresStr);
 		this.runs = Integer.parseInt(runsStr);
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
@@ -146,7 +143,6 @@ public class ExecuteQueries {
 		this.userId = "UNUSED";
 		this.dbPassword = "UNUSED";
 		this.runs = 1;
-		this.numCores = -1;
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 						this.system, this.test, this.instance);
@@ -362,11 +358,10 @@ public class ExecuteQueries {
 
 	private void prepareDatabricksSql() {
 		try {
-			System.out.print("Disabling result caching...");
+			//System.out.print("Disabling result caching...");
 			Statement stmt = con.createStatement();
-			stmt.execute("SET spark.databricks.execution.resultCaching.enabled=false;");
-			stmt.execute("SET spark.sql.shuffle.partitions = " + this.numCores + ";");
-			System.out.println("done");
+			//stmt.execute("SET spark.databricks.execution.resultCaching.enabled=false;");
+			//System.out.println("done");
 		} catch(Exception e) {
 			e.printStackTrace();
 			this.logger.error("Error when disabling results caching");
