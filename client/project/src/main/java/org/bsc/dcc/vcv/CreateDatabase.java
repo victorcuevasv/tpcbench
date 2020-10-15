@@ -641,9 +641,9 @@ public class CreateDatabase {
 			stmt.execute("drop table if exists " + tableName);
 
 			StringBuilder sbInsert = new StringBuilder("INSERT OVERWRITE TABLE ");
-			sbInsert.append(tableName); sbInsert.append("SELECT ");
+			sbInsert.append(tableName); sbInsert.append(" SELECT ");
 			
-			//	sbInsert.append("/*+ COALESCE(" + this.numCores + ") */ ");
+			//	sbInsert.append(" /*+ COALESCE(" + this.numCores + ") */ ");
 			sbInsert.append("* FROM "); sbInsert.append(tableName); sbInsert.append(suffix); sbInsert.append("\n");
 			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName))
 			{
