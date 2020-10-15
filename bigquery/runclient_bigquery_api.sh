@@ -97,6 +97,8 @@ paramsStr="${args[@]}"
 
 if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 	docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
+	--env GOOGLE_APPLICATION_CREDENTIALS=/bigquery/databricks-bsc-benchmark-fe2f4c9738a3.json
+	--volume $DIR:/bigquery \
 	--volume $DIR/../vols/data:/data \
 	--volume $DIR/../client/project:/project \
 	--volume $HOME/tpcdsbench/client/project/target:/mnt/tpcds-jars/target \
