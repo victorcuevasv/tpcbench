@@ -53,7 +53,7 @@ args[2]="--results-dir=$DirNameResults"
 #experiment name (name of subfolder within the results folder)
 args[3]="--experiment-name=$ExperimentName"
 #system name (system name used within the logs)
-args[4]="--system-name=synapse"
+args[4]="--system-name=bigquery"
 
 #experiment instance number
 args[5]="--instance-number=$2"
@@ -97,7 +97,7 @@ paramsStr="${args[@]}"
 
 if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 	docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
-	--env GOOGLE_APPLICATION_CREDENTIALS=/bigquery/databricks-bsc-benchmark-fe2f4c9738a3.json
+	--env GOOGLE_APPLICATION_CREDENTIALS=/bigquery/databricks-bsc-benchmark-fe2f4c9738a3.json \
 	--volume $DIR:/bigquery \
 	--volume $DIR/../vols/data:/data \
 	--volume $DIR/../client/project:/project \
