@@ -358,10 +358,10 @@ public class ExecuteQueries {
 
 	private void prepareDatabricksSql() {
 		try {
-			//System.out.print("Disabling result caching...");
+			System.out.print("Disabling result caching...");
 			Statement stmt = con.createStatement();
-			//stmt.execute("SET spark.databricks.execution.resultCaching.enabled=false;");
-			//System.out.println("done");
+			stmt.execute("SET spark.databricks.execution.resultCaching.enabled=false;");
+			System.out.println("done");
 		} catch(Exception e) {
 			e.printStackTrace();
 			this.logger.error("Error when disabling results caching");
