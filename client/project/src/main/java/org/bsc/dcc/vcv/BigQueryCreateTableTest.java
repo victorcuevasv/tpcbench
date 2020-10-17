@@ -50,7 +50,7 @@ public class BigQueryCreateTableTest {
       Job job = bigquery.create(JobInfo.of(config));
       job = job.waitFor();
       if (job.isDone()) {
-        System.out.println("View created successfully");
+        System.out.println("Table created successfully");
       }
       else {
         System.out.println("Table was not created");
