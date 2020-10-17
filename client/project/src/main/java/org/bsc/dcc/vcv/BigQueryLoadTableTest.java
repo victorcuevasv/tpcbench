@@ -46,7 +46,7 @@ public class BigQueryLoadTableTest {
       // Skip header row in the file.
       //CsvOptions csvOptions = CsvOptions.newBuilder().setSkipLeadingRows(1).build();
       CsvOptions csvOptions = CsvOptions.newBuilder().
-    		  setFieldDelimiter("\u0001").encoding("ISO-8859-1").build();
+    		  setFieldDelimiter("\u0001").setEncoding("ISO-8859-1").build();
 
       TableId tableId = TableId.of(datasetName, tableName);
       LoadJobConfiguration loadConfig =
