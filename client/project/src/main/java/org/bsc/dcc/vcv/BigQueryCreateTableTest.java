@@ -21,13 +21,13 @@ public class BigQueryCreateTableTest {
     String datasetId = "tpcds_synapse_1gb_1_1602805814";
     String ddl =
         "CREATE TABLE "
-            + "`"
-            + projectId
-            + "."
-            + datasetId
-            + "."
-            + "call_center"
-            + "`"
+            //+ "`"
+            //+ projectId
+            //+ "."
+            //+ datasetId
+            //+ "."
+            + "inventory"
+            //+ "`"
             + " ( \n"
             + "inv_date_sk               INT64               not null,\n"
             + "inv_item_sk               INT64               not null,\n"
@@ -41,9 +41,9 @@ public class BigQueryCreateTableTest {
     try {
       // Initialize client that will be used to send requests. This client only needs to be created
       // once, and can be reused for multiple requests.
-      BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
+      BigQuery bigquery = BigQueryOptions.newBuilder().setProjectId("databricks-bsc-benchmark").getDefaultInstance().getService();
 
-      QueryJobConfiguration config = QueryJobConfiguration.newBuilder(ddl).build();
+      QueryJobConfiguration config = QueryJobConfiguration.newBuilder(ddl).setDefaultDataset("tpcds_synapse_1gb_1_1602805814").build();
 
       // create a view using query and it will wait to complete job.
       Job job = bigquery.create(JobInfo.of(config));
@@ -62,5 +62,23 @@ public class BigQueryCreateTableTest {
   
   
 }
+
+/*
+ *  String projectId = "my_project_id";
+ String datasetName = "my_dataset_name";
+ DatasetId datasetId = DatasetId.of(projectId, datasetName);
+ Dataset dataset = bigquery.getDataset(datasetId);
+ 
+ *
+ *
+ *QueryJobConfiguration.getDefaultDataset
+public DatasetId getDefaultDataset()
+Returns the default dataset. This dataset is used for all unqualified table names used in the query.
+ *
+ *
+ *
+ *
+ */
+
 
 
