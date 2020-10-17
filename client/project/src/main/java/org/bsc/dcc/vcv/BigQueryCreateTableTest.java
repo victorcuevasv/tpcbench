@@ -33,7 +33,6 @@ public class BigQueryCreateTableTest {
             + "inv_item_sk               INT64               not null,\n"
             + "inv_warehouse_sk          INT64               not null,\n"
             + "inv_quantity_on_hand      INT64                       ,\n"
-            + "primary key (inv_date_sk, inv_item_sk, inv_warehouse_sk)\n"
             + ");";
     execDdl(ddl);
   }
