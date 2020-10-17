@@ -17,7 +17,12 @@ public class BigQueryLoadTableTest {
 	
   public static void main(String args[]) {
 	  BigQueryLoadTableTest app = new BigQueryLoadTableTest();
-	  app.runLoadCsvFromGcs();
+	  try {
+		  app.runLoadCsvFromGcs();
+	  }
+	  catch(Exception e) {
+		  e.printStackTrace();
+	  }
   }
 
   private void runLoadCsvFromGcs() throws Exception {
