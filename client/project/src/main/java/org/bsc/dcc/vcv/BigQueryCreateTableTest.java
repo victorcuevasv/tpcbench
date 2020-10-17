@@ -44,7 +44,7 @@ public class BigQueryCreateTableTest {
       //BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
       BigQuery bigquery = BigQueryOptions.newBuilder().setProjectId("databricks-bsc-benchmark").build().getService();
 
-      QueryJobConfiguration config = QueryJobConfiguration.newBuilder(ddl).setDefaultDataset("tpcds_synapse_1gb_1_1602805814").build();
+      QueryJobConfiguration config = QueryJobConfiguration.newBuilder(ddl).setDefaultDataset("tpcds_synapse_1gb_1_1602805814").build();      
 
       // create a view using query and it will wait to complete job.
       Job job = bigquery.create(JobInfo.of(config));
@@ -63,23 +63,5 @@ public class BigQueryCreateTableTest {
   
   
 }
-
-/*
- *  String projectId = "my_project_id";
- String datasetName = "my_dataset_name";
- DatasetId datasetId = DatasetId.of(projectId, datasetName);
- Dataset dataset = bigquery.getDataset(datasetId);
- 
- *
- *
- *QueryJobConfiguration.getDefaultDataset
-public DatasetId getDefaultDataset()
-Returns the default dataset. This dataset is used for all unqualified table names used in the query.
- *
- *
- *
- *
- */
-
 
 
