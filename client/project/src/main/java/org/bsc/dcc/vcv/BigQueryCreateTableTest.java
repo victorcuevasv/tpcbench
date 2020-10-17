@@ -29,10 +29,10 @@ public class BigQueryCreateTableTest {
             + "call_center"
             + "`"
             + " ( \n"
-            + "inv_date_sk               integer               not null,\n"
-            + "inv_item_sk               integer               not null,\n"
-            + "inv_warehouse_sk          integer               not null,\n"
-            + "inv_quantity_on_hand      integer                       ,\n"
+            + "inv_date_sk               int               not null,\n"
+            + "inv_item_sk               int               not null,\n"
+            + "inv_warehouse_sk          int               not null,\n"
+            + "inv_quantity_on_hand      int                       ,\n"
             + "primary key (inv_date_sk, inv_item_sk, inv_warehouse_sk)\n"
             + ");";
     execDdl(ddl);
