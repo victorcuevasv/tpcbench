@@ -33,7 +33,7 @@ public class BigQueryLoadTableTest {
     Schema schema =
         Schema.of(
             Field.of("inv_date_sk", StandardSQLTypeName.INT64).
-            	toBuilder().setMode(Field.Mode.REQUIRED).build(),
+            	toBuilder().setMode(Field.Mode.NULLABLE).build(), //use REQURED for not null
             Field.of("inv_item_sk", StandardSQLTypeName.INT64),
             Field.of("inv_warehouse_sk", StandardSQLTypeName.INT64),
             Field.of("inv_quantity_on_hand", StandardSQLTypeName.INT64));
