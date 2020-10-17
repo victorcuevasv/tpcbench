@@ -41,7 +41,8 @@ public class BigQueryCreateTableTest {
     try {
       // Initialize client that will be used to send requests. This client only needs to be created
       // once, and can be reused for multiple requests.
-      BigQuery bigquery = BigQueryOptions.newBuilder().setProjectId("databricks-bsc-benchmark").getDefaultInstance().getService();
+      //BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
+      BigQuery bigquery = BigQueryOptions.newBuilder().setProjectId("databricks-bsc-benchmark").build().getService();
 
       QueryJobConfiguration config = QueryJobConfiguration.newBuilder(ddl).setDefaultDataset("tpcds_synapse_1gb_1_1602805814").build();
 
