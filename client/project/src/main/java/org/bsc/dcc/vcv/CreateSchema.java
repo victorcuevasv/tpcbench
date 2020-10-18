@@ -256,6 +256,8 @@ public class CreateSchema {
 		}
 		catch (BigQueryException e) {
 			System.out.println("Dataset was not created. \n" + e.toString());
+			e.printStackTrace();
+			this.logger.error(e);
 		}
 	}
 
