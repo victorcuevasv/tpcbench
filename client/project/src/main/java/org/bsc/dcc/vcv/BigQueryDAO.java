@@ -92,8 +92,7 @@ public class BigQueryDAO {
 	
 	public void countQuery(String tableName) throws Exception {
 		String sqlStmt = "SELECT COUNT(*) FROM " + tableName;
-		QueryJobConfiguration queryConfig =
-	    		QueryJobConfiguration config = QueryJobConfiguration.newBuilder(sqlStmt)
+		QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(sqlStmt)
 				.setDefaultDataset(this.dataset).setUseLegacySql(false).build();
 	    // Create a job ID so that we can safely retry.
 	    JobId jobId = JobId.of(UUID.randomUUID().toString());
