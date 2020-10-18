@@ -32,9 +32,9 @@ public class BigQueryDAO {
 	public String createTable(String tableName, String sqlStmt) 
 			throws BigQueryException, InterruptedException {
 		//e.g. varchar(10) -> STRING
-		sqlStmt = sqlStmt.replaceAll("varchar\\(([0-9]+)\\)", "STRING");
+		sqlStmt = sqlStmt.replaceAll("varchar\\([0-9]+\\)", "STRING");
 		//e.g decimal(5,2) -> FLOAT64
-		sqlStmt = sqlStmt.replaceAll("decimal\\(([0-9,]+)\\)", "FLOAT64");
+		sqlStmt = sqlStmt.replaceAll("decimal\\([0-9,]+\\)", "FLOAT64");
 		//e.g  int  ->  INT64 
 		sqlStmt = sqlStmt.replaceAll("int ", "INT64 ");
 		//e.g  bigint  ->  INT64 
