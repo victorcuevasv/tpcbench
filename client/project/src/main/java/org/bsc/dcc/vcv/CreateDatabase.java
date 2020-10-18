@@ -500,6 +500,12 @@ public class CreateDatabase {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in CreateDatabase createTable.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
 		finally {
 			if( queryRecord != null ) {
 				queryRecord.setEndTime(System.currentTimeMillis());
