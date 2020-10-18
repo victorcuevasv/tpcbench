@@ -1,5 +1,7 @@
 package org.bsc.dcc.vcv;
 
+import java.util.UUID;
+
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryException;
 import com.google.cloud.bigquery.BigQueryOptions;
@@ -12,6 +14,8 @@ import com.google.cloud.bigquery.StandardSQLTypeName;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.CsvOptions;
 import com.google.cloud.bigquery.Field;
+import com.google.cloud.bigquery.FieldValueList;
+import com.google.cloud.bigquery.TableResult;
 
 public class BigQueryDAO {
 	
@@ -85,6 +89,34 @@ public class BigQueryDAO {
 			throw e;
 		}
 	}
+	
+	public void countQuery(String tableName) throws Exception {
+		String sqlStmt = "SELECT COUNT(*) FROM " + tableName;
+		QueryJobConfiguration queryConfig =
+	    		QueryJobConfiguration config = QueryJobConfiguration.newBuilder(sqlStmt)
+				.setDefaultDataset(this.dataset).setUseLegacySql(false).build();
+	    // Create a job ID so that we can safely retry.
+	    JobId jobId = JobId.of(UUID.randomUUID().toString());
+	    Job queryJob = this.bigQuery.create(JobInfo.newBuilder(queryConfig).setJobId(jobId).build());
+	    // Wait for the query to complete.
+	    queryJob = queryJob.waitFor();
+	    // Check for errors
+	    if (queryJob == null) {
+	      throw new RuntimeException("Job no longer exists");
+	    }
+	    else if (queryJob.getStatus().getError() != null) {
+	      // You can also look at queryJob.getStatus().getExecutionErrors() for all
+	      // errors, not just the latest one.
+	      throw new RuntimeException(queryJob.getStatus().getError().toString());
+	    }
+	    // Get the results.
+	    TableResult result = queryJob.getQueryResults();
+	    // Print all pages of the results.
+	    for (FieldValueList row : result.iterateAll()) {
+	      String nStr = row.get(1).getStringValue();
+	      System.out.printf("Number of rows: %s%n", nStr);
+	    }
+	  }
   
 }
 

@@ -491,10 +491,10 @@ public class CreateDatabase {
 			}
 			queryRecord.setSuccessful(true);
 			if( doCount ) {
-				//TODO
+				this.bigQueryDAO.countQuery(tableName);
 			}
 		}
-		catch (BigQueryException | InterruptedException e) {
+		catch (BigQueryException | InterruptedException | Exception e) {
 			e.printStackTrace();
 			this.logger.error("Error in CreateDatabase createTable.");
 			this.logger.error(e);

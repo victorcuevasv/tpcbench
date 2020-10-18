@@ -30,13 +30,13 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
-Host="bsctest.database.windows.net"
+Host="UNUSED"
 #Run configuration.
 Tag="$(date +%s)"
-ExperimentName="tpcds-synapse-$1gb-${Tag}"
-DirNameWarehouse="tpcds-synapse-$1gb-$2-${Tag}"
-DirNameResults="synapse"
-DatabaseName="tpcds_synapse_$1gb_$2_${Tag}"
+ExperimentName="tpcds-bigquery-$1gb-${Tag}"
+DirNameWarehouse="tpcds-bigquery-$1gb-$2-${Tag}"
+DirNameResults="bigquery"
+DatabaseName="tpcds_bigquery_$1gb_$2_${Tag}"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 
 RUN_RUN_BENCHMARK=1
@@ -58,7 +58,7 @@ args[4]="--system-name=bigquery"
 #experiment instance number
 args[5]="--instance-number=$2"
 #prefix of external location for raw data tables (e.g. S3 bucket), null for none
-args[6]="--ext-raw-data-location=https://bsctpcds.blob.core.windows.net/tpcds-datasets-factory/$1GB"
+args[6]="--ext-raw-data-location=gs://databricks-bsc-benchmark-datasets/$1GB"
 #prefix of external location for created tables (e.g. S3 bucket), null for none
 args[7]="--ext-tables-location=null"
 #format for column-storage tables (PARQUET, DELTA)
@@ -80,7 +80,7 @@ args[14]="--server-hostname=$Host"
 #username for the connection
 args[15]="--connection-username=UNUSED"
 #queries dir within the jar
-args[16]="--queries-dir-in-jar=QueriesSynapse"
+args[16]="--queries-dir-in-jar=QueriesBigquery"
 #all or create table file
 args[17]="--all-or-create-file=all"
 #"all" or query file
@@ -90,8 +90,10 @@ args[19]="--raw-column-delimiter=SOH"
 
 #number of runs to perform for the power test (default 1)
 args[20]="--power-test-runs=1"
+#whether to run queries to count the tuples generated
+args[21]="--count-queries=false"
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[21]="--execution-flags=110010"
+args[22]="--execution-flags=110010"
 
 paramsStr="${args[@]}"
 
@@ -103,7 +105,7 @@ if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 	--volume $DIR/../client/project:/project \
 	--volume $HOME/tpcdsbench/client/project/target:/mnt/tpcds-jars/target \
 	--entrypoint mvn clientbuilder:dev \
-	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.BigQueryTest" \
+	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmarkCLI" \
 	-Dexec.args="$paramsStr" \
 	-f /project/pom.xml
 fi
