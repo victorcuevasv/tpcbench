@@ -17,7 +17,7 @@ public class BigQueryDAO {
     public BigQueryDAO(String project, String dataset) {
     	this.project = project;
     	this.dataset = dataset;
-    	BigQuery bigquery = BigQueryOptions.newBuilder().setProjectId(this.project)
+    	this.bigQuery = BigQueryOptions.newBuilder().setProjectId(this.project)
 				.build().getService();
     }
 
