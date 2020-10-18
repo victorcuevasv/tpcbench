@@ -113,7 +113,7 @@ public class BigQueryDAO {
 	    TableResult result = queryJob.getQueryResults();
 	    // Print all pages of the results.
 	    for (FieldValueList row : result.iterateAll()) {
-	      String nStr = row.get(1).getStringValue();
+	      String nStr = row.get(0).getStringValue();
 	      System.out.printf("Number of rows: %s%n", nStr);
 	    }
 	  }
