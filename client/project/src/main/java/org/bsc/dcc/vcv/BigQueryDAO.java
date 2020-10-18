@@ -19,17 +19,11 @@ public class BigQueryDAO {
     private final String dataset;
     private final BigQuery bigQuery;
     
-
     public BigQueryDAO(String project, String dataset) {
     	this.project = project;
     	this.dataset = dataset;
     	this.bigQuery = BigQueryOptions.newBuilder().setProjectId(this.project)
 				.build().getService();
-    }
-
-    public String createTable(String tableName, String sqlStmt, int i) 
-			throws BigQueryException, InterruptedException {
-    	
     }
     
     //Modifty the SQL create table statement as required by Bigquery, create the table
