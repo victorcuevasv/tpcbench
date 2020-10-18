@@ -27,8 +27,18 @@ public class BigQueryDAO {
 				.build().getService();
     }
 
-	public void createTable(String tableName, String sqlStmt) 
+    //Modifty the SQL create table statement as required by Bigquery, create the table
+    //and return the modified SQL.
+	public String createTable(String tableName, String sqlStmt) 
 			throws BigQueryException, InterruptedException {
+		//e.g. varchar(10) -> STRING
+		sqlStmt = sqlStmt.replaceAll("varchar\\(([0-9]+)\\)", "STRING");
+		//e.g decimal(5,2) -> FLOAT64
+		sqlStmt = sqlStmt.replaceAll("decimal\\(([0-9,]+)\\)", "FLOAT64");
+		//e.g  int  ->  INT64 
+		sqlStmt = sqlStmt.replaceAll("int ", "INT64 ");
+		//e.g  bigint  ->  INT64 
+		sqlStmt = sqlStmt.replaceAll("bigint", "INT64");
 		try {
 			QueryJobConfiguration config = QueryJobConfiguration.newBuilder(sqlStmt)
 					.setDefaultDataset(this.dataset).build();      
@@ -44,16 +54,22 @@ public class BigQueryDAO {
 		catch (BigQueryException | InterruptedException e) {
 			throw e;
 		}
+		return sqlStmt;
 	}
 	
-	public void loadCsvFromGcs(String tableName, String sourceUri, Schema schema) 
+	public void loadCsvFromGcs(String tableName, String sourceUri, String delimiterCode) 
 			throws BigQueryException, InterruptedException {
 		try {
+			String delimiter = ",";
+			if( delimiterCode.equals("SOH") )
+				delimiter = "\u0001";
+			else if( delimiterCode.equals("PIPE") )
+				delimiter = "|";
 			CsvOptions csvOptions = CsvOptions.newBuilder().
-					setFieldDelimiter("\u0001").setEncoding("ISO-8859-1").build();
+					setFieldDelimiter(delimiter).setEncoding("ISO-8859-1").build();
 			TableId tableId = TableId.of(this.dataset, tableName);
 			LoadJobConfiguration loadConfig = LoadJobConfiguration
-					.newBuilder(tableId, sourceUri, csvOptions).setSchema(schema).build();
+					.newBuilder(tableId, sourceUri, csvOptions).build();
 			Job job = this.bigQuery.create(JobInfo.of(loadConfig));
 			// Blocks until this load table job completes its execution, either failing or succeeding.
 			job = job.waitFor();
