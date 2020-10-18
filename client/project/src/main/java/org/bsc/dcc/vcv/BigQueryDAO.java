@@ -24,8 +24,8 @@ public class BigQueryDAO {
 	public void createTable(String sqlStmt) throws BigQueryException, InterruptedException {
 		try {
 			QueryJobConfiguration config = QueryJobConfiguration.newBuilder(sqlStmt)
-					.setDefaultDataset("tpcds_synapse_1gb_1_1602805814").build();      
-			Job job = bigquery.create(JobInfo.of(config));
+					.setDefaultDataset(this.dataset).build();      
+			Job job = this.bigQuery.create(JobInfo.of(config));
 			job = job.waitFor();
 			if (job.isDone()) {
 				System.out.println("Bigquery table created successfully.");
