@@ -27,17 +27,18 @@ public class BigQueryDAO {
 				.build().getService();
     }
 
-	public void createTable(String sqlStmt) throws BigQueryException, InterruptedException {
+	public void createTable(String tableName, String sqlStmt) 
+			throws BigQueryException, InterruptedException {
 		try {
 			QueryJobConfiguration config = QueryJobConfiguration.newBuilder(sqlStmt)
 					.setDefaultDataset(this.dataset).build();      
 			Job job = this.bigQuery.create(JobInfo.of(config));
 			job = job.waitFor();
 			if (job.isDone()) {
-				System.out.println("Bigquery table created successfully.");
+				System.out.println("Table " + tableName + " created successfully.");
 			}
 			else {
-				System.out.println("Bigquery table was not created.");
+				System.out.println("Error creating table " + tableName + ".");
 			}
 		}
 		catch (BigQueryException | InterruptedException e) {
@@ -45,7 +46,7 @@ public class BigQueryDAO {
 		}
 	}
 	
-	private void loadCsvFromGcs(String tableName, String sourceUri, Schema schema) 
+	public void loadCsvFromGcs(String tableName, String sourceUri, Schema schema) 
 			throws BigQueryException, InterruptedException {
 		try {
 			CsvOptions csvOptions = CsvOptions.newBuilder().
@@ -57,11 +58,11 @@ public class BigQueryDAO {
 			// Blocks until this load table job completes its execution, either failing or succeeding.
 			job = job.waitFor();
 			if (job.isDone()) {
-				System.out.println("CSV from GCS successfully added during load append job");
+				System.out.println("Table " + tableName + " loaded successfully.");
 			}
 			else {
 				System.out.println(
-						"BigQuery was unable to load into the table due to an error:"
+						"Uable to load into the table " + tableName + " due to an error: "
 				+ job.getStatus().getError());
 			}
 		}
