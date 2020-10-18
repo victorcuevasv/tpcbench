@@ -134,9 +134,13 @@ public class RunBenchmarkOptions {
 		options.addOption( Option.builder().longOpt( "db-password" )
 				.desc( "database password" )
 				.hasArg(true).required(false).build() );
+		
 		options.addOption( Option.builder().longOpt( "num-cores" )
 				.desc( "number of cores in the cluster to set the number of shuffle partitions" )
 				.hasArg(true).required(false).type(Integer.class).build() );
+		options.addOption( Option.builder().longOpt( "ordered-clustering" )
+				.desc( "use ordered clustering for some tables in synapse" )
+				.hasArg(true).required(false).type(Boolean.class).build() );
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );

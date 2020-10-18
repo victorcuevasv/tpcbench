@@ -21,6 +21,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import com.google.cloud.bigquery.BigQueryException;
 
 public class CreateDatabase {
 
@@ -34,6 +35,7 @@ public class CreateDatabase {
 	private static final String redshiftDriverName = "com.amazon.redshift.jdbc42.Driver";
 	
 	private Connection con;
+	private BigQueryDAO bigQueryDAO;
 	private final JarCreateTableReaderAsZipFile createTableReader;
 	private final AnalyticsRecorder recorder;
 	
@@ -55,6 +57,7 @@ public class CreateDatabase {
 	private final boolean doCount;
 	private final boolean partition;
 	private final int numCores;
+	private final boolean orderedClustering;
 	
 	private final boolean bucketing;
 	private final String hostname;
@@ -104,6 +107,8 @@ public class CreateDatabase {
 		this.dbPassword = commandLine.getOptionValue("db-password", "UNUSED");
 		String numCoresStr = commandLine.getOptionValue("num-cores", "-1");
 		this.numCores = Integer.parseInt(numCoresStr);
+		String orderedClusteringStr = commandLine.getOptionValue("ordered-clustering", "false");
+		this.orderedClustering = Boolean.parseBoolean(orderedClusteringStr);
 		this.distKeys = new DistKeys().getMap();
 		this.sortKeys = new SortKeys().getMap();
 		this.clusterByKeys = new ClusterByKeys().getMap();
@@ -178,6 +183,7 @@ public class CreateDatabase {
 		this.userId = "UNUSED";
 		this.dbPassword = "UNUSED";
 		this.numCores = -1;
+		this.orderedClustering = false;
 		this.distKeys = new DistKeys().getMap();
 		this.sortKeys = new SortKeys().getMap();
 		this.clusterByKeys = new ClusterByKeys().getMap();
@@ -271,6 +277,9 @@ public class CreateDatabase {
 				"trustServerCertificate=false;" +
 				"hostNameInCertificate=*.database.windows.net;" +
 				"loginTimeout=30;");
+			}
+			else if( this.system.startsWith("bigquery") ) {
+				this.bigQueryDAO = new BigQueryDAO("databricks-bsc-benchmark", this.dbName);
 			}
 			else {
 				throw new java.lang.RuntimeException("Unsupported system: " + this.systemRunning);
@@ -380,6 +389,8 @@ public class CreateDatabase {
 			}
 			else if (this.systemRunning.equals("databrickssql"))
 				this.createTableDatabricksSQL(fileName, sqlCreate, i);
+			else if (this.systemRunning.equals("bigquery"))
+				this.createTableBigQuery(fileName, sqlCreate, i);
 			else
 				this.createTable(fileName, sqlCreate, i);
 			i++;
@@ -443,6 +454,47 @@ public class CreateDatabase {
 				countRowsQuery(stmt, tableName);
 		}
 		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error("Error in CreateDatabase createTable.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		finally {
+			if( queryRecord != null ) {
+				queryRecord.setEndTime(System.currentTimeMillis());
+				this.recorder.record(queryRecord);
+			}
+		}
+	}
+
+	private void createTableBigQuery(String sqlCreateFilename, String sqlCreate, int index) {
+		QueryRecord queryRecord = null;
+		String suffix = "";
+		try {
+			//First, create the table, no format or options are specified, only the schema data.
+			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
+			System.out.println("Processing table " + index + ": " + tableName);
+			this.logger.info("Processing table " + index + ": " + tableName);
+			//Hive and Spark use the statement 'create external table ...' for raw data tables
+			String bigQuerySqlCreate = incompleteCreateTable(sqlCreate, tableName, false, suffix, false);
+			queryRecord = new QueryRecord(index);
+			queryRecord.setStartTime(System.currentTimeMillis());
+			bigQuerySqlCreate = this.bigQueryDAO.createTable(tableName, bigQuerySqlCreate);
+			saveCreateTableFile("bigquerytable", tableName, bigQuerySqlCreate);
+			//A null extTablePrefixRaw indicates to use local files for table creation.
+			if( ! this.extTablePrefixRaw.isPresent() ) {
+				//TODO
+			}
+			else {
+				String sourceUri = this.extTablePrefixRaw.get() + "/" + tableName + "/*";
+				this.bigQueryDAO.loadCsvFromGcs(tableName, sourceUri, this.columnDelimiter);
+			}
+			queryRecord.setSuccessful(true);
+			if( doCount ) {
+				//TODO
+			}
+		}
+		catch (BigQueryException | InterruptedException e) {
 			e.printStackTrace();
 			this.logger.error("Error in CreateDatabase createTable.");
 			this.logger.error(e);

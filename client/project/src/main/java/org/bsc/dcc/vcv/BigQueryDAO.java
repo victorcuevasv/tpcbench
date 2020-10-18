@@ -27,6 +27,11 @@ public class BigQueryDAO {
 				.build().getService();
     }
 
+    public String createTable(String tableName, String sqlStmt, int i) 
+			throws BigQueryException, InterruptedException {
+    	
+    }
+    
     //Modifty the SQL create table statement as required by Bigquery, create the table
     //and return the modified SQL.
 	public String createTable(String tableName, String sqlStmt) 
