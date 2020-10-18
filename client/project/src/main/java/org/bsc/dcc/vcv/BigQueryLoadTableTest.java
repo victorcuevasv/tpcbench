@@ -29,7 +29,7 @@ public class BigQueryLoadTableTest {
     // TODO(developer): Replace these variables before running the sample.
     String datasetName = "tpcds_synapse_1gb_1_1602805814";
     String tableName = "inventory";
-    String sourceUri = "gs://databricks-bsc-benchmark-datasets/1GB/inventory";
+    String sourceUri = "gs://databricks-bsc-benchmark-datasets/1GB/inventory/inventory_1_4.dat";
     Schema schema =
         Schema.of(
             Field.of("inv_date_sk", StandardSQLTypeName.INT64).
