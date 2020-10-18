@@ -494,7 +494,7 @@ public class CreateDatabase {
 				this.bigQueryDAO.countQuery(tableName);
 			}
 		}
-		catch (BigQueryException | InterruptedException) {
+		catch (BigQueryException | InterruptedException e) {
 			e.printStackTrace();
 			this.logger.error("Error in CreateDatabase createTable.");
 			this.logger.error(e);
