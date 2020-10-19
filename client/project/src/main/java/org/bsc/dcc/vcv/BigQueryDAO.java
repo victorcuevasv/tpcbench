@@ -39,10 +39,10 @@ public class BigQueryDAO {
 		sqlStmt = sqlStmt.replaceAll("varchar\\([0-9]+\\)", "STRING");
 		//e.g decimal(5,2) -> FLOAT64
 		sqlStmt = sqlStmt.replaceAll("decimal\\([0-9,]+\\)", "FLOAT64");
-		//e.g  int  ->  INT64 
-		sqlStmt = sqlStmt.replaceAll("int ", "INT64 ");
 		//e.g  bigint  ->  INT64 
 		sqlStmt = sqlStmt.replaceAll("bigint", "INT64");
+		//e.g  int  ->  INT64 
+		sqlStmt = sqlStmt.replaceAll("int ", "INT64 ");
 		try {
 			QueryJobConfiguration config = QueryJobConfiguration.newBuilder(sqlStmt)
 					.setDefaultDataset(this.dataset).build();      
