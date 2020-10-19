@@ -534,7 +534,7 @@ public class CreateDatabase {
 			else
 				synapseSqlCreate += "HASH(" + distKey + ")";
 			synapseSqlCreate += ", CLUSTERED COLUMNSTORE INDEX";
-			if( ! sortKey.equals("none") )
+			if( ! sortKey.equals("none") && this.orderedClustering )
 				synapseSqlCreate += " ORDER(" + sortKey + ")";
 			synapseSqlCreate += ")\n";
 			saveCreateTableFile("synapsetable", tableName, synapseSqlCreate);
