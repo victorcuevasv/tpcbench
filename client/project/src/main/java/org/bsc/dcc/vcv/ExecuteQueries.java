@@ -188,8 +188,8 @@ public class ExecuteQueries {
 					+ ";UID=token;PWD=" + this.dbPassword
 					+ ";UseNativeQuery=1"
 					+ ";spark.databricks.execution.resultCaching.enabled=false"
-					+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
-					+ ";spark.sql.shuffle.partitions=2048");
+					//+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
+					//+ ";spark.sql.shuffle.partitions=2048");
 			}
 			else if( this.system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
