@@ -31,18 +31,15 @@ fi
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
-Nodes="2"
 #Run configuration.
 Tag="$(date +%s)"
 ExperimentName="tpcds-dbrsql-$1gb-${Tag}"
-DirNameWarehouse="UNUSED"
 DirNameResults="dbrsql"
 DatabaseName="bsc_dbrsql_sf3000_xl"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
+numCores=<NUMCORES>
 clusterId="<CLUSTERID>"
-dbPass="<PASS>"
-
-RUN_RUN_BENCHMARK=1
+dbPassword="<PASS>"
 
 args=()
 
@@ -96,6 +93,7 @@ args[25]="--power-test-runs=3"
 args[26]="--save-power-plans=false"
 args[27]="--cluster-id=${clusterId}"
 args[28]="--db-password=${dbPassword}"
+args[29]="--num-cores=${numCores}"
 
 paramsStr="${args[@]}"
 
