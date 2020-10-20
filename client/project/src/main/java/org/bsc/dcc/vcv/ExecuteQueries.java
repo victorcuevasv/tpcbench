@@ -186,7 +186,10 @@ public class ExecuteQueries {
 					+ ";transportMode=http;ssl=1;AuthMech=3"
 					+ ";httpPath=/sql/1.0/endpoints/" + this.clusterId
 					+ ";UID=token;PWD=" + this.dbPassword
-					+ ";UseNativeQuery=1");
+					+ ";UseNativeQuery=1"
+					+ ";spark.databricks.execution.resultCaching.enabled=false"
+					+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
+					+ ";spark.sql.shuffle.partitions=2048");
 			}
 			else if( this.system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
@@ -410,7 +413,7 @@ public class ExecuteQueries {
 		if (this.system.startsWith("redshift"))
 			this.prepareRedshift();
 		if (this.system.startsWith("databrickssql"))
-			this.prepareDatabricksSql();
+			//this.prepareDatabricksSql();
 		if( this.test.equals("power") && this.savePlans )
 			this.savePlans();
 		this.recorder.header();
