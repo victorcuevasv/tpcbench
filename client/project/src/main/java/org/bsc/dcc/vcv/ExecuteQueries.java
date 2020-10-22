@@ -635,10 +635,17 @@ public class ExecuteQueries {
 		int tuples = 0;
 		for (FieldValueList row : tableResult.iterateAll()) {
 			StringBuilder rowBuilder = new StringBuilder();
+			String val = null;
 			for (int i = 0; i < nCols - 1; i++) {
-				rowBuilder.append(row.get(i).getStringValue() + " | ");
+				val = null;
+				if( ! row.get(i).isNull() )
+					val = row.get(i).getStringValue();
+				rowBuilder.append(val + " | ");
 			}
-			rowBuilder.append(row.get(nCols - 1).getStringValue());
+			val = null;
+			if( ! row.get(nCols - 1).isNull() )
+				val = row.get(nCols - 1).getStringValue();
+			rowBuilder.append(val);
 			printWriter.println(rowBuilder.toString());
 			tuples++;
 		}
