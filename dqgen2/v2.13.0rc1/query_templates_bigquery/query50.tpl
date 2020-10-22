@@ -48,13 +48,13 @@ define _LIMIT=100;
   ,s_county
   ,s_state
   ,s_zip
-  ,sum(case when (sr_returned_date_sk - ss_sold_date_sk <= 30 ) then 1 else 0 end)  as 30_days 
+  ,sum(case when (sr_returned_date_sk - ss_sold_date_sk <= 30 ) then 1 else 0 end)  as _30_days 
   ,sum(case when (sr_returned_date_sk - ss_sold_date_sk > 30) and 
-                 (sr_returned_date_sk - ss_sold_date_sk <= 60) then 1 else 0 end )  as 31_to_60_days 
+                 (sr_returned_date_sk - ss_sold_date_sk <= 60) then 1 else 0 end )  as _31_to_60_days 
   ,sum(case when (sr_returned_date_sk - ss_sold_date_sk > 60) and 
-                 (sr_returned_date_sk - ss_sold_date_sk <= 90) then 1 else 0 end)  as 61_to_90_days 
+                 (sr_returned_date_sk - ss_sold_date_sk <= 90) then 1 else 0 end)  as _61_to_90_days 
   ,sum(case when (sr_returned_date_sk - ss_sold_date_sk > 90) and
-                 (sr_returned_date_sk - ss_sold_date_sk <= 120) then 1 else 0 end)  as 91_to_120_days 
+                 (sr_returned_date_sk - ss_sold_date_sk <= 120) then 1 else 0 end)  as _91_to_120_days 
   ,sum(case when (sr_returned_date_sk - ss_sold_date_sk  > 120) then 1 else 0 end)  as more_than_120_days 
 from
    store_sales

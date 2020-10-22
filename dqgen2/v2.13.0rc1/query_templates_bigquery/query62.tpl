@@ -40,13 +40,13 @@ define _LIMIT=100;
    substr(w_warehouse_name,1,20)
   ,sm_type
   ,web_name
-  ,sum(case when (ws_ship_date_sk - ws_sold_date_sk <= 30 ) then 1 else 0 end)  as 30_days 
+  ,sum(case when (ws_ship_date_sk - ws_sold_date_sk <= 30 ) then 1 else 0 end)  as _30_days 
   ,sum(case when (ws_ship_date_sk - ws_sold_date_sk > 30) and 
-                 (ws_ship_date_sk - ws_sold_date_sk <= 60) then 1 else 0 end )  as 31_to_60_days 
+                 (ws_ship_date_sk - ws_sold_date_sk <= 60) then 1 else 0 end )  as _31_to_60_days 
   ,sum(case when (ws_ship_date_sk - ws_sold_date_sk > 60) and 
-                 (ws_ship_date_sk - ws_sold_date_sk <= 90) then 1 else 0 end)  as 61_to_90_days 
+                 (ws_ship_date_sk - ws_sold_date_sk <= 90) then 1 else 0 end)  as _61_to_90_days 
   ,sum(case when (ws_ship_date_sk - ws_sold_date_sk > 90) and
-                 (ws_ship_date_sk - ws_sold_date_sk <= 120) then 1 else 0 end)  as 91_to_120_days 
+                 (ws_ship_date_sk - ws_sold_date_sk <= 120) then 1 else 0 end)  as _91_to_120_days 
   ,sum(case when (ws_ship_date_sk - ws_sold_date_sk  > 120) then 1 else 0 end)  as more_than_120_days 
 from
    web_sales
