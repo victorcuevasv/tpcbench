@@ -117,6 +117,27 @@ public class BigQueryDAO {
 	      System.out.printf("Number of rows: %s%n", nStr);
 	    }
 	  }
+	
+	public TableResult executeQuery(String sqlStrFull) throws Exception {
+		
+		QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(sqlStrFull)
+				.setDefaultDataset(this.dataset).setUseLegacySql(false).build();
+	    // Create a job ID so that we can safely retry.
+	    JobId jobId = JobId.of(UUID.randomUUID().toString());
+	    Job queryJob = this.bigQuery.create(JobInfo.newBuilder(queryConfig).setJobId(jobId).build());
+	    // Wait for the query to complete.
+	    queryJob = queryJob.waitFor();
+	    // Check for errors
+	    if (queryJob == null) {
+	      throw new RuntimeException("Job no longer exists");
+	    }
+	    else if (queryJob.getStatus().getError() != null) {
+	      throw new RuntimeException(queryJob.getStatus().getError().toString());
+	    }
+	    // Get the results.
+	    TableResult result = queryJob.getQueryResults();
+	    return result;
+	  }
   
 }
 
