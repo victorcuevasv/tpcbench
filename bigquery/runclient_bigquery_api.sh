@@ -80,7 +80,7 @@ args[14]="--server-hostname=$Host"
 #username for the connection
 args[15]="--connection-username=UNUSED"
 #queries dir within the jar
-args[16]="--queries-dir-in-jar=QueriesBigquery"
+args[16]="--queries-dir-in-jar=QueriesBigQuery"
 #all or create table file
 args[17]="--all-or-create-file=all"
 #"all" or query file
