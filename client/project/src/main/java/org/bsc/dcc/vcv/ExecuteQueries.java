@@ -20,6 +20,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import com.google.cloud.bigquery.BigQueryException;
+import com.google.cloud.bigquery.TableResult;
+import com.google.cloud.bigquery.FieldValueList;
 
 public class ExecuteQueries {
 
@@ -31,6 +34,7 @@ public class ExecuteQueries {
 	private static final String redshiftDriverName = "com.amazon.redshift.jdbc42.Driver";
 	private static final String synapseDriverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 	private Connection con;
+	private BigQueryDAO bigQueryDAO;
 	private final JarQueriesReaderAsZipFile queriesReader;
 	private final AnalyticsRecorder recorder;
 	private final String workDir;
@@ -224,6 +228,9 @@ public class ExecuteQueries {
 				"trustServerCertificate=false;" +
 				"hostNameInCertificate=*.database.windows.net;" +
 				"loginTimeout=30;");
+			}
+			else if( this.system.startsWith("bigquery") ) {
+				this.bigQueryDAO = new BigQueryDAO("databricks-bsc-benchmark", this.dbName);
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
@@ -434,7 +441,10 @@ public class ExecuteQueries {
 				queryRecord.setRun(i);
 				this.logger.info("\nExecuting query: " + fileName + " (run " + i + ")\n" + sqlStr);
 				try {
-					this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
+					if( ! this.system.equals("bigquery") )
+						this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
+					else
+						this.executeQueryMultipleCallsBigQuery(fileName, sqlStr, queryRecord);
 					//The results should have been saved by executeQueryMultipleCalls,
 					//check the generated file to obtain the results size.
 					if( this.saveResults ) {
@@ -564,6 +574,34 @@ public class ExecuteQueries {
 			iteration++;
 		}
 	}
+	
+	private void executeQueryMultipleCallsBigQuery(String queryFileName, String sqlStrFull, 
+		QueryRecord queryRecord) throws Exception {
+		// Split the various queries and execute each.
+		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
+		boolean firstQuery = true;
+		int iteration = 1;
+		while (tokenizer.hasMoreTokens()) {
+			String sqlStr = tokenizer.nextToken().trim();
+			if( sqlStr.length() == 0 )
+				continue;	
+			// Execute the query.
+			if( firstQuery )
+				queryRecord.setStartTime(System.currentTimeMillis());
+			System.out.println("Executing iteration " + iteration + " of query " + 
+				queryFileName + " (run " + queryRecord.getRun() + ").");
+			TableResult tableResult = this.bigQueryDAO.executeQuery(sqlStr);
+			// Save the results.
+			if( this.test.equals("power") &&  this.saveResults ) {
+				int tuples = this.saveResultsBigQuery(
+						this.generateResultsFileName(queryFileName, queryRecord.getRun()), 
+							tableResult, ! firstQuery);
+				queryRecord.setTuples(queryRecord.getTuples() + tuples);
+			}
+			firstQuery = false;
+			iteration++;
+		}
+	}
 
 	private int saveResults(String resFileName, ResultSet rs, boolean append) 
 			throws Exception {
@@ -580,6 +618,27 @@ public class ExecuteQueries {
 				rowBuilder.append(rs.getString(i) + " | ");
 			}
 			rowBuilder.append(rs.getString(nCols));
+			printWriter.println(rowBuilder.toString());
+			tuples++;
+		}
+		printWriter.close();
+		return tuples;
+	}
+	
+	private int saveResultsBigQuery(String resFileName, TableResult tableResult, boolean append) 
+			throws Exception {
+		File tmp = new File(resFileName);
+		tmp.getParentFile().mkdirs();
+		FileWriter fileWriter = new FileWriter(resFileName, append);
+		PrintWriter printWriter = new PrintWriter(fileWriter);
+		int nCols = tableResult.getSchema().getFields().size();
+		int tuples = 0;
+		for (FieldValueList row : tableResult.iterateAll()) {
+			StringBuilder rowBuilder = new StringBuilder();
+			for (int i = 0; i < nCols - 1; i++) {
+				rowBuilder.append(row.get(i).getStringValue() + " | ");
+			}
+			rowBuilder.append(tableResult.getString(nCols - 1));
 			printWriter.println(rowBuilder.toString());
 			tuples++;
 		}

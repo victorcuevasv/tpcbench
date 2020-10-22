@@ -92,8 +92,12 @@ args[19]="--raw-column-delimiter=SOH"
 args[20]="--power-test-runs=1"
 #whether to run queries to count the tuples generated
 args[21]="--count-queries=false"
+
+#save power test plans
+args[22]="--save-power-plans=false"
+
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[22]="--execution-flags=110010"
+args[23]="--execution-flags=110010"
 
 paramsStr="${args[@]}"
 
