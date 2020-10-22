@@ -638,7 +638,7 @@ public class ExecuteQueries {
 			for (int i = 0; i < nCols - 1; i++) {
 				rowBuilder.append(row.get(i).getStringValue() + " | ");
 			}
-			rowBuilder.append(tableResult.getString(nCols - 1));
+			rowBuilder.append(row.get(nCols - 1).getStringValue());
 			printWriter.println(rowBuilder.toString());
 			tuples++;
 		}
