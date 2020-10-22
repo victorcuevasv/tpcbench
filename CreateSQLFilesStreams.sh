@@ -136,5 +136,18 @@ do
 	cp -r $DIR/vols/data/StreamsSynapseProcessed/stream$i $DIR/client/project/src/main/resources/QueriesSynapseStream$i
 done
 
+#Generate the BigQuery query streams.
+printf "\n\n%s\n\n" "${mag}Generating the BigQuery query streams.${end}"
+bash $DIR/createStreamsBigQuery.sh $1 $2
+bash $DIR/runclient_processStreamFilesQueries.sh BigQuery
+START=0
+END=$2
+for (( i=$START; i<$END; i++ ))
+do
+	cp -r $DIR/vols/data/StreamsBigQueryProcessed/stream$i $DIR/client/project/src/main/resources/QueriesBigQueryStream$i
+done
+
+
+
 
 

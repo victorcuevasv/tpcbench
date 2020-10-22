@@ -69,6 +69,11 @@ printf "\n\n%s\n\n" "${mag}Generating the Synapse queries.${end}"
 bash $DIR/dqgen2/generateQueriesSynapse.sh $USER_ID $GROUP_ID $1
 cp -r $DIR/vols/data/QueriesSynapse $DIR/client/project/src/main/resources/
 
+#Generate the BigQuery queries.
+printf "\n\n%s\n\n" "${mag}Generating the BigQuery queries.${end}"
+bash $DIR/dqgen2/generateQueriesBigQuery.sh $USER_ID $GROUP_ID $1
+cp -r $DIR/vols/data/QueriesBigQuery $DIR/client/project/src/main/resources/
+
 
 
 
