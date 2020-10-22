@@ -41,7 +41,7 @@ printf "\n\n%s\n\n" "${blu}Generating BigQuery queries.${end}"
 #and output to the QueriesBigQuery directory.
 
 for f in ../query_templates_temp/query*.tpl ; do 
-   ./dsqgen -template $(basename "$f") -OUTPUT_DIR ../output/QueriesBigQuery -directory ../query_templates_temp -dialect ansi -scale $1
+   ./dsqgen -template $(basename "$f") -OUTPUT_DIR ../output/QueriesBigQuery -directory ../query_templates_temp -dialect netezza -scale $1
    mv ../output/QueriesBigQuery/query_0.sql ../output/QueriesBigQuery/$(basename "$f" .tpl).sql  ; #.tpl is removed with this invocation of basename
 done
 

@@ -36,12 +36,12 @@ cp ../query_templates/* ../query_templates_temp
 #Override the modified templates for Synapse
 cp ../query_templates_bigquery/* ../query_templates_temp
 
-#Override the ansi.tpl template with ansiLong.tpl
-cp ../ansiLong.tpl ../query_templates_temp/ansi.tpl
+#Override the netezza.tpl template with netezzaLong.tpl
+cp ../netezzaLong.tpl ../query_templates_temp/netezza.tpl
 
 printf "\n\n%s\n\n" "${blu}Generating the BigQuery query streams with dsqgen.${end}"
 
-./dsqgen -DIRECTORY ../query_templates_temp -INPUT ../query_templates_temp/templates.lst -OUTPUT_DIR ../output/StreamsBigQuery -dialect ansi -scale $1 -streams $2   
+./dsqgen -DIRECTORY ../query_templates_temp -INPUT ../query_templates_temp/templates.lst -OUTPUT_DIR ../output/StreamsBigQuery -dialect netezza -scale $1 -streams $2   
 
 
 
