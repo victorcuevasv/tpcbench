@@ -477,6 +477,9 @@ public class CreateDatabase {
 			this.logger.info("Processing table " + index + ": " + tableName);
 			//Hive and Spark use the statement 'create external table ...' for raw data tables
 			String bigQuerySqlCreate = incompleteCreateTable(sqlCreate, tableName, false, suffix, false);
+			String clusterByKey = this.clusterByKeys.get(tableName);
+			if( clusterByKey != null )
+				bigQuerySqlCreate = bigQuerySqlCreate + "\n CLUSTER BY(" + clusterByKey + ")";
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			bigQuerySqlCreate = this.bigQueryDAO.createTable(tableName, bigQuerySqlCreate);
