@@ -212,6 +212,8 @@ public class CreateSchema {
 			}
 			else if( system.startsWith("synapse") ) {
 				stmt.execute("CREATE SCHEMA " + this.dbName);
+				stmt.execute("ALTER USER tpcds_user_loader WITH DEFAULT_SCHEMA = " + this.dbName);
+				stmt.execute("GRANT ALTER ON SCHEMA::" + this.dbName + " TO tpcds_user_loader");
 				stmt.execute("ALTER USER tpcds_user WITH DEFAULT_SCHEMA = " + this.dbName);
 				stmt.execute("GRANT ALTER ON SCHEMA::" + this.dbName + " TO tpcds_user");
 			}
