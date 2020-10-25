@@ -222,7 +222,7 @@ public class ExecuteQueries {
 				this.con = DriverManager.getConnection("jdbc:sqlserver://" +
 				this.hostname + ":1433;" +
 				"database=bsc-tpcds-test-pool;" +
-				"user=tpcds_user_loader@bsctest;" +
+				"user=tpcds_user@bsctest;" +
 				"password=" + synapsePwd + ";" +
 				"encrypt=true;" +
 				"trustServerCertificate=false;" +
