@@ -32,38 +32,25 @@
 -- 
 -- Contributors:
 -- 
- define DMS = random(1176,1224,uniform);
- define _LIMIT=100;
- 
- with results as
-( select sum(ws_net_paid) as total_sum, i_category, i_class, 0 as g_category, 0 as g_class 
- from
-    web_sales
-   ,date_dim       d1
-   ,item
- where
-    d1.d_month_seq between [DMS] and [DMS]+11
- and d1.d_date_sk = ws_sold_date_sk
- and i_item_sk  = ws_item_sk
- group by i_category,i_class
- ) ,
+define DMS = random(1176,1224, uniform); 
 
- results_rollup as
-( select total_sum ,i_category ,i_class, g_category, g_class, 0 as lochierarchy from results
-  union distinct
-  select sum(total_sum) as total_sum, i_category, NULL as i_class, 0 as g_category, 1 as g_class, 1 as lochierarchy from results group by i_category
-  union distinct
-  select sum(total_sum) as total_sum, NULL as i_category, NULL as i_class, 1 as g_category, 1 as g_class, 2 as lochierarchy from results)
-[_LIMITA] select [_LIMITB]
- total_sum ,i_category ,i_class, lochierarchy 
-   ,rank() over (
- 	partition by lochierarchy,
- 	case when g_class = 0 then i_category end 
- 	order by total_sum desc) as rank_within_parent
- from
- results_rollup
- order by
-   lochierarchy desc,
-   case when lochierarchy = 0 then i_category end,
-   rank_within_parent 
- [_LIMITC];
+select count(*) 
+from ((select distinct c_last_name, c_first_name, d_date
+       from store_sales, date_dim, customer
+       where store_sales.ss_sold_date_sk = date_dim.d_date_sk
+         and store_sales.ss_customer_sk = customer.c_customer_sk
+         and d_month_seq between [DMS] and [DMS]+11)
+       except distinct
+      (select distinct c_last_name, c_first_name, d_date
+       from catalog_sales, date_dim, customer
+       where catalog_sales.cs_sold_date_sk = date_dim.d_date_sk
+         and catalog_sales.cs_bill_customer_sk = customer.c_customer_sk
+         and d_month_seq between [DMS] and [DMS]+11)
+       except distinct
+      (select distinct c_last_name, c_first_name, d_date
+       from web_sales, date_dim, customer
+       where web_sales.ws_sold_date_sk = date_dim.d_date_sk
+         and web_sales.ws_bill_customer_sk = customer.c_customer_sk
+         and d_month_seq between [DMS] and [DMS]+11)
+) cool_cust
+;

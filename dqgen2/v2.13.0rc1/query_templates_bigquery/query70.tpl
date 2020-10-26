@@ -59,9 +59,9 @@
   group by s_state,s_county) ,  
  results_rollup as 
 (select total_sum ,s_state ,s_county, 0 as g_state, 0 as g_county, 0 as lochierarchy from results
- union
+ union distinct
  select sum(total_sum) as total_sum,s_state, NULL as s_county, 0 as g_state, 1 as g_county, 1 as lochierarchy from results group by s_state
- union
+ union distinct
  select sum(total_sum) as total_sum ,NULL as s_state ,NULL as s_county, 1 as g_state, 1 as g_county, 2 as lochierarchy from results)
  [_LIMITA] select [_LIMITB] total_sum ,s_state ,s_county, lochierarchy 
   ,rank() over (
