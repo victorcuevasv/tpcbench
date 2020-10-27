@@ -1,4 +1,4 @@
-s#!/bin/bash
+#!/bin/bash
 
 #Variables for console output with colors.
 
