@@ -1,0 +1,69 @@
+Query 36: using the lochierarchy attribute generated in the projection for the order by clause
+generates an error. It may be necessary to use the alternative.
+
+Query 41: uses top and distinct at the same time, so the generated form needs to be modified to be
+like
+
+select distinct top 100 i_product_name
+
+Check:
+https://stackoverflow.com/questions/15479224/using-distinct-and-top-at-the-same-time/15479244 
+
+Query 70: same issue as with query 36.
+
+Query 86: same issue as with query 36
+
+
+Schema:
+
+For the table item, the i_category attribute cannot be used for order because it is a string,
+so use i_category_id instead.
+
+
+Query 9, 14, and 97 30 TB: arithmetic overflow error (see query 22 cast to bigint).
+
+
+Query 9 fix:
+Find: count(*)
+Replace with: count_big(*)
+
+
+Query 14 fix:
+
+Change the line below to the line below that
+
+select top 100 channel, i_brand_id,i_class_id,i_category_id,sum(sales), sum(number_sales)
+select top 100 channel, i_brand_id,i_class_id,i_category_id,sum(cast(sales as bigint)), sum(cast(number_sales as bigint))     
+
+Find: ss_quantity*ss_list_price
+Replace with: cast(ss_quantity as bigint)*cast(ss_list_price as bigint)
+Find: quantity*list_price
+Replace with: cast(quantity as bigint)*cast(list_price as bigint)
+Find: cs_quantity*cs_list_price
+Replace with: cast(cs_quantity as bigint)*cast(cs_list_price as bigint)
+Find: ws_quantity*ws_list_price
+Replace with: cast(ws_quantity as bigint)*cast(ws_list_price as bigint)
+
+
+Query 97 fix:
+In the last lines replace 1 with cast(1 as bigint) and 0 with cast(0 as bigint)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

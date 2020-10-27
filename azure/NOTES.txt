@@ -166,6 +166,8 @@ The first statement hast to be run from Azure Data Studio under the master datab
 
 CREATE LOGIN tpcds_user WITH PASSWORD = 'M748dEh7!8F9';
 
+The following statements within the bsc-tpcds-test-pool database.
+
 CREATE USER tpcds_user FROM LOGIN tpcds_user WITH DEFAULT_SCHEMA = tpcds_test;
 
 GRANT CREATE TABLE TO tpcds_user;
@@ -245,6 +247,10 @@ WHERE cc_call_center_sk = 1;
 SELECT name, is_auto_create_stats_on
 FROM sys.databases;
 
+--Check if result set caching is on
+SELECT name, is_result_set_caching_on
+FROM sys.databases;
+
 --Check statistics.
 SELECT s.* 
       ,c.name AS column_name  
@@ -269,6 +275,11 @@ order by schema_name(tab.schema_id) + '.' + tab.name
 --order by sum(part.rows) desc
 
 
+--Add a resource class to the user
+EXEC sp_addrolemember 'xlargerc', 'tpcds_user';
+
+--Check if the resource class was added
+SELECT IS_ROLEMEMBER ('xlargerc');
 
 
 
