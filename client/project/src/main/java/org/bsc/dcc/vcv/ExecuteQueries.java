@@ -194,7 +194,7 @@ public class ExecuteQueries {
 					+ ";spark.databricks.execution.resultCaching.enabled=false"
 					+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
 					+ ";spark.sql.shuffle.partitions=2048"
-					+ ";spark.sql.autoBroadcastJoinThreshold=60000000"
+					// + ";spark.sql.autoBroadcastJoinThreshold=60000000"
 					);
 			}
 			else if( this.system.startsWith("spark") ) {
