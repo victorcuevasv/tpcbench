@@ -1,0 +1,65 @@
+union does not seem to be supported, but union all does (query 86).
+
+
+Query 8
+Problem: error with intersect.
+Solution: add distinct to intersect.
+Issues: fivetran rewrites the query instead.
+
+Query 14
+Problem: error with intersect.
+Solution: add distinct to intersect.
+Issues: fivetran rewrites the query instead.
+
+Query 23
+Problem: reference to substring expression in GROUP BY.
+Solution: change the expression to the number 1 to refer to that expression in the select clause.
+Issues: fivetran also uses this approach but also rewrites the query in other ways.
+
+Query 36
+Problem: error with union.
+Solution: add distinct to union
+Issues: fivetran apparently uses the default template that uses rank
+
+Query 38
+Problem: error with intersect.
+Solution: add distinct to intersect.
+Issues: fivetran rewrites the query instead.
+
+Query 49
+Problem: error with union.
+Solution: add distinct to union
+Issues: fivetran uses union all
+
+Query 62
+Problem: reference to substring expression in GROUP BY and ORDER BY.
+Solution: change the expression to the number 1 to refer to that expression in the select clause.
+Issues: fivetran also uses this approach but also rewrites the query in other ways.
+
+Query 70
+Problem: error with union.
+Solution: add distinct to union
+Issues: fivetran uses union all
+
+Query 75
+Problem: error with union.
+Solution: add distinct to union
+Issues: fivetran uses union all
+
+Query 86
+Problem: error with union.
+Solution: add distinct to union
+Issues: fivetran uses original template
+
+Query 87
+Problem: error with except.
+Solution: add distinct to except
+Issues: fivetran rewrites the query using not exists
+
+Query 99
+Problem: reference to substring expression in GROUP BY and ORDER BY.
+Solution: change the expression to the number 1 to refer to that expression in the select clause.
+Issues: fivetran also uses this approach but also with the remaining columns in the group by.
+
+
+

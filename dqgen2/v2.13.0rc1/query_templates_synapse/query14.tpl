@@ -73,7 +73,7 @@ with  cross_items as
       and i_category_id = category_id
 ),
  avg_sales as
- (select avg(quantity*list_price) average_sales
+ (select avg(cast(quantity as bigint)*cast(list_price as bigint)) average_sales
   from (select ss_quantity quantity
              ,ss_list_price list_price
        from store_sales
@@ -94,10 +94,10 @@ with  cross_items as
            ,date_dim
        where ws_sold_date_sk = d_date_sk
          and d_year between [YEAR] and [YEAR] + 2) x)
- [_LIMITA] select [_LIMITB] channel, i_brand_id,i_class_id,i_category_id,sum(sales), sum(number_sales)
+ [_LIMITA] select [_LIMITB] channel, i_brand_id,i_class_id,i_category_id, sum(cast(sales as bigint)), sum(cast(number_sales as bigint))
  from(
        select 'store' channel, i_brand_id,i_class_id
-             ,i_category_id,sum(ss_quantity*ss_list_price) sales
+             ,i_category_id,sum(cast(ss_quantity as bigint)*cast(ss_list_price as bigint)) sales
              , count(*) number_sales
        from store_sales
            ,item
@@ -108,9 +108,9 @@ with  cross_items as
          and d_year = [YEAR]+2 
          and d_moy = 11
        group by i_brand_id,i_class_id,i_category_id
-       having sum(ss_quantity*ss_list_price) > (select average_sales from avg_sales)
+       having sum(cast(ss_quantity as bigint)*cast(ss_list_price as bigint)) > (select average_sales from avg_sales)
        union all
-       select 'catalog' channel, i_brand_id,i_class_id,i_category_id, sum(cs_quantity*cs_list_price) sales, count(*) number_sales
+       select 'catalog' channel, i_brand_id,i_class_id,i_category_id, sum(cast(cs_quantity as bigint)*cast(cs_list_price as bigint)) sales, count(*) number_sales
        from catalog_sales
            ,item
            ,date_dim
@@ -120,9 +120,9 @@ with  cross_items as
          and d_year = [YEAR]+2 
          and d_moy = 11
        group by i_brand_id,i_class_id,i_category_id
-       having sum(cs_quantity*cs_list_price) > (select average_sales from avg_sales)
+       having sum(cast(cs_quantity as bigint)*cast(cs_list_price as bigint)) > (select average_sales from avg_sales)
        union all
-       select 'web' channel, i_brand_id,i_class_id,i_category_id, sum(ws_quantity*ws_list_price) sales , count(*) number_sales
+       select 'web' channel, i_brand_id,i_class_id,i_category_id, sum(cast(ws_quantity as bigint)*cast(ws_list_price as bigint)) sales , count(*) number_sales
        from web_sales
            ,item
            ,date_dim
@@ -132,7 +132,7 @@ with  cross_items as
          and d_year = [YEAR]+2
          and d_moy = 11
        group by i_brand_id,i_class_id,i_category_id
-       having sum(ws_quantity*ws_list_price) > (select average_sales from avg_sales)
+       having sum(cast(ws_quantity as bigint)*cast(ws_list_price as bigint)) > (select average_sales from avg_sales)
  ) y
  group by rollup (channel, i_brand_id,i_class_id,i_category_id)
  order by channel,i_brand_id,i_class_id,i_category_id
@@ -175,7 +175,7 @@ with  cross_items as
       and i_category_id = category_id
 ),
  avg_sales as
-(select avg(quantity*list_price) average_sales
+(select avg(cast(quantity as bigint)*cast(list_price as bigint)) average_sales
   from (select ss_quantity quantity
              ,ss_list_price list_price
        from store_sales
@@ -210,7 +210,7 @@ with  cross_items as
                            ,last_year.number_sales ly_number_sales 
  from
  (select 'store' channel, i_brand_id,i_class_id,i_category_id
-        ,sum(ss_quantity*ss_list_price) sales, count(*) number_sales
+        ,sum(cast(ss_quantity as bigint)*cast(ss_list_price as bigint)) sales, count(*) number_sales
  from store_sales 
      ,item
      ,date_dim
@@ -223,9 +223,9 @@ with  cross_items as
                        and d_moy = 12
                        and d_dom = [DAY])
  group by i_brand_id,i_class_id,i_category_id
- having sum(ss_quantity*ss_list_price) > (select average_sales from avg_sales)) this_year,
+ having sum(cast(ss_quantity as bigint)*cast(ss_list_price as bigint)) > (select average_sales from avg_sales)) this_year,
  (select 'store' channel, i_brand_id,i_class_id
-        ,i_category_id, sum(ss_quantity*ss_list_price) sales, count(*) number_sales
+        ,i_category_id, sum(cast(ss_quantity as bigint)*cast(ss_list_price as bigint)) sales, count(*) number_sales
  from store_sales
      ,item
      ,date_dim
@@ -238,7 +238,7 @@ with  cross_items as
                        and d_moy = 12
                        and d_dom = [DAY])
  group by i_brand_id,i_class_id,i_category_id
- having sum(ss_quantity*ss_list_price) > (select average_sales from avg_sales)) last_year
+ having sum(cast(ss_quantity as bigint)*cast(ss_list_price as bigint)) > (select average_sales from avg_sales)) last_year
  where this_year.i_brand_id= last_year.i_brand_id
    and this_year.i_class_id = last_year.i_class_id
    and this_year.i_category_id = last_year.i_category_id
