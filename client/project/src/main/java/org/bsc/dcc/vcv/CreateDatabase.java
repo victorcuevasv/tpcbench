@@ -233,19 +233,15 @@ public class CreateDatabase {
 			}
 			else if( this.system.equals("databrickssql") ) {
 				Class.forName(databricksDriverName);
-
-				System.out.println("jdbc:spark://"
-				+ this.hostname + ":443/" + this.dbName
-				+ ";transportMode=http;ssl=1;AuthMech=3"
-				+ ";httpPath=/sql/1.0/endpoints/" + this.clusterId
-				+ ";UID=token;PWD=" + this.dbPassword
-				+ ";UseNativeQuery=1");
 				this.con = DriverManager.getConnection("jdbc:spark://"
 					+ this.hostname + ":443/" + this.dbName
 					+ ";transportMode=http;ssl=1;AuthMech=3"
 					+ ";httpPath=/sql/1.0/endpoints/" + this.clusterId
 					+ ";UID=token;PWD=" + this.dbPassword
-					+ ";UseNativeQuery=1");
+					+ ";UseNativeQuery=1"
+					+ ";spark.databricks.execution.resultCaching.enabled=false"
+					+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
+					+ ";spark.sql.shuffle.partitions=2048");
 			}
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
@@ -345,7 +341,7 @@ public class CreateDatabase {
 			try {
 				Statement stmt = con.createStatement();
 				// Set the number of shuffle partitions (default 200) to the number of cores to be able to load large datasets.
-				stmt.execute("SET spark.sql.shuffle.partitions = " + this.numCores + ";");
+				//stmt.execute("SET spark.sql.shuffle.partitions = " + this.numCores + ";");
 				//stmt.execute("SET spark.databricks.delta.optimizeWrite.binSize = 2048;");
 				//stmt.execute("SET spark.databricks.adaptive.autoOptimizeShuffle.enabled = true;");
 				//stmt.execute("SET spark.driver.maxResultSize = 0;"); // DBR SQL does not allow to change this with the cluster running
