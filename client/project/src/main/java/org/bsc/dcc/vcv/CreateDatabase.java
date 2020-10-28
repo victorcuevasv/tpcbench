@@ -339,7 +339,7 @@ public class CreateDatabase {
 		}
 		if( this.system.startsWith("databrickssql") && (this.numCores > 0)) {
 			try {
-				Statement stmt = con.createStatement();
+				//Statement stmt = con.createStatement();
 				// Set the number of shuffle partitions (default 200) to the number of cores to be able to load large datasets.
 				//stmt.execute("SET spark.sql.shuffle.partitions = " + this.numCores + ";");
 				//stmt.execute("SET spark.databricks.delta.optimizeWrite.binSize = 2048;");
