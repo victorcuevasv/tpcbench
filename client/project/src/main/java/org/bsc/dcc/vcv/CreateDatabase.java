@@ -242,7 +242,7 @@ public class CreateDatabase {
 					//+ ";spark.databricks.delta.optimizeWrite.binSize=" + this.numCores
 					//+ ";spark.databricks.execution.resultCaching.enabled=false"
 					//+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
-					//+ ";spark.sql.shuffle.partitions=" + this.numCores
+					+ ";spark.sql.shuffle.partitions=" + this.numCores
 					+ ";spark.databricks.delta.optimizeWrite.enabled=false"
 				);
 			}
