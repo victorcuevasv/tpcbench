@@ -241,7 +241,7 @@ public class CreateDatabase {
 					+ ";UseNativeQuery=1"
 					+ ";spark.databricks.execution.resultCaching.enabled=false"
 					+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
-					+ ";spark.sql.shuffle.partitions=2048");
+					+ ";spark.sql.shuffle.partitions=512");
 			}
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
