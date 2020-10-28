@@ -239,6 +239,7 @@ public class CreateDatabase {
 					+ ";httpPath=/sql/1.0/endpoints/" + this.clusterId
 					+ ";UID=token;PWD=" + this.dbPassword
 					+ ";UseNativeQuery=1"
+					+ ";spark.databricks.delta.optimizeWrite.binSize = 2048"
 					//+ ";spark.databricks.execution.resultCaching.enabled=false"
 					//+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
 					//+ ";spark.sql.shuffle.partitions=512"
@@ -701,7 +702,7 @@ public class CreateDatabase {
 			StringBuilder sbInsert = new StringBuilder("INSERT OVERWRITE TABLE ");
 			sbInsert.append(tableName); sbInsert.append(" SELECT ");
 			
-			//	sbInsert.append(" /*+ COALESCE(" + this.numCores + ") */ ");
+			sbInsert.append(" /*+ COALESCE(" + this.numCores + ") */ ");
 			sbInsert.append("* FROM "); sbInsert.append(tableName); sbInsert.append(suffix); sbInsert.append("\n");
 			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName))
 			{
@@ -713,7 +714,6 @@ public class CreateDatabase {
 
 			// Save the Insert Overwrite file
 			saveCreateTableFile("insert", tableName, insertSql);
-			stmt = con.createStatement();
 			// Start measuring time just before running the actual load
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
