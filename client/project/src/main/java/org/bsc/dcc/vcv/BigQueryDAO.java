@@ -17,6 +17,8 @@ import com.google.cloud.bigquery.CsvOptions;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.TableResult;
+import com.google.cloud.bigquery.JobStatistics;
+import com.google.cloud.bigquery.JobStatistics.QueryStatistics;
 
 public class BigQueryDAO {
 	
@@ -137,6 +139,10 @@ public class BigQueryDAO {
 	    else if (queryJob.getStatus().getError() != null) {
 	      throw new RuntimeException(queryJob.getStatus().getError().toString());
 	    }
+	    //Get the billed bytes
+	    QueryStatistics stats = queryJob.getStatistics();
+	    long bytesBilled = stats.getTotalBytesBilled();
+	    System.out.println("Bytes billed: " + bytesBilled);
 	    // Get the results.
 	    TableResult result = queryJob.getQueryResults();
 	    return result;
