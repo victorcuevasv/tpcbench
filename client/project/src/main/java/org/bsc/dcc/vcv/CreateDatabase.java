@@ -239,10 +239,10 @@ public class CreateDatabase {
 					+ ";httpPath=/sql/1.0/endpoints/" + this.clusterId
 					+ ";UID=token;PWD=" + this.dbPassword
 					+ ";UseNativeQuery=1"
-					+ ";spark.databricks.delta.optimizeWrite.binSize = 2048"
+					+ ";spark.databricks.delta.optimizeWrite.binSize=" + this.numCores
 					//+ ";spark.databricks.execution.resultCaching.enabled=false"
 					//+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
-					//+ ";spark.sql.shuffle.partitions=512"
+					+ ";spark.sql.shuffle.partitions=" + this.numCores
 				);
 			}
 			else if( this.system.equals("redshift") ) {
