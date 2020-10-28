@@ -239,9 +239,10 @@ public class CreateDatabase {
 					+ ";httpPath=/sql/1.0/endpoints/" + this.clusterId
 					+ ";UID=token;PWD=" + this.dbPassword
 					+ ";UseNativeQuery=1"
-					+ ";spark.databricks.execution.resultCaching.enabled=false"
-					+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
-					+ ";spark.sql.shuffle.partitions=2048");
+					//+ ";spark.databricks.execution.resultCaching.enabled=false"
+					//+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
+					//+ ";spark.sql.shuffle.partitions=512"
+				);
 			}
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
@@ -339,7 +340,7 @@ public class CreateDatabase {
 		}
 		if( this.system.startsWith("databrickssql") && (this.numCores > 0)) {
 			try {
-				Statement stmt = con.createStatement();
+				//Statement stmt = con.createStatement();
 				// Set the number of shuffle partitions (default 200) to the number of cores to be able to load large datasets.
 				//stmt.execute("SET spark.sql.shuffle.partitions = " + this.numCores + ";");
 				//stmt.execute("SET spark.databricks.delta.optimizeWrite.binSize = 2048;");
@@ -704,9 +705,9 @@ public class CreateDatabase {
 			sbInsert.append("* FROM "); sbInsert.append(tableName); sbInsert.append(suffix); sbInsert.append("\n");
 			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName))
 			{
-				String partKey = Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
-				String distKey = this.distKeys.get(tableName);
-				sbInsert.append("DISTRIBUTE BY CASE WHEN " + partKey + " IS NOT NULL THEN " + partKey + " ELSE " + distKey + " % 601 END;\n");
+				//String partKey = Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+				//String distKey = this.distKeys.get(tableName);
+				//sbInsert.append("DISTRIBUTE BY CASE WHEN " + partKey + " IS NOT NULL THEN " + partKey + " ELSE " + distKey + " % 601 END;\n");
 			}
 			String insertSql = sbInsert.toString();
 
@@ -723,7 +724,6 @@ public class CreateDatabase {
 
 			System.out.println("Creating table " + tableName);
 			// Create the internal table
-			stmt = con.createStatement();
 			stmt.execute(intSqlCreate);
 
 			// Insert into the delta table
