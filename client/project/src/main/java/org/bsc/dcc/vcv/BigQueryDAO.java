@@ -121,7 +121,10 @@ public class BigQueryDAO {
 	public TableResult executeQuery(String sqlStr) throws Exception {
 		
 		QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(sqlStr)
-				.setDefaultDataset(this.dataset).setUseLegacySql(false).build();
+				.setDefaultDataset(this.dataset)
+				.setUseLegacySql(false)
+				.setUseQueryCache(false)
+				.build();
 	    // Create a job ID so that we can safely retry.
 	    JobId jobId = JobId.of(UUID.randomUUID().toString());
 	    Job queryJob = this.bigQuery.create(JobInfo.newBuilder(queryConfig).setJobId(jobId).build());
