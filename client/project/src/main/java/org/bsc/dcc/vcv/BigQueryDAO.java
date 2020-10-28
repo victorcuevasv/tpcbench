@@ -120,7 +120,7 @@ public class BigQueryDAO {
 	    }
 	  }
 	
-	public TableResult executeQuery(String sqlStr) throws Exception {
+	public TableResult executeQuery(String sqlStr, QueryRecordBigQuery queryRecord) throws Exception {
 		
 		QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(sqlStr)
 				.setDefaultDataset(this.dataset)
@@ -142,7 +142,7 @@ public class BigQueryDAO {
 	    //Get the billed bytes
 	    QueryStatistics stats = queryJob.getStatistics();
 	    long bytesBilled = stats.getTotalBytesBilled();
-	    System.out.println("Bytes billed: " + bytesBilled);
+	    queryRecord.setBytesBilled(bytesBilled);
 	    // Get the results.
 	    TableResult result = queryJob.getQueryResults();
 	    return result;

@@ -437,7 +437,11 @@ public class ExecuteQueries {
 				int nQuery = Integer.parseInt(nQueryStr);
 				if( this.system.equals("prestoemr") )
 					this.setPrestoDefaultSessionOpts();
-				QueryRecord queryRecord = new QueryRecord(nQuery);
+				QueryRecord queryRecord = null;
+				if( this.system.equals("bigquery") )
+					queryRecord = new QueryRecordBigQuery(nQuery);
+				else
+					queryRecord = new QueryRecord(nQuery);
 				queryRecord.setRun(i);
 				this.logger.info("\nExecuting query: " + fileName + " (run " + i + ")\n" + sqlStr);
 				try {
@@ -590,7 +594,8 @@ public class ExecuteQueries {
 				queryRecord.setStartTime(System.currentTimeMillis());
 			System.out.println("Executing iteration " + iteration + " of query " + 
 				queryFileName + " (run " + queryRecord.getRun() + ").");
-			TableResult tableResult = this.bigQueryDAO.executeQuery(sqlStr);
+			TableResult tableResult = this.bigQueryDAO.executeQuery(sqlStr, 
+					(QueryRecordBigQuery)queryRecord);
 			// Save the results.
 			if( this.test.equals("power") &&  this.saveResults ) {
 				int tuples = this.saveResultsBigQuery(
