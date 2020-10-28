@@ -239,9 +239,10 @@ public class CreateDatabase {
 					+ ";httpPath=/sql/1.0/endpoints/" + this.clusterId
 					+ ";UID=token;PWD=" + this.dbPassword
 					+ ";UseNativeQuery=1"
-					+ ";spark.databricks.execution.resultCaching.enabled=false"
-					+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
-					+ ";spark.sql.shuffle.partitions=512");
+					//+ ";spark.databricks.execution.resultCaching.enabled=false"
+					//+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
+					//+ ";spark.sql.shuffle.partitions=512"
+				);
 			}
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
