@@ -239,10 +239,11 @@ public class CreateDatabase {
 					+ ";httpPath=/sql/1.0/endpoints/" + this.clusterId
 					+ ";UID=token;PWD=" + this.dbPassword
 					+ ";UseNativeQuery=1"
-					+ ";spark.databricks.delta.optimizeWrite.binSize=" + this.numCores
+					//+ ";spark.databricks.delta.optimizeWrite.binSize=" + this.numCores
 					//+ ";spark.databricks.execution.resultCaching.enabled=false"
 					//+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
-					+ ";spark.sql.shuffle.partitions=" + this.numCores
+					//+ ";spark.sql.shuffle.partitions=" + this.numCores
+					+ ";spark.databricks.delta.optimizeWrite.enabled=false"
 				);
 			}
 			else if( this.system.equals("redshift") ) {
@@ -702,13 +703,13 @@ public class CreateDatabase {
 			StringBuilder sbInsert = new StringBuilder("INSERT OVERWRITE TABLE ");
 			sbInsert.append(tableName); sbInsert.append(" SELECT ");
 			
-			sbInsert.append(" /*+ COALESCE(" + this.numCores + ") */ ");
+			//sbInsert.append(" /*+ COALESCE(" + this.numCores + ") */ ");
 			sbInsert.append("* FROM "); sbInsert.append(tableName); sbInsert.append(suffix); sbInsert.append("\n");
 			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName))
 			{
-				//String partKey = Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
-				//String distKey = this.distKeys.get(tableName);
-				//sbInsert.append("DISTRIBUTE BY CASE WHEN " + partKey + " IS NOT NULL THEN " + partKey + " ELSE " + distKey + " % 601 END;\n");
+				String partKey = Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+				String distKey = this.distKeys.get(tableName);
+				sbInsert.append("DISTRIBUTE BY CASE WHEN " + partKey + " IS NOT NULL THEN " + partKey + " ELSE " + distKey + " % 601 END;\n");
 			}
 			String insertSql = sbInsert.toString();
 
