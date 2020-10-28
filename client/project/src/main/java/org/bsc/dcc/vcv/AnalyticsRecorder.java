@@ -98,7 +98,7 @@ public class AnalyticsRecorder {
 		builder.append(String.format(colFormat, endDateFormatted));
 		builder.append(String.format("%-" + spaces + "s", queryRecord.getTuples()));
 		if( queryRecord instanceof QueryRecordBigQuery)
-			builder.append(String.format("%-" + spaces + "s", 
+			builder.append(String.format("|%-" + spaces + "s", 
 				((QueryRecordBigQuery)queryRecord).getBytesBilled()));
 		this.message(builder.toString());
 	}
