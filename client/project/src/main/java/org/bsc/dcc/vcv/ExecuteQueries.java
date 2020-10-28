@@ -193,7 +193,7 @@ public class ExecuteQueries {
 					+ ";UseNativeQuery=1"
 					+ ";spark.databricks.execution.resultCaching.enabled=false"
 					+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
-					+ ";spark.sql.shuffle.partitions=512"
+					+ ";spark.sql.shuffle.partitions=2048"
 					// + ";spark.sql.autoBroadcastJoinThreshold=60000000"
 					);
 			}
