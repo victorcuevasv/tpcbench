@@ -244,7 +244,7 @@ public class CreateDatabase {
 					//+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
 					+ ";spark.databricks.delta.optimizeWrite.binSize=2048"
 					+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
-					+ ";spark.driver.maxResultSize=0"
+					//+ ";spark.driver.maxResultSize=0"
 					+ ";spark.sql.shuffle.partitions=" + (this.numCores*2)
 					//+ ";spark.databricks.delta.optimizeWrite.numShuffleBlocks=50000000"
 					+ ";spark.databricks.delta.optimizeWrite.enabled=true"
