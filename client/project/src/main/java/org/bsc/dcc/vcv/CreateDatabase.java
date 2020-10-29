@@ -465,6 +465,15 @@ public class CreateDatabase {
 			String clusterByKey = this.clusterByKeys.get(tableName);
 			if( clusterByKey != null )
 				bigQuerySqlCreate = bigQuerySqlCreate + "\n CLUSTER BY(" + clusterByKey + ")";
+			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
+				String partitionAtt = Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];    
+				int startVal = Partitioning.start[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+				int endVal = Partitioning.end[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+				int intervalVal = Partitioning.interval[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+				bigQuerySqlCreate = bigQuerySqlCreate + "\n PARTITION BY RANGE_BUCKET(" +
+						partitionAtt + ", GENERATE_ARRAY(" + 
+						startVal + ", " + endVal + ", " + intervalVal + "))";
+			}
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			bigQuerySqlCreate = this.bigQueryDAO.createTable(tableName, bigQuerySqlCreate);
