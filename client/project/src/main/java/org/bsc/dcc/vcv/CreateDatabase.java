@@ -463,6 +463,15 @@ public class CreateDatabase {
 			//Hive and Spark use the statement 'create external table ...' for raw data tables
 			String bigQuerySqlCreate = incompleteCreateTable(sqlCreate, tableName, false, suffix, false);
 			String clusterByKey = this.clusterByKeys.get(tableName);
+			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
+				String partitionAtt = Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];    
+				int startVal = Partitioning.start[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+				int endVal = Partitioning.end[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+				int intervalVal = Partitioning.interval[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+				bigQuerySqlCreate = bigQuerySqlCreate + "\n PARTITION BY RANGE_BUCKET(" +
+						partitionAtt + ", GENERATE_ARRAY(" + 
+						startVal + ", " + endVal + ", " + intervalVal + "))";
+			}
 			if( clusterByKey != null )
 				bigQuerySqlCreate = bigQuerySqlCreate + "\n CLUSTER BY(" + clusterByKey + ")";
 			queryRecord = new QueryRecord(index);
