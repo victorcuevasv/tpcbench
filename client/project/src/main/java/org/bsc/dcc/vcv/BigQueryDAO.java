@@ -17,6 +17,8 @@ import com.google.cloud.bigquery.CsvOptions;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.TableResult;
+import com.google.cloud.bigquery.JobStatistics;
+import com.google.cloud.bigquery.JobStatistics.QueryStatistics;
 
 public class BigQueryDAO {
 	
@@ -73,7 +75,9 @@ public class BigQueryDAO {
 					setFieldDelimiter(delimiter).setEncoding("ISO-8859-1").build();
 			TableId tableId = TableId.of(this.dataset, tableName);
 			LoadJobConfiguration loadConfig = LoadJobConfiguration
-					.newBuilder(tableId, sourceUri, csvOptions).build();
+					.newBuilder(tableId, sourceUri, csvOptions)
+					.setIgnoreUnknownValues(true)
+					.build();
 			Job job = this.bigQuery.create(JobInfo.of(loadConfig));
 			// Blocks until this load table job completes its execution, either failing or succeeding.
 			job = job.waitFor();
@@ -118,7 +122,7 @@ public class BigQueryDAO {
 	    }
 	  }
 	
-	public TableResult executeQuery(String sqlStr) throws Exception {
+	public TableResult executeQuery(String sqlStr, QueryRecordBigQuery queryRecord) throws Exception {
 		
 		QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(sqlStr)
 				.setDefaultDataset(this.dataset)
@@ -137,6 +141,10 @@ public class BigQueryDAO {
 	    else if (queryJob.getStatus().getError() != null) {
 	      throw new RuntimeException(queryJob.getStatus().getError().toString());
 	    }
+	    //Get the billed bytes
+	    QueryStatistics stats = queryJob.getStatistics();
+	    long bytesBilled = stats.getTotalBytesBilled();
+	    queryRecord.setBytesBilled(bytesBilled);
 	    // Get the results.
 	    TableResult result = queryJob.getQueryResults();
 	    return result;
