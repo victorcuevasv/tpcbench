@@ -76,7 +76,7 @@ public class BigQueryDAO {
 			TableId tableId = TableId.of(this.dataset, tableName);
 			LoadJobConfiguration loadConfig = LoadJobConfiguration
 					.newBuilder(tableId, sourceUri, csvOptions)
-					.ignoreUnknownValues()
+					.setIgnoreUnknownValues()
 					.build();
 			Job job = this.bigQuery.create(JobInfo.of(loadConfig));
 			// Blocks until this load table job completes its execution, either failing or succeeding.
