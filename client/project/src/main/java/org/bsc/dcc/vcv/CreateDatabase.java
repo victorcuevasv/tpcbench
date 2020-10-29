@@ -242,8 +242,12 @@ public class CreateDatabase {
 					//+ ";spark.databricks.delta.optimizeWrite.binSize=" + this.numCores
 					//+ ";spark.databricks.execution.resultCaching.enabled=false"
 					//+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
-					+ ";spark.sql.shuffle.partitions=" + this.numCores
-					+ ";spark.databricks.delta.optimizeWrite.enabled=false"
+					+ ";spark.databricks.delta.optimizeWrite.binSize=2048"
+					+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=true"
+					+ ";spark.driver.maxResultSize=0"
+					+ ";spark.sql.shuffle.partitions=" + (this.numCores*2)
+					+ ";spark.databricks.delta.optimizeWrite.numShuffleBlocks=50000000"
+					+ ";spark.databricks.delta.optimizeWrite.enabled=true"
 				);
 			}
 			else if( this.system.equals("redshift") ) {
@@ -339,24 +343,6 @@ public class CreateDatabase {
 			this.useSchemaQuery(this.dbName);
 			this.useSnowflakeWarehouseQuery(this.clusterId);
 			this.createSnowflakeStageQuery(this.dbName + "_stage");
-		}
-		if( this.system.startsWith("databrickssql") && (this.numCores > 0)) {
-			try {
-				//Statement stmt = con.createStatement();
-				// Set the number of shuffle partitions (default 200) to the number of cores to be able to load large datasets.
-				//stmt.execute("SET spark.sql.shuffle.partitions = " + this.numCores + ";");
-				//stmt.execute("SET spark.databricks.delta.optimizeWrite.binSize = 2048;");
-				//stmt.execute("SET spark.databricks.adaptive.autoOptimizeShuffle.enabled = true;");
-				//stmt.execute("SET spark.driver.maxResultSize = 0;"); // DBR SQL does not allow to change this with the cluster running
-				//stmt.execute("SET spark.databricks.delta.optimizeWrite.numShuffleBlocks = 50000000;");
-				//stmt.execute("SET spark.databricks.delta.optimizeWrite.enabled = true;");
-				
-			}	catch (Exception e) {
-					e.printStackTrace();
-					this.logger.error("Error in CreateDatabaseSpark createTable.");
-					this.logger.error(e);
-					this.logger.error(AppUtil.stringifyStackTrace(e));
-				}
 		}
 		// Process each .sql create table file found in the jar file.
 		this.recorder.header();
@@ -703,13 +689,13 @@ public class CreateDatabase {
 			StringBuilder sbInsert = new StringBuilder("INSERT OVERWRITE TABLE ");
 			sbInsert.append(tableName); sbInsert.append(" SELECT ");
 			
-			//sbInsert.append(" /*+ COALESCE(" + this.numCores + ") */ ");
+			sbInsert.append(" /*+ COALESCE(" + (this.numCores*2) + ") */ ");
 			sbInsert.append("* FROM "); sbInsert.append(tableName); sbInsert.append(suffix); sbInsert.append("\n");
 			if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName))
 			{
-				String partKey = Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
-				String distKey = this.distKeys.get(tableName);
-				sbInsert.append("DISTRIBUTE BY CASE WHEN " + partKey + " IS NOT NULL THEN " + partKey + " ELSE " + distKey + " % 601 END;\n");
+				//String partKey = Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+				//String distKey = this.distKeys.get(tableName);
+				//sbInsert.append("DISTRIBUTE BY CASE WHEN " + partKey + " IS NOT NULL THEN " + partKey + " ELSE " + distKey + " % 601 END;\n");
 			}
 			String insertSql = sbInsert.toString();
 
