@@ -362,8 +362,7 @@ public class CountQueries {
 				}
 			}
 			String tableName = fileName.substring(0, fileName.indexOf('.'));
-			Statement stmt = con.createStatement();
-			countRowsQuery(stmt, tableName);
+			countRowsQuery(tableName);
 			i++;
 		}
 	}	
@@ -404,8 +403,9 @@ public class CountQueries {
 		}
 	}
 		
-	private void countRowsQuery(Statement stmt, String tableName) {
+	private void countRowsQuery(String tableName) {
 		try {
+			Statement stmt = con.createStatement();
 			String sql = "select count(*) from " + tableName;
 			System.out.print("Running count query on " + tableName + ": ");
 			ResultSet res = stmt.executeQuery(sql);
