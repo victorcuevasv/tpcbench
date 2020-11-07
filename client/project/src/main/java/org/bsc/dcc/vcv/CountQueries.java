@@ -3,6 +3,7 @@ package org.bsc.dcc.vcv;
 import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
@@ -359,6 +360,7 @@ public class CountQueries {
 			this.useSchemaQuery(this.dbName);
 			this.useSnowflakeWarehouseQuery(this.clusterId);
 		}
+		this.executeQuery("show tables");
 		// Process each .sql create table file found in the jar file.
 		List<String> unorderedList = this.createTableReader.getFiles();
 		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
@@ -378,7 +380,7 @@ public class CountQueries {
 				}
 			}
 			String tableName = fileName.substring(0, fileName.indexOf('.'));
-			countRowsQuery(tableName);
+			this.countRowsQuery(tableName);
 			i++;
 		}
 	}	
@@ -433,6 +435,25 @@ public class CountQueries {
 			e.printStackTrace();
 			this.logger.error(e);
 		}
+	}
+	
+	private int executeQuery(String sql) 
+			throws Exception {
+		Statement stmt = con.createStatement();
+		ResultSet rs = stmt.executeQuery(sql);
+		ResultSetMetaData metadata = rs.getMetaData();
+		int nCols = metadata.getColumnCount();
+		int tuples = 0;
+		while (rs.next()) {
+			StringBuilder rowBuilder = new StringBuilder();
+			for (int i = 1; i <= nCols - 1; i++) {
+				rowBuilder.append(rs.getString(i) + " | ");
+			}
+			rowBuilder.append(rs.getString(nCols));
+			System.out.println(rowBuilder.toString());
+			tuples++;
+		}
+		return tuples;
 	}
 	
 	public void closeConnection() {
