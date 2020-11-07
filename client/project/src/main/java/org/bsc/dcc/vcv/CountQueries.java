@@ -437,21 +437,27 @@ public class CountQueries {
 		}
 	}
 	
-	private int executeQuery(String sql) 
-			throws Exception {
-		Statement stmt = con.createStatement();
-		ResultSet rs = stmt.executeQuery(sql);
-		ResultSetMetaData metadata = rs.getMetaData();
-		int nCols = metadata.getColumnCount();
+	private int executeQuery(String sql)  {
 		int tuples = 0;
-		while (rs.next()) {
-			StringBuilder rowBuilder = new StringBuilder();
-			for (int i = 1; i <= nCols - 1; i++) {
-				rowBuilder.append(rs.getString(i) + " | ");
+		try {
+			Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			ResultSetMetaData metadata = rs.getMetaData();
+			int nCols = metadata.getColumnCount();
+			tuples = 0;
+			while (rs.next()) {
+				StringBuilder rowBuilder = new StringBuilder();
+				for (int i = 1; i <= nCols - 1; i++) {
+					rowBuilder.append(rs.getString(i) + " | ");
+				}
+				rowBuilder.append(rs.getString(nCols));
+				System.out.println(rowBuilder.toString());
+				tuples++;
 			}
-			rowBuilder.append(rs.getString(nCols));
-			System.out.println(rowBuilder.toString());
-			tuples++;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
 		}
 		return tuples;
 	}
