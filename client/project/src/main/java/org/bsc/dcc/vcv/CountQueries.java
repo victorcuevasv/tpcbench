@@ -76,7 +76,7 @@ public class CountQueries {
 	private final Map<String, String> sortKeys;
 	private final Map<String, String> clusterByKeys;
 	
-	public CreateDatabase(CommandLine commandLine) {
+	public CountQueries(CommandLine commandLine) {
 		this.workDir = commandLine.getOptionValue("main-work-dir");
 		this.dbName = commandLine.getOptionValue("schema-name");
 		this.resultsDir = commandLine.getOptionValue("results-dir");
