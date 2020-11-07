@@ -233,6 +233,22 @@ public class CountQueries {
 			}
 			else if( this.system.equals("databrickssql") ) {
 				Class.forName(databricksDriverName);
+				System.out.println("jdbc:spark://"
+						+ this.hostname + ":443/" + this.dbName
+						+ ";transportMode=http;ssl=1;AuthMech=3"
+						+ ";httpPath=/sql/1.0/endpoints/" + this.clusterId
+						+ ";UID=token;PWD=" + this.dbPassword
+						+ ";UseNativeQuery=1"
+						//+ ";spark.databricks.delta.optimizeWrite.binSize=" + this.numCores
+						//+ ";spark.databricks.execution.resultCaching.enabled=false"
+						//+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
+						+ ";spark.databricks.delta.optimizeWrite.binSize=2048"
+						+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
+						//+ ";spark.driver.maxResultSize=0"
+						+ ";spark.sql.shuffle.partitions=" + (this.numCores*2)
+						//+ ";spark.databricks.delta.optimizeWrite.numShuffleBlocks=50000000"
+						+ ";spark.databricks.delta.optimizeWrite.enabled=true"
+					);
 				this.con = DriverManager.getConnection("jdbc:spark://"
 					+ this.hostname + ":443/" + this.dbName
 					+ ";transportMode=http;ssl=1;AuthMech=3"
