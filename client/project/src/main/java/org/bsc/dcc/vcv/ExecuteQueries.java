@@ -213,8 +213,10 @@ public class ExecuteQueries {
 			}
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
+				//Use Synapse's password temporarily (must be specified when creating the cluster)
+				String redshiftPwd = AWSUtil.getValue("SynapsePassword");
 				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
-				this.dbName + "?ssl=true&UID=" + this.userId + "&PWD=" + this.dbPassword);
+				this.dbName + "?ssl=true&UID=" + this.userId + "&PWD=" + redshiftPwd);
 			}
 			else if( this.system.startsWith("synapse") ) {
 				String synapsePwd = AWSUtil.getValue("SynapsePassword");

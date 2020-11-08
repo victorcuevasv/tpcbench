@@ -30,7 +30,7 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
-RedshiftHost="bsc-redshift-test.cha8h2ua3ess.us-west-2.redshift.amazonaws.com"
+Host="bsc-redshift-test.cha8h2ua3ess.us-west-2.redshift.amazonaws.com"
 #Run configuration.
 Tag="$(date +%s)"
 ExperimentName="tpcds-redshift-$1gb-${Tag}"
@@ -38,8 +38,10 @@ DirNameWarehouse="tpcds-redshift-$1gb-$2-${Tag}"
 DirNameResults="redshift"
 DatabaseName="dev"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
-dbUsername="<USER>"
-dbPassword="<PASS>"
+DbUsername="awsuser"
+
+RUN_RUN_BENCHMARK=1
+COPY_RESULTS_TO_S3=1
 
 args=()
 
@@ -61,7 +63,7 @@ args[6]="--ext-raw-data-location=s3://tpcds-datasets/databricks/tpcds_$1_datafil
 #prefix of external location for created tables (e.g. S3 bucket), null for none
 args[7]="--ext-tables-location=s3://tpcds-warehouses-test/$DirNameWarehouse"
 #format for column-storage tables (PARQUET, DELTA)
-args[8]="--table-format=parquet"
+args[8]="--table-format=UNUSED"
 #whether to use data partitioning for the tables (true/false)
 args[9]="--use-partitioning=false"
 
@@ -72,35 +74,42 @@ args[11]="--use-row-stats=true"
 #if argument above is true, whether to compute statistics for columns (true/false)
 args[12]="--use-column-stats=true"
 #number of streams
-args[14]="--number-of-streams=$3"
+args[13]="--number-of-streams=$3"
 #hostname of the server
-args[17]="--server-hostname=$RedshiftHost"
+args[14]="--server-hostname=$Host"
 
 #username for the connection
-args[18]="--connection-username=UNUSED"
+args[15]="--connection-username=${DbUsername}"
 #queries dir within the jar
-args[19]="--queries-dir-in-jar=QueriesRedshift"
+args[16]="--queries-dir-in-jar=QueriesRedshift"
 #all or create table file
-args[22]="--all-or-create-file=all"
+args[17]="--all-or-create-file=all"
 #"all" or query file
-args[13]="--all-or-query-file=all" 
-#flags (110000 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=011010"
+args[18]="--all-or-query-file=all" 
+#delimiter for the columns in the raw data (SOH, PIPE) default SOH
+args[19]="--raw-column-delimiter=SOH"
 
-#args[23]="--count-queries=true"
-args[24]="--raw-column-delimiter=PIPE"
-args[25]="--power-test-runs=3"
-args[26]="--save-power-plans=false"
-args[27]="--db-password=${dbPassword}"
-args[28]="--connection-username=${dbUsername}"
+#number of runs to perform for the power test (default 1)
+args[20]="--power-test-runs=1"
+#flags (110000 schema|load|analyze|zorder|power|tput)
+args[21]="--execution-flags=110010"
 
 paramsStr="${args[@]}"
 
-docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainerredshift -ti \
---volume $DIR/../vols/data:/data \
---volume $DIR/../client/project:/project \
---volume $HOME/tpcds-jars:/mnt/tpcds-jars \
---entrypoint mvn clientbuilder:dev \
-exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmarkCLI" \
--Dexec.args="$paramsStr" \
--f /project/pom.xml
+if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
+	docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
+	--volume $DIR/../vols/data:/data \
+	--volume $DIR/../client/project:/project \
+	--volume $HOME/tpcdsbench/client/project/target:/mnt/tpcds-jars/target \
+	--entrypoint mvn clientbuilder:dev \
+	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmarkCLI" \
+	-Dexec.args="$paramsStr" \
+	-f /project/pom.xml
+fi
+
+if [ "$COPY_RESULTS_TO_S3" -eq 1 ]; then
+	aws s3 cp --recursive $DIR/../vols/data/$DirNameResults/ s3://tpcds-results-test/$DirNameResults/
+fi
+
+
+

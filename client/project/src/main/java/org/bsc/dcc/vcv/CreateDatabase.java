@@ -61,7 +61,7 @@ public class CreateDatabase {
 	
 	private final boolean bucketing;
 	private final String hostname;
-	private final String username;
+	private final String userId;
 	private final String jarFile;
 	private final String dbPassword;
 	
@@ -70,11 +70,12 @@ public class CreateDatabase {
 	private String systemRunning;
 	private final String createSingleOrAll;
 	private final String clusterId;
-	private final String userId;
+	
 	private final String columnDelimiter;
 	private final Map<String, String> distKeys;
 	private final Map<String, String> sortKeys;
 	private final Map<String, String> clusterByKeys;
+	private final boolean useDistKeys;
 	
 	public CreateDatabase(CommandLine commandLine) {
 		this.workDir = commandLine.getOptionValue("main-work-dir");
@@ -98,7 +99,6 @@ public class CreateDatabase {
 		String bucketingStr = commandLine.getOptionValue("use-bucketing");
 		this.bucketing = Boolean.parseBoolean(bucketingStr);
 		this.hostname = commandLine.getOptionValue("server-hostname");
-		this.username = commandLine.getOptionValue("connection-username");
 		this.jarFile = commandLine.getOptionValue("jar-file");
 		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
@@ -112,6 +112,8 @@ public class CreateDatabase {
 		this.distKeys = new DistKeys().getMap();
 		this.sortKeys = new SortKeys().getMap();
 		this.clusterByKeys = new ClusterByKeys().getMap();
+		String useDistKeysStr = commandLine.getOptionValue("use-distribute-keys", "true");
+		this.useDistKeys = Boolean.parseBoolean(useDistKeysStr);
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
@@ -176,7 +178,6 @@ public class CreateDatabase {
 		this.partition = Boolean.parseBoolean(args[14]);
 		this.bucketing = Boolean.parseBoolean(args[15]);
 		this.hostname = args[16];
-		this.username = args[17];
 		this.createSingleOrAll = "all";
 		this.clusterId = "UNUSED";
 		this.columnDelimiter = "SOH";
@@ -187,6 +188,7 @@ public class CreateDatabase {
 		this.distKeys = new DistKeys().getMap();
 		this.sortKeys = new SortKeys().getMap();
 		this.clusterByKeys = new ClusterByKeys().getMap();
+		this.useDistKeys = true;
 		this.jarFile = args[18];
 		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
@@ -214,7 +216,7 @@ public class CreateDatabase {
 				//this.con = DriverManager.getConnection("jdbc:presto://" + 
 				//		this.hostname + ":8080/hive/" + this.dbName, "hive", "");
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
-						this.hostname + ":8080/hive/" + this.dbName, this.username, "");
+						this.hostname + ":8080/hive/" + this.dbName, this.userId, "");
 			}
 			else if( this.systemRunning.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
@@ -252,8 +254,10 @@ public class CreateDatabase {
 			}
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
+				//Use Synapse's password temporarily (must be specified when creating the cluster)
+				String redshiftPwd = AWSUtil.getValue("SynapsePassword");
 				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
-				this.dbName + "?ssl=true&UID=" + this.userId + "&PWD=" + this.dbPassword);
+				this.dbName + "?ssl=true&UID=" + this.userId + "&PWD=" + redshiftPwd);
 			}
 			else if( this.systemRunning.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
@@ -526,7 +530,7 @@ public class CreateDatabase {
 			synapseSqlCreate += "WITH( DISTRIBUTION = ";
 			if( distKey.equals("all") )
 				synapseSqlCreate += "REPLICATE";
-			else if( distKey.equals("none") )
+			else if( distKey.equals("none") || ! this.useDistKeys )
 				synapseSqlCreate += "ROUND ROBIN";
 			else
 				synapseSqlCreate += "HASH(" + distKey + ")";
@@ -578,32 +582,32 @@ public class CreateDatabase {
 	private void createTableRedshift(String sqlCreateFilename, String sqlCreate, int index) {
 		QueryRecord queryRecord = null;
 		String suffix = "";
-
 		try {
 			//First, create the table, no format or options are specified, only the schema data.
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-
 			// The DDL provided by TPC works out of the box on Redshift, we only have to add the distribution and partition 
 			// keys without the last semicolon and newline character (The reader ast a trailing newline)
 			String redshiftSqlCreate = sqlCreate.substring(0, sqlCreate.length()-2);
 			// Get the distribution key for the table (usually the PK) and add the relevant statement. If the table is to be distributed to
 			// all nodes (distkey "all") then add "diststyle all" instead.
 			String distKey = this.distKeys.get(tableName);
-			if (distKey.equals("all")) redshiftSqlCreate += " diststyle all";
-			else if (distKey != null) redshiftSqlCreate += (" distkey(" + distKey + ")");
-
+			if( distKey.equals("all") )
+				redshiftSqlCreate += " diststyle all";
+			else if( distKey != null && this.useDistKeys )
+				redshiftSqlCreate += (" distkey(" + distKey + ")");
+			else if( ! this.useDistKeys )
+				redshiftSqlCreate += " diststyle even";
 			// Add the sorkey if one has been assigned to the table
 			String sortKey = this.sortKeys.get(tableName);
-			if (!sortKey.equals("none")) redshiftSqlCreate += (" sortkey(" + sortKey + ")");
+			if ( ! sortKey.equals("none") )
+				redshiftSqlCreate += (" sortkey(" + sortKey + ")");
 			redshiftSqlCreate += ";";
 			saveCreateTableFile("redshifttable", tableName, redshiftSqlCreate);
 			queryRecord = new QueryRecord(index);
-			
 			Statement stmt = con.createStatement();
 			stmt.execute("drop table if exists " + tableName + suffix);
-
 			String fieldDelimiter = "'\001'";
 			if( this.columnDelimiter.equals("PIPE") )
 				fieldDelimiter = "'|'";
@@ -615,18 +619,14 @@ public class CreateDatabase {
 					"STATUPDATE OFF\n" +
 					"EMPTYASNULL\n" +
 					"region 'us-west-2';";
-
-			saveCreateTableFile("redshiftcopy", tableName, copySql);	// Save the string to file after stopping recording time.
-
+			saveCreateTableFile("redshiftcopy", tableName, copySql);
+			// Save the string to file after stopping recording time.
 			queryRecord.setStartTime(System.currentTimeMillis());
 			stmt.execute(redshiftSqlCreate);
-			
 			// Move the data directly from S3 into Redshift through COPY. Invalid chars need to be accepted due to one of the tuples having an
 			// special comma.
-			
 			stmt.execute(copySql);
 			queryRecord.setSuccessful(true);
-			
 			if( doCount )
 				countRowsQuery(stmt, tableName);
 		}

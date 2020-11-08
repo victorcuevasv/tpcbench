@@ -36,12 +36,14 @@ public class CreateSchema {
 	private final String system;
 	private final String dbName;
 	private final String clusterId;
+	private final String userId;
 	
 	public CreateSchema(CommandLine commandLine) {
 		this.hostname = commandLine.getOptionValue("server-hostname");
 		this.system = commandLine.getOptionValue("system-name");
 		this.dbName = commandLine.getOptionValue("schema-name");
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
+		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.openConnection();
 	}
 	
@@ -65,6 +67,7 @@ public class CreateSchema {
 		this.system = args[1];
 		this.dbName = args[2];
 		this.clusterId = "UNUSED";
+		this.userId = "UNUSED";
 		this.openConnection();
 	}
 	
@@ -109,8 +112,11 @@ public class CreateSchema {
 			}
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
-				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
-				"dev" + "?ssl=true&UID=bsc-dcc-fjjm&PWD=Databr|cks1");
+				//Use Synapse's password temporarily (must be specified when creating the cluster)
+				String redshiftPwd = AWSUtil.getValue("SynapsePassword");
+				//The dev database is assumed to exist
+				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/dev" +
+				"?ssl=true&UID=" + this.userId + "&PWD=" + redshiftPwd);
 			}
 			else if( this.system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
