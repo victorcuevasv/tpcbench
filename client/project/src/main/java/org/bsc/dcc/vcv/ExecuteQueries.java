@@ -423,7 +423,7 @@ public class ExecuteQueries {
 		// If the system is Redshift disable query result caching
 		if (this.system.startsWith("redshift"))
 			this.prepareRedshift();
-		if (this.system.startsWith("databrickssql"))
+		//if (this.system.startsWith("databrickssql"))
 			//this.prepareDatabricksSql();
 		if( this.test.equals("power") && this.savePlans )
 			this.savePlans();
