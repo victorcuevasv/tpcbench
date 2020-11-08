@@ -69,6 +69,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private final int maxConcurrencySnowflake = 8;
 	private final String clusterId;
 	private final String userId;
+	private final String dbPassword;
 	
 	public ExecuteQueriesConcurrent(CommandLine commandLine) {
 		this.workDir = commandLine.getOptionValue("main-work-dir");
@@ -99,6 +100,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.tputChangingStreams = Boolean.parseBoolean(tputChangingStreamsStr);
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
 		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
+		this.dbPassword = commandLine.getOptionValue("db-password", "UNUSED");
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
 		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.resultsDir,
@@ -164,6 +166,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.tputChangingStreams = true;
 		this.clusterId = "UNUSED";
 		this.userId = "UNUSED";
+		this.dbPassword = "UNUSED";
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
 		this.matrix = this.streamsReader.getFileAsMatrix(this.streamsReader.getFiles().get(0));
@@ -572,6 +575,45 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			printWriter.println(rowBuilder.toString());
 		}
 		printWriter.close();
+	}
+	
+	
+	private void useDatabaseQuery(String dbName) {
+		try {
+			Statement sessionStmt = con.createStatement();
+			sessionStmt.executeUpdate("USE DATABASE " + dbName);
+			sessionStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
+	}
+	
+	
+	private void useSchemaQuery(String schemaName) {
+		try {
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate("USE SCHEMA " + schemaName);
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
+	}
+	
+	
+	private void useSnowflakeWarehouseQuery(String warehouseName) {
+		try {
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate("USE WAREHOUSE " + warehouseName);
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
 	}
 	
 	
