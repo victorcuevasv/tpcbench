@@ -35,7 +35,10 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private static final String databricksDriverName = "com.simba.spark.jdbc.Driver";
 	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
+	private static final String redshiftDriverName = "com.amazon.redshift.jdbc42.Driver";
+	private static final String synapseDriverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 	private Connection con;
+	BigQueryDAO bigQueryDAO;
 	private final JarQueriesReaderAsZipFile queriesReader;
 	private final JarStreamsReaderAsZipFile streamsReader;
 	private final AnalyticsRecorderConcurrent recorder;
@@ -103,16 +106,10 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.matrix = this.streamsReader.getFileAsMatrix(this.streamsReader.getFiles().get(0));
 		this.executor = Executors.newFixedThreadPool(this.POOL_SIZE);
 		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
-		try {
-			if( ! this.multiple )
-				this.con = this.createConnection(this.system, this.hostname, this.dbName);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			this.logger.error("Error in ExecuteQueriesConcurrent constructor.");
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-		}
+		if( this.system.equals("bigquery"))
+			this.bigQueryDAO = new BigQueryDAO("databricks-bsc-benchmark", this.dbName);
+		else if( ! this.multiple )
+			this.con = this.createConnection();
 	}
 	
 	/**
@@ -176,7 +173,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.resultsQueue = new LinkedBlockingQueue<QueryRecordConcurrent>();
 		try {
 			if( ! this.multiple )
-				this.con = this.createConnection(this.system, this.hostname, this.dbName);
+				this.con = this.createConnection();
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -187,75 +184,111 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 	
 	
-	// Open the connection (the server address depends on whether the program is
-	// running locally or under docker-compose).
-	public Connection createConnection(String system, String hostname, String dbName) {
+	private Connection createConnection() {
+		Connection con = null;
 		try {
 			String driverName = "";
-			if( system.equals("hive") ) {
+			if( this.system.equals("hive") ) {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10000/" + dbName, "hive", "");
+						this.hostname + ":10000/" + this.dbName, "hive", "");
 			}
-			else if( system.equals("presto") ) {
+			else if( this.system.equals("presto") ) {
 				Class.forName(prestoDriverName);
 				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8080/hive/" + dbName, "hive", "");
+						this.hostname + ":8080/hive/" + this.dbName, "hive", "");
 				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
-			else if( system.equals("prestoemr") ) {
+			else if( this.system.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
 				con = DriverManager.getConnection("jdbc:presto://" + 
-						hostname + ":8889/hive/" + dbName, "hive", "");
+						this.hostname + ":8889/hive/" + this.dbName, "hive", "");
 				setPrestoDefaultSessionOpts();
 			}
 			else if( this.system.equals("sparkdatabricksjdbc") ) {
 				String dbrToken = AWSUtil.getValue("DatabricksToken");
 				Class.forName(databricksDriverName);
-				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
+				con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
 				this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
 				";UseNativeQuery=1");
 			}
-			else if( system.startsWith("spark") ) {
+			else if( this.system.equals("databrickssql") ) {
+				Class.forName(databricksDriverName);
+				con = DriverManager.getConnection("jdbc:spark://"
+					+ this.hostname + ":443/" + this.dbName
+					+ ";transportMode=http;ssl=1;AuthMech=3"
+					+ ";httpPath=/sql/1.0/endpoints/" + this.clusterId
+					+ ";UID=token;PWD=" + this.dbPassword
+					+ ";UseNativeQuery=1"
+					+ ";spark.databricks.execution.resultCaching.enabled=false"
+					+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
+					+ ";spark.sql.shuffle.partitions=2048"
+					// + ";spark.sql.autoBroadcastJoinThreshold=60000000"
+					);
+			}
+			else if( this.system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				con = DriverManager.getConnection("jdbc:hive2://" +
-						hostname + ":10015/" + dbName, "hive", "");
+						this.hostname + ":10015/" + this.dbName, "hive", "");
 			}
-			else if( system.startsWith("snowflake") ) {
+			else if( this.system.startsWith("snowflake") ) {
 				String snowflakePwd = AWSUtil.getValue("SnowflakePassword");
 				Class.forName(snowflakeDriverName);
-				this.con = DriverManager.getConnection("jdbc:snowflake://" + 
+				con = DriverManager.getConnection("jdbc:snowflake://" + 
 						this.hostname + "/?" +
 						"user=" + this.userId + "&password=" + snowflakePwd +
 						"&warehouse=" + this.clusterId + "&schema=" + this.dbName);
 				this.setSnowflakeDefaultSessionOpts();
+			}
+			else if( this.system.equals("redshift") ) {
+				Class.forName(redshiftDriverName);
+				//Use Synapse's password temporarily (must be specified when creating the cluster)
+				String redshiftPwd = AWSUtil.getValue("SynapsePassword");
+				con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
+				this.dbName + "?ssl=true&UID=" + this.userId + "&PWD=" + redshiftPwd);
+			}
+			else if( this.system.startsWith("synapse") ) {
+				String synapsePwd = AWSUtil.getValue("SynapsePassword");
+				Class.forName(synapseDriverName);
+				con = DriverManager.getConnection("jdbc:sqlserver://" +
+				this.hostname + ":1433;" +
+				"database=bsc-tpcds-test-pool;" +
+				"user=tpcds_user@bsctest;" +
+				"password=" + synapsePwd + ";" +
+				"encrypt=true;" +
+				"trustServerCertificate=false;" +
+				"hostNameInCertificate=*.database.windows.net;" +
+				"loginTimeout=30;");
+			}
+			else if( this.system.startsWith("bigquery") ) {
+				this.bigQueryDAO = new BigQueryDAO("databricks-bsc-benchmark", this.dbName);
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
 		}
 		catch (ClassNotFoundException e) {
 			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueries constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
-			System.exit(1);
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueries constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
-			System.exit(1);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueries constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
-			System.exit(1);
 		}
 		return con;
 	}
-	
+
 	
 	private void setPrestoDefaultSessionOpts() {
 		((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
@@ -355,6 +388,43 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
+	
+	
+	private void prepareRedshift() {
+		try {
+			System.out.print("Disabling result caching...");
+			Statement stmt = con.createStatement();
+			stmt.execute("SET enable_result_cache_for_session TO off");
+			System.out.println("done");
+		} catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error when disabling results caching");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+	}
+
+	
+	private void prepareDatabricksSql() {
+		try {
+			System.out.print("Disabling result caching...");
+			Statement stmt = con.createStatement();
+			stmt.execute("SET spark.databricks.execution.resultCaching.enabled=false;");
+			System.out.println("done");
+		} catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error when disabling results caching");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+	}
+	
+	
+	private void prepareSnowflake() {
+		this.useDatabaseQuery(this.dbName);
+		this.useSchemaQuery(this.dbName);
+		this.useSnowflakeWarehouseQuery(this.clusterId);	
+	}
 
 	
 	public static void main(String[] args) {
@@ -385,6 +455,13 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	
 	
 	private void executeStreams() {
+		if( this.system.startsWith("snowflake") )
+			this.prepareSnowflake();
+		// If the system is Redshift disable query result caching
+		if (this.system.startsWith("redshift"))
+			this.prepareRedshift();
+		//if (this.system.startsWith("databrickssql"))
+			//this.prepareDatabricksSql();
 		List<String> files = queriesReader.getFilesOrdered();
 		int nQueries = files.size();
 		int totalQueries = nQueries * this.nStreams;
@@ -406,13 +483,13 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 				queriesHT = createQueriesHT(files, this.queriesReader);
 			}
 			QueryStream stream = null;
-			if( ! this.multiple ) {
-				stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT,
+			if( this.multiple ) {
+				Connection con = this.createConnection();
+				stream = new QueryStream(i, this.resultsQueue, con, queriesHT,
 						nQueries, this.random, this);
 			}
 			else {
-				Connection con = this.createConnection(this.system, this.hostname, this.dbName);
-				stream = new QueryStream(i, this.resultsQueue, con, queriesHT,
+				stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT,
 						nQueries, this.random, this);
 			}
 			this.executor.submit(stream);

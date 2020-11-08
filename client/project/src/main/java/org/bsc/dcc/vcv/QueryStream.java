@@ -18,6 +18,9 @@ import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
+import com.google.cloud.bigquery.BigQueryException;
+import com.google.cloud.bigquery.TableResult;
+import com.google.cloud.bigquery.FieldValueList;
 
 
 public class QueryStream implements Callable<Void> {
@@ -101,9 +104,15 @@ public class QueryStream implements Callable<Void> {
 			if( this.parent.system.equals("prestoemr") ) {
 				this.setPrestoDefaultSessionOpts();
 			}
-			queryRecord = new QueryRecordConcurrent(nStream, nQuery, item);
+			if( this.parent.system.equals("bigquery") )
+				queryRecord = new QueryRecordConcurrentBigQuery(nStream, nQuery, item);
+			else
+				queryRecord = new QueryRecordConcurrent(nStream, nQuery, item);
 			// Execute the query or queries.
-			this.executeQueryMultipleCalls(nStream, fileName, sqlStr, queryRecord, item);
+			if( ! this.parent.system.equals("bigquery") )
+				this.executeQueryMultipleCalls(nStream, fileName, sqlStr, queryRecord, item);
+			else
+				this.executeQueryMultipleCallsBigQuery(nStream, fileName, sqlStr, queryRecord, item);
 			// Record the results file size.
 			if( this.parent.saveResults ) {
 				File resultsFile = new File(generateResultsFileName(fileName, nStream, item));
@@ -174,6 +183,36 @@ public class QueryStream implements Callable<Void> {
 			iteration++;
 		}
 	}
+	
+	
+	private void executeQueryMultipleCallsBigQuery(int nStream, String fileName, String sqlStrFull,
+			QueryRecord queryRecord, int item) throws Exception {
+		// Split the various queries and execute each.
+		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
+		boolean firstQuery = true;
+		int iteration = 1;
+		while (tokenizer.hasMoreTokens()) {
+			String sqlStr = tokenizer.nextToken().trim();
+			if( sqlStr.length() == 0 )
+				continue;	
+			// Execute the query.
+			if( firstQuery )
+				queryRecord.setStartTime(System.currentTimeMillis());
+			System.out.println("Executing iteration " + iteration + " of query " + 
+					fileName + " (run " + queryRecord.getRun() + ").");
+			TableResult tableResult = this.parent.bigQueryDAO.executeQuery(sqlStr, 
+						(QueryRecordBigQuery)queryRecord);
+			// Save the results.
+			if( this.parent.saveResults ) {
+				int tuples = this.saveResultsBigQuery(
+						this.generateResultsFileName(fileName, nStream, item), 
+							tableResult, ! firstQuery);
+				queryRecord.setTuples(queryRecord.getTuples() + tuples);
+			}
+			firstQuery = false;
+			iteration++;
+		}
+	}
 
 	
 	private int saveResults(String resFileName, ResultSet rs, boolean append) throws SQLException {
@@ -213,6 +252,35 @@ public class QueryStream implements Callable<Void> {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+		return tuples;
+	}
+	
+	
+	private int saveResultsBigQuery(String resFileName, TableResult tableResult, boolean append) 
+			throws Exception {
+		File tmp = new File(resFileName);
+		tmp.getParentFile().mkdirs();
+		FileWriter fileWriter = new FileWriter(resFileName, append);
+		PrintWriter printWriter = new PrintWriter(fileWriter);
+		int nCols = tableResult.getSchema().getFields().size();
+		int tuples = 0;
+		for (FieldValueList row : tableResult.iterateAll()) {
+			StringBuilder rowBuilder = new StringBuilder();
+			String val = null;
+			for (int i = 0; i < nCols - 1; i++) {
+				val = null;
+				if( ! row.get(i).isNull() )
+					val = row.get(i).getStringValue();
+				rowBuilder.append(val + " | ");
+			}
+			val = null;
+			if( ! row.get(nCols - 1).isNull() )
+				val = row.get(nCols - 1).getStringValue();
+			rowBuilder.append(val);
+			printWriter.println(rowBuilder.toString());
+			tuples++;
+		}
+		printWriter.close();
 		return tuples;
 	}
 	
