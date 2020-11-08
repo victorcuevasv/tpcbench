@@ -36,9 +36,9 @@ Tag="$(date +%s)"
 ExperimentName="tpcds-redshift-$1gb-${Tag}"
 DirNameWarehouse="tpcds-redshift-$1gb-$2-${Tag}"
 DirNameResults="redshift"
-DatabaseName="dev"
+DatabaseName="tpcds_synapse_$1gb_$2_${Tag}"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
-DbUsername="awsuser"
+DatabaseUsername="awsuser"
 
 RUN_RUN_BENCHMARK=1
 COPY_RESULTS_TO_S3=1
@@ -79,7 +79,7 @@ args[13]="--number-of-streams=$3"
 args[14]="--server-hostname=$Host"
 
 #username for the connection
-args[15]="--connection-username=${DbUsername}"
+args[15]="--connection-username=${DatabaseUsername}"
 #queries dir within the jar
 args[16]="--queries-dir-in-jar=QueriesRedshift"
 #all or create table file
