@@ -30,18 +30,18 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
-Host="bsc-redshift-test.cha8h2ua3ess.us-west-2.redshift.amazonaws.com"
+Host="bsc-redshift-cluster-test.cha8h2ua3ess.us-west-2.redshift.amazonaws.com"
 #Run configuration.
 Tag="$(date +%s)"
 ExperimentName="tpcds-redshift-$1gb-${Tag}"
 DirNameWarehouse="tpcds-redshift-$1gb-$2-${Tag}"
 DirNameResults="redshift"
-DatabaseName="tpcds_synapse_$1gb_$2_${Tag}"
+DatabaseName="tpcds_redshift_$1gb_$2_${Tag}"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 DatabaseUsername="awsuser"
 
 RUN_RUN_BENCHMARK=1
-COPY_RESULTS_TO_S3=1
+COPY_RESULTS_TO_S3=0
 
 args=()
 
@@ -59,7 +59,7 @@ args[4]="--system-name=redshift"
 #experiment instance number
 args[5]="--instance-number=$2"
 #prefix of external location for raw data tables (e.g. S3 bucket), null for none
-args[6]="--ext-raw-data-location=s3://tpcds-datasets/databricks/tpcds_$1_datafiles"
+args[6]="--ext-raw-data-location=s3://tpcds-datasets/$1GB"
 #prefix of external location for created tables (e.g. S3 bucket), null for none
 args[7]="--ext-tables-location=s3://tpcds-warehouses-test/$DirNameWarehouse"
 #format for column-storage tables (PARQUET, DELTA)
