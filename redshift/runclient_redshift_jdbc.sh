@@ -111,7 +111,7 @@ fi
 
 if [ "$COPY_RESULTS_TO_S3" -eq 1 ]; then
 	#aws s3 cp --recursive $DIR/../vols/data/$DirNameResults/ s3://tpcds-results-test/$DirNameResults/
-	cp -r $DIR/../vols/data/$DirNameResults/ $HOME/tpcds-results-test/$DirNameResults/
+	cp -r $DIR/../vols/data/$DirNameResults/* $HOME/tpcds-results-test/$DirNameResults/
 fi
 
 
