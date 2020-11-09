@@ -26,7 +26,9 @@ public class AnalyzeTables {
 	private static final String hiveDriverName = "org.apache.hive.jdbc.HiveDriver";
 	private static final String prestoDriverName = "com.facebook.presto.jdbc.PrestoDriver";
 	private static final String databricksDriverName = "com.simba.spark.jdbc.Driver";
+	private static final String snowflakeDriverName = "net.snowflake.client.jdbc.SnowflakeDriver";
 	private static final String redshiftDriverName = "com.amazon.redshift.jdbc42.Driver";
+	private static final String synapseDriverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 	private Connection con;
 	private static final Logger logger = LogManager.getLogger("AllLog");
 	private final AnalyticsRecorder recorder;
@@ -130,25 +132,24 @@ public class AnalyzeTables {
 	private void openConnection() {
 		try {
 			String driverName = "";
-			if( this.systemRunning.equals("hive") ) {
+			if( this.system.equals("hive") ) {
 				Class.forName(hiveDriverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" +
 						this.hostname + ":10000/" + this.dbName, "hive", "");
-				
 			}
-			else if( this.systemRunning.equals("presto") ) {
+			else if( this.system.equals("presto") ) {
 				Class.forName(prestoDriverName);
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8080/hive/" + this.dbName, "hive", "");
-				((PrestoConnection)this.con).setSessionProperty("query_max_stage_count", "102");
+				((PrestoConnection)con).setSessionProperty("query_max_stage_count", "102");
 			}
-			else if( this.systemRunning.equals("prestoemr") ) {
+			else if( this.system.equals("prestoemr") ) {
 				Class.forName(prestoDriverName);
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8889/hive/" + this.dbName, "hive", "");
-				((PrestoConnection)this.con).setSessionProperty("query_max_stage_count", "102");
+				setPrestoDefaultSessionOpts();
 			}
-			else if( this.systemRunning.equals("sparkdatabricksjdbc") ) {
+			else if( this.system.equals("sparkdatabricksjdbc") ) {
 				String dbrToken = AWSUtil.getValue("DatabricksToken");
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
@@ -164,33 +165,68 @@ public class AnalyzeTables {
 					+ ";transportMode=http;ssl=1;AuthMech=3"
 					+ ";httpPath=/sql/1.0/endpoints/" + this.clusterId
 					+ ";UID=token;PWD=" + this.dbPassword
-					+ ";UseNativeQuery=1");
+					+ ";UseNativeQuery=1"
+					+ ";spark.databricks.execution.resultCaching.enabled=false"
+					+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
+					+ ";spark.sql.shuffle.partitions=2048"
+					// + ";spark.sql.autoBroadcastJoinThreshold=60000000"
+					);
 			}
-			else if( this.system.equals("redshift") ) {
-				Class.forName(redshiftDriverName);
-				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
-				this.dbName + "?ssl=true&UID=" + this.userId + "&PWD=" + this.dbPassword);
-			}
-			else if( systemRunning.startsWith("spark") ) {
+			else if( this.system.startsWith("spark") ) {
 				Class.forName(hiveDriverName);
 				this.con = DriverManager.getConnection("jdbc:hive2://" +
 						this.hostname + ":10015/" + this.dbName, "hive", "");
+			}
+			else if( this.system.startsWith("snowflake") ) {
+				String snowflakePwd = AWSUtil.getValue("SnowflakePassword");
+				Class.forName(snowflakeDriverName);
+				this.con = DriverManager.getConnection("jdbc:snowflake://" + 
+						this.hostname + "/?" +
+						"user=" + this.userId + "&password=" + snowflakePwd +
+						"&warehouse=" + this.clusterId + "&schema=" + this.dbName);
+				this.setSnowflakeDefaultSessionOpts();
+			}
+			else if( this.system.equals("redshift") ) {
+				Class.forName(redshiftDriverName);
+				//Use Synapse's password temporarily (must be specified when creating the cluster)
+				String redshiftPwd = AWSUtil.getValue("SynapsePassword");
+				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
+				this.dbName + "?ssl=true&UID=" + this.userId + "&PWD=" + redshiftPwd);
+			}
+			else if( this.system.startsWith("synapse") ) {
+				String synapsePwd = AWSUtil.getValue("SynapsePassword");
+				Class.forName(synapseDriverName);
+				this.con = DriverManager.getConnection("jdbc:sqlserver://" +
+				this.hostname + ":1433;" +
+				"database=bsc-tpcds-test-pool;" +
+				"user=tpcds_user@bsctest;" +
+				"password=" + synapsePwd + ";" +
+				"encrypt=true;" +
+				"trustServerCertificate=false;" +
+				"hostNameInCertificate=*.database.windows.net;" +
+				"loginTimeout=30;");
+			}
+			else if( this.system.startsWith("bigquery") ) {
+				this.bigQueryDAO = new BigQueryDAO("databricks-bsc-benchmark", this.dbName);
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
 		}
 		catch (ClassNotFoundException e) {
 			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueries constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueries constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			this.logger.error("Error in ExecuteQueries constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
