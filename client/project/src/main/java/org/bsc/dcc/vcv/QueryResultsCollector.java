@@ -40,7 +40,7 @@ public class QueryResultsCollector implements Runnable {
 			}
 		}
 		this.analyticsRecorder.close();
-		if( this.analyticsRecorder.system.startsWith("snowflake") ) {
+		if( this.analyticsRecorder.system.startsWith("snowflake") && this.parent.getSaveSnowflakeHistory() ) {
 			this.parent.saveSnowflakeHistory();
 		}
 		//if( this.parent != null && ! this.analyticsRecorder.system.equalsIgnoreCase("sparkdatabricks") )

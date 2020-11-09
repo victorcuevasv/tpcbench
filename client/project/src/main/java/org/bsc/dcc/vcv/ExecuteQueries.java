@@ -356,6 +356,10 @@ public class ExecuteQueries {
 		}
 	}
 	
+	public boolean getSaveSnowflakeHistory() {
+		return this.saveSnowflakeHistory;
+	}
+	
 	private void prepareRedshift() {
 		try {
 			System.out.print("Disabling result caching...");

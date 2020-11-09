@@ -67,6 +67,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	final private boolean tputChangingStreams;
 	private final boolean useCachedResultSnowflake = false;
 	private final int maxConcurrencySnowflake = 8;
+	private final boolean saveSnowflakeHistory = false;
 	private final String clusterId;
 	private final String userId;
 	private final String dbPassword;
