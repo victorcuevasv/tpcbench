@@ -147,7 +147,6 @@ public class AnalyzeTables {
 				Class.forName(prestoDriverName);
 				this.con = DriverManager.getConnection("jdbc:presto://" + 
 						this.hostname + ":8889/hive/" + this.dbName, "hive", "");
-				setPrestoDefaultSessionOpts();
 			}
 			else if( this.system.equals("sparkdatabricksjdbc") ) {
 				String dbrToken = AWSUtil.getValue("DatabricksToken");
@@ -184,7 +183,6 @@ public class AnalyzeTables {
 						this.hostname + "/?" +
 						"user=" + this.userId + "&password=" + snowflakePwd +
 						"&warehouse=" + this.clusterId + "&schema=" + this.dbName);
-				this.setSnowflakeDefaultSessionOpts();
 			}
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
@@ -205,9 +203,6 @@ public class AnalyzeTables {
 				"trustServerCertificate=false;" +
 				"hostNameInCertificate=*.database.windows.net;" +
 				"loginTimeout=30;");
-			}
-			else if( this.system.startsWith("bigquery") ) {
-				this.bigQueryDAO = new BigQueryDAO("databricks-bsc-benchmark", this.dbName);
 			}
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
