@@ -88,10 +88,12 @@ args[18]="--all-or-query-file=all"
 #delimiter for the columns in the raw data (SOH, PIPE) default SOH
 args[19]="--raw-column-delimiter=SOH" 
 
+#use distribute by keys in redshift and synapse
+args[20]="--use-distribute-keys=false"
 #number of runs to perform for the power test (default 1)
-args[20]="--power-test-runs=1"
+args[21]="--power-test-runs=1"
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[21]="--execution-flags=110010"
+args[22]="--execution-flags=110010"
 
 paramsStr="${args[@]}"
 
@@ -107,7 +109,8 @@ if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 fi
 
 if [ "$COPY_RESULTS_TO_S3" -eq 1 ]; then
-	aws s3 cp --recursive $DIR/../vols/data/$DirNameResults/ s3://tpcds-results-test/$DirNameResults/
+	#aws s3 cp --recursive $DIR/../vols/data/$DirNameResults/ s3://tpcds-results-test/$DirNameResults/
+	cp -r $DIR/../vols/data/$DirNameResults/* $HOME/tpcds-results-test/$DirNameResults/
 fi
 
 
