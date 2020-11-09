@@ -394,6 +394,11 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 	
 	
+	public boolean getSaveSnowflakeHistory() {
+		return this.saveSnowflakeHistory;
+	}
+	
+	
 	private void prepareRedshift() {
 		try {
 			System.out.print("Disabling result caching...");

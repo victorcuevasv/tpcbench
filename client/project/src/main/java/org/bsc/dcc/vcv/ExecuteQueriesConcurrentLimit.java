@@ -65,6 +65,7 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 	final int[][] matrix;
 	private final boolean useCachedResultSnowflake = false;
 	private final int maxConcurrencySnowflake = 8;
+	private final boolean saveSnowflakeHistory = false;
 	private final int nWorkers;
 	AtomicInteger atomicCounter;
 	private ExecutorService queryResultsCollectorExecutor;
@@ -303,6 +304,11 @@ public class ExecuteQueriesConcurrentLimit implements ConcurrentExecutor {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+	}
+	
+	
+	public boolean getSaveSnowflakeHistory() {
+		return this.saveSnowflakeHistory;
 	}
 
 	
