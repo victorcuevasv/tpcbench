@@ -35,11 +35,16 @@ DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Tag="$(date +%s)"
 ExperimentName="tpcds-dbrsql-$1gb-${Tag}"
 DirNameResults="dbrsql"
-DatabaseName="bsc_dbrsql_sf3000_xl"
+#DatabaseName="bsc_dbrsql_sf3000_xl"
+#DatabaseName="tpcds_sf30000_delta"
+DatabaseName="tpcds_dbrsql_$1gb_$2_${Tag}"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
-numCores=<NUMCORES>
-clusterId="<CLUSTERID>"
-dbPassword="<PASS>"
+NumCores=1024
+ClusterId="f18152ace277edb3"
+DatabasePassword=""
+
+RUN_RUN_BENCHMARK=1
+COPY_RESULTS_TO_S3=1
 
 args=()
 
@@ -72,28 +77,36 @@ args[11]="--use-row-stats=true"
 #if argument above is true, whether to compute statistics for columns (true/false)
 args[12]="--use-column-stats=true"
 #number of streams
-args[14]="--number-of-streams=$3"
+args[13]="--number-of-streams=$3"
 #hostname of the server
-args[17]="--server-hostname=$DatabricksHost"
+args[14]="--server-hostname=$DatabricksHost"
 
 #username for the connection
-args[18]="--connection-username=UNUSED"
+args[15]="--connection-username=UNUSED"
 #queries dir within the jar
-args[19]="--queries-dir-in-jar=QueriesSpark"
+args[16]="--queries-dir-in-jar=QueriesSpark"
 #all or create table file
-args[22]="--all-or-create-file=all"
+args[17]="--all-or-create-file=all"
 #"all" or query file
-args[13]="--all-or-query-file=all" 
-#flags (110000 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=011010"
+args[18]="--all-or-query-file=all" 
+#whether to run queries to count the tuples generated
+args[19]="--count-queries=false"
 
-#args[23]="--count-queries=true"
-args[24]="--raw-column-delimiter=PIPE"
-args[25]="--power-test-runs=3"
-args[26]="--save-power-plans=false"
-args[27]="--cluster-id=${clusterId}"
-args[28]="--db-password=${dbPassword}"
-args[29]="--num-cores=${numCores}"
+#delimiter for the columns in the raw data (SOH, PIPE) default SOH
+args[20]="--raw-column-delimiter=SOH"
+#save power test plans
+args[21]="--save-power-plans=false"
+#identifier of the cluster to use to evaluate queries
+args[22]="--cluster-id=${ClusterId}"
+#database password
+args[23]="--db-password=${DatabasePassword}"
+#number of cores in the cluster to set the number of shuffle partitions
+args[24]="--num-cores=${NumCores}"
+
+#number of runs to perform for the power test (default 1)
+args[25]="--power-test-runs=1"
+#flags (110000 schema|load|analyze|zorder|power|tput)
+args[26]="--execution-flags=011010"
 
 paramsStr="${args[@]}"
 
@@ -101,11 +114,16 @@ if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 	docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
 	--volume $DIR/../vols/data:/data \
 	--volume $DIR/../client/project:/project \
-    --volume $HOME/tpcds-jars:/mnt/tpcds-jars \
+	--volume $HOME/tpcdsbench/client/project/target:/mnt/tpcds-jars/target \
 	--entrypoint mvn clientbuilder:dev \
 	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmarkCLI" \
 	-Dexec.args="$paramsStr" \
 	-f /project/pom.xml
+fi
+
+if [ "$COPY_RESULTS_TO_S3" -eq 1 ]; then
+	#aws s3 cp --recursive $DIR/../vols/data/$DirNameResults/ s3://tpcds-results-test/$DirNameResults/
+	cp -r $DIR/../vols/data/$DirNameResults/* $HOME/tpcds-results-test/$DirNameResults/
 fi
 
 
