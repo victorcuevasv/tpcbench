@@ -268,6 +268,10 @@ public class ExecuteQueriesConcurrentSpark implements ConcurrentExecutor {
 		
 	}
 	
+	public boolean getSaveSnowflakeHistory() {
+		return false;
+	}
+	
 	public void incrementAtomicCounter() {
 		
 	}
