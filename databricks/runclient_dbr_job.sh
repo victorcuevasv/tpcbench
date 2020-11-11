@@ -73,7 +73,7 @@ args[8]="--table-format=delta"
 args[9]="--use-partitioning=true"
 
 # jar file
-args[10]="--jar-file=/dbfs{$JarFile}"
+args[10]="--jar-file=/dbfs${JarFile}"
 # whether to generate statistics by analyzing tables (true/false)
 args[11]="--use-row-stats=true"
 # if argument above is true, whether to compute statistics for columns (true/false)
