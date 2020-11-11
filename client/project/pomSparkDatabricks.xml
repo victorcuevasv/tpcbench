@@ -82,6 +82,7 @@
 						<exclude>org/bsc/dcc/vcv/BigQueryLoadTableTest.java</exclude>
 						<exclude>org/bsc/dcc/vcv/BigQueryTest.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CompareResults.java</exclude>
+						<exclude>org/bsc/dcc/vcv/CountQueries.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabase.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateSchema.java</exclude>
 						<exclude>org/bsc/dcc/vcv/ExecuteQueries.java</exclude>
