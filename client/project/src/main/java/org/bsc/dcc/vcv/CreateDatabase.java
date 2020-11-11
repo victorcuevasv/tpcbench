@@ -531,7 +531,7 @@ public class CreateDatabase {
 			if( distKey.equals("all") )
 				synapseSqlCreate += "REPLICATE";
 			else if( distKey.equals("none") || ! this.useDistKeys )
-				synapseSqlCreate += "ROUND ROBIN";
+				synapseSqlCreate += "ROUND_ROBIN";
 			else
 				synapseSqlCreate += "HASH(" + distKey + ")";
 			synapseSqlCreate += ", CLUSTERED COLUMNSTORE INDEX";
