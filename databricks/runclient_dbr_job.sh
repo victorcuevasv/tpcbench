@@ -30,9 +30,9 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
 #Cluster configuration.
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
-Nodes="2"
+Nodes="4"
 MajorVersion="7"
-MinorVersion="0"
+MinorVersion="3"
 ScalaVersion="x-scala2.12"
 #Run configuration.
 Tag="$(date +%s)"
@@ -64,16 +64,16 @@ args[4]="--system-name=sparkdatabricks"
 # experiment instance number
 args[5]="--instance-number=$2"
 # prefix of external location for raw data tables (e.g. S3 bucket), null for none
-args[6]="--ext-raw-data-location=dbfs:/mnt/tpcdsbucket/$1GB"
+args[6]="--ext-raw-data-location=dbfs:/mnt/tpcds-datasets/$1GB"
 # prefix of external location for created tables (e.g. S3 bucket), null for none
 args[7]="--ext-tables-location=dbfs:/mnt/tpcds-warehouses-test/$DirNameWarehouse"
 # format for column-storage tables (PARQUET, DELTA)
-args[8]="--table-format=parquet"
+args[8]="--table-format=delta"
 # whether to use data partitioning for the tables (true/false)
 args[9]="--use-partitioning=true"
 
 # jar file
-args[10]="--jar-file=/dbfs/$JarFile"
+args[10]="--jar-file=/dbfs{$JarFile}"
 # whether to generate statistics by analyzing tables (true/false)
 args[11]="--use-row-stats=true"
 # if argument above is true, whether to compute statistics for columns (true/false)
@@ -122,6 +122,7 @@ post_data_func()
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
+            "instance_profile_arn": "arn:aws:iam::384416317380:instance-profile/ShardS3Access_SSE-2051",
             "availability":"ON_DEMAND"
          },
          "node_type_id":"i3.2xlarge",
