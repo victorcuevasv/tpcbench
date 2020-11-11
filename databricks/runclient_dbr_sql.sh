@@ -39,12 +39,12 @@ DirNameResults="dbrsql"
 #DatabaseName="tpcds_sf30000_delta"
 DatabaseName="tpcds_dbrsql_$1gb_$2_${Tag}"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
-NumCores=1024
+NumCores=32
 ClusterId="f18152ace277edb3"
 DatabasePassword=""
 
 RUN_RUN_BENCHMARK=1
-COPY_RESULTS_TO_S3=1
+COPY_RESULTS_TO_S3=0
 
 args=()
 
@@ -62,7 +62,8 @@ args[4]="--system-name=databrickssql"
 #experiment instance number
 args[5]="--instance-number=$2"
 #prefix of external location for raw data tables (e.g. S3 bucket), null for none
-args[6]="--ext-raw-data-location=dbfs:/mnt/tpcdsbucket/databricks/tpcds_$1_datafiles"
+args[6]="--ext-raw-data-location=dbfs:/mnt/tpcds-datasets/$1GB"
+#args[6]="--ext-raw-data-location=dbfs:/mnt/tpcds-datasets/databricks/tpcds_$1_datafiles"
 #prefix of external location for created tables (e.g. S3 bucket), null for none
 args[7]="--ext-tables-location=dbfs:/mnt/tpcds-warehouses-test/$DirNameWarehouse"
 #format for column-storage tables (PARQUET, DELTA)
