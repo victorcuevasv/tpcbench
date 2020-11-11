@@ -1,5 +1,4 @@
-#!/bin/bash   
-
+#!/bin/bash
 #Variables for console output with colors.
 
 red=$'\e[1;31m'
