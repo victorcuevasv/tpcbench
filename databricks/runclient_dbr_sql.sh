@@ -106,7 +106,7 @@ args[24]="--num-cores=${NumCores}"
 #number of runs to perform for the power test (default 1)
 args[25]="--power-test-runs=1"
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[26]="--execution-flags=011010"
+args[26]="--execution-flags=111010"
 
 paramsStr="${args[@]}"
 
