@@ -83,7 +83,7 @@ START=0
 END=$2
 for (( i=$START; i<$END; i++ ))
 do
-	cp -r $DIR/vols/data/StreamsNetezzaProcessed/stream$i $DIR/client/project/src/main/resources/QueriesNetezzaStream$i
+	cp $DIR/vols/data/StreamsNetezzaProcessed/stream$i/* $DIR/client/project/src/main/resources/QueriesNetezzaStream$i
 done
 
 #Generate the Spark query streams.
@@ -94,7 +94,7 @@ START=0
 END=$2
 for (( i=$START; i<$END; i++ ))
 do
-	cp -r $DIR/vols/data/StreamsSparkProcessed/stream$i $DIR/client/project/src/main/resources/QueriesSparkStream$i
+	cp $DIR/vols/data/StreamsSparkProcessed/stream$i/* $DIR/client/project/src/main/resources/QueriesSparkStream$i
 done
 
 #Generate the Presto query streams.
@@ -105,7 +105,7 @@ START=0
 END=$2
 for (( i=$START; i<$END; i++ ))
 do
-	cp -r $DIR/vols/data/StreamsPrestoProcessed/stream$i $DIR/client/project/src/main/resources/QueriesPrestoStream$i
+	cp $DIR/vols/data/StreamsPrestoProcessed/stream$i/* $DIR/client/project/src/main/resources/QueriesPrestoStream$i
 done
 
 #Generate the Snowflake query streams.
@@ -116,7 +116,7 @@ START=0
 END=$2
 for (( i=$START; i<$END; i++ ))
 do
-	cp -r $DIR/vols/data/StreamsSnowflakeProcessed/stream$i $DIR/client/project/src/main/resources/QueriesSnowflakeStream$i
+	cp $DIR/vols/data/StreamsSnowflakeProcessed/stream$i/* $DIR/client/project/src/main/resources/QueriesSnowflakeStream$i
 done
 
 #Generate the Redshift query streams.
@@ -127,7 +127,7 @@ START=0
 END=$2
 for (( i=$START; i<$END; i++ ))
 do
-	cp -r $DIR/vols/data/StreamsRedshiftProcessed/stream$i $DIR/client/project/src/main/resources/QueriesRedshiftStream$i
+	cp $DIR/vols/data/StreamsRedshiftProcessed/stream$i/* $DIR/client/project/src/main/resources/QueriesRedshiftStream$i
 done
 
 #Generate the Synapse query streams.
@@ -138,7 +138,7 @@ START=0
 END=$2
 for (( i=$START; i<$END; i++ ))
 do
-	cp -r $DIR/vols/data/StreamsSynapseProcessed/stream$i $DIR/client/project/src/main/resources/QueriesSynapseStream$i
+	cp $DIR/vols/data/StreamsSynapseProcessed/stream$i/* $DIR/client/project/src/main/resources/QueriesSynapseStream$i
 done
 
 #Generate the BigQuery query streams.
@@ -149,7 +149,7 @@ START=0
 END=$2
 for (( i=$START; i<$END; i++ ))
 do
-	cp -r $DIR/vols/data/StreamsBigQueryProcessed/stream$i $DIR/client/project/src/main/resources/QueriesBigQueryStream$i
+	cp $DIR/vols/data/StreamsBigQueryProcessed/stream$i/* $DIR/client/project/src/main/resources/QueriesBigQueryStream$i
 done
 
 
