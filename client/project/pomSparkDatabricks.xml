@@ -77,6 +77,10 @@
 						<exclude>org/bsc/dcc/vcv/AnalyticsRecorderConcurrentLimit.java</exclude>
 						<exclude>org/bsc/dcc/vcv/AnalyzeTables.java</exclude>
 						<exclude>org/bsc/dcc/vcv/AWSUtil.java</exclude>
+						<exclude>org/bsc/dcc/vcv/BigQueryCreateTableTest.java</exclude>
+						<exclude>org/bsc/dcc/vcv/BigQueryDAO.java</exclude>
+						<exclude>org/bsc/dcc/vcv/BigQueryLoadTableTest.java</exclude>
+						<exclude>org/bsc/dcc/vcv/BigQueryTest.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CompareResults.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabase.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateSchema.java</exclude>
