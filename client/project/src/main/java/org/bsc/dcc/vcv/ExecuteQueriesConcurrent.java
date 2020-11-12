@@ -71,6 +71,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private final String clusterId;
 	private final String userId;
 	private final String dbPassword;
+	private final int numCores;
 	
 	public ExecuteQueriesConcurrent(CommandLine commandLine) {
 		this.workDir = commandLine.getOptionValue("main-work-dir");
@@ -102,6 +103,8 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
 		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.dbPassword = commandLine.getOptionValue("db-password", "UNUSED");
+		String numCoresStr = commandLine.getOptionValue("num-cores", "-1");
+		this.numCores = Integer.parseInt(numCoresStr);
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
 		this.recorder = new AnalyticsRecorderConcurrent(this.workDir, this.resultsDir,
@@ -168,6 +171,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.clusterId = "UNUSED";
 		this.userId = "UNUSED";
 		this.dbPassword = "UNUSED";
+		this.numCores = -1;
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.streamsReader = new JarStreamsReaderAsZipFile(this.jarFile, "streams");
 		this.matrix = this.streamsReader.getFileAsMatrix(this.streamsReader.getFiles().get(0));
@@ -228,7 +232,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 					+ ";UseNativeQuery=1"
 					+ ";spark.databricks.execution.resultCaching.enabled=false"
 					+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
-					+ ";spark.sql.shuffle.partitions=2048"
+					+ ";spark.sql.shuffle.partitions=" + (this.numCores*2)
 					// + ";spark.sql.autoBroadcastJoinThreshold=60000000"
 					);
 			}

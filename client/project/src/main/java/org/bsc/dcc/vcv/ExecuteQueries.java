@@ -58,6 +58,7 @@ public class ExecuteQueries {
 	private final String userId;
 	private final int runs;
 	private final String dbPassword;
+	private final int numCores;
 	
 	
 	public ExecuteQueries(CommandLine commandLine) {
@@ -86,6 +87,8 @@ public class ExecuteQueries {
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
 		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.dbPassword = commandLine.getOptionValue("db-password", "UNUSED");
+		String numCoresStr = commandLine.getOptionValue("num-cores", "-1");
+		this.numCores = Integer.parseInt(numCoresStr);
 		String runsStr = commandLine.getOptionValue("power-test-runs", "1");
 		this.runs = Integer.parseInt(runsStr);
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
@@ -146,6 +149,7 @@ public class ExecuteQueries {
 		this.clusterId = "UNUSED";
 		this.userId = "UNUSED";
 		this.dbPassword = "UNUSED";
+		this.numCores = -1;
 		this.runs = 1;
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
@@ -193,7 +197,7 @@ public class ExecuteQueries {
 					+ ";UseNativeQuery=1"
 					+ ";spark.databricks.execution.resultCaching.enabled=false"
 					+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
-					+ ";spark.sql.shuffle.partitions=2048"
+					+ ";spark.sql.shuffle.partitions=" + (this.numCores*2)
 					// + ";spark.sql.autoBroadcastJoinThreshold=60000000"
 					);
 			}
