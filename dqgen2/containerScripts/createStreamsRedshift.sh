@@ -35,6 +35,10 @@ cp ../query_templates/* ../query_templates_temp
 
 #Override the modified templates for Redshift
 cp ../query_templates_redshift/* ../query_templates_temp
+for f in ../query_templates_temp/query*.tpl ; do
+  sed -i 's/substr/substring/g' $f 
+  sed -i 's/ days)/)/g' $f
+done
 
 #Override the netezza.tpl template with netezzaLong.tpl
 cp ../netezzaLong.tpl ../query_templates_temp/netezza.tpl
