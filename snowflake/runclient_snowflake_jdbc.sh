@@ -90,8 +90,10 @@ args[19]="--all-or-query-file=all"
 
 #delimiter for the columns in the raw data (SOH, PIPE) default SOH
 args[20]="--raw-column-delimiter=SOH"
+#use multiple connections
+args[21]="--multiple-connections=true"
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[21]="--execution-flags=110010"
+args[22]="--execution-flags=110010"
 
 paramsStr="${args[@]}"
 

@@ -196,7 +196,7 @@ public class ExecuteQueries {
 					+ ";UID=token;PWD=" + this.dbPassword
 					+ ";UseNativeQuery=1"
 					+ ";spark.databricks.execution.resultCaching.enabled=false"
-					+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
+					//+ ";spark.databricks.adaptive.autoOptimizeShuffle.enabled=false"
 					//+ ";spark.sql.shuffle.partitions=" + (this.numCores*2)
 					// + ";spark.sql.autoBroadcastJoinThreshold=60000000"
 					);

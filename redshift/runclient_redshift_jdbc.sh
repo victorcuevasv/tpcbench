@@ -93,8 +93,10 @@ args[19]="--raw-column-delimiter=SOH"
 args[20]="--use-distribute-keys=false"
 #number of runs to perform for the power test (default 1)
 args[21]="--power-test-runs=1"
+#use multiple connections
+args[22]="--multiple-connections=true"
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[22]="--execution-flags=110010"
+args[23]="--execution-flags=110010"
 
 paramsStr="${args[@]}"
 
