@@ -125,7 +125,7 @@
 		<dependency>
    			<groupId>net.snowflake</groupId>
    			<artifactId>snowflake-jdbc</artifactId>
-   			<version>3.12.10</version>
+   			<version>3.12.15</version>
 		</dependency>
 	</dependencies>
 	<properties>
