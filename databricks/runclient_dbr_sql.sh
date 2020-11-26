@@ -34,16 +34,15 @@ DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Tag="$(date +%s)"
 ExperimentName="tpcds-dbrsql-$1gb-${Tag}"
 DirNameResults="dbrsql"
-#DatabaseName="bsc_dbrsql_sf3000_xl"
-#DatabaseName="tpcds_sf30000_delta"
-DatabaseName="tpcds_dbrsql_$1gb_$2_${Tag}"
+DatabaseName="tpcds_sf3000_delta"
+#DatabaseName="tpcds_dbrsql_$1gb_$2_${Tag}"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
-NumCores=32
-ClusterId="f18152ace277edb3"
+NumCores=16
+ClusterId="ae3c73418863d117"
 DatabasePassword=""
 
 RUN_RUN_BENCHMARK=1
-COPY_RESULTS_TO_S3=0
+COPY_RESULTS_TO_S3=1
 
 args=()
 
@@ -95,7 +94,7 @@ args[19]="--count-queries=false"
 #delimiter for the columns in the raw data (SOH, PIPE) default SOH
 args[20]="--raw-column-delimiter=SOH"
 #save power test plans
-args[21]="--save-power-plans=false"
+args[21]="--save-power-plans=true"
 #identifier of the cluster to use to evaluate queries
 args[22]="--cluster-id=${ClusterId}"
 #database password
@@ -108,7 +107,7 @@ args[25]="--power-test-runs=1"
 #use multiple connections
 args[26]="--multiple-connections=true"
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[27]="--execution-flags=111011"
+args[27]="--execution-flags=000011"
 
 paramsStr="${args[@]}"
 
