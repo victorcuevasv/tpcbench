@@ -36,7 +36,8 @@ Tag="$(date +%s)"
 ExperimentName="tpcds-snowflake-$1gb-${Tag}"
 DirNameWarehouse="tpcds-snowflake-$1gb-$2-${Tag}"
 DirNameResults="snowflake"
-DatabaseName="tpcds_snowflake_$1gb_$2_${Tag}"
+#DatabaseName="tpcds_snowflake_$1gb_$2_${Tag}"
+DatabaseName="tpcds_snowflake_3000gb_1_1602522157"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 
 RUN_RUN_BENCHMARK=1
@@ -80,7 +81,7 @@ args[14]="--server-hostname=$Host"
 #username for the connection
 args[15]="--connection-username=bsctest"
 #cluster id or name of cluster to use
-args[16]="--cluster-id=testwhxsmall"
+args[16]="--cluster-id=testwhxlarge"
 #queries dir within the jar
 args[17]="--queries-dir-in-jar=QueriesSnowflake"
 #all or create table file
@@ -93,7 +94,7 @@ args[20]="--raw-column-delimiter=SOH"
 #use multiple connections
 args[21]="--multiple-connections=true"
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[22]="--execution-flags=110010"
+args[22]="--execution-flags=000011"
 
 paramsStr="${args[@]}"
 
