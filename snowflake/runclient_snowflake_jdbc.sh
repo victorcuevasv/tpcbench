@@ -91,12 +91,14 @@ args[19]="--all-or-query-file=all"
 
 #delimiter for the columns in the raw data (SOH, PIPE) default SOH
 args[20]="--raw-column-delimiter=SOH"
+#save power test plans
+args[21]="--save-power-plans=true"
 #number of runs to perform for the power test (default 1)
-args[21]="--power-test-runs=1"
+args[22]="--power-test-runs=1"
 #use multiple connections
-args[22]="--multiple-connections=true"
+args[23]="--multiple-connections=true"
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[23]="--execution-flags=000011"
+args[24]="--execution-flags=000011"
 
 paramsStr="${args[@]}"
 
