@@ -595,7 +595,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 	
 	
-	private void useDatabaseQuery(String dbName) {
+	private void useDatabaseQuery(Connection con, String dbName) {
 		try {
 			Statement sessionStmt = con.createStatement();
 			sessionStmt.executeUpdate("USE DATABASE " + dbName);
@@ -608,7 +608,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 	
 	
-	private void useSchemaQuery(String schemaName) {
+	private void useSchemaQuery(Connection con, String schemaName) {
 		try {
 			Statement stmt = con.createStatement();
 			stmt.executeUpdate("USE SCHEMA " + schemaName);
@@ -621,7 +621,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 	
 	
-	private void useSnowflakeWarehouseQuery(String warehouseName) {
+	private void useSnowflakeWarehouseQuery(Connection con, String warehouseName) {
 		try {
 			Statement stmt = con.createStatement();
 			stmt.executeUpdate("USE WAREHOUSE " + warehouseName);
