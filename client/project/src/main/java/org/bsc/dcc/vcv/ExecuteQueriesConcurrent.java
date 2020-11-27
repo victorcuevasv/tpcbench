@@ -403,7 +403,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 	
 	
-	private void prepareRedshift() {
+	private void prepareRedshift(Connection con) {
 		try {
 			System.out.print("Disabling result caching...");
 			Statement stmt = con.createStatement();
@@ -418,7 +418,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 
 	
-	private void prepareDatabricksSql() {
+	private void prepareDatabricksSql(Connection con) {
 		try {
 			System.out.print("Disabling result caching...");
 			Statement stmt = con.createStatement();
@@ -433,10 +433,10 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 	
 	
-	private void prepareSnowflake() {
-		this.useDatabaseQuery(this.dbName);
-		this.useSchemaQuery(this.dbName);
-		this.useSnowflakeWarehouseQuery(this.clusterId);	
+	private void prepareSnowflake(Connection con) {
+		this.useDatabaseQuery(con, this.dbName);
+		this.useSchemaQuery(con, this.dbName);
+		this.useSnowflakeWarehouseQuery(con, this.clusterId);	
 	}
 
 	
@@ -468,13 +468,6 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	
 	
 	private void executeStreams() {
-		if( this.system.startsWith("snowflake") )
-			this.prepareSnowflake();
-		// If the system is Redshift disable query result caching
-		if (this.system.startsWith("redshift"))
-			this.prepareRedshift();
-		//if (this.system.startsWith("databrickssql"))
-			//this.prepareDatabricksSql();
 		List<String> files = queriesReader.getFilesOrdered();
 		int nQueries = files.size();
 		int totalQueries = nQueries * this.nStreams;
@@ -498,10 +491,24 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			QueryStream stream = null;
 			if( this.multiple ) {
 				Connection con = this.createConnection();
+				if( this.system.startsWith("snowflake") )
+					this.prepareSnowflake(con);
+				// If the system is Redshift disable query result caching
+				if (this.system.startsWith("redshift"))
+					this.prepareRedshift(con);
+				//if (this.system.startsWith("databrickssql"))
+					//this.prepareDatabricksSql(con);
 				stream = new QueryStream(i, this.resultsQueue, con, queriesHT,
 						nQueries, this.random, this);
 			}
 			else {
+				if( this.system.startsWith("snowflake") )
+					this.prepareSnowflake(this.con);
+				// If the system is Redshift disable query result caching
+				if (this.system.startsWith("redshift"))
+					this.prepareRedshift(this.con);
+				//if (this.system.startsWith("databrickssql"))
+					//this.prepareDatabricksSql(con);
 				stream = new QueryStream(i, this.resultsQueue, this.con, queriesHT,
 						nQueries, this.random, this);
 			}
