@@ -248,7 +248,6 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 						this.hostname + "/?" +
 						"user=" + this.userId + "&password=" + snowflakePwd +
 						"&warehouse=" + this.clusterId + "&schema=" + this.dbName);
-				this.setSnowflakeDefaultSessionOpts();
 			}
 			else if( this.system.equals("redshift") ) {
 				Class.forName(redshiftDriverName);
@@ -307,10 +306,9 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 	
 	
-	private void setSnowflakeDefaultSessionOpts() {
+	private void setSnowflakeMaxConcLevel(Connection con) {
 		try {
-			Statement sessionStmt = this.con.createStatement();
-			sessionStmt.executeUpdate("ALTER SESSION SET USE_CACHED_RESULT = " + this.useCachedResultSnowflake);
+			Statement sessionStmt = con.createStatement();
 			sessionStmt.executeUpdate("ALTER WAREHOUSE SET MAX_CONCURRENCY_LEVEL = " + this.maxConcurrencySnowflake);
 			sessionStmt.close();
 		}
@@ -323,9 +321,24 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 	
 	
-	private void setSnowflakeQueryTag(String tag) {
+	private void setSnowflakeUseCachedResult(Connection con) {
 		try {
-			Statement sessionStmt = this.con.createStatement();
+			Statement sessionStmt = con.createStatement();
+			sessionStmt.executeUpdate("ALTER SESSION SET USE_CACHED_RESULT = " + this.useCachedResultSnowflake);
+			sessionStmt.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in setSnowflakeDefaultSessionOpts");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+	}
+	
+	
+	private void setSnowflakeQueryTag(Connection con, String tag) {
+		try {
+			Statement sessionStmt = con.createStatement();
 			sessionStmt.executeUpdate("ALTER SESSION SET QUERY_TAG = '" + tag + "'");
 			sessionStmt.close();
 		}
@@ -372,12 +385,12 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 	
 	
-	public void saveSnowflakeHistory() {
+	public void saveSnowflakeHistory(Connection con) {
 		try {
 			String historyFile = this.workDir + "/" + this.resultsDir + "/analytics/" + 
 					this.experimentName + "/" + this.test + "/" + this.instance + "/history.log";
 			String columnsStr = this.createSnowflakeHistoryFileAndColumnList(historyFile);
-			this.setSnowflakeQueryTag("saveHistory");
+			this.setSnowflakeQueryTag(con, "saveHistory");
 			Statement historyStmt = this.con.createStatement();
 			String historySQL = "select " + columnsStr + " " + 
 			"from table( " + 
@@ -387,7 +400,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			ResultSet rs = historyStmt.executeQuery(historySQL);
 			this.saveResults(historyFile, rs, true);
 			historyStmt.close();
-			this.setSnowflakeQueryTag("");
+			this.setSnowflakeQueryTag(con, "");
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -436,7 +449,8 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private void prepareSnowflake(Connection con) {
 		this.useDatabaseQuery(con, this.dbName);
 		this.useSchemaQuery(con, this.dbName);
-		this.useSnowflakeWarehouseQuery(con, this.clusterId);	
+		this.useSnowflakeWarehouseQuery(con, this.clusterId);
+		this.setSnowflakeUseCachedResult(con);
 	}
 
 	
