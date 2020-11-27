@@ -385,12 +385,12 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	}
 	
 	
-	public void saveSnowflakeHistory(Connection con) {
+	public void saveSnowflakeHistory() {
 		try {
 			String historyFile = this.workDir + "/" + this.resultsDir + "/analytics/" + 
 					this.experimentName + "/" + this.test + "/" + this.instance + "/history.log";
 			String columnsStr = this.createSnowflakeHistoryFileAndColumnList(historyFile);
-			this.setSnowflakeQueryTag(con, "saveHistory");
+			this.setSnowflakeQueryTag(this.con, "saveHistory");
 			Statement historyStmt = this.con.createStatement();
 			String historySQL = "select " + columnsStr + " " + 
 			"from table( " + 
@@ -400,7 +400,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 			ResultSet rs = historyStmt.executeQuery(historySQL);
 			this.saveResults(historyFile, rs, true);
 			historyStmt.close();
-			this.setSnowflakeQueryTag(con, "");
+			this.setSnowflakeQueryTag(this.con, "");
 		}
 		catch(Exception e) {
 			e.printStackTrace();
