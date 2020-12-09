@@ -110,7 +110,7 @@ public class QueryStream implements Callable<Void> {
 				queryRecord = new QueryRecordConcurrent(nStream, nQuery, item);
 			// Execute the query or queries.
 			if( ! this.parent.system.equals("bigquery") )
-				this.executeQueryMultipleCalls(nStream, fileName, sqlStr, queryRecord, item);
+				this.executeQueryMultipleCalls(nStream, fileName, sqlStr, queryRecord, item, nQuery);
 			else
 				this.executeQueryMultipleCallsBigQuery(nStream, fileName, sqlStr, queryRecord, item);
 			// Record the results file size.
@@ -141,7 +141,7 @@ public class QueryStream implements Callable<Void> {
 
 	// Execute the queries from the provided file.
 	private void executeQueryMultipleCalls(int nStream, String fileName, String sqlStrFull,
-			QueryRecord queryRecord, int item) throws SQLException {
+			QueryRecord queryRecord, int item, int nQuery) throws SQLException {
 		// Split the various queries and execute each.
 		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
 		boolean firstQuery = true;
@@ -171,6 +171,9 @@ public class QueryStream implements Callable<Void> {
 				queryRecord.setStartTime(System.currentTimeMillis());
 			System.out.println("Stream " + nStream + " item " + item + 
 					" executing iteration " + iteration + " of query " + fileName + ".");
+			//Modify the query to reduce its results size if necessary
+			if( this.parent.reduceResultsSize ) //Arrays.asList(ReduceResultsSize.queries).contains(nQuery)
+				sqlStr = "create table s" + nStream + "q" + nQuery + " as " + sqlStr;
 			ResultSet rs = stmt.executeQuery(sqlStr);
 			// Save the results.
 			if( this.parent.saveResults ) {
