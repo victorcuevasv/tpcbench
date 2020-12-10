@@ -144,9 +144,9 @@ public class RunBenchmarkOptions {
 		options.addOption( Option.builder().longOpt( "use-distribute-keys" )
 				.desc( "use distribute by keys in redshift and synapse" )
 				.hasArg(true).required(false).type(Boolean.class).build() );
-		options.addOption( Option.builder().longOpt( "reduce-results-size-tput" )
-				.desc( "reduce the size of results for selected queries for the throughput test" )
-				.hasArg(true).required(false).type(Boolean.class).build() );
+		options.addOption( Option.builder().longOpt( "result-tuples-limit-tput" )
+				.desc( "limit for the tuples to retrieve from the results of a query for the tput test" )   
+				.hasArg(true).required(false).type(Long.class).build() );
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );

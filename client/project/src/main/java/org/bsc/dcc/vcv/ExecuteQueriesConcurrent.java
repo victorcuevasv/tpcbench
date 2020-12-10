@@ -72,7 +72,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private final String userId;
 	private final String dbPassword;
 	private final int numCores;
-	final boolean reduceResultsSize;
+	final long tupleLimit;
 	
 	public ExecuteQueriesConcurrent(CommandLine commandLine) {
 		this.workDir = commandLine.getOptionValue("main-work-dir");
@@ -101,8 +101,8 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.hostname = commandLine.getOptionValue("server-hostname");
 		String tputChangingStreamsStr = commandLine.getOptionValue("tput-changing-streams", "true");
 		this.tputChangingStreams = Boolean.parseBoolean(tputChangingStreamsStr);
-		String reduceResultsSizeStr = commandLine.getOptionValue("reduce-results-size-tput", "false");
-		this.reduceResultsSize = Boolean.parseBoolean(reduceResultsSizeStr);
+		String tupleLimitStr = commandLine.getOptionValue("result-tuples-limit-tput", "-1");
+		this.tupleLimit = Long.parseLong(tupleLimitStr);
 		this.clusterId = commandLine.getOptionValue("cluster-id", "UNUSED");
 		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.dbPassword = commandLine.getOptionValue("db-password", "UNUSED");
@@ -171,7 +171,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.multiple = Boolean.parseBoolean(args[16]);
 		this.random = new Random(seed);
 		this.tputChangingStreams = true;
-		this.reduceResultsSize = false;
+		this.tupleLimit = -1;
 		this.clusterId = "UNUSED";
 		this.userId = "UNUSED";
 		this.dbPassword = "UNUSED";

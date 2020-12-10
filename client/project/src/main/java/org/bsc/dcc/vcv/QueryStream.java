@@ -110,7 +110,7 @@ public class QueryStream implements Callable<Void> {
 				queryRecord = new QueryRecordConcurrent(nStream, nQuery, item);
 			// Execute the query or queries.
 			if( ! this.parent.system.equals("bigquery") )
-				this.executeQueryMultipleCalls(nStream, fileName, sqlStr, queryRecord, item, nQuery);
+				this.executeQueryMultipleCalls(nStream, fileName, sqlStr, queryRecord, item);
 			else
 				this.executeQueryMultipleCallsBigQuery(nStream, fileName, sqlStr, queryRecord, item);
 			// Record the results file size.
@@ -141,7 +141,7 @@ public class QueryStream implements Callable<Void> {
 
 	// Execute the queries from the provided file.
 	private void executeQueryMultipleCalls(int nStream, String fileName, String sqlStrFull,
-			QueryRecord queryRecord, int item, int nQuery) throws SQLException {
+			QueryRecord queryRecord, int item) throws SQLException {
 		// Split the various queries and execute each.
 		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
 		boolean firstQuery = true;
@@ -171,22 +171,14 @@ public class QueryStream implements Callable<Void> {
 				queryRecord.setStartTime(System.currentTimeMillis());
 			System.out.println("Stream " + nStream + " item " + item + 
 					" executing iteration " + iteration + " of query " + fileName + ".");
-			//Modify the query to reduce its results size if necessary
-			if( this.parent.reduceResultsSize ) { //Arrays.asList(ReduceResultsSize.queries).contains(nQuery)
-				sqlStr = "create table s" + nStream + "q" + nQuery + " as " + sqlStr;
-				int tuples = stmt.executeUpdate(sqlStr);
+			ResultSet rs = stmt.executeQuery(sqlStr);
+			// Save the results.
+			if( this.parent.saveResults ) {
+				int tuples = this.saveResults(generateResultsFileName(fileName, nStream, item), rs, !firstQuery);
 				queryRecord.setTuples(queryRecord.getTuples() + tuples);
 			}
-			else {
-				ResultSet rs = stmt.executeQuery(sqlStr);
-				// Save the results.
-				if( this.parent.saveResults ) {
-					int tuples = this.saveResults(generateResultsFileName(fileName, nStream, item), rs, !firstQuery);
-					queryRecord.setTuples(queryRecord.getTuples() + tuples);
-				}
-				stmt.close();
-				rs.close();
-			}
+			stmt.close();
+			rs.close();
 			firstQuery = false;
 			iteration++;
 		}
@@ -237,7 +229,10 @@ public class QueryStream implements Callable<Void> {
 				for (int i = 1; i <= nCols; i++) {
 					rowBuilder.append(rs.getString(i) + ", ");
 				}
-				printWriter.println(rowBuilder.toString());
+				if( this.parent.tupleLimit == -1 )
+					printWriter.println(rowBuilder.toString());
+				else if( tuples < this.parent.tupleLimit )
+					printWriter.println(rowBuilder.toString());
 				tuples++;
 			}
 			printWriter.close();
