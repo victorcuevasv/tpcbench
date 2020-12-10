@@ -74,7 +74,7 @@ public class QueryStream implements Callable<Void> {
 			//if( Arrays.binarySearch(impalaKit, queries[i]) < 0 )
 			//	continue;
 			String sqlStr = this.queriesHT.get(queries[i]);
-			if( sqlStr == null || queries[i] != 64 )
+			if( sqlStr == null )
 				continue;
 			this.executeQuery(this.nStream, queries[i], sqlStr, i);
 		}
