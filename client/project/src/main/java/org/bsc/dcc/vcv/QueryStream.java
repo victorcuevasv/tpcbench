@@ -172,16 +172,20 @@ public class QueryStream implements Callable<Void> {
 			System.out.println("Stream " + nStream + " item " + item + 
 					" executing iteration " + iteration + " of query " + fileName + ".");
 			//Modify the query to reduce its results size if necessary
-			if( this.parent.reduceResultsSize ) //Arrays.asList(ReduceResultsSize.queries).contains(nQuery)
+			if( this.parent.reduceResultsSize ) { //Arrays.asList(ReduceResultsSize.queries).contains(nQuery)
 				sqlStr = "create table s" + nStream + "q" + nQuery + " as " + sqlStr;
-			ResultSet rs = stmt.executeQuery(sqlStr);
-			// Save the results.
-			if( this.parent.saveResults ) {
-				int tuples = this.saveResults(generateResultsFileName(fileName, nStream, item), rs, !firstQuery);
-				queryRecord.setTuples(queryRecord.getTuples() + tuples);
+				stmt.executeUpdate(sqlStr);
 			}
-			stmt.close();
-			rs.close();
+			else {
+				ResultSet rs = stmt.executeQuery(sqlStr);
+				// Save the results.
+				if( this.parent.saveResults ) {
+					int tuples = this.saveResults(generateResultsFileName(fileName, nStream, item), rs, !firstQuery);
+					queryRecord.setTuples(queryRecord.getTuples() + tuples);
+				}
+				stmt.close();
+				rs.close();
+			}
 			firstQuery = false;
 			iteration++;
 		}
