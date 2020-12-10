@@ -174,7 +174,8 @@ public class QueryStream implements Callable<Void> {
 			//Modify the query to reduce its results size if necessary
 			if( this.parent.reduceResultsSize ) { //Arrays.asList(ReduceResultsSize.queries).contains(nQuery)
 				sqlStr = "create table s" + nStream + "q" + nQuery + " as " + sqlStr;
-				stmt.executeUpdate(sqlStr);
+				int tuples = stmt.executeUpdate(sqlStr);
+				queryRecord.setTuples(queryRecord.getTuples() + tuples);
 			}
 			else {
 				ResultSet rs = stmt.executeQuery(sqlStr);
