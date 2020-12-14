@@ -44,7 +44,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 	private final AnalyticsRecorderConcurrent recorder;
 	private final ExecutorService executor;
 	private final BlockingQueue<QueryRecordConcurrent> resultsQueue;
-	private static final int POOL_SIZE = 150;
+	private static final int POOL_SIZE = 250;
 	private final Random random;
 	final String workDir;
 	final String dbName;
