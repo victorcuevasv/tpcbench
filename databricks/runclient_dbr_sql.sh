@@ -39,7 +39,7 @@ DatabaseName="tpcds_sf3000_delta"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 NumCores=16
 ClusterId="ae3c73418863d117"
-DatabasePassword=""
+DatabasePassword="$(aws secretsmanager get-secret-value --secret-id DatabricksToken | jq -j '.SecretString' | jq -j '.DatabricksToken')"  
 
 RUN_RUN_BENCHMARK=1
 COPY_RESULTS_TO_S3=1
@@ -107,7 +107,7 @@ args[25]="--power-test-runs=1"
 #use multiple connections
 args[26]="--multiple-connections=true"
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[27]="--execution-flags=000011"
+args[27]="--execution-flags=000010"
 
 paramsStr="${args[@]}"
 
