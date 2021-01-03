@@ -1,5 +1,7 @@
 
+-------------------------------------------------------------------------------------------------------------
 INSTALLATION INSTRUCTIONS
+-------------------------------------------------------------------------------------------------------------
 
 It is recommended to use a VM on AWS to run the experiments for ease of use, reproducibility of results, 
 and to minimize network latency for some experiments. To create the AWS VM and install the benchmarking
@@ -53,7 +55,7 @@ bash tarserver/run_server.sh
 The BuildAll.sh script creates the necessary container images. Inside the tpcdsbench directory execute this
 script with
 
-JDBC=true bash emr/BuildAll.sh
+DBR_JDBC=true bash emr/BuildAll.sh
 
 The container images created shoud include: clientbuilder, tpcds, ubuntujava, and ubuntu. The clientbuilder
 image contains the benchmarking application code, while the tpcds image contains the data and queries
@@ -78,13 +80,13 @@ bash CreateSQLFilesStreams.sh <scale factor> <number of streams>
 
 For example, type:
 
-bash CreateSQLFilesStreams.sh 1000
+bash CreateSQLFilesStreams.sh 1000 4
 
-To create the SQL files corresponding to the 1000 GB (or 1 TB) scale factor. Although the create table 
-statements do not change with the scale factor, some of the attribute values used in the queries do change.
-The generated files will be stored inside the tpcdsbench/vols/data folder, but they are also copied into
-the tpcdsbench/client/project/src/main/resources directory, and from this location added to the compiled
-jar. 
+To create the SQL files corresponding to the 1000 GB (or 1 TB) scale factor and 4 streams. Although the
+create table statements do not change with the scale factor, some of the attribute values used in the
+queries do change. The generated files will be stored inside the tpcdsbench/vols/data folder, but they are
+also copied into the tpcdsbench/client/project/src/main/resources directory, and from this location added
+to the compiled jar. 
 
 Once the SQL files have been generated, the benchmarking application can be compiled, which will include
 them. Separate jar files are generated for Presto and Spark. In the case of Spark, the built application
@@ -101,7 +103,7 @@ the $HOME/tpcds-jars/targetemr/ directory. It is important to note that the tpcd
 mounted s3 bucket, so in effect any previous version of the jar file stored in s3 will be overwritten.
 The 0 parameter is to generate a file name without a timestamp.
 
-2.2) Compile the Spark application
+3.2) Compile the Spark application
 
 Within the tpcdsbench directory, type
 
@@ -117,7 +119,7 @@ the next sections. In all cases, however, the execution of the application jar s
 produces experimental results that are stored in the tpcds-results-test s3 bucket, using the locations specified
 in the arguments of the application, which in turn are specified within the script used to run the experiment.
 
-3) Generate the data
+3.3) Generate the data (optional)
 
 It is possible to use the TPC-DS Toolkit container to generate data by relying on its data generator.
 For a small scale factor (e.g. 1 or 10 GB), it suffices to have enough disk space and use the command
@@ -127,7 +129,45 @@ bash createDataFiles.sh <scale factor>
 The data is stored in the directory $HOME/tpcdsbench/vols/hive/<scale factor>GB
 
 
+-------------------------------------------------------------------------------------------------------------
+RUNNING EXPERIMENTS WITH JDBC (Databricks SQL Analytics, Snowflake, Synapse, Redshift, BigQuery
+-------------------------------------------------------------------------------------------------------------
+
+The same application jar generated in step 3.1 above can be used for all of the systems listed above. The
+appropriate JDBC drivers are included in the jar. In the case of BigQuery there is no official JDBC driver
+so the API SDK is used instead. For each system there is a specific bash script that executes the java
+application in the jar with the adequate parameters, which are listed next.
+
+All the scripts take the parameters <scale factor> <experiment instance number> <number of streams>
+
+a) Databricks SQL Analytics
+
+tpcdsbench/databricks/runclient_dbr_sql.sh 
+
+Example: bash databricks/runclient_dbr_sql.sh 1000 1 4
+
+Runs an experiment at the 1 TB scale factor, giving it the instance number 1, and using 4 streams for 
+the throughput test. The cluster id, along with other parameters are specified within the script.
+
+b) Snowflake
+
+tpcdsbench/snowflake/runclient_snowflake_jdbc.sh
+
+c) Synapse
+
+tpcdsbench/azure/runclient_synapse_jdbc.sh
+
+d) Redshift
+
+tpcdsbench/redshift/runclient_redshift_jdbc.sh
+
+e) BigQuery
+
+tpcdsbench/bigquery/runclient_bigquery_api.sh
+
+-------------------------------------------------------------------------------------------------------------
 RUNNING EXPERIMENTS IN EMR SPARK
+-------------------------------------------------------------------------------------------------------------
 
 IMPORTANT NOTE: before running experiments with EMR, it is necessary to properly configure the AWS CLI.
 
@@ -241,8 +281,9 @@ which has the same interface as the single cluster option, i.e.,
 bash runclient_fullbenchmark_sparksubmit.sh <scale factor> <experiment instance number> <number of streams>
 
 
-
+-------------------------------------------------------------------------------------------------------------
 RUNNING EXPERIMENTS IN DATABRICKS
+-------------------------------------------------------------------------------------------------------------
 
 The scripts enabling running experiments in Databricks are inside the $HOME/tpcdsbench/databricks directory.
 Overall, the operation of the scripts and their execution is very similar to the analogous case for EMR Spark.
@@ -302,19 +343,4 @@ tpcdsbench/databricks/scala/runclient_dbr_job_multiple.scala
 
 
  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
