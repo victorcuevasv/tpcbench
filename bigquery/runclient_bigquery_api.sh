@@ -36,7 +36,8 @@ Tag="$(date +%s)"
 ExperimentName="tpcds-bigquery-$1gb-${Tag}"
 DirNameWarehouse="tpcds-bigquery-$1gb-$2-${Tag}"
 DirNameResults="bigquery"
-DatabaseName="tpcds_bigquery_$1gb_$2_${Tag}"
+#DatabaseName="tpcds_bigquery_$1gb_$2_${Tag}"
+DatabaseName="tpcds_bigquery_3000gb_1_1603987531"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 
 RUN_RUN_BENCHMARK=1
@@ -84,7 +85,7 @@ args[16]="--queries-dir-in-jar=QueriesBigQuery"
 #all or create table file
 args[17]="--all-or-create-file=all"
 #"all" or query file
-args[18]="--all-or-query-file=all" 
+args[18]="--all-or-query-file=query2.sql" 
 #delimiter for the columns in the raw data (SOH, PIPE) default SOH
 args[19]="--raw-column-delimiter=SOH" 
 
@@ -97,7 +98,7 @@ args[21]="--count-queries=false"
 args[22]="--save-power-plans=false"
 
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[23]="--execution-flags=110010"
+args[23]="--execution-flags=000010"
 
 paramsStr="${args[@]}"
 
