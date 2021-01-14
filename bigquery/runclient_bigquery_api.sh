@@ -85,12 +85,12 @@ args[16]="--queries-dir-in-jar=QueriesBigQuery"
 #all or create table file
 args[17]="--all-or-create-file=all"
 #"all" or query file
-args[18]="--all-or-query-file=query2.sql" 
+args[18]="--all-or-query-file=all" 
 #delimiter for the columns in the raw data (SOH, PIPE) default SOH
 args[19]="--raw-column-delimiter=SOH" 
 
 #number of runs to perform for the power test (default 1)
-args[20]="--power-test-runs=1"
+args[20]="--power-test-runs=3"
 #whether to run queries to count the tuples generated
 args[21]="--count-queries=false"
 
