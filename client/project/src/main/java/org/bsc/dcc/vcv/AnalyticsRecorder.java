@@ -69,8 +69,10 @@ public class AnalyticsRecorder {
 		for(int i = 0; i < titles.length - 1; i++)
 			builder.append(String.format("%-25s|", titles[i]));
 		builder.append(String.format("%-25s", titles[titles.length-1]));
-		if( this.system.equals("bigquery") )
+		if( this.system.equals("bigquery") ) {
 			builder.append(String.format("|%-25s", "BYTES_BILLED"));
+			builder.append(String.format("|%-25s", "TOTAL_SLOT_MS"));
+		}
 		this.message(builder.toString());
 	}
 	
@@ -97,9 +99,12 @@ public class AnalyticsRecorder {
 		String endDateFormatted = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(endDate);
 		builder.append(String.format(colFormat, endDateFormatted));
 		builder.append(String.format("%-" + spaces + "s", queryRecord.getTuples()));
-		if( queryRecord instanceof QueryRecordBigQuery)
+		if( queryRecord instanceof QueryRecordBigQuery) {
 			builder.append(String.format("|%-" + spaces + "s", 
 				((QueryRecordBigQuery)queryRecord).getBytesBilled()));
+			builder.append(String.format("|%-" + spaces + "s", 
+					((QueryRecordBigQuery)queryRecord).getTotalSlotMs()));
+		}
 		this.message(builder.toString());
 	}
 	

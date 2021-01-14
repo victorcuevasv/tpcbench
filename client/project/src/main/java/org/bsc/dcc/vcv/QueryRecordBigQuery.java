@@ -3,6 +3,7 @@ package org.bsc.dcc.vcv;
 public class QueryRecordBigQuery extends QueryRecord {
 	
 	private long bytesBilled;
+	private long totalSlotMs;
 	
 	public QueryRecordBigQuery() {
 		super();
@@ -18,6 +19,14 @@ public class QueryRecordBigQuery extends QueryRecord {
 	
 	public long getBytesBilled() {
 		return this.bytesBilled;
+	}
+	
+	public void setTotalSlotMs(long totalSlotMs) {
+		this.totalSlotMs = totalSlotMs;
+	}
+	
+	public long getTotalSlotMs() {
+		return this.totalSlotMs;
 	}
 
 }

@@ -145,6 +145,8 @@ public class BigQueryDAO {
 	    QueryStatistics stats = queryJob.getStatistics();
 	    long bytesBilled = stats.getTotalBytesBilled();
 	    queryRecord.setBytesBilled(bytesBilled);
+	    long totalSlotMs = stats.getTotalSlotMs();
+	    queryRecord.setTotalSlotMs(totalSlotMs);
 	    // Get the results.
 	    TableResult result = queryJob.getQueryResults();
 	    return result;
