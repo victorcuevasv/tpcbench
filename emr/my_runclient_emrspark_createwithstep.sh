@@ -181,14 +181,14 @@ instance-groups_func()
       "InstanceCount":$Nodes,
       "InstanceGroupType":"CORE",
       "InstanceType":"i2.xlarge",
-      "Market":"SPOT",
+      "BidPrice":"OnDemandPrice",
       "Name":"Core - $Nodes"
    },
    {
       "InstanceCount":1,
       "InstanceGroupType":"MASTER",
       "InstanceType":"i2.xlarge",
-      "Market":"SPOT",
+      "BidPrice":"OnDemandPrice",
       "Name":"Master - 1"
    }
 ]
