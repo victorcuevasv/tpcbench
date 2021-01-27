@@ -22,7 +22,7 @@ if [ -z "$DATABRICKS_TOKEN" ] && [ "$USE_DBR_CLI" -eq 0 ] ; then
 fi
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_fullbenchmark_job.sh <scale factor> <experiment instance number> <number of streams>${end}"
+    echo "${yel}Usage: bash runclient_dbr_job.sh <scale factor> <experiment instance number> <number of streams>${end}"
     exit 0
 fi
 
@@ -30,9 +30,9 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
 #Cluster configuration.
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
-Nodes="4"
+Nodes="2"
 MajorVersion="7"
-MinorVersion="3"
+MinorVersion="5"
 ScalaVersion="x-scala2.12"
 #Run configuration.
 Tag="$(date +%s)"
