@@ -32,7 +32,7 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Nodes="2"
 MajorVersion="7"
-MinorVersion="5"
+MinorVersion="6"
 ScalaVersion="x-scala2.12"
 #Run configuration.
 Tag="$(date +%s)"
@@ -103,6 +103,16 @@ function json_string_list() {
 
 paramsStr=$(json_string_list "${args[@]}")
 
+#"spark_conf":{
+#        	"spark.databricks.delta.optimize.maxFileSize":"134217728",
+#            "spark.databricks.delta.optimize.minFileSize":"134217728",
+#            "spark.sql.crossJoin.enabled":"true",
+#            "spark.databricks.optimizer.deltaTableFilesThreshold":"100",
+#            "spark.sql.broadcastTimeout":"7200",
+#            "spark.databricks.delta.autoCompact.maxFileSize":"134217728",
+#            "hive.exec.dynamic.partition.mode":"nonstrict",
+#            "hive.exec.max.dynamic.partitions":"3000"
+#         }
 post_data_func()
 {
   cat <<EOF
@@ -111,14 +121,8 @@ post_data_func()
 	"new_cluster":{ 
 		"spark_version":"${MajorVersion}.${MinorVersion}.${ScalaVersion}",
         "spark_conf":{
-        	"spark.databricks.delta.optimize.maxFileSize":"134217728",
-            "spark.databricks.delta.optimize.minFileSize":"134217728",
-            "spark.sql.crossJoin.enabled":"true",
-            "spark.databricks.optimizer.deltaTableFilesThreshold":"100",
-            "spark.sql.broadcastTimeout":"7200",
-            "spark.databricks.delta.autoCompact.maxFileSize":"134217728",
-            "hive.exec.dynamic.partition.mode":"nonstrict",
-            "hive.exec.max.dynamic.partitions":"3000"
+            "spark.databricks.delta.optimizeWrite.enabled",
+            "spark.databricks.delta.autoCompact.enabled"
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
