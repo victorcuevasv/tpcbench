@@ -121,8 +121,8 @@ post_data_func()
 	"new_cluster":{ 
 		"spark_version":"${MajorVersion}.${MinorVersion}.${ScalaVersion}",
         "spark_conf":{
-            "spark.databricks.delta.optimizeWrite.enabled",
-            "spark.databricks.delta.autoCompact.enabled"
+            "spark.databricks.delta.optimizeWrite.enabled":"true",
+            "spark.databricks.delta.autoCompact.enabled":"true"
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
