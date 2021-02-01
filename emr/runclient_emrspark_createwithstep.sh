@@ -107,7 +107,8 @@ ec2-attributes_func()
    "InstanceProfile":"EMR_EC2_DefaultRole",
    "SubnetId":"subnet-01033078",
    "EmrManagedSlaveSecurityGroup":"sg-0d6c7aa7f3a231e50",
-   "EmrManagedMasterSecurityGroup":"sg-0cefde07cc1a0a36e"
+   "EmrManagedMasterSecurityGroup":"sg-0cefde07cc1a0a36e",
+   "AdditionalMasterSecurityGroups":["sg-e9663ea1"]
 }
 EOF
 }
