@@ -25,7 +25,7 @@ Version="5.29.0"
 VersionShort="529"
 AutoTerminate="true"
 #Run configuration.
-Tag="$(date +%s)test"
+Tag="$(date +%s)"
 ExperimentName="sparkemr-${VersionShort}-${Nodes}nodes-$1gb-$Tag"
 DirNameWarehouse="tpcds-warehouse-sparkemr-${VersionShort}-$1gb-$2-$Tag"
 DirNameResults="sparkemr-test"
@@ -70,11 +70,11 @@ args[12]="--use-row-stats=true"
 args[13]="--use-column-stats=false"
 # "all" or query file
 args[14]="--all-or-query-file=all"
- 
+
 # number of streams
 args[15]="--number-of-streams=$3"
 # flags (111111 schema|load|analyze|zorder|power|tput)
-args[16]="--execution-flags=111011"
+args[16]="--execution-flags=111010"
 
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
@@ -225,11 +225,14 @@ configurations_func()
       }
    },
    {
-    "Classification": "spark-hive-site",
-    "Properties": {
-      "hive.metastore.client.factory.class": "com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"
-    }
-  }
+      "Classification":"hive-site",
+      "Properties":{
+         "javax.jdo.option.ConnectionURL": "jdbc:mysql://metastoremysql.crhrootttpzi.us-west-2.rds.amazonaws.com:3306/hive?createDatabaseIfNotExist=true",
+         "javax.jdo.option.ConnectionDriverName": "org.mariadb.jdbc.Driver",
+         "javax.jdo.option.ConnectionUserName": "hive",
+         "javax.jdo.option.ConnectionPassword": "hive"
+      }
+   }
 ]
 EOF
 }
