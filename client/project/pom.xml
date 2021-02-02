@@ -185,6 +185,7 @@
 						<exclude>org/bsc/dcc/vcv/RunBenchmarkSparkCLI.java</exclude>
 						<exclude>org/bsc/dcc/vcv/RunBenchmarkSparkOptions.java</exclude>
 						<exclude>org/bsc/dcc/vcv/RunBenchmarkSparkUpdateCLI.java</exclude>
+						<exclude>org/bsc/dcc/vcv/RunBenchmarkSparkETL.java</exclude>
 						<exclude>org/bsc/dcc/vcv/SkipKeys.java</exclude>
 						<exclude>org/bsc/dcc/vcv/SkipMods.java</exclude>
 						<exclude>org/bsc/dcc/vcv/SnowflakeHistory.java</exclude>
