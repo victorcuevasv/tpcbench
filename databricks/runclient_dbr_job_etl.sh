@@ -22,7 +22,7 @@ if [ -z "$DATABRICKS_TOKEN" ] && [ "$USE_DBR_CLI" -eq 0 ] ; then
 fi
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_dbr_job.sh <scale factor> <experiment instance number> <number of streams>${end}"
+    echo "${yel}Usage: bash runclient_fullbenchmark_job.sh <scale factor> <experiment instance number> <number of streams>${end}"
     exit 0
 fi
 
@@ -64,7 +64,7 @@ args[4]="--system-name=sparkdatabricks"
 # experiment instance number
 args[5]="--instance-number=$2"
 # prefix of external location for raw data tables (e.g. S3 bucket), null for none
-args[6]="--ext-raw-data-location=dbfs:/mnt/tpcds-datasets/$1GB"
+args[6]="--ext-raw-data-location=dbfs:/mnt/tpcdsbucket/$1GB"
 # prefix of external location for created tables (e.g. S3 bucket), null for none
 args[7]="--ext-tables-location=dbfs:/mnt/tpcds-warehouses-test/$DirNameWarehouse"
 # format for column-storage tables (PARQUET, DELTA)
@@ -73,7 +73,7 @@ args[8]="--table-format=delta"
 args[9]="--use-partitioning=true"
 
 # jar file
-args[10]="--jar-file=/dbfs${JarFile}"
+args[10]="--jar-file=/dbfs$JarFile"
 # whether to generate statistics by analyzing tables (true/false)
 args[11]="--use-row-stats=true"
 # if argument above is true, whether to compute statistics for columns (true/false)
@@ -82,11 +82,15 @@ args[12]="--use-column-stats=true"
 args[13]="--all-or-query-file=all" 
 # number of streams
 args[14]="--number-of-streams=$3"
-
-# flags (111111 schema|load|analyze|zorder|power|tput)
-args[15]="--execution-flags=111011"
+# flags 111111100000111111100
+# schema      |load          |load denorm |
+args[15]="--execution-flags=111"
 # "all" or create table file
 args[16]="--all-or-create-file=all"
+# count-queries
+args[17]="--count-queries=false"
+# all or denorm table file
+args[18]="--denorm-all-or-file=store_sales.sql"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 
@@ -103,16 +107,6 @@ function json_string_list() {
 
 paramsStr=$(json_string_list "${args[@]}")
 
-#"spark_conf":{
-#        	"spark.databricks.delta.optimize.maxFileSize":"134217728",
-#            "spark.databricks.delta.optimize.minFileSize":"134217728",
-#            "spark.sql.crossJoin.enabled":"true",
-#            "spark.databricks.optimizer.deltaTableFilesThreshold":"100",
-#            "spark.sql.broadcastTimeout":"7200",
-#            "spark.databricks.delta.autoCompact.maxFileSize":"134217728",
-#            "hive.exec.dynamic.partition.mode":"nonstrict",
-#            "hive.exec.max.dynamic.partitions":"3000"
-#         }
 post_data_func()
 {
   cat <<EOF
@@ -125,7 +119,6 @@ post_data_func()
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
-            "instance_profile_arn": "arn:aws:iam::384416317380:instance-profile/ShardS3Access_SSE-2051",
             "availability":"ON_DEMAND"
          },
          "node_type_id":"i3.2xlarge",
@@ -146,7 +139,7 @@ post_data_func()
       "timeout_seconds":0,
       "spark_jar_task":{ 
          "jar_uri":"",
-         "main_class_name":"org.bsc.dcc.vcv.RunBenchmarkSparkCLI",
+         "main_class_name":"org.bsc.dcc.vcv.RunBenchmarkSparkETl",
          "parameters":[ 
 			$paramsStr
          ]

@@ -53,6 +53,8 @@ public class CreateDatabaseSparkDenorm {
 	private final String createSingleOrAll;
 	private final String denormSingleOrAll;
 	private final Map<String, String> precombineKeys;
+	private final Map<String, String> filterKeys;
+	private final Map<String, String> filterValues;
 	
 	public CreateDatabaseSparkDenorm(CommandLine commandLine) {
 		try {
@@ -90,6 +92,8 @@ public class CreateDatabaseSparkDenorm {
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
+		this.filterKeys = new FilterKeys().getMap();
+		this.filterValues = new FilterValues().getMap();
 	}
 	
 
@@ -129,8 +133,7 @@ public class CreateDatabaseSparkDenorm {
 					continue;
 				}
 			}
-			if( this.format.equals("parquet") )
-				createTableParquet(fileName, sqlQuery, i);
+			createTable(fileName, sqlQuery, this.format, i);
 			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -153,20 +156,21 @@ public class CreateDatabaseSparkDenorm {
 	}
 	
 	
-	private void createTableParquet(String sqlCreateFilename, String sqlQuery, int index) {
+	private void createTable(String sqlCreateFilename, String sqlQuery, String format, int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			this.dropTable("drop table if exists " + tableName + "_denorm");
-			String parquetSqlCreate = this.parquetCreateTable(sqlQuery, tableName, this.extTablePrefixCreated);
-			saveCreateTableFile("parquetdenorm", tableName, parquetSqlCreate);
+			String sqlCreate = this.createTableStatement(sqlQuery, tableName, this.format,
+					this.extTablePrefixCreated);
+			saveCreateTableFile("denorm", tableName, sqlCreate);
 			if( this.doCount )
 				countRowsQuery(tableName);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
-			this.spark.sql(parquetSqlCreate);
+			this.spark.sql(sqlCreate);
 			queryRecord.setSuccessful(true);
 			if( this.doCount )
 				countRowsQuery(tableName + "_denorm");
@@ -196,11 +200,12 @@ public class CreateDatabaseSparkDenorm {
 	}
 
 	
-	private String parquetCreateTable(String sqlQuery, String tableName, 
+	private String createTableStatement(String sqlQuery, String tableName, String format,
 			Optional<String> extTablePrefixCreated) {
 		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "_denorm\n");
-		builder.append("USING PARQUET\n");
-		builder.append("OPTIONS ('compression'='snappy')\n");
+		builder.append("USING " + format.toUpperCase() + "\n");
+		if( format.equals("parquet") )
+			builder.append("OPTIONS ('compression'='snappy')\n");
 		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "_denorm" + "' \n");
 		if( this.partition ) {
 			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
@@ -209,6 +214,10 @@ public class CreateDatabaseSparkDenorm {
 		}
 		builder.append("AS\n");
 		builder.append(sqlQuery);
+		if( this.filterKeys.get(tableName) != null ) {
+			builder.append("\n AND " + this.filterKeys.get(tableName) + " = " + 
+					this.filterValues.get(tableName) + "\n");
+		}
 		if( this.partition ) {
 			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
 			if( pos != -1 )
