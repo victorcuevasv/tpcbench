@@ -119,6 +119,7 @@ post_data_func()
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
+            "instance_profile_arn": "arn:aws:iam::384416317380:instance-profile/ShardS3Access_SSE-2051",
             "availability":"ON_DEMAND"
          },
          "node_type_id":"i3.2xlarge",
