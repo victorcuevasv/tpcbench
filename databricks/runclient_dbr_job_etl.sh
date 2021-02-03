@@ -64,7 +64,7 @@ args[4]="--system-name=sparkdatabricks"
 # experiment instance number
 args[5]="--instance-number=$2"
 # prefix of external location for raw data tables (e.g. S3 bucket), null for none
-args[6]="--ext-raw-data-location=dbfs:/mnt/tpcdsbucket/$1GB"
+args[6]="--ext-raw-data-location=dbfs:/mnt/tpcds-datasets/$1GB"
 # prefix of external location for created tables (e.g. S3 bucket), null for none
 args[7]="--ext-tables-location=dbfs:/mnt/tpcds-warehouses-test/$DirNameWarehouse"
 # format for column-storage tables (PARQUET, DELTA)
@@ -73,7 +73,7 @@ args[8]="--table-format=delta"
 args[9]="--use-partitioning=true"
 
 # jar file
-args[10]="--jar-file=/dbfs$JarFile"
+args[10]="--jar-file=/dbfs${JarFile}"
 # whether to generate statistics by analyzing tables (true/false)
 args[11]="--use-row-stats=true"
 # if argument above is true, whether to compute statistics for columns (true/false)
@@ -82,7 +82,7 @@ args[12]="--use-column-stats=true"
 args[13]="--all-or-query-file=all" 
 # number of streams
 args[14]="--number-of-streams=$3"
-# flags 111111100000111111100
+# flags 111
 # schema      |load          |load denorm |
 args[15]="--execution-flags=111"
 # "all" or create table file
