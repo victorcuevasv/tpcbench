@@ -169,6 +169,7 @@
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkDeleteData.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkDenorm.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkDenormSkip.java</exclude>
+						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkETLTask.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkInsertData.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkUpdate.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateSchemaSpark.java</exclude>
