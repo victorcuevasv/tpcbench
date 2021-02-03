@@ -96,27 +96,6 @@ public abstract class CreateDatabaseSparkETLTask {
 		this.filterValues = new FilterValues().getMap();
 	}
 	
-
-	public static void main(String[] args) throws SQLException {
-		CreateDatabaseSparkETLTask application = null;
-		CommandLine commandLine = null;
-		try {
-			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
-			Options options = runOptions.getOptions();
-			CommandLineParser parser = new DefaultParser();
-			commandLine = parser.parse(options, args);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			logger.error("Error in CreateDatabaseSparkDenorm main.");
-			logger.error(e);
-			logger.error(AppUtil.stringifyStackTrace(e));
-			System.exit(1);
-		}
-		application = new CreateDatabaseSparkETLTask(commandLine);
-		application.doTask();
-	}
-	
 	
 	protected abstract void doTask();
 
