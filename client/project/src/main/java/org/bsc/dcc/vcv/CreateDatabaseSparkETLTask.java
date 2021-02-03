@@ -33,28 +33,28 @@ import org.apache.commons.cli.DefaultParser;
 
 public abstract class CreateDatabaseSparkETLTask {
 
-	private static final Logger logger = LogManager.getLogger("AllLog");
-	private SparkSession spark;
-	private final JarCreateTableReaderAsZipFile createTableReader;
-	private final AnalyticsRecorder recorder;
-	private final String workDir;
-	private final String dbName;
-	private final String resultsDir;
-	private final String experimentName;
-	private final String system;
-	private final String test;
-	private final int instance;
-	private final String createTableDir;
-	private final Optional<String> extTablePrefixCreated;
-	private final String format;
-	private final boolean doCount;
-	private final boolean partition;
-	private final String jarFile;
-	private final String createSingleOrAll;
-	private final String denormSingleOrAll;
-	private final Map<String, String> precombineKeys;
-	private final Map<String, String> filterKeys;
-	private final Map<String, String> filterValues;
+	protected static final Logger logger = LogManager.getLogger("AllLog");
+	protected SparkSession spark;
+	protected final JarCreateTableReaderAsZipFile createTableReader;
+	protected final AnalyticsRecorder recorder;
+	protected final String workDir;
+	protected final String dbName;
+	protected final String resultsDir;
+	protected final String experimentName;
+	protected final String system;
+	protected final String test;
+	protected final int instance;
+	protected final String createTableDir;
+	protected final Optional<String> extTablePrefixCreated;
+	protected final String format;
+	protected final boolean doCount;
+	protected final boolean partition;
+	protected final String jarFile;
+	protected final String createSingleOrAll;
+	protected final String denormSingleOrAll;
+	protected final Map<String, String> precombineKeys;
+	protected final Map<String, String> filterKeys;
+	protected final Map<String, String> filterValues;
 	
 	public CreateDatabaseSparkETLTask(CommandLine commandLine) {
 		try {
@@ -121,7 +121,7 @@ public abstract class CreateDatabaseSparkETLTask {
 	protected abstract void doTask();
 
 	
-	private void useDatabase(String dbName) {
+	protected void useDatabase(String dbName) {
 		try {
 			this.spark.sql("USE " + dbName);
 		}
@@ -134,7 +134,7 @@ public abstract class CreateDatabaseSparkETLTask {
 	}
 	
 	
-	private void dropTable(String dropStmt) {
+	protected void dropTable(String dropStmt) {
 		try {
 			this.spark.sql(dropStmt);
 		}
@@ -163,7 +163,7 @@ public abstract class CreateDatabaseSparkETLTask {
 	}
 
 	
-	private void countRowsQuery(String tableName) {
+	protected void countRowsQuery(String tableName) {
 		try {
 			String sqlCount = "select count(*) from " + tableName;
 			System.out.print("Running count query on " + tableName + ": ");

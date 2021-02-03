@@ -54,7 +54,7 @@ public class CreateDatabaseSparkDenorm extends CreateDatabaseSparkETLTask {
 					continue;
 				}
 			}
-			createTable(fileName, sqlQuery, this.format, i);
+			createTable(fileName, sqlQuery, i);
 			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -64,7 +64,7 @@ public class CreateDatabaseSparkDenorm extends CreateDatabaseSparkETLTask {
 	}
 	
 	
-	private void createTable(String sqlCreateFilename, String sqlQuery, String format, int index) {
+	private void createTable(String sqlCreateFilename, String sqlQuery, int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
