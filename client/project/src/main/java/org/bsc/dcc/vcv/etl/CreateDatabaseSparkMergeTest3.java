@@ -108,7 +108,7 @@ public class CreateDatabaseSparkMergeTest3 extends CreateDatabaseSparkETLTask {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkMergeTest3 createTable.");
+			this.logger.error("Error in CreateDatabaseSparkMergeTest3 merge.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}

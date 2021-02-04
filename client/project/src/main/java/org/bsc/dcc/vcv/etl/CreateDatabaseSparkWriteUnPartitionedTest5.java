@@ -116,7 +116,7 @@ public class CreateDatabaseSparkWriteUnPartitionedTest5 extends CreateDatabaseSp
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkWriteUnPartitionedTest5 createTable.");
+			this.logger.error("Error in CreateDatabaseSparkWriteUnPartitionedTest5 writeUnPartitioned.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}

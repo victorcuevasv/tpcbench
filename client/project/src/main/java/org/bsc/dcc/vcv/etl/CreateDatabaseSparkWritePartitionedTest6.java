@@ -20,9 +20,6 @@ import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.SparkSession;
-import org.bsc.dcc.vcv.AppUtil;
-import org.bsc.dcc.vcv.QueryRecord;
-import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Encoders;
@@ -32,18 +29,23 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.bsc.dcc.vcv.Partitioning;
+import org.bsc.dcc.vcv.AppUtil;
+import org.bsc.dcc.vcv.JarCreateTableReaderAsZipFile;
+import org.bsc.dcc.vcv.QueryRecord;
+import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
 
 
-public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkETLTask {
+public class CreateDatabaseSparkWritePartitionedTest6 extends CreateDatabaseSparkETLTask {
 	
 	
-	public CreateDatabaseSparkDeepCopyTest2(CommandLine commandLine) {	
+	public CreateDatabaseSparkWritePartitionedTest6(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseSparkDeepCopyTest2 application = null;
+		CreateDatabaseSparkWritePartitionedTest6 application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
@@ -53,12 +55,12 @@ public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkETLTask
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseSparkDeepCopyTest2 main.");
+			logger.error("Error in CreateDatabaseSparkWritePartitionedTest6 main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseSparkDeepCopyTest2(commandLine);
+		application = new CreateDatabaseSparkWritePartitionedTest6(commandLine);
 		application.doTask();
 	}
 	
@@ -78,7 +80,7 @@ public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkETLTask
 					continue;
 				}
 			}
-			deepCopy(fileName, sqlQuery, i);
+			writePartitioned(fileName, sqlQuery, i);
 			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -88,33 +90,30 @@ public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkETLTask
 	}
 	
 	
-	private void deepCopy(String sqlCreateFilename, String sqlQuery, int index) {
+	private void writePartitioned(String sqlCreateFilename, String sqlQuery, int index) {
 		QueryRecord queryRecord = null;
 		try {
-			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
-			System.out.println("Processing table " + index + ": " + tableName);
-			this.logger.info("Processing table " + index + ": " + tableName);
-			this.dropTable("drop table if exists " + tableName + "_denorm_deep_copy");
-			StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "_denorm_deep_copy\n");
-			builder.append("USING " + format.toUpperCase() + "\n");
-			if( this.format.equals("parquet") )
-				builder.append("OPTIONS ('compression'='snappy')\n");
-			builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + 
-					"_denorm_deep_copy" + "' \n");
-			builder.append("AS\n");
-			builder.append("select * from " + tableName + "_denorm");
-			String sqlCreate = builder.toString();
-			saveCreateTableFile("denormdeepcopy", tableName, sqlCreate);
+			String tableNameRoot = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
+			String tableName = tableNameRoot + "_partitioned";
+			System.out.println("Processing table " + index + ": " + tableNameRoot);
+			this.logger.info("Processing table " + index + ": " + tableNameRoot);
+			this.dropTable("drop table if exists " + tableName);
+			String sqlCreate = this.createTableStatement(sqlQuery, tableNameRoot, tableName, this.format,
+					this.extTablePrefixCreated);
+			saveCreateTableFile("writepartitionedcreate", tableName, sqlCreate);
+			String sqlInsert = "insert into " + tableName + " select * from " + tableNameRoot;
+			saveCreateTableFile("writepartitionedinsert", tableName, sqlInsert);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(sqlCreate);
+			this.spark.sql(sqlInsert);
 			queryRecord.setSuccessful(true);
 			if( this.doCount )
-				countRowsQuery(tableName + "_denorm_deep_copy");
+				countRowsQuery(tableName);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkDeepCopyTest2 deepCopy.");
+			this.logger.error("Error in CreateDatabaseSparkWritePartitionedTest6 writePartitioned.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -124,6 +123,23 @@ public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkETLTask
 				this.recorder.record(queryRecord);
 			}
 		}
+	}
+
+	
+	private String createTableStatement(String sqlQuery, String tableNameRoot, String tableName,
+			String format, Optional<String> extTablePrefixCreated) {
+		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
+		StringBuilder builder = new StringBuilder(sqlQuery);
+		if( this.partition ) {
+			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
+			if( pos != -1 )
+				builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n" );
+		}
+		builder.append("USING " + format.toUpperCase() + "\n");
+		if( format.equals("parquet") )
+			builder.append("OPTIONS ('compression'='snappy')\n");
+		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "_denorm" + "' \n");
+		return builder.toString();
 	}
 	
 

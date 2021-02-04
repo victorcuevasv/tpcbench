@@ -118,7 +118,7 @@ public class CreateDatabaseSparkBillionIntsTest4 extends CreateDatabaseSparkETLT
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkBillionIntsTest4 createTable.");
+			this.logger.error("Error in CreateDatabaseSparkBillionIntsTest4 billionInts.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
