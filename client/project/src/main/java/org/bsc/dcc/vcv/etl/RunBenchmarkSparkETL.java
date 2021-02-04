@@ -115,6 +115,12 @@ public class RunBenchmarkSparkETL {
 				System.out.println("\n\n\nRunning the BILLION INTS test.\n\n\n");
 				CreateDatabaseSparkBillionIntsTest4.main(args);
 			}
+			boolean doWriteUnPartitioned = this.flags.charAt(6) == '1' ? true : false;
+			if( doWriteUnPartitioned ) {
+				this.saveTestParameters(args, "writeunpartitioned");
+				System.out.println("\n\n\nRunning the WRITE UNPARTITIONED test.\n\n\n");
+				CreateDatabaseSparkWriteUnPartitionedTest5.main(args);
+			}
 			if( this.system.equals("sparkdatabricks")  ) {
 				this.executeCommand("mkdir -p /dbfs/mnt/tpcds-results-test/" + this.resultsDir);
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /dbfs/mnt/tpcds-results-test/" + this.resultsDir + "/");

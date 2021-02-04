@@ -34,16 +34,16 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseSparkBillionIntsTest4 extends CreateDatabaseSparkETLTask {
+public class CreateDatabaseSparkWriteUnPartitionedTest5 extends CreateDatabaseSparkETLTask {
 	
 	
-	public CreateDatabaseSparkBillionIntsTest4(CommandLine commandLine) {	
+	public CreateDatabaseSparkWriteUnPartitionedTest5(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseSparkBillionIntsTest4 application = null;
+		CreateDatabaseSparkWriteUnPartitionedTest5 application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
@@ -53,12 +53,12 @@ public class CreateDatabaseSparkBillionIntsTest4 extends CreateDatabaseSparkETLT
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseSparkBillionIntsTest4 main.");
+			logger.error("Error in CreateDatabaseSparkWriteUnPartitionedTest5 main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseSparkBillionIntsTest4(commandLine);
+		application = new CreateDatabaseSparkWriteUnPartitionedTest5(commandLine);
 		application.doTask();
 	}
 	
@@ -78,7 +78,7 @@ public class CreateDatabaseSparkBillionIntsTest4 extends CreateDatabaseSparkETLT
 					continue;
 				}
 			}
-			billionInts(fileName, sqlQuery, i);
+			writeUnPartitioned(fileName, sqlQuery, i);
 			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -88,26 +88,24 @@ public class CreateDatabaseSparkBillionIntsTest4 extends CreateDatabaseSparkETLT
 	}
 	
 	
-	private void billionInts(String sqlCreateFilename, String sqlQuery, int index) {
+	private void writeUnPartitioned(String sqlCreateFilename, String sqlQuery, int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableNameRoot = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
-			String tableName = tableNameRoot.charAt(0) + "s_item_sk";
-			System.out.println("Processing table " + index + ": " + tableName);
-			this.logger.info("Processing table " + index + ": " + tableName);
+			System.out.println("Processing table " + index + ": " + tableNameRoot);
+			this.logger.info("Processing table " + index + ": " + tableNameRoot);
+			String tableName = tableNameRoot + "_not_partitioned";
 			this.dropTable("drop table if exists " + tableName);
-			StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "\n");
-			builder.append("(" + tableName + " int)\n");
+			sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
+			StringBuilder builder = new StringBuilder(sqlQuery + "\n");
 			builder.append("USING " + format.toUpperCase() + "\n");
 			if( this.format.equals("parquet") )
 				builder.append("OPTIONS ('compression'='snappy')\n");
 			builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
 			String sqlCreate = builder.toString();
-			saveCreateTableFile("billionintscreate", tableName, sqlCreate);
-			builder = new StringBuilder("INSERT INTO " + tableName + " SELECT " + tableName + 
-					" FROM " + tableNameRoot + "\n");
-			String sqlInsert = builder.toString();
-			saveCreateTableFile("billionintsinsert", tableName, sqlCreate);
+			saveCreateTableFile("writeunpartitionedcreate", tableName, sqlCreate);
+			String sqlInsert = "insert into " + tableName + " select * from " + tableNameRoot;
+			saveCreateTableFile("writeunpartitionedinsert", tableName, sqlCreate);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(sqlCreate);
@@ -118,7 +116,7 @@ public class CreateDatabaseSparkBillionIntsTest4 extends CreateDatabaseSparkETLT
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkBillionIntsTest4 createTable.");
+			this.logger.error("Error in CreateDatabaseSparkWriteUnPartitionedTest5 createTable.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
