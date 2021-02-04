@@ -1,4 +1,4 @@
-package org.bsc.dcc.vcv;
+package org.bsc.dcc.vcv.etl;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -20,6 +20,10 @@ import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.SparkSession;
+import org.bsc.dcc.vcv.AppUtil;
+import org.bsc.dcc.vcv.JarCreateTableReaderAsZipFile;
+import org.bsc.dcc.vcv.QueryRecord;
+import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Encoders;
@@ -31,7 +35,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkETLTask {
+public class CreateDatabaseSparkMergeTest3 extends CreateDatabaseSparkETLTask {
 	
 	
 	public CreateDatabaseSparkDeepCopyTest2(CommandLine commandLine) {	
@@ -40,7 +44,7 @@ public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkETLTask
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseSparkDeepCopyTest2 application = null;
+		CreateDatabaseSparkMergeTest3 application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
@@ -55,7 +59,7 @@ public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkETLTask
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseSparkDeepCopyTest2(commandLine);
+		application = new CreateDatabaseSparkMergeTest3(commandLine);
 		application.doTask();
 	}
 	
@@ -64,7 +68,10 @@ public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkETLTask
 		// Process each .sql create table file found in the jar file.
 		this.useDatabase(this.dbName);
 		this.recorder.header();
-		List<String> unorderedList = this.createTableReader.getFiles();
+		//Override the default createTableReader to read from QueriesETLTest3
+		JarCreateTableReaderAsZipFile createTableReader = new JarCreateTableReaderAsZipFile(
+				this.jarFile, "QueriesETLTest3");
+		List<String> unorderedList = createTableReader.getFiles();
 		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
 		int i = 1;
 		for (final String fileName : orderedList) {
@@ -75,7 +82,7 @@ public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkETLTask
 					continue;
 				}
 			}
-			deepCopy(fileName, sqlQuery, i);
+			merge(fileName, sqlQuery, i);
 			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -85,29 +92,19 @@ public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkETLTask
 	}
 	
 	
-	private void deepCopy(String sqlCreateFilename, String sqlQuery, int index) {
+	private void merge(String sqlCreateFilename, String sqlQuery, int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
-			System.out.println("Processing table " + index + ": " + tableName);
-			this.logger.info("Processing table " + index + ": " + tableName);
-			this.dropTable("drop table if exists " + tableName + "_denorm_deep_copy");
-			StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "_denorm_deep_copy\n");
-			builder.append("USING " + format.toUpperCase() + "\n");
-			if( this.format.equals("parquet") )
-				builder.append("OPTIONS ('compression'='snappy')\n");
-			builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + 
-					"_denorm_deep_copy" + "' \n");
-			builder.append("AS\n");
-			builder.append("select * from " + tableName + "_denorm");
-			String sqlCreate = builder.toString();
-			saveCreateTableFile("denormdeepcopy", tableName, sqlCreate);
+			System.out.println("Processing table " + index + ": " + tableName + "_denorm");
+			this.logger.info("Processing table " + index + ": " + tableName + "_denorm");
+			saveCreateTableFile("denormmerge", tableName, sqlQuery);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
-			this.spark.sql(sqlCreate);
+			this.spark.sql(sqlQuery);
 			queryRecord.setSuccessful(true);
 			if( this.doCount )
-				countRowsQuery(tableName + "_denorm_deep_copy");
+				countRowsQuery(tableName + "_denorm");
 		}
 		catch (Exception e) {
 			e.printStackTrace();

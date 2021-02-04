@@ -1,4 +1,4 @@
-package org.bsc.dcc.vcv;
+package org.bsc.dcc.vcv.etl;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -20,7 +20,9 @@ import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.SparkSession;
-import org.bsc.dcc.vcv.etl.CreateDatabaseSparkETLTask;
+import org.bsc.dcc.vcv.AppUtil;
+import org.bsc.dcc.vcv.QueryRecord;
+import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Encoders;
@@ -32,16 +34,16 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseSparkDenorm extends CreateDatabaseSparkETLTask {
+public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkETLTask {
 	
 	
-	public CreateDatabaseSparkDenorm(CommandLine commandLine) {	
+	public CreateDatabaseSparkDeepCopyTest2(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseSparkDenorm application = null;
+		CreateDatabaseSparkDeepCopyTest2 application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
@@ -51,12 +53,12 @@ public class CreateDatabaseSparkDenorm extends CreateDatabaseSparkETLTask {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseSparkDenorm main.");
+			logger.error("Error in CreateDatabaseSparkDeepCopyTest2 main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseSparkDenorm(commandLine);
+		application = new CreateDatabaseSparkDeepCopyTest2(commandLine);
 		application.doTask();
 	}
 	
@@ -76,7 +78,7 @@ public class CreateDatabaseSparkDenorm extends CreateDatabaseSparkETLTask {
 					continue;
 				}
 			}
-			createTable(fileName, sqlQuery, i);
+			deepCopy(fileName, sqlQuery, i);
 			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -86,28 +88,33 @@ public class CreateDatabaseSparkDenorm extends CreateDatabaseSparkETLTask {
 	}
 	
 	
-	private void createTable(String sqlCreateFilename, String sqlQuery, int index) {
+	private void deepCopy(String sqlCreateFilename, String sqlQuery, int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
-			this.dropTable("drop table if exists " + tableName + "_denorm");
-			String sqlCreate = this.createTableStatement(sqlQuery, tableName, this.format,
-					this.extTablePrefixCreated);
-			saveCreateTableFile("denorm", tableName, sqlCreate);
-			if( this.doCount )
-				countRowsQuery(tableName);
+			this.dropTable("drop table if exists " + tableName + "_denorm_deep_copy");
+			StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "_denorm_deep_copy\n");
+			builder.append("USING " + format.toUpperCase() + "\n");
+			if( this.format.equals("parquet") )
+				builder.append("OPTIONS ('compression'='snappy')\n");
+			builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + 
+					"_denorm_deep_copy" + "' \n");
+			builder.append("AS\n");
+			builder.append("select * from " + tableName + "_denorm");
+			String sqlCreate = builder.toString();
+			saveCreateTableFile("denormdeepcopy", tableName, sqlCreate);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(sqlCreate);
 			queryRecord.setSuccessful(true);
 			if( this.doCount )
-				countRowsQuery(tableName + "_denorm");
+				countRowsQuery(tableName + "_denorm_deep_copy");
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkDenorm createTable.");
+			this.logger.error("Error in CreateDatabaseSparkDeepCopyTest2 createTable.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -117,33 +124,6 @@ public class CreateDatabaseSparkDenorm extends CreateDatabaseSparkETLTask {
 				this.recorder.record(queryRecord);
 			}
 		}
-	}
-
-	
-	private String createTableStatement(String sqlQuery, String tableName, String format,
-			Optional<String> extTablePrefixCreated) {
-		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "_denorm\n");
-		builder.append("USING " + format.toUpperCase() + "\n");
-		if( format.equals("parquet") )
-			builder.append("OPTIONS ('compression'='snappy')\n");
-		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "_denorm" + "' \n");
-		if( this.partition ) {
-			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
-			if( pos != -1 )
-				builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n" );
-		}
-		builder.append("AS\n");
-		builder.append(sqlQuery);
-		if( this.filterKeys.get(tableName) != null ) {
-			builder.append("and " + this.filterKeys.get(tableName) + " = " + 
-					this.filterValues.get(tableName) + "\n");
-		}
-		if( this.partition ) {
-			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
-			if( pos != -1 )
-				builder.append("DISTRIBUTE BY " + Partitioning.partKeys[pos] + " \n" );
-		}
-		return builder.toString();
 	}
 	
 

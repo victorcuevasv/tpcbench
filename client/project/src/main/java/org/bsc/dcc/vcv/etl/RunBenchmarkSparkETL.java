@@ -1,4 +1,4 @@
-package org.bsc.dcc.vcv;
+package org.bsc.dcc.vcv.etl;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -10,12 +10,16 @@ import java.util.Arrays;
 import java.util.stream.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bsc.dcc.vcv.AppUtil;
+import org.bsc.dcc.vcv.CreateDatabaseSpark;
+import org.bsc.dcc.vcv.CreateDatabaseSparkDenorm;
+import org.bsc.dcc.vcv.CreateSchemaSpark;
+import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-
 
 public class RunBenchmarkSparkETL {
 

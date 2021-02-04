@@ -1,4 +1,4 @@
-package org.bsc.dcc.vcv;
+package org.bsc.dcc.vcv.etl;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -20,6 +20,12 @@ import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.SparkSession;
+import org.bsc.dcc.vcv.AnalyticsRecorder;
+import org.bsc.dcc.vcv.AppUtil;
+import org.bsc.dcc.vcv.FilterKeys;
+import org.bsc.dcc.vcv.FilterValues;
+import org.bsc.dcc.vcv.HudiPrecombineKeys;
+import org.bsc.dcc.vcv.JarCreateTableReaderAsZipFile;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Encoders;
