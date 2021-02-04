@@ -38,7 +38,7 @@ import org.apache.commons.cli.DefaultParser;
 public class CreateDatabaseSparkMergeTest3 extends CreateDatabaseSparkETLTask {
 	
 	
-	public CreateDatabaseSparkDeepCopyTest2(CommandLine commandLine) {	
+	public CreateDatabaseSparkMergeTest3(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
@@ -54,7 +54,7 @@ public class CreateDatabaseSparkMergeTest3 extends CreateDatabaseSparkETLTask {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseSparkDeepCopyTest2 main.");
+			logger.error("Error in CreateDatabaseSparkMergeTest3 main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
@@ -108,7 +108,7 @@ public class CreateDatabaseSparkMergeTest3 extends CreateDatabaseSparkETLTask {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkDeepCopyTest2 createTable.");
+			this.logger.error("Error in CreateDatabaseSparkMergeTest3 createTable.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
