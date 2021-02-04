@@ -83,8 +83,8 @@ args[13]="--all-or-query-file=all"
 # number of streams
 args[14]="--number-of-streams=$3"
 # flags 111
-# schema       |load          |load denorm   |deep copy     |
-args[15]="--execution-flags=1111"
+# schema       |load          |load denorm   |deep copy     |merge         |
+args[15]="--execution-flags=11111"
 # "all" or create table file
 args[16]="--all-or-create-file=all"
 # count-queries
