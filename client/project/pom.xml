@@ -166,11 +166,9 @@
 						<exclude>org/bsc/dcc/vcv/AnalyzeTablesSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CompareResults.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSpark.java</exclude>
-						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkDeepCopyTest2.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkDeleteData.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkDenorm.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkDenormSkip.java</exclude>
-						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkETLTask.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkInsertData.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkUpdate.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateSchemaSpark.java</exclude>
@@ -198,6 +196,9 @@
 						<exclude>org/bsc/dcc/vcv/UpdateDatabaseSparkInsUpdTest.java</exclude>
 						<exclude>org/bsc/dcc/vcv/UpdateDatabaseSparkReadTest.java</exclude>
 						<exclude>org/bsc/dcc/vcv/UpdateMods.java</exclude>
+						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkDeepCopyTest2.java</exclude>
+						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkETLTask.java</exclude>
+						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkMergeTest3.java</exclude>
 					</excludes>
 					<testExcludes>
         				<testExclude>org/bsc/dcc/vcv/RunBenchmarkSparkOptionsTest.java</testExclude>
