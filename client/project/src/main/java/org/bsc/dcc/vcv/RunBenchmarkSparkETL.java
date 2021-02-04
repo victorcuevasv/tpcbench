@@ -93,6 +93,12 @@ public class RunBenchmarkSparkETL {
 				System.out.println("\n\n\nRunning the LOAD DENORM test.\n\n\n");
 				CreateDatabaseSparkDenorm.main(args);
 			}
+			boolean doDenormDeepCopy = this.flags.charAt(3) == '1' ? true : false;
+			if( doDenormDeepCopy ) {
+				this.saveTestParameters(args, "denormdeepcopy");
+				System.out.println("\n\n\nRunning the DENORM DEEP COPY test.\n\n\n");
+				CreateDatabaseSparkDeepCopyTest2.main(args);
+			}
 			if( this.system.equals("sparkdatabricks")  ) {
 				this.executeCommand("mkdir -p /dbfs/mnt/tpcds-results-test/" + this.resultsDir);
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /dbfs/mnt/tpcds-results-test/" + this.resultsDir + "/");
