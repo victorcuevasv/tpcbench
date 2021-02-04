@@ -166,6 +166,7 @@
 						<exclude>org/bsc/dcc/vcv/AnalyzeTablesSpark.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CompareResults.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSpark.java</exclude>
+						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkDeepCopyTest2.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkDeleteData.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkDenorm.java</exclude>
 						<exclude>org/bsc/dcc/vcv/CreateDatabaseSparkDenormSkip.java</exclude>
