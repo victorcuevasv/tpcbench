@@ -103,6 +103,12 @@ public class RunBenchmarkSparkETL {
 				System.out.println("\n\n\nRunning the DENORM DEEP COPY test.\n\n\n");
 				CreateDatabaseSparkDeepCopyTest2.main(args);
 			}
+			boolean doMerge = this.flags.charAt(4) == '1' ? true : false;
+			if( doMerge ) {
+				this.saveTestParameters(args, "denormmerge");
+				System.out.println("\n\n\nRunning the DENORM MERGE test.\n\n\n");
+				CreateDatabaseSparkMergeTest3.main(args);
+			}
 			if( this.system.equals("sparkdatabricks")  ) {
 				this.executeCommand("mkdir -p /dbfs/mnt/tpcds-results-test/" + this.resultsDir);
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /dbfs/mnt/tpcds-results-test/" + this.resultsDir + "/");
