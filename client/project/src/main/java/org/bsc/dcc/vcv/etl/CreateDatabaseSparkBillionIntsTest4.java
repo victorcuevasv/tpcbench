@@ -107,7 +107,7 @@ public class CreateDatabaseSparkBillionIntsTest4 extends CreateDatabaseSparkETLT
 			builder = new StringBuilder("INSERT INTO " + tableName + " SELECT " + tableName + 
 					" FROM " + tableNameRoot + "\n");
 			String sqlInsert = builder.toString();
-			saveCreateTableFile("billionintsinsert", tableName, sqlCreate);
+			saveCreateTableFile("billionintsinsert", tableName, sqlInsert);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(sqlCreate);
