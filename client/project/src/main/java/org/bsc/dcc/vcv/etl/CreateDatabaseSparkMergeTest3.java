@@ -75,7 +75,7 @@ public class CreateDatabaseSparkMergeTest3 extends CreateDatabaseSparkETLTask {
 		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
 		int i = 1;
 		for (final String fileName : orderedList) {
-			String sqlQuery = this.createTableReader.getFile(fileName);
+			String sqlQuery = createTableReader.getFile(fileName);
 			if( ! this.denormSingleOrAll.equals("all") ) {
 				if( ! fileName.equals(this.denormSingleOrAll) ) {
 					System.out.println("Skipping: " + fileName);
