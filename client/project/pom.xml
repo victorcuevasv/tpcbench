@@ -198,7 +198,7 @@
 						<exclude>org/bsc/dcc/vcv/UpdateMods.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkBillionIntsTest4.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkDeepCopyTest2.java</exclude>
-						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkETLTask.java</exclude>
+						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkDenormETLTask.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkMergeTest3.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkWritePartitionedTest6.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkWriteUnPartitionedTest5.java</exclude>
