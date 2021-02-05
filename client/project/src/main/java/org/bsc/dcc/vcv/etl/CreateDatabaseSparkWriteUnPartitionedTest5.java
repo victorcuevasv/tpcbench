@@ -22,6 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.SparkSession;
 import org.bsc.dcc.vcv.AppUtil;
 import org.bsc.dcc.vcv.JarCreateTableReaderAsZipFile;
+import org.bsc.dcc.vcv.Partitioning;
 import org.bsc.dcc.vcv.QueryRecord;
 import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
 import org.apache.spark.sql.Dataset;
@@ -100,6 +101,7 @@ public class CreateDatabaseSparkWriteUnPartitionedTest5 extends CreateDatabaseSp
 			this.logger.info("Processing table " + index + ": " + tableNameRoot);
 			String tableName = tableNameRoot + "_not_partitioned";
 			this.dropTable("drop table if exists " + tableName);
+			sqlQuery = this.incompleteCreateTable(sqlQuery);
 			sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
 			StringBuilder builder = new StringBuilder(sqlQuery + "\n");
 			builder.append("USING " + format.toUpperCase() + "\n");
@@ -132,7 +134,32 @@ public class CreateDatabaseSparkWriteUnPartitionedTest5 extends CreateDatabaseSp
 		}
 	}
 	
+	
+	private String incompleteCreateTable(String sqlCreate) {
+		boolean hasPrimaryKey = sqlCreate.contains("primary key");
+		// Remove the 'not null' statements.
+		sqlCreate = sqlCreate.replace("not null", "        ");
+		// Split the SQL create table statement in lines.
+		String lines[] = sqlCreate.split("\\r?\\n");
+		// Add all of the lines in the original SQL to the new statement, except those
+		// which contain the primary key statement (if any) and the closing parenthesis.
+		// For the last column statement, remove the final comma.
+		StringBuilder builder = new StringBuilder();
+		int tail = hasPrimaryKey ? 3 : 2;
+		for (int i = 0; i < lines.length - tail; i++)
+			builder.append(lines[i] + "\n");
+		// Change the last comma for a space (since the primary key statement was
+		// removed).
+		char[] commaLineArray = lines[lines.length - tail].toCharArray();
+		commaLineArray[commaLineArray.length - 1] = ' ';
+		builder.append(new String(commaLineArray) + "\n");
+		// Close the parenthesis.
+		builder.append(") \n");
+		// Version 2.1 of Hive does not recognize integer, so use int instead.
+		return builder.toString().replace("integer", "int    ");
+	}
 
+	
 }
 
 
