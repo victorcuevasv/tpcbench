@@ -36,7 +36,7 @@ import org.bsc.dcc.vcv.QueryRecord;
 import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
 
 
-public class CreateDatabaseSparkWritePartitionedTest6 extends CreateDatabaseSparkETLTask {
+public class CreateDatabaseSparkWritePartitionedTest6 extends CreateDatabaseSparkDenormETLTask {
 	
 	
 	public CreateDatabaseSparkWritePartitionedTest6(CommandLine commandLine) {	
@@ -69,11 +69,14 @@ public class CreateDatabaseSparkWritePartitionedTest6 extends CreateDatabaseSpar
 		// Process each .sql create table file found in the jar file.
 		this.useDatabase(this.dbName);
 		this.recorder.header();
-		List<String> unorderedList = this.createTableReader.getFiles();
+		//Override the default createTableReader to read from tables
+		JarCreateTableReaderAsZipFile createTableReader = new JarCreateTableReaderAsZipFile(
+								this.jarFile, "tables");
+		List<String> unorderedList = createTableReader.getFiles();
 		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
 		int i = 1;
 		for (final String fileName : orderedList) {
-			String sqlQuery = this.createTableReader.getFile(fileName);
+			String sqlQuery = createTableReader.getFile(fileName);
 			if( ! this.denormSingleOrAll.equals("all") ) {
 				if( ! fileName.equals(this.denormSingleOrAll) ) {
 					System.out.println("Skipping: " + fileName);

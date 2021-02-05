@@ -21,6 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.SparkSession;
 import org.bsc.dcc.vcv.AppUtil;
+import org.bsc.dcc.vcv.JarCreateTableReaderAsZipFile;
 import org.bsc.dcc.vcv.QueryRecord;
 import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
 import org.apache.spark.sql.Dataset;
@@ -34,7 +35,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseSparkWriteUnPartitionedTest5 extends CreateDatabaseSparkETLTask {
+public class CreateDatabaseSparkWriteUnPartitionedTest5 extends CreateDatabaseSparkDenormETLTask {
 	
 	
 	public CreateDatabaseSparkWriteUnPartitionedTest5(CommandLine commandLine) {	
@@ -67,11 +68,14 @@ public class CreateDatabaseSparkWriteUnPartitionedTest5 extends CreateDatabaseSp
 		// Process each .sql create table file found in the jar file.
 		this.useDatabase(this.dbName);
 		this.recorder.header();
-		List<String> unorderedList = this.createTableReader.getFiles();
+		//Override the default createTableReader to read from tables
+		JarCreateTableReaderAsZipFile createTableReader = new JarCreateTableReaderAsZipFile(
+						this.jarFile, "tables");
+		List<String> unorderedList = createTableReader.getFiles();
 		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
 		int i = 1;
 		for (final String fileName : orderedList) {
-			String sqlQuery = this.createTableReader.getFile(fileName);
+			String sqlQuery = createTableReader.getFile(fileName);
 			if( ! this.denormSingleOrAll.equals("all") ) {
 				if( ! fileName.equals(this.denormSingleOrAll) ) {
 					System.out.println("Skipping: " + fileName);

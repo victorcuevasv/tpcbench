@@ -35,7 +35,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseSparkMergeTest3 extends CreateDatabaseSparkETLTask {
+public class CreateDatabaseSparkMergeTest3 extends CreateDatabaseSparkDenormETLTask {
 	
 	
 	public CreateDatabaseSparkMergeTest3(CommandLine commandLine) {	

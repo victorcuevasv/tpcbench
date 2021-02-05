@@ -34,7 +34,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseSparkBillionIntsTest4 extends CreateDatabaseSparkETLTask {
+public class CreateDatabaseSparkBillionIntsTest4 extends CreateDatabaseSparkDenormETLTask {
 	
 	
 	public CreateDatabaseSparkBillionIntsTest4(CommandLine commandLine) {	

@@ -20,7 +20,7 @@ import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.SparkSession;
-import org.bsc.dcc.vcv.etl.CreateDatabaseSparkETLTask;
+import org.bsc.dcc.vcv.etl.CreateDatabaseSparkDenormETLTask;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Encoders;
@@ -32,7 +32,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseSparkDenorm extends CreateDatabaseSparkETLTask {
+public class CreateDatabaseSparkDenorm extends CreateDatabaseSparkDenormETLTask {
 	
 	
 	public CreateDatabaseSparkDenorm(CommandLine commandLine) {	

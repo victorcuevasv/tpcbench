@@ -37,7 +37,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public abstract class CreateDatabaseSparkETLTask {
+public abstract class CreateDatabaseSparkDenormETLTask {
 
 	protected static final Logger logger = LogManager.getLogger("AllLog");
 	protected SparkSession spark;
@@ -62,7 +62,7 @@ public abstract class CreateDatabaseSparkETLTask {
 	protected final Map<String, String> filterKeys;
 	protected final Map<String, String> filterValues;
 	
-	public CreateDatabaseSparkETLTask(CommandLine commandLine) {
+	public CreateDatabaseSparkDenormETLTask(CommandLine commandLine) {
 		try {
 
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")

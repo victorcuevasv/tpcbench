@@ -34,7 +34,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkETLTask {
+public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkDenormETLTask {
 	
 	
 	public CreateDatabaseSparkDeepCopyTest2(CommandLine commandLine) {	
