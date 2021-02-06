@@ -142,7 +142,7 @@ public class CreateDatabaseSparkWritePartitionedTest6 extends CreateDatabaseSpar
 		builder.append("USING " + format.toUpperCase() + "\n");
 		if( format.equals("parquet") )
 			builder.append("OPTIONS ('compression'='snappy')\n");
-		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "_denorm" + "' \n");
+		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
 		return builder.toString();
 	}
 	
