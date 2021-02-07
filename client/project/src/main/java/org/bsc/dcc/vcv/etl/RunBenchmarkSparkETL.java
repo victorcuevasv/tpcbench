@@ -110,27 +110,47 @@ public class RunBenchmarkSparkETL {
 			}
 			boolean doMerge = this.flags.charAt(4) == '1' ? true : false;
 			if( doMerge ) {
-				this.saveTestParameters(args, "denormmerge");
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=denormmerge"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "denormmerge");
 				System.out.println("\n\n\nRunning the DENORM MERGE test.\n\n\n");
-				CreateDatabaseSparkMergeTest3.main(args);
+				CreateDatabaseSparkMergeTest3.main(argsCopy);
 			}
 			boolean doBillionInts = this.flags.charAt(5) == '1' ? true : false;
 			if( doBillionInts ) {
-				this.saveTestParameters(args, "billionints");
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=billionints"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "billionints");
 				System.out.println("\n\n\nRunning the BILLION INTS test.\n\n\n");
-				CreateDatabaseSparkBillionIntsTest4.main(args);
+				CreateDatabaseSparkBillionIntsTest4.main(argsCopy);
 			}
 			boolean doWriteUnPartitioned = this.flags.charAt(6) == '1' ? true : false;
 			if( doWriteUnPartitioned ) {
-				this.saveTestParameters(args, "writeunpartitioned");
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=writeunpartitioned"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "writeunpartitioned");
 				System.out.println("\n\n\nRunning the WRITE UNPARTITIONED test.\n\n\n");
-				CreateDatabaseSparkWriteUnPartitionedTest5.main(args);
+				CreateDatabaseSparkWriteUnPartitionedTest5.main(argsCopy);
 			}
 			boolean doWritePartitioned = this.flags.charAt(7) == '1' ? true : false;
 			if( doWritePartitioned ) {
-				this.saveTestParameters(args, "writepartitioned");
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=writepartitioned"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "writepartitioned");
 				System.out.println("\n\n\nRunning the WRITE PARTITIONED test.\n\n\n");
-				CreateDatabaseSparkWritePartitionedTest6.main(args);
+				CreateDatabaseSparkWritePartitionedTest6.main(argsCopy);
 			}
 			if( this.system.equals("sparkdatabricks")  ) {
 				this.executeCommand("mkdir -p /dbfs/mnt/tpcds-results-test/" + this.resultsDir);
