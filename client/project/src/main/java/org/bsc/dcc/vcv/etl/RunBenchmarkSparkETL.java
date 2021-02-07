@@ -99,9 +99,14 @@ public class RunBenchmarkSparkETL {
 			}
 			boolean doDenormDeepCopy = this.flags.charAt(3) == '1' ? true : false;
 			if( doDenormDeepCopy ) {
-				this.saveTestParameters(args, "denormdeepcopy");
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=denormdeepcopy"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "denormdeepcopy");
 				System.out.println("\n\n\nRunning the DENORM DEEP COPY test.\n\n\n");
-				CreateDatabaseSparkDeepCopyTest2.main(args);
+				CreateDatabaseSparkDeepCopyTest2.main(argsCopy);
 			}
 			boolean doMerge = this.flags.charAt(4) == '1' ? true : false;
 			if( doMerge ) {
