@@ -135,7 +135,7 @@ public class CreateDatabaseSparkWritePartitionedTest6 extends CreateDatabaseSpar
 		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
 		StringBuilder builder = new StringBuilder(sqlQuery);
 		if( this.partition ) {
-			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
+			int pos = Arrays.asList(Partitioning.tables).indexOf(tableNameRoot);
 			if( pos != -1 )
 				builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n" );
 		}
