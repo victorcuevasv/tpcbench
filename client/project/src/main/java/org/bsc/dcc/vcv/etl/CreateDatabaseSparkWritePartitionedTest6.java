@@ -134,14 +134,14 @@ public class CreateDatabaseSparkWritePartitionedTest6 extends CreateDatabaseSpar
 			String format, Optional<String> extTablePrefixCreated) {
 		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
 		StringBuilder builder = new StringBuilder(sqlQuery);
+		builder.append("USING " + format.toUpperCase() + "\n");
+		if( format.equals("parquet") )
+			builder.append("OPTIONS ('compression'='snappy')\n");
 		if( this.partition ) {
 			int pos = Arrays.asList(Partitioning.tables).indexOf(tableNameRoot);
 			if( pos != -1 )
 				builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n" );
 		}
-		builder.append("USING " + format.toUpperCase() + "\n");
-		if( format.equals("parquet") )
-			builder.append("OPTIONS ('compression'='snappy')\n");
 		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
 		return builder.toString();
 	}
