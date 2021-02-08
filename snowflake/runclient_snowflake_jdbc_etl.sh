@@ -83,7 +83,7 @@ args[14]="--server-hostname=$Host"
 #username for the connection
 args[15]="--connection-username=bsctest"
 #cluster id or name of cluster to use
-args[16]="--cluster-id=testwhxlarge"
+args[16]="--cluster-id=testwhxsmall"
 #queries dir within the jar
 args[17]="--queries-dir-in-jar=QueriesSnowflake"
 #all or create table file
