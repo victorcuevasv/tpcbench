@@ -33,7 +33,7 @@ import org.apache.commons.cli.DefaultParser;
 public class CreateDatabaseDeepCopyTest2 extends CreateDatabaseDenormETLTask {
 	
 	
-	public CreateDatabaseDenormTest1(CommandLine commandLine) {	
+	public CreateDatabaseDeepCopyTest2(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
