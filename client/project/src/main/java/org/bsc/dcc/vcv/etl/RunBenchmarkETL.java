@@ -103,7 +103,6 @@ public class RunBenchmarkETL {
 				System.out.println("\n\n\nRunning the LOAD DENORM test.\n\n\n");
 				CreateDatabaseDenormTest1.main(argsCopy);
 			}
-			/*
 			boolean doDenormDeepCopy = this.flags.charAt(3) == '1' ? true : false;
 			if( doDenormDeepCopy ) {
 				Stream<String> argsStream = Arrays.stream(args)
@@ -113,8 +112,9 @@ public class RunBenchmarkETL {
 						.toArray(new String[0]);
 				this.saveTestParameters(argsCopy, "denormdeepcopy");
 				System.out.println("\n\n\nRunning the DENORM DEEP COPY test.\n\n\n");
-				CreateDatabaseSparkDeepCopyTest2.main(argsCopy);
+				CreateDatabaseDeepCopyTest2.main(argsCopy);
 			}
+			/*
 			boolean doMerge = this.flags.charAt(4) == '1' ? true : false;
 			if( doMerge ) {
 				Stream<String> argsStream = Arrays.stream(args)
