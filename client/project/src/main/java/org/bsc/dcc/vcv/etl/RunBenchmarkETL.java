@@ -114,7 +114,6 @@ public class RunBenchmarkETL {
 				System.out.println("\n\n\nRunning the DENORM DEEP COPY test.\n\n\n");
 				CreateDatabaseDeepCopyTest2.main(argsCopy);
 			}
-			/*
 			boolean doMerge = this.flags.charAt(4) == '1' ? true : false;
 			if( doMerge ) {
 				Stream<String> argsStream = Arrays.stream(args)
@@ -124,8 +123,9 @@ public class RunBenchmarkETL {
 						.toArray(new String[0]);
 				this.saveTestParameters(argsCopy, "denormmerge");
 				System.out.println("\n\n\nRunning the DENORM MERGE test.\n\n\n");
-				CreateDatabaseSparkMergeTest3.main(argsCopy);
+				CreateDatabaseMergeTest3.main(argsCopy);
 			}
+			/*
 			boolean doBillionInts = this.flags.charAt(5) == '1' ? true : false;
 			if( doBillionInts ) {
 				Stream<String> argsStream = Arrays.stream(args)
