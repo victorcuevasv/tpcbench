@@ -33,6 +33,7 @@ DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 #Run configuration.
 Tag="$(date +%s)"
 ExperimentName="tpcds-dbrsql-$1gb-${Tag}"
+DirNameWarehouse="tpcds-dbrsql-$1gb-$2-${Tag}"
 DirNameResults="dbrsql"
 DatabaseName="tpcds_sf3000_delta"
 #DatabaseName="tpcds_dbrsql_$1gb_$2_${Tag}"
