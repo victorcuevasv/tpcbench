@@ -145,7 +145,7 @@ public class RunBenchmarkETL {
 						.toArray(new String[0]);
 				this.saveTestParameters(argsCopy, "writeunpartitioned");
 				System.out.println("\n\n\nRunning the WRITE UNPARTITIONED test.\n\n\n");
-				CreateDatabaseSparkWriteUnPartitionedTest5.main(argsCopy);
+				CreateDatabaseWriteUnPartitionedTest5.main(argsCopy);
 			}
 			/*
 			boolean doWritePartitioned = this.flags.charAt(7) == '1' ? true : false;
