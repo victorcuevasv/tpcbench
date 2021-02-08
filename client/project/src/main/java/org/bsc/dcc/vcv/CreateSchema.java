@@ -127,7 +127,8 @@ public class CreateSchema {
 						this.hostname + ":10015/", "hive", "");
 			}
 			else if( this.system.startsWith("snowflake") ) {
-				String snowflakePwd = AWSUtil.getValue("SnowflakePassword");
+				//String snowflakePwd = AWSUtil.getValue("SnowflakePassword");
+				String snowflakePwd = this.dbPassword;
 				Class.forName(snowflakeDriverName);
 				this.con = DriverManager.getConnection("jdbc:snowflake://" + 
 				"zua56993.snowflakecomputing.com" + "/?" +

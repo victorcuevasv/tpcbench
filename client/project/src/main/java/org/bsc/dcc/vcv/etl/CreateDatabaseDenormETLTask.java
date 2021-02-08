@@ -181,7 +181,8 @@ public abstract class CreateDatabaseDenormETLTask {
 						this.hostname + ":10015/" + this.dbName, "hive", "");
 			}
 			else if( this.systemRunning.startsWith("snowflake") ) {
-				String snowflakePwd = AWSUtil.getValue("SnowflakePassword");
+				//String snowflakePwd = AWSUtil.getValue("SnowflakePassword");
+				String snowflakePwd = this.dbPassword;
 				Class.forName(snowflakeDriverName);
 				this.con = DriverManager.getConnection("jdbc:snowflake://" + 
 						this.hostname + "/?" +
