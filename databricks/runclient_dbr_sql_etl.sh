@@ -118,7 +118,7 @@ if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 	--volume $DIR/../client/project:/project \
 	--volume $HOME/tpcdsbench/client/project/target:/mnt/tpcds-jars/target \
 	--entrypoint mvn clientbuilder:dev \
-	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmarkETL" \
+	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.etl.RunBenchmarkETL" \
 	-Dexec.args="$paramsStr" \
 	-f /project/pom.xml
 fi
