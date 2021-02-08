@@ -92,13 +92,18 @@ public class RunBenchmarkETL {
 				System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
 				CreateDatabase.main(args);
 			}
-			/*
 			boolean doLoadDenorm = this.flags.charAt(2) == '1' ? true : false;
 			if( doLoadDenorm ) {
-				this.saveTestParameters(args, "loaddenorm");
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=loaddenorm"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "loaddenorm");
 				System.out.println("\n\n\nRunning the LOAD DENORM test.\n\n\n");
-				CreateDatabaseSparkDenorm.main(args);
+				CreateDatabaseDenormTest1.main(argsCopy);
 			}
+			/*
 			boolean doDenormDeepCopy = this.flags.charAt(3) == '1' ? true : false;
 			if( doDenormDeepCopy ) {
 				Stream<String> argsStream = Arrays.stream(args)

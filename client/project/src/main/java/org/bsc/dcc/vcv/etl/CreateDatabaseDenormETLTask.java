@@ -232,7 +232,7 @@ public abstract class CreateDatabaseDenormETLTask {
 	}
 	
 	
-	private void useDatabaseQuery(String dbName) {
+	protected void useDatabaseQuery(String dbName) {
 		try {
 			Statement stmt = this.con.createStatement();
 			stmt.executeUpdate("USE DATABASE " + dbName);
@@ -277,7 +277,7 @@ public abstract class CreateDatabaseDenormETLTask {
 	}
 
 	
-	private void countRowsQuery(Statement stmt, String tableName) {
+	protected void countRowsQuery(Statement stmt, String tableName) {
 		try {
 			String sql = "select count(*) from " + tableName;
 			System.out.print("Running count query on " + tableName + ": ");
