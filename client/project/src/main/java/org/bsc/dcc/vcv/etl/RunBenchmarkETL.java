@@ -125,7 +125,6 @@ public class RunBenchmarkETL {
 				System.out.println("\n\n\nRunning the DENORM MERGE test.\n\n\n");
 				CreateDatabaseMergeTest3.main(argsCopy);
 			}
-			/*
 			boolean doBillionInts = this.flags.charAt(5) == '1' ? true : false;
 			if( doBillionInts ) {
 				Stream<String> argsStream = Arrays.stream(args)
@@ -135,8 +134,9 @@ public class RunBenchmarkETL {
 						.toArray(new String[0]);
 				this.saveTestParameters(argsCopy, "billionints");
 				System.out.println("\n\n\nRunning the BILLION INTS test.\n\n\n");
-				CreateDatabaseSparkBillionIntsTest4.main(argsCopy);
+				CreateDatabaseBillionIntsTest4.main(argsCopy);
 			}
+			/*
 			boolean doWriteUnPartitioned = this.flags.charAt(6) == '1' ? true : false;
 			if( doWriteUnPartitioned ) {
 				Stream<String> argsStream = Arrays.stream(args)

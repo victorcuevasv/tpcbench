@@ -101,6 +101,7 @@
 						<exclude>org/bsc/dcc/vcv/RunBenchmarkLimit.java</exclude>
 						<exclude>org/bsc/dcc/vcv/SnowflakeHistory.java</exclude>
 						<exclude>org/bsc/dcc/vcv/StatisticsQueries.java</exclude>
+						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseBillionIntsTest4.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseDeepCopyTest2.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseDenormETLTask.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseDenormTest1.java</exclude>
