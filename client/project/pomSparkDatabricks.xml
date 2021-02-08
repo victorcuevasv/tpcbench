@@ -106,6 +106,7 @@
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseDenormETLTask.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseDenormTest1.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseMergeTest3.java</exclude>
+						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseWriteUnPartitionedTest5.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/RunBenchmarkETL.java</exclude>
 					</excludes>
 					<testExcludes>

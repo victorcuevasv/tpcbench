@@ -136,7 +136,6 @@ public class RunBenchmarkETL {
 				System.out.println("\n\n\nRunning the BILLION INTS test.\n\n\n");
 				CreateDatabaseBillionIntsTest4.main(argsCopy);
 			}
-			/*
 			boolean doWriteUnPartitioned = this.flags.charAt(6) == '1' ? true : false;
 			if( doWriteUnPartitioned ) {
 				Stream<String> argsStream = Arrays.stream(args)
@@ -148,6 +147,7 @@ public class RunBenchmarkETL {
 				System.out.println("\n\n\nRunning the WRITE UNPARTITIONED test.\n\n\n");
 				CreateDatabaseSparkWriteUnPartitionedTest5.main(argsCopy);
 			}
+			/*
 			boolean doWritePartitioned = this.flags.charAt(7) == '1' ? true : false;
 			if( doWritePartitioned ) {
 				Stream<String> argsStream = Arrays.stream(args)
