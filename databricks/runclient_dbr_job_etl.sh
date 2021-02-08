@@ -82,7 +82,7 @@ args[12]="--use-column-stats=true"
 args[13]="--all-or-query-file=all" 
 # number of streams
 args[14]="--number-of-streams=$3"
-# flags 111
+# flags
 # schema       |load          |load denorm   |deep copy     |merge         |
 # billion ints |write un part |write part    |
 args[15]="--execution-flags=11111111"

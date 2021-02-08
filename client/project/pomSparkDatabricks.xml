@@ -101,6 +101,7 @@
 						<exclude>org/bsc/dcc/vcv/RunBenchmarkLimit.java</exclude>
 						<exclude>org/bsc/dcc/vcv/SnowflakeHistory.java</exclude>
 						<exclude>org/bsc/dcc/vcv/StatisticsQueries.java</exclude>
+						<exclude>org/bsc/dcc/vcv/etl/RunBenchmarkETL.java</exclude>
 					</excludes>
 					<testExcludes>
         				<testExclude>org/bsc/dcc/vcv/RunBenchmarkOptionsTest.java</testExclude>

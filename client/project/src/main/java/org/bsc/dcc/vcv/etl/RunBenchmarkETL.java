@@ -1,8 +1,10 @@
 package org.bsc.dcc.vcv.etl;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.ArrayList;
@@ -11,17 +13,16 @@ import java.util.stream.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bsc.dcc.vcv.AppUtil;
-import org.bsc.dcc.vcv.CreateDatabaseSpark;
-import org.bsc.dcc.vcv.CreateDatabaseSparkDenorm;
-import org.bsc.dcc.vcv.CreateSchemaSpark;
-import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
+import org.bsc.dcc.vcv.CreateDatabase;
+import org.bsc.dcc.vcv.CreateSchema;
+import org.bsc.dcc.vcv.RunBenchmarkOptions;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
-public class RunBenchmarkSparkETL {
+public class RunBenchmarkETL {
 
 	
 	private static final Logger logger = LogManager.getLogger("AllLog");
@@ -38,16 +39,16 @@ public class RunBenchmarkSparkETL {
 	private final boolean forceCompaction;
 	
 	
-	public RunBenchmarkSparkETL(String args[]) throws Exception {
+	public RunBenchmarkETL(String args[]) throws Exception {
 		try {
-			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
+			RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
 			Options options = runOptions.getOptions();
 			CommandLineParser parser = new DefaultParser();
 			this.commandLine = parser.parse(options, args);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in RunBenchmarkSparkETL constructor.");
+			this.logger.error("Error in RunBenchmarkETL constructor.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 			throw e;
@@ -67,9 +68,9 @@ public class RunBenchmarkSparkETL {
 	
 	
 	public static void main(String[] args) {
-		RunBenchmarkSparkETL application = null;
+		RunBenchmarkETL application = null;
 		try {
-			application = new RunBenchmarkSparkETL(args);
+			application = new RunBenchmarkETL(args);
 		}
 		catch(Exception e) {
 			System.exit(1);
@@ -83,14 +84,15 @@ public class RunBenchmarkSparkETL {
 			boolean doSchema = this.flags.charAt(0) == '1' ? true : false;
 			if( doSchema ) {
 				System.out.println("\n\n\nCreating the database schema.\n\n\n");
-				CreateSchemaSpark.main(args);
+				CreateSchema.main(args);
 			}
 			boolean doLoad = this.flags.charAt(1) == '1' ? true : false;
 			if( doLoad ) {
 				this.saveTestParameters(args, "load");
 				System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
-				CreateDatabaseSpark.main(args);
+				CreateDatabase.main(args);
 			}
+			/*
 			boolean doLoadDenorm = this.flags.charAt(2) == '1' ? true : false;
 			if( doLoadDenorm ) {
 				this.saveTestParameters(args, "loaddenorm");
@@ -152,6 +154,7 @@ public class RunBenchmarkSparkETL {
 				System.out.println("\n\n\nRunning the WRITE PARTITIONED test.\n\n\n");
 				CreateDatabaseSparkWritePartitionedTest6.main(argsCopy);
 			}
+			*/
 			if( this.system.equals("sparkdatabricks")  ) {
 				this.executeCommand("mkdir -p /dbfs/mnt/tpcds-results-test/" + this.resultsDir);
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /dbfs/mnt/tpcds-results-test/" + this.resultsDir + "/");
@@ -199,13 +202,20 @@ public class RunBenchmarkSparkETL {
 	}
 
 	
-	private int executeCommand(String cmd) {
+	private String executeCommand(String cmd) {
 		ProcessBuilder processBuilder = new ProcessBuilder();
+		processBuilder.redirectErrorStream(true);
 		processBuilder.command("bash", "-c", cmd);
-		int exitVal = -1;
+		StringBuilder builder = new StringBuilder();
 		try {
 			Process process = processBuilder.start();
-			exitVal = process.waitFor();
+			BufferedReader input = new BufferedReader(new 
+				     InputStreamReader(process.getInputStream()));
+			String s = null;
+			while ((s = input.readLine()) != null) {
+			    builder.append(s);
+			}
+			int exitVal = process.waitFor();
 		}
 		catch(IOException ioe) {
 			ioe.printStackTrace();
@@ -213,7 +223,7 @@ public class RunBenchmarkSparkETL {
 		catch(InterruptedException ie) {
 			ie.printStackTrace();
 		}
-		return exitVal;
+		return builder.toString();
 	}
 
 	
