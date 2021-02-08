@@ -107,10 +107,12 @@ args[24]="--num-cores=${NumCores}"
 args[25]="--power-test-runs=1"
 #use multiple connections
 args[26]="--multiple-connections=true"
+# all or denorm table file
+args[27]="--denorm-all-or-file=store_sales.sql"
 # flags
 # schema       |load          |load denorm   |deep copy     |merge         |
 # billion ints |write un part |write part    |
-args[27]="--execution-flags=11111111"
+args[28]="--execution-flags=11111111"
 
 paramsStr="${args[@]}"
 
