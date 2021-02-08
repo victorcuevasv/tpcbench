@@ -55,7 +55,8 @@ args[2]="--results-dir=$DirNameResults"
 #experiment name (name of subfolder within the results folder)
 args[3]="--experiment-name=$ExperimentName"
 #system name (system name used within the logs)
-args[4]="--system-name=databrickssql"
+#args[4]="--system-name=databrickssql"
+args[4]="--system-name=sparkdatabricksjdbc"
 
 #experiment instance number
 args[5]="--instance-number=$2"
