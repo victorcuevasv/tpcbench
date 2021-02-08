@@ -61,7 +61,7 @@ public class CreateDatabaseMergeTest3 extends CreateDatabaseDenormETLTask {
 	
 	protected void doTask() {
 		// Process each .sql create table file found in the jar file.
-		this.useDatabase(this.dbName);
+		this.useDatabaseQuery(this.dbName);
 		this.recorder.header();
 		//Override the default createTableReader to read from QueriesETLTest3
 		JarCreateTableReaderAsZipFile createTableReader = new JarCreateTableReaderAsZipFile(
