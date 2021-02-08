@@ -61,7 +61,7 @@ public class CreateDatabaseDenormTest1 extends CreateDatabaseDenormETLTask {
 	
 	protected void doTask() {
 		// Process each .sql create table file found in the jar file.
-		this.useDatabase(this.dbName);
+		this.useDatabaseQuery(this.dbName);
 		this.recorder.header();
 		List<String> unorderedList = this.createTableReader.getFiles();
 		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
