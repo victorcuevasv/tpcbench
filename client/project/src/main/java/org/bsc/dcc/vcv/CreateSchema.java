@@ -93,7 +93,8 @@ public class CreateSchema {
 						this.hostname + ":8889/hive/", "hadoop", "");
 			}
 			else if( this.system.equals("sparkdatabricksjdbc") ) {
-				String dbrToken = AWSUtil.getValue("DatabricksToken");
+				//String dbrToken = AWSUtil.getValue("DatabricksToken");
+				String dbrToken = this.dbPassword;
 				Class.forName(databricksDriverName);
 				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
