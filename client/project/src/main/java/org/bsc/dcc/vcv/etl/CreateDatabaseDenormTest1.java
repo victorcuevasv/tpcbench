@@ -19,7 +19,6 @@ import java.sql.DriverManager;
 import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.spark.sql.SparkSession;
 import org.bsc.dcc.vcv.AppUtil;
 import org.bsc.dcc.vcv.Partitioning;
 import org.bsc.dcc.vcv.QueryRecord;
