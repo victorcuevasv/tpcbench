@@ -71,6 +71,7 @@ public abstract class CreateDatabaseDenormETLTask {
 	protected final String hostname;
 	protected final String dbPassword;
 	protected final int numCores;
+	protected final String userId;
 	
 	public CreateDatabaseDenormETLTask(CommandLine commandLine) {
 		this.workDir = commandLine.getOptionValue("main-work-dir");
@@ -107,6 +108,7 @@ public abstract class CreateDatabaseDenormETLTask {
 		this.dbPassword = commandLine.getOptionValue("db-password", "UNUSED");
 		String numCoresStr = commandLine.getOptionValue("num-cores", "-1");
 		this.numCores = Integer.parseInt(numCoresStr);
+		this.userId = commandLine.getOptionValue("connection-username", "UNUSED");
 		this.openConnection();
 	}
 	
