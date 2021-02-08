@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.bsc.dcc.vcv.AppUtil;
 import org.bsc.dcc.vcv.Partitioning;
 import org.bsc.dcc.vcv.QueryRecord;
-import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
+import org.bsc.dcc.vcv.RunBenchmarkOptions;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
