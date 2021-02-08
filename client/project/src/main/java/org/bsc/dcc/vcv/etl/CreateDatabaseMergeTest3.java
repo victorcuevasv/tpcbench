@@ -33,7 +33,7 @@ import org.apache.commons.cli.DefaultParser;
 public class CreateDatabaseMergeTest3 extends CreateDatabaseDenormETLTask {
 	
 	
-	public CreateDatabasekMergeTest3(CommandLine commandLine) {	
+	public CreateDatabaseMergeTest3(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
