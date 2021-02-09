@@ -39,7 +39,7 @@ DirNameResults="snowflake"
 DatabaseName="tpcds_snowflake_$1gb_$2_${Tag}"
 #DatabaseName="tpcds_snowflake_3000gb_1_1602522157"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
-ClusterId="ae3c73418863d117"
+ClusterId="testwhxsmall"
 DatabasePassword="" 
 
 RUN_RUN_BENCHMARK=1
@@ -83,7 +83,7 @@ args[14]="--server-hostname=$Host"
 #username for the connection
 args[15]="--connection-username=bsctest"
 #cluster id or name of cluster to use
-args[16]="--cluster-id=testwhxsmall"
+args[16]="--cluster-id=$ClusterId"
 #queries dir within the jar
 args[17]="--queries-dir-in-jar=QueriesSnowflake"
 #all or create table file
