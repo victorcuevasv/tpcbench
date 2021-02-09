@@ -21,8 +21,8 @@ fi
 
 #Cluster configuration.
 Nodes="2"
-Version="5.29.0"
-VersionShort="529"
+Version="6.2.0"
+VersionShort="620"
 AutoTerminate="true"
 #Run configuration.
 Tag="$(date +%s)"
