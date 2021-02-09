@@ -73,8 +73,10 @@ args[14]="--all-or-query-file=all"
 
 # number of streams
 args[15]="--number-of-streams=$3"
+#number of runs to perform for the power test (default 1)
+args[16]="--power-test-runs=1"
 # flags (111111 schema|load|analyze|zorder|power|tput)
-args[16]="--execution-flags=111010"
+args[17]="--execution-flags=111010"
 
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
