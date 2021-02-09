@@ -50,6 +50,7 @@ public class ExecuteQueriesSpark {
 	private final boolean saveResults;
 	private final String jarFile;
 	private final String querySingleOrAll;
+	private final int runs;
 
 	public ExecuteQueriesSpark(CommandLine commandLine) {
 		try {
@@ -84,6 +85,8 @@ public class ExecuteQueriesSpark {
 			this.querySingleOrAll = "all";
 		else
 			this.querySingleOrAll = commandLine.getOptionValue("all-or-query-file");
+		String runsStr = commandLine.getOptionValue("power-test-runs", "1");
+		this.runs = Integer.parseInt(runsStr);
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
@@ -129,6 +132,7 @@ public class ExecuteQueriesSpark {
 		this.savePlans = Boolean.parseBoolean(args[10]);
 		this.saveResults = Boolean.parseBoolean(args[11]);
 		this.jarFile = args[12];
+		this.runs = 1;
 		//If running the zorder test, force the execution of all queries
 		if( this.test.equals("zorder") )
 			this.querySingleOrAll = "all";

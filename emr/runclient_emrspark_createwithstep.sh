@@ -227,15 +227,12 @@ configurations_func()
          "spark.sql.crossJoin.enabled":"true"
       }
    },
-   {
-      "Classification":"hive-site",
-      "Properties":{
-         "javax.jdo.option.ConnectionURL": "jdbc:mysql://metastoremysql.crhrootttpzi.us-west-2.rds.amazonaws.com:3306/hive?createDatabaseIfNotExist=true",
-         "javax.jdo.option.ConnectionDriverName": "org.mariadb.jdbc.Driver",
-         "javax.jdo.option.ConnectionUserName": "hive",
-         "javax.jdo.option.ConnectionPassword": "hive"
-      }
-   }
+  {
+    "Classification": "spark-hive-site",
+    "Properties": {
+      "hive.metastore.client.factory.class": "com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"
+    }
+  }
 ]
 EOF
 }
