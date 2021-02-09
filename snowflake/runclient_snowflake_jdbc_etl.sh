@@ -101,10 +101,12 @@ args[22]="--power-test-runs=1"
 args[23]="--multiple-connections=true"
 # all or denorm table file
 args[24]="--denorm-all-or-file=store_sales.sql"
+# database password
+args[25]="--db-password=$DatabasePassword"
 # flags
 # schema       |load          |load denorm   |deep copy     |merge         |
 # billion ints |write un part |write part    |
-args[25]="--execution-flags=11111111"
+args[26]="--execution-flags=11111111"
 
 paramsStr="${args[@]}"
 
