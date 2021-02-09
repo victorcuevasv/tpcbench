@@ -60,7 +60,10 @@ public class CreateDatabaseBillionIntsTest4 extends CreateDatabaseDenormETLTask 
 	
 	protected void doTask() {
 		// Process each .sql create table file found in the jar file.
-		this.useDatabaseQuery(this.dbName);
+		if( this.system.contains("spark") )
+			this.useDatabaseQuery(this.dbName);
+		else if( this.system.startsWith("snowflake") )
+			this.prepareSnowflake();
 		this.recorder.header();
 		List<String> unorderedList = this.createTableReader.getFiles();
 		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
@@ -91,15 +94,12 @@ public class CreateDatabaseBillionIntsTest4 extends CreateDatabaseDenormETLTask 
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			this.dropTable("drop table if exists " + tableName);
-			StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "\n");
-			builder.append("(" + tableName + " int)\n");
-			builder.append("USING " + format.toUpperCase() + "\n");
-			if( this.format.equals("parquet") )
-				builder.append("OPTIONS ('compression'='snappy')\n");
-			builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
-			String sqlCreate = builder.toString();
+			String sqlCreate = this.createTableStatement(sqlQuery, tableName, 
+					this.format, this.extTablePrefixCreated);
+			if( this.system.startsWith("snowflake") )
+				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableName);
 			saveCreateTableFile("billionintscreate", tableName, sqlCreate);
-			builder = new StringBuilder("INSERT INTO " + tableName + " SELECT " + tableName + 
+			StringBuilder builder = new StringBuilder("INSERT INTO " + tableName + " SELECT " + tableName + 
 					" FROM " + tableNameRoot + "\n");
 			String sqlInsert = builder.toString();
 			saveCreateTableFile("billionintsinsert", tableName, sqlInsert);
@@ -127,6 +127,27 @@ public class CreateDatabaseBillionIntsTest4 extends CreateDatabaseDenormETLTask 
 	}
 	
 
+	private String createTableStatement(String sqlQuery, String tableName,
+			String format, Optional<String> extTablePrefixCreated) {
+		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "\n");
+		builder.append("(" + tableName + " int)\n");
+		builder.append("USING " + format.toUpperCase() + "\n");
+		if( this.format.equals("parquet") )
+			builder.append("OPTIONS ('compression'='snappy')\n");
+		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
+		String sqlCreate = builder.toString();
+		return sqlCreate;
+	}
+	
+	
+	private String createTableStatementSnowflake(String sqlQuery, String tableName) {
+		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "\n");
+		builder.append("(" + tableName + " int)\n");
+		String sqlCreate = builder.toString();
+		return sqlCreate;
+	}
+	
+	
 }
 
 

@@ -61,7 +61,10 @@ public class CreateDatabaseDenormTest1 extends CreateDatabaseDenormETLTask {
 	
 	protected void doTask() {
 		// Process each .sql create table file found in the jar file.
-		this.useDatabaseQuery(this.dbName);
+		if( this.system.contains("spark") )
+			this.useDatabaseQuery(this.dbName);
+		else if( this.system.startsWith("snowflake") )
+			this.prepareSnowflake();
 		this.recorder.header();
 		List<String> unorderedList = this.createTableReader.getFiles();
 		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
@@ -94,6 +97,8 @@ public class CreateDatabaseDenormTest1 extends CreateDatabaseDenormETLTask {
 			this.dropTable("drop table if exists " + tableName);
 			String sqlCreate = this.createTableStatement(sqlQuery, tableNameRoot, this.format,
 					this.extTablePrefixCreated);
+			if( this.system.startsWith("snowflake") )
+				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot);
 			saveCreateTableFile("denorm", tableName, sqlCreate);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
@@ -140,6 +145,18 @@ public class CreateDatabaseDenormTest1 extends CreateDatabaseDenormETLTask {
 			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
 			if( pos != -1 )
 				builder.append("DISTRIBUTE BY " + Partitioning.partKeys[pos] + " \n" );
+		}
+		return builder.toString();
+	}
+	
+	
+	private String createTableStatementSnowflake(String sqlQuery, String tableName) {
+		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "_denorm\n");
+		builder.append("AS\n");
+		builder.append(sqlQuery);
+		if( this.filterKeys.get(tableName) != null ) {
+			builder.append("and " + this.filterKeys.get(tableName) + " = " + 
+					this.filterValues.get(tableName) + "\n");
 		}
 		return builder.toString();
 	}

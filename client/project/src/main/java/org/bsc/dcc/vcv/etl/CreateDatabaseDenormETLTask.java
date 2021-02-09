@@ -72,6 +72,7 @@ public abstract class CreateDatabaseDenormETLTask {
 	protected final String dbPassword;
 	protected final int numCores;
 	protected final String userId;
+	private final boolean useCachedResultSnowflake = false;
 	
 	public CreateDatabaseDenormETLTask(CommandLine commandLine) {
 		this.workDir = commandLine.getOptionValue("main-work-dir");
@@ -246,6 +247,54 @@ public abstract class CreateDatabaseDenormETLTask {
 			e.printStackTrace();
 			this.logger.error(e);
 		}
+	}
+	
+	
+	private void useSchemaQuery(String schemaName) {
+		try {
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate("USE SCHEMA " + schemaName);
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
+	}
+	
+	
+	private void useSnowflakeWarehouseQuery(String warehouseName) {
+		try {
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate("USE WAREHOUSE " + warehouseName);
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			this.logger.error(e);
+		}
+	}
+	
+	
+	private void setSnowflakeDefaultSessionOpts() {
+		try {
+			Statement sessionStmt = this.con.createStatement();
+			sessionStmt.executeUpdate("ALTER SESSION SET USE_CACHED_RESULT = " + this.useCachedResultSnowflake);
+			sessionStmt.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in setSnowflakeDefaultSessionOpts");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+	}
+	
+	
+	protected void prepareSnowflake() {
+		this.useDatabaseQuery(this.dbName);
+		this.useSchemaQuery(this.dbName);
+		this.useSnowflakeWarehouseQuery(this.clusterId);	
 	}
 	
 	

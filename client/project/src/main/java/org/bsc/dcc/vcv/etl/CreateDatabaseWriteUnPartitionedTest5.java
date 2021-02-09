@@ -62,7 +62,10 @@ public class CreateDatabaseWriteUnPartitionedTest5 extends CreateDatabaseDenormE
 	
 	protected void doTask() {
 		// Process each .sql create table file found in the jar file.
-		this.useDatabaseQuery(this.dbName);
+		if( this.system.contains("spark") )
+			this.useDatabaseQuery(this.dbName);
+		else if( this.system.startsWith("snowflake") )
+			this.prepareSnowflake();
 		this.recorder.header();
 		//Override the default createTableReader to read from tables
 		JarCreateTableReaderAsZipFile createTableReader = new JarCreateTableReaderAsZipFile(
@@ -96,14 +99,10 @@ public class CreateDatabaseWriteUnPartitionedTest5 extends CreateDatabaseDenormE
 			this.logger.info("Processing table " + index + ": " + tableNameRoot);
 			String tableName = tableNameRoot + "_not_partitioned";
 			this.dropTable("drop table if exists " + tableName);
-			sqlQuery = this.incompleteCreateTable(sqlQuery);
-			sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
-			StringBuilder builder = new StringBuilder(sqlQuery + "\n");
-			builder.append("USING " + format.toUpperCase() + "\n");
-			if( this.format.equals("parquet") )
-				builder.append("OPTIONS ('compression'='snappy')\n");
-			builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
-			String sqlCreate = builder.toString();
+			String sqlCreate = this.createTableStatement(sqlQuery, tableNameRoot, tableName, 
+					this.format, this.extTablePrefixCreated);
+			if( this.system.startsWith("snowflake") )
+				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot, tableName);
 			saveCreateTableFile("writeunpartitionedcreate", tableName, sqlCreate);
 			String sqlInsert = "insert into " + tableName + " select * from " + tableNameRoot;
 			saveCreateTableFile("writeunpartitionedinsert", tableName, sqlInsert);
@@ -153,6 +152,30 @@ public class CreateDatabaseWriteUnPartitionedTest5 extends CreateDatabaseDenormE
 		builder.append(") \n");
 		// Version 2.1 of Hive does not recognize integer, so use int instead.
 		return builder.toString().replace("integer", "int    ");
+	}
+	
+	
+	private String createTableStatement(String sqlQuery, String tableNameRoot, String tableName, 
+			String format, Optional<String> extTablePrefixCreated) {
+		sqlQuery = this.incompleteCreateTable(sqlQuery);
+		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
+		StringBuilder builder = new StringBuilder(sqlQuery + "\n");
+		builder.append("USING " + format.toUpperCase() + "\n");
+		if( this.format.equals("parquet") )
+			builder.append("OPTIONS ('compression'='snappy')\n");
+		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
+		String sqlCreate = builder.toString();
+		return builder.toString();
+	}
+	
+	
+	private String createTableStatementSnowflake(String sqlQuery, String tableNameRoot, 
+			String tableName) {
+		sqlQuery = this.incompleteCreateTable(sqlQuery);
+		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
+		StringBuilder builder = new StringBuilder(sqlQuery + "\n");
+		String sqlCreate = builder.toString();
+		return builder.toString();
 	}
 
 	
