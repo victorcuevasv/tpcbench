@@ -61,7 +61,10 @@ public class CreateDatabaseMergeTest3 extends CreateDatabaseDenormETLTask {
 	
 	protected void doTask() {
 		// Process each .sql create table file found in the jar file.
-		this.useDatabaseQuery(this.dbName);
+		if( this.system.contains("spark") )
+			this.useDatabaseQuery(this.dbName);
+		else if( this.system.startsWith("snowflake") )
+			this.prepareSnowflake();
 		this.recorder.header();
 		//Override the default createTableReader to read from QueriesETLTest3
 		JarCreateTableReaderAsZipFile createTableReader = new JarCreateTableReaderAsZipFile(
