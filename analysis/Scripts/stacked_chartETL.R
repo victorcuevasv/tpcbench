@@ -182,7 +182,7 @@ metricsDigits<-new.env()
 metricsDigits[["AVG_TOTAL_DURATION_HOUR"]] <- 2
 metricsDigits[["AVG_SPEEDUP"]] <- 2
 metricsYaxisLimit<-new.env()
-metricsYaxisLimit[["AVG_TOTAL_DURATION_HOUR"]] <- 3.0
+metricsYaxisLimit[["AVG_TOTAL_DURATION_HOUR"]] <- 8.0
 metricsYaxisLimit[["AVG_SPEEDUP"]] <- 2.0
 
 args <- commandArgs(TRUE)
