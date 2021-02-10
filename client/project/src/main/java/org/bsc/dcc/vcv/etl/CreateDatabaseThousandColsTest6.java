@@ -103,7 +103,7 @@ public class CreateDatabaseThousandColsTest6 extends CreateDatabaseDenormETLTask
 					tableName, this.format, this.extTablePrefixCreated, this.partition);
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableName);
-			saveCreateTableFile("denormthousandcols", tableName, sqlQuery);
+			saveCreateTableFile("denormthousandcols", tableName, sqlCreate);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());

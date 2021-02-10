@@ -103,7 +103,7 @@ public class CreateDatabaseSparkThousandColsTest6 extends CreateDatabaseSparkDen
 			this.dropTable("drop table if exists " + tableName);
 			String sqlCreate = SQLThousandColsTest6.createTableStatement(sqlQuery, tableName, 
 					this.format, this.extTablePrefixCreated, this.partition);
-			saveCreateTableFile("denormthousandcols", tableName, sqlQuery);
+			saveCreateTableFile("denormthousandcols", tableName, sqlCreate);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(sqlCreate);
