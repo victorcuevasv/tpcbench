@@ -36,16 +36,16 @@ import org.bsc.dcc.vcv.QueryRecord;
 import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
 
 
-public class CreateDatabaseSparkWritePartitionedTest6 extends CreateDatabaseSparkDenormETLTask {
+public class CreateDatabaseSparkWritePartitionedTest3 extends CreateDatabaseSparkDenormETLTask {
 	
 	
-	public CreateDatabaseSparkWritePartitionedTest6(CommandLine commandLine) {	
+	public CreateDatabaseSparkWritePartitionedTest3(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseSparkWritePartitionedTest6 application = null;
+		CreateDatabaseSparkWritePartitionedTest3 application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
@@ -55,12 +55,12 @@ public class CreateDatabaseSparkWritePartitionedTest6 extends CreateDatabaseSpar
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseSparkWritePartitionedTest6 main.");
+			logger.error("Error in CreateDatabaseSparkWritePartitionedTest3 main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseSparkWritePartitionedTest6(commandLine);
+		application = new CreateDatabaseSparkWritePartitionedTest3(commandLine);
 		application.doTask();
 	}
 	
@@ -117,7 +117,7 @@ public class CreateDatabaseSparkWritePartitionedTest6 extends CreateDatabaseSpar
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkWritePartitionedTest6 writePartitioned.");
+			this.logger.error("Error in CreateDatabaseSparkWritePartitionedTest3 writePartitioned.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}

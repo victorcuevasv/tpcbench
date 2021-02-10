@@ -19,10 +19,16 @@ import java.sql.DriverManager;
 import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.spark.sql.SparkSession;
 import org.bsc.dcc.vcv.AppUtil;
+import org.bsc.dcc.vcv.JarCreateTableReaderAsZipFile;
 import org.bsc.dcc.vcv.Partitioning;
 import org.bsc.dcc.vcv.QueryRecord;
-import org.bsc.dcc.vcv.RunBenchmarkOptions;
+import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.Encoders;
+import org.apache.spark.sql.SaveMode;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
@@ -30,54 +36,54 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseDenormTest4 extends CreateDatabaseDenormETLTask {
+public class CreateDatabaseSparkThousandColsTest6 extends CreateDatabaseSparkDenormETLTask {
 	
 	
-	public CreateDatabaseDenormTest4(CommandLine commandLine) {	
+	public CreateDatabaseSparkThousandColsTest6(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseDenormTest4 application = null;
+		CreateDatabaseSparkThousandColsTest6 application = null;
 		CommandLine commandLine = null;
 		try {
-			RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
+			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
 			Options options = runOptions.getOptions();
 			CommandLineParser parser = new DefaultParser();
 			commandLine = parser.parse(options, args);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseDenormTest4 main.");
+			logger.error("Error in CreateDatabaseSparkThousandColsTest6 main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseDenormTest4(commandLine);
+		application = new CreateDatabaseSparkThousandColsTest6(commandLine);
 		application.doTask();
 	}
 	
 	
 	protected void doTask() {
 		// Process each .sql create table file found in the jar file.
-		if( this.system.contains("spark") )
-			this.useDatabaseQuery(this.dbName);
-		else if( this.system.startsWith("snowflake") )
-			this.prepareSnowflake();
+		this.useDatabase(this.dbName);
 		this.recorder.header();
-		List<String> unorderedList = this.createTableReader.getFiles();
+		//Override the default createTableReader to read from QueriesETLTest3
+		JarCreateTableReaderAsZipFile createTableReader = new JarCreateTableReaderAsZipFile(
+				this.jarFile, "QueriesETLTest6");
+		List<String> unorderedList = createTableReader.getFiles();
 		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
 		int i = 1;
 		for (final String fileName : orderedList) {
-			String sqlQuery = this.createTableReader.getFile(fileName);
+			String sqlQuery = createTableReader.getFile(fileName);
 			if( ! this.denormSingleOrAll.equals("all") ) {
 				if( ! fileName.equals(this.denormSingleOrAll) ) {
 					System.out.println("Skipping: " + fileName);
 					continue;
 				}
 			}
-			denorm(fileName, sqlQuery, i);
+			writeThousandCols(fileName, sqlQuery, i);
 			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -87,30 +93,27 @@ public class CreateDatabaseDenormTest4 extends CreateDatabaseDenormETLTask {
 	}
 	
 	
-	private void denorm(String sqlCreateFilename, String sqlQuery, int index) {
+	private void writeThousandCols(String sqlCreateFilename, String sqlQuery, int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableNameRoot = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
-			String tableName = tableNameRoot + "_denorm";
-			System.out.println("Processing table " + index + ": " + tableName);
-			this.logger.info("Processing table " + index + ": " + tableName);
+			String tableName = tableNameRoot + "_denorm_column_concat";
+			System.out.println("Processing table " + index + ": " + tableNameRoot + "_denorm");
+			this.logger.info("Processing table " + index + ": " + tableNameRoot + "_denorm");
 			this.dropTable("drop table if exists " + tableName);
-			String sqlCreate = this.createTableStatement(sqlQuery, tableNameRoot, this.format,
+			String sqlCreate = this.createTableStatement(sqlQuery, tableName, this.format,
 					this.extTablePrefixCreated);
-			if( this.system.startsWith("snowflake") )
-				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot);
-			saveCreateTableFile("denorm", tableName, sqlCreate);
-			Statement stmt = this.con.createStatement();
+			saveCreateTableFile("denormthousandcols", tableName, sqlQuery);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
-			stmt.execute(sqlCreate);
+			this.spark.sql(sqlCreate);
 			queryRecord.setSuccessful(true);
 			if( this.doCount )
-				countRowsQuery(stmt, tableName);
+				countRowsQuery(tableName);
 		}
-		catch (SQLException e) {
+		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseDenormTest4 denorm.");
+			this.logger.error("Error in CreateDatabaseSparkThousandColsTest6 merge.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -125,39 +128,17 @@ public class CreateDatabaseDenormTest4 extends CreateDatabaseDenormETLTask {
 	
 	private String createTableStatement(String sqlQuery, String tableName, String format,
 			Optional<String> extTablePrefixCreated) {
-		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "_denorm\n");
-		builder.append("USING " + format.toUpperCase() + "\n");
+		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + " ");
+		builder.append("USING " + format + " ");
 		if( format.equals("parquet") )
-			builder.append("OPTIONS ('compression'='snappy')\n");
-		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "_denorm" + "' \n");
+			builder.append("OPTIONS ('compression'='snappy') ");
+		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
 		if( this.partition ) {
 			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
 			if( pos != -1 )
-				builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n" );
+				builder.append("partitioned BY (d_date_sk) AS\n" );
 		}
-		builder.append("AS\n");
 		builder.append(sqlQuery);
-		if( this.filterKeys.get(tableName) != null ) {
-			builder.append("and " + this.filterKeys.get(tableName) + " = " + 
-					this.filterValues.get(tableName) + "\n");
-		}
-		if( this.partition ) {
-			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
-			if( pos != -1 )
-				builder.append("DISTRIBUTE BY " + Partitioning.partKeys[pos] + " \n" );
-		}
-		return builder.toString();
-	}
-	
-	
-	private String createTableStatementSnowflake(String sqlQuery, String tableName) {
-		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "_denorm\n");
-		builder.append("AS\n");
-		builder.append(sqlQuery);
-		if( this.filterKeys.get(tableName) != null ) {
-			builder.append("and " + this.filterKeys.get(tableName) + " = " + 
-					this.filterValues.get(tableName) + "\n");
-		}
 		return builder.toString();
 	}
 	

@@ -67,7 +67,7 @@ args[11]="--jar-file=$JarFile"
 # whether to generate statistics by analyzing tables (true/false)
 args[12]="--use-row-stats=true"
 # if argument above is true, whether to compute statistics for columns (true/false)
-args[13]="--use-column-stats=false"
+args[13]="--use-column-stats=true"
 # "all" or query file
 args[14]="--all-or-query-file=all"
 
@@ -76,7 +76,7 @@ args[15]="--number-of-streams=$3"
 #number of runs to perform for the power test (default 1)
 args[16]="--power-test-runs=1"
 # flags (111111 schema|load|analyze|zorder|power|tput)
-args[17]="--execution-flags=111010"
+args[17]="--execution-flags=111011"
 
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
@@ -227,12 +227,15 @@ configurations_func()
          "spark.sql.crossJoin.enabled":"true"
       }
    },
-  {
-    "Classification": "spark-hive-site",
-    "Properties": {
-      "hive.metastore.client.factory.class": "com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"
-    }
-  }
+   {
+      "Classification":"hive-site",
+      "Properties":{
+         "javax.jdo.option.ConnectionURL": "jdbc:mysql://metastoremysql.crhrootttpzi.us-west-2.rds.amazonaws.com:3306/hive?createDatabaseIfNotExist=true",
+         "javax.jdo.option.ConnectionDriverName": "org.mariadb.jdbc.Driver",
+         "javax.jdo.option.ConnectionUserName": "hive",
+         "javax.jdo.option.ConnectionPassword": "hive"
+      }
+   }
 ]
 EOF
 }

@@ -34,16 +34,16 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkDenormETLTask {
+public class CreateDatabaseSparkDeepCopyTest5 extends CreateDatabaseSparkDenormETLTask {
 	
 	
-	public CreateDatabaseSparkDeepCopyTest2(CommandLine commandLine) {	
+	public CreateDatabaseSparkDeepCopyTest5(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseSparkDeepCopyTest2 application = null;
+		CreateDatabaseSparkDeepCopyTest5 application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
@@ -53,12 +53,12 @@ public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkDenormE
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseSparkDeepCopyTest2 main.");
+			logger.error("Error in CreateDatabaseSparkDeepCopyTest5 main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseSparkDeepCopyTest2(commandLine);
+		application = new CreateDatabaseSparkDeepCopyTest5(commandLine);
 		application.doTask();
 	}
 	
@@ -114,7 +114,7 @@ public class CreateDatabaseSparkDeepCopyTest2 extends CreateDatabaseSparkDenormE
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkDeepCopyTest2 deepCopy.");
+			this.logger.error("Error in CreateDatabaseSparkDeepCopyTest5 deepCopy.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}

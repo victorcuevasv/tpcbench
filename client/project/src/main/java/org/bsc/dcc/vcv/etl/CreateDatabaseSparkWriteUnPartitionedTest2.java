@@ -36,16 +36,16 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseSparkWriteUnPartitionedTest5 extends CreateDatabaseSparkDenormETLTask {
+public class CreateDatabaseSparkWriteUnPartitionedTest2 extends CreateDatabaseSparkDenormETLTask {
 	
 	
-	public CreateDatabaseSparkWriteUnPartitionedTest5(CommandLine commandLine) {	
+	public CreateDatabaseSparkWriteUnPartitionedTest2(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseSparkWriteUnPartitionedTest5 application = null;
+		CreateDatabaseSparkWriteUnPartitionedTest2 application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
@@ -55,12 +55,12 @@ public class CreateDatabaseSparkWriteUnPartitionedTest5 extends CreateDatabaseSp
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseSparkWriteUnPartitionedTest5 main.");
+			logger.error("Error in CreateDatabaseSparkWriteUnPartitionedTest2 main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseSparkWriteUnPartitionedTest5(commandLine);
+		application = new CreateDatabaseSparkWriteUnPartitionedTest2(commandLine);
 		application.doTask();
 	}
 	
@@ -122,7 +122,7 @@ public class CreateDatabaseSparkWriteUnPartitionedTest5 extends CreateDatabaseSp
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkWriteUnPartitionedTest5 writeUnPartitioned.");
+			this.logger.error("Error in CreateDatabaseSparkWriteUnPartitionedTest2 writeUnPartitioned.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}

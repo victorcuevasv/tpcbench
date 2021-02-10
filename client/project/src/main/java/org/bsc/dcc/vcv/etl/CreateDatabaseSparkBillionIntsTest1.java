@@ -34,16 +34,16 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseSparkBillionIntsTest4 extends CreateDatabaseSparkDenormETLTask {
+public class CreateDatabaseSparkBillionIntsTest1 extends CreateDatabaseSparkDenormETLTask {
 	
 	
-	public CreateDatabaseSparkBillionIntsTest4(CommandLine commandLine) {	
+	public CreateDatabaseSparkBillionIntsTest1(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseSparkBillionIntsTest4 application = null;
+		CreateDatabaseSparkBillionIntsTest1 application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
@@ -53,12 +53,12 @@ public class CreateDatabaseSparkBillionIntsTest4 extends CreateDatabaseSparkDeno
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseSparkBillionIntsTest4 main.");
+			logger.error("Error in CreateDatabaseSparkBillionIntsTest1 main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseSparkBillionIntsTest4(commandLine);
+		application = new CreateDatabaseSparkBillionIntsTest1(commandLine);
 		application.doTask();
 	}
 	
@@ -118,7 +118,7 @@ public class CreateDatabaseSparkBillionIntsTest4 extends CreateDatabaseSparkDeno
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkBillionIntsTest4 billionInts.");
+			this.logger.error("Error in CreateDatabaseSparkBillionIntsTest1 billionInts.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}

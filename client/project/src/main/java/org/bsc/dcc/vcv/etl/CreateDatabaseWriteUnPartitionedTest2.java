@@ -31,16 +31,16 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseWriteUnPartitionedTest5 extends CreateDatabaseDenormETLTask {
+public class CreateDatabaseWriteUnPartitionedTest2 extends CreateDatabaseDenormETLTask {
 	
 	
-	public CreateDatabaseWriteUnPartitionedTest5(CommandLine commandLine) {	
+	public CreateDatabaseWriteUnPartitionedTest2(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseWriteUnPartitionedTest5 application = null;
+		CreateDatabaseWriteUnPartitionedTest2 application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
@@ -50,12 +50,12 @@ public class CreateDatabaseWriteUnPartitionedTest5 extends CreateDatabaseDenormE
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseWriteUnPartitionedTest5 main.");
+			logger.error("Error in CreateDatabaseWriteUnPartitionedTest2 main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseWriteUnPartitionedTest5(commandLine);
+		application = new CreateDatabaseWriteUnPartitionedTest2(commandLine);
 		application.doTask();
 	}
 	
@@ -117,7 +117,7 @@ public class CreateDatabaseWriteUnPartitionedTest5 extends CreateDatabaseDenormE
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseWriteUnPartitionedTest5 writeUnPartitioned.");
+			this.logger.error("Error in CreateDatabaseWriteUnPartitionedTest2 writeUnPartitioned.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}

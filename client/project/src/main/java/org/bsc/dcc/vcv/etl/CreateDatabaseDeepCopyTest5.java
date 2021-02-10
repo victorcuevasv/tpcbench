@@ -30,16 +30,16 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseDeepCopyTest2 extends CreateDatabaseDenormETLTask {
+public class CreateDatabaseDeepCopyTest5 extends CreateDatabaseDenormETLTask {
 	
 	
-	public CreateDatabaseDeepCopyTest2(CommandLine commandLine) {	
+	public CreateDatabaseDeepCopyTest5(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseDeepCopyTest2 application = null;
+		CreateDatabaseDeepCopyTest5 application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
@@ -49,12 +49,12 @@ public class CreateDatabaseDeepCopyTest2 extends CreateDatabaseDenormETLTask {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseDenormTest1 main.");
+			logger.error("Error in CreateDatabaseDeepCopyTest5 main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseDeepCopyTest2(commandLine);
+		application = new CreateDatabaseDeepCopyTest5(commandLine);
 		application.doTask();
 	}
 	
@@ -110,7 +110,7 @@ public class CreateDatabaseDeepCopyTest2 extends CreateDatabaseDenormETLTask {
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseDenormTest1 denorm.");
+			this.logger.error("Error in CreateDatabaseDeepCopyTest5 denorm.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}

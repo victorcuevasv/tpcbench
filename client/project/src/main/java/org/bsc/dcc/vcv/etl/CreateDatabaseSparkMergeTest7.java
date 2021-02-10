@@ -35,16 +35,16 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseSparkMergeTest3 extends CreateDatabaseSparkDenormETLTask {
+public class CreateDatabaseSparkMergeTest7 extends CreateDatabaseSparkDenormETLTask {
 	
 	
-	public CreateDatabaseSparkMergeTest3(CommandLine commandLine) {	
+	public CreateDatabaseSparkMergeTest7(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseSparkMergeTest3 application = null;
+		CreateDatabaseSparkMergeTest7 application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
@@ -54,12 +54,12 @@ public class CreateDatabaseSparkMergeTest3 extends CreateDatabaseSparkDenormETLT
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseSparkMergeTest3 main.");
+			logger.error("Error in CreateDatabaseSparkMergeTest7 main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseSparkMergeTest3(commandLine);
+		application = new CreateDatabaseSparkMergeTest7(commandLine);
 		application.doTask();
 	}
 	
@@ -70,7 +70,7 @@ public class CreateDatabaseSparkMergeTest3 extends CreateDatabaseSparkDenormETLT
 		this.recorder.header();
 		//Override the default createTableReader to read from QueriesETLTest3
 		JarCreateTableReaderAsZipFile createTableReader = new JarCreateTableReaderAsZipFile(
-				this.jarFile, "QueriesETLTest3");
+				this.jarFile, "QueriesETLTest7");
 		List<String> unorderedList = createTableReader.getFiles();
 		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
 		int i = 1;
@@ -108,7 +108,7 @@ public class CreateDatabaseSparkMergeTest3 extends CreateDatabaseSparkDenormETLT
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkMergeTest3 merge.");
+			this.logger.error("Error in CreateDatabaseSparkMergeTest7 merge.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}

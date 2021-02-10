@@ -92,40 +92,7 @@ public class RunBenchmarkETL {
 				System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
 				CreateDatabase.main(args);
 			}
-			boolean doLoadDenorm = this.flags.charAt(2) == '1' ? true : false;
-			if( doLoadDenorm ) {
-				Stream<String> argsStream = Arrays.stream(args)
-						.filter(s -> ! s.contains("tpcds-test"));
-				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=loaddenorm"), argsStream)
-						.collect(Collectors.toList())
-						.toArray(new String[0]);
-				this.saveTestParameters(argsCopy, "loaddenorm");
-				System.out.println("\n\n\nRunning the LOAD DENORM test.\n\n\n");
-				CreateDatabaseDenormTest1.main(argsCopy);
-			}
-			boolean doDenormDeepCopy = this.flags.charAt(3) == '1' ? true : false;
-			if( doDenormDeepCopy ) {
-				Stream<String> argsStream = Arrays.stream(args)
-						.filter(s -> ! s.contains("tpcds-test"));
-				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=denormdeepcopy"), argsStream)
-						.collect(Collectors.toList())
-						.toArray(new String[0]);
-				this.saveTestParameters(argsCopy, "denormdeepcopy");
-				System.out.println("\n\n\nRunning the DENORM DEEP COPY test.\n\n\n");
-				CreateDatabaseDeepCopyTest2.main(argsCopy);
-			}
-			boolean doMerge = this.flags.charAt(4) == '1' ? true : false;
-			if( doMerge ) {
-				Stream<String> argsStream = Arrays.stream(args)
-						.filter(s -> ! s.contains("tpcds-test"));
-				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=denormmerge"), argsStream)
-						.collect(Collectors.toList())
-						.toArray(new String[0]);
-				this.saveTestParameters(argsCopy, "denormmerge");
-				System.out.println("\n\n\nRunning the DENORM MERGE test.\n\n\n");
-				CreateDatabaseMergeTest3.main(argsCopy);
-			}
-			boolean doBillionInts = this.flags.charAt(5) == '1' ? true : false;
+			boolean doBillionInts = this.flags.charAt(2) == '1' ? true : false;
 			if( doBillionInts ) {
 				Stream<String> argsStream = Arrays.stream(args)
 						.filter(s -> ! s.contains("tpcds-test"));
@@ -134,9 +101,9 @@ public class RunBenchmarkETL {
 						.toArray(new String[0]);
 				this.saveTestParameters(argsCopy, "billionints");
 				System.out.println("\n\n\nRunning the BILLION INTS test.\n\n\n");
-				CreateDatabaseBillionIntsTest4.main(argsCopy);
+				CreateDatabaseBillionIntsTest1.main(argsCopy);
 			}
-			boolean doWriteUnPartitioned = this.flags.charAt(6) == '1' ? true : false;
+			boolean doWriteUnPartitioned = this.flags.charAt(3) == '1' ? true : false;
 			if( doWriteUnPartitioned ) {
 				Stream<String> argsStream = Arrays.stream(args)
 						.filter(s -> ! s.contains("tpcds-test"));
@@ -145,10 +112,10 @@ public class RunBenchmarkETL {
 						.toArray(new String[0]);
 				this.saveTestParameters(argsCopy, "writeunpartitioned");
 				System.out.println("\n\n\nRunning the WRITE UNPARTITIONED test.\n\n\n");
-				CreateDatabaseWriteUnPartitionedTest5.main(argsCopy);
+				CreateDatabaseWriteUnPartitionedTest2.main(argsCopy);
 			}
 			/*
-			boolean doWritePartitioned = this.flags.charAt(7) == '1' ? true : false;
+			boolean doWritePartitioned = this.flags.charAt(4) == '1' ? true : false;
 			if( doWritePartitioned ) {
 				Stream<String> argsStream = Arrays.stream(args)
 						.filter(s -> ! s.contains("tpcds-test"));
@@ -157,9 +124,53 @@ public class RunBenchmarkETL {
 						.toArray(new String[0]);
 				this.saveTestParameters(argsCopy, "writepartitioned");
 				System.out.println("\n\n\nRunning the WRITE PARTITIONED test.\n\n\n");
-				CreateDatabaseSparkWritePartitionedTest6.main(argsCopy);
+				CreateDatabaseSparkWritePartitionedTest3.main(argsCopy);
 			}
 			*/
+			boolean doLoadDenorm = this.flags.charAt(5) == '1' ? true : false;
+			if( doLoadDenorm ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=loaddenorm"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "loaddenorm");
+				System.out.println("\n\n\nRunning the LOAD DENORM test.\n\n\n");
+				CreateDatabaseDenormTest4.main(argsCopy);
+			}
+			boolean doDenormDeepCopy = this.flags.charAt(6) == '1' ? true : false;
+			if( doDenormDeepCopy ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=denormdeepcopy"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "denormdeepcopy");
+				System.out.println("\n\n\nRunning the DENORM DEEP COPY test.\n\n\n");
+				CreateDatabaseDeepCopyTest5.main(argsCopy);
+			}
+			boolean doThousandCols = this.flags.charAt(7) == '1' ? true : false;
+			if( doThousandCols ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=denormthousandcols"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "denormthousandcols");
+				System.out.println("\n\n\nRunning the DENORM THOUSAND COLS test.\n\n\n");
+				CreateDatabaseThousandColsTest6.main(argsCopy);
+			}
+			boolean doMerge = this.flags.charAt(8) == '1' ? true : false;
+			if( doMerge ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=denormmerge"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "denormmerge");
+				System.out.println("\n\n\nRunning the DENORM MERGE test.\n\n\n");
+				CreateDatabaseMergeTest7.main(argsCopy);
+			}
 			if( this.system.equals("sparkdatabricks")  ) {
 				this.executeCommand("mkdir -p /dbfs/mnt/tpcds-results-test/" + this.resultsDir);
 				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /dbfs/mnt/tpcds-results-test/" + this.resultsDir + "/");

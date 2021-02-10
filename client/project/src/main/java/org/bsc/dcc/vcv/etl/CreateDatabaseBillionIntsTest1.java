@@ -29,16 +29,16 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseBillionIntsTest4 extends CreateDatabaseDenormETLTask {
+public class CreateDatabaseBillionIntsTest1 extends CreateDatabaseDenormETLTask {
 	
 	
-	public CreateDatabaseBillionIntsTest4(CommandLine commandLine) {	
+	public CreateDatabaseBillionIntsTest1(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseBillionIntsTest4 application = null;
+		CreateDatabaseBillionIntsTest1 application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
@@ -48,12 +48,12 @@ public class CreateDatabaseBillionIntsTest4 extends CreateDatabaseDenormETLTask 
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseBillionIntsTest4 main.");
+			logger.error("Error in CreateDatabaseBillionIntsTest1 main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseBillionIntsTest4(commandLine);
+		application = new CreateDatabaseBillionIntsTest1(commandLine);
 		application.doTask();
 	}
 	
@@ -114,7 +114,7 @@ public class CreateDatabaseBillionIntsTest4 extends CreateDatabaseDenormETLTask 
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseBillionIntsTest4 billionInts.");
+			this.logger.error("Error in CreateDatabaseBillionIntsTest1 billionInts.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
