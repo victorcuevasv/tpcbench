@@ -182,45 +182,87 @@ public class ExecuteQueriesSpark {
 	
 	public void executeQueries() {
 		this.spark.sql("USE " + dbName);
+		if( this.test.equals("power") && this.savePlans )
+			this.savePlans();
 		this.recorder.header();
-		for (final String fileName : this.queriesReader.getFilesOrdered()) {
-			if( ! this.querySingleOrAll.equals("all") ) {
-				if( ! fileName.equals(this.querySingleOrAll) )
-					continue;
-			}
-			String sqlStr = this.queriesReader.getFile(fileName);
-			String nQueryStr = fileName.replaceAll("[^\\d]", "");
-			int nQuery = Integer.parseInt(nQueryStr);
-			QueryRecord queryRecord = new QueryRecord(nQuery);
-			this.logger.info("\nExecuting query: " + fileName + "\n" + sqlStr);
-			try {
-				this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
-				if( this.saveResults ) {
-					String queryResultsFileName = this.generateResultsFileName(fileName);
-					File resultsFile = new File(queryResultsFileName);
-					queryRecord.setResultsSize(resultsFile.length());
+		for(int i = 1; i <= this.runs; i++) {
+			for (final String fileName : this.queriesReader.getFilesOrdered()) {
+				if( ! this.querySingleOrAll.equals("all") ) {
+					if( ! fileName.equals(this.querySingleOrAll) )
+						continue;
 				}
-				else
-					queryRecord.setResultsSize(0);
-				queryRecord.setSuccessful(true);
-			}
-			catch(Exception e) {
-				e.printStackTrace();
-				this.logger.error("Error processing: " + fileName);
-				this.logger.error(e);
-				this.logger.error(AppUtil.stringifyStackTrace(e));
-			}
-			finally {
-				queryRecord.setEndTime(System.currentTimeMillis());
-				this.recorder.record(queryRecord);
+				String sqlStr = this.queriesReader.getFile(fileName);
+				String nQueryStr = fileName.replaceAll("[^\\d]", "");
+				int nQuery = Integer.parseInt(nQueryStr);
+				QueryRecord queryRecord = new QueryRecord(nQuery);
+				queryRecord.setRun(i);
+				this.logger.info("\nExecuting query: " + fileName + " (run " + i + ")\n" + sqlStr);
+				try {
+					this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
+					if( this.saveResults ) {
+						String queryResultsFileName = this.generateResultsFileName(fileName, i);
+						File resultsFile = new File(queryResultsFileName);
+						queryRecord.setResultsSize(resultsFile.length());
+					}
+					else
+						queryRecord.setResultsSize(0);
+					queryRecord.setSuccessful(true);
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+					this.logger.error("Error processing: " + fileName);
+					this.logger.error(e);
+					this.logger.error(AppUtil.stringifyStackTrace(e));
+				}
+				finally {
+					queryRecord.setEndTime(System.currentTimeMillis());
+					this.recorder.record(queryRecord);
+				}
 			}
 		}
 		this.recorder.close();
 	}
 	
 	
-	private String generateResultsFileName(String queryFileName) {
+	private void savePlans() {
+		for (final String fileName : this.queriesReader.getFilesOrdered()) {
+			if( ! this.querySingleOrAll.equals("all") ) {
+				if( ! fileName.equals(this.querySingleOrAll) )
+					continue;
+			}
+			String sqlStrFull = this.queriesReader.getFile(fileName);
+			String nQueryStr = fileName.replaceAll("[^\\d]", "");
+			int nQuery = Integer.parseInt(nQueryStr);
+			this.logger.info("Generating query plan for: " + fileName);
+			System.out.println("Generating query plan for: " + fileName);
+			// Split the various queries and obtain the plan for each.
+			StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
+			boolean firstQuery = true;
+			while (tokenizer.hasMoreTokens()) {
+				String sqlStr = tokenizer.nextToken().trim();
+				if( sqlStr.length() == 0 )
+					continue;	
+				try {
+					String explainStr = "EXPLAIN ";
+					Dataset<Row> planDataset = this.spark.sql(explainStr + sqlStr);
+					this.saveResults(this.generatePlansFileName(fileName), planDataset, 
+							! firstQuery);
+					firstQuery = false;
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+					this.logger.error("Error generating plan for: " + fileName);
+					this.logger.error(e);
+					this.logger.error(AppUtil.stringifyStackTrace(e));
+				}
+			}
+		}
+	}
+	
+	
+	private String generateResultsFileName(String queryFileName, int run) {
 		String noExtFileName = queryFileName.substring(0, queryFileName.indexOf('.'));
+		noExtFileName += ("_" + run);
 		return this.workDir + "/" + this.resultsDir + "/" + this.resultsSubDir + "/" + this.experimentName + 
 				"/" + this.test + "/" + this.instance + "/" + noExtFileName + ".txt";
 	}
@@ -233,7 +275,8 @@ public class ExecuteQueriesSpark {
 	}
 	
 	
-	private void executeQueryMultipleCalls(String queryFileName, String sqlStrFull, QueryRecord queryRecord) {
+	private void executeQueryMultipleCalls(String queryFileName, String sqlStrFull, 
+			QueryRecord queryRecord) {
 		// Split the various queries and execute each.
 		StringTokenizer tokenizer = new StringTokenizer(sqlStrFull, ";");
 		boolean firstQuery = true;
@@ -244,20 +287,15 @@ public class ExecuteQueriesSpark {
 				continue;
 			this.spark.sparkContext().setJobDescription("Executing iteration " + iteration + 
 					" of query " + queryFileName + ".");
-			// Obtain the plan for the query.
-			Dataset<Row> planDataset = null;
-			if( this.test.equals("power") && this.savePlans )
-				planDataset = this.spark.sql("EXPLAIN " + sqlStr);
 			if( firstQuery )
 				queryRecord.setStartTime(System.currentTimeMillis());
-			if( this.test.equals("power") && this.savePlans )
-				this.saveResults(this.generatePlansFileName(queryFileName), planDataset, ! firstQuery);
 			// Execute the query.
 			System.out.println("Executing iteration " + iteration + " of query " + queryFileName + ".");
 			Dataset<Row> dataset = this.spark.sql(sqlStr);
 			// Save the results.
 			if( this.test.equals("power") && this.saveResults ) {
-				int tuples = this.saveResults(this.generateResultsFileName(queryFileName), dataset, ! firstQuery);
+				int tuples = this.saveResults(this.generateResultsFileName(queryFileName,
+						queryRecord.getRun()), dataset, ! firstQuery);
 				queryRecord.setTuples(queryRecord.getTuples() + tuples);
 			}
 			firstQuery = false;
