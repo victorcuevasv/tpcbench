@@ -196,12 +196,13 @@
 						<exclude>org/bsc/dcc/vcv/UpdateDatabaseSparkInsUpdTest.java</exclude>
 						<exclude>org/bsc/dcc/vcv/UpdateDatabaseSparkReadTest.java</exclude>
 						<exclude>org/bsc/dcc/vcv/UpdateMods.java</exclude>
-						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkBillionIntsTest4.java</exclude>
-						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkDeepCopyTest2.java</exclude>
+						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkBillionIntsTest1.java</exclude>
+						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkDeepCopyTest5.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkDenormETLTask.java</exclude>
-						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkMergeTest3.java</exclude>
-						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkWritePartitionedTest6.java</exclude>
-						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkWriteUnPartitionedTest5.java</exclude>
+						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkMergeTest7.java</exclude>
+						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkThousandColsTest6.java</exclude>
+						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkWritePartitionedTest3.java</exclude>
+						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkWriteUnPartitionedTest2.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/RunBenchmarkSparkETL.java</exclude>
 					</excludes>
 					<testExcludes>
