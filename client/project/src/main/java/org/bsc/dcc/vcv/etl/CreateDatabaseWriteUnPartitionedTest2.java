@@ -99,12 +99,13 @@ public class CreateDatabaseWriteUnPartitionedTest2 extends CreateDatabaseDenormE
 			this.logger.info("Processing table " + index + ": " + tableNameRoot);
 			String tableName = tableNameRoot + "_not_partitioned";
 			this.dropTable("drop table if exists " + tableName);
-			String sqlCreate = this.createTableStatement(sqlQuery, tableNameRoot, tableName, 
-					this.format, this.extTablePrefixCreated);
+			String sqlCreate = CreateDatabaseWriteUnPartitionedTest2.createTableStatement(sqlQuery, 
+					tableNameRoot, tableName, this.format, this.extTablePrefixCreated);
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot, tableName);
 			saveCreateTableFile("writeunpartitionedcreate", tableName, sqlCreate);
-			String sqlInsert = "insert into " + tableName + " select * from " + tableNameRoot;
+			String sqlInsert = CreateDatabaseWriteUnPartitionedTest2.insertStatement(sqlQuery, 
+					tableNameRoot, tableName);
 			saveCreateTableFile("writeunpartitionedinsert", tableName, sqlInsert);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
@@ -130,10 +131,10 @@ public class CreateDatabaseWriteUnPartitionedTest2 extends CreateDatabaseDenormE
 	}
 	
 	
-	private String incompleteCreateTable(String sqlCreate) {
+	private static String incompleteCreateTable(String sqlCreate) {
 		boolean hasPrimaryKey = sqlCreate.contains("primary key");
 		// Remove the 'not null' statements.
-		sqlCreate = sqlCreate.replace("not null", "        ");
+		sqlCreate = sqlCreate.replace("not null", "");
 		// Split the SQL create table statement in lines.
 		String lines[] = sqlCreate.split("\\r?\\n");
 		// Add all of the lines in the original SQL to the new statement, except those
@@ -151,20 +152,20 @@ public class CreateDatabaseWriteUnPartitionedTest2 extends CreateDatabaseDenormE
 		// Close the parenthesis.
 		builder.append(") \n");
 		// Version 2.1 of Hive does not recognize integer, so use int instead.
-		return builder.toString().replace("integer", "int    ");
+		return builder.toString().replace("integer", "int");
 	}
 	
 	
-	private String createTableStatement(String sqlQuery, String tableNameRoot, String tableName, 
+	public static String createTableStatement(String sqlQuery, String tableNameRoot, String tableName, 
 			String format, Optional<String> extTablePrefixCreated) {
-		sqlQuery = this.incompleteCreateTable(sqlQuery);
+		sqlQuery = CreateDatabaseWriteUnPartitionedTest2.incompleteCreateTable(sqlQuery);
 		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
-		StringBuilder builder = new StringBuilder(sqlQuery + "\n");
-		builder.append("USING " + format.toUpperCase() + "\n");
+		StringBuilder builder = new StringBuilder();
+		builder.append(sqlQuery + "\n");
+		builder.append("USING " + format + "\n");
 		if( this.format.equals("parquet") )
 			builder.append("OPTIONS ('compression'='snappy')\n");
 		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
-		String sqlCreate = builder.toString();
 		return builder.toString();
 	}
 	
@@ -173,11 +174,18 @@ public class CreateDatabaseWriteUnPartitionedTest2 extends CreateDatabaseDenormE
 			String tableName) {
 		sqlQuery = this.incompleteCreateTable(sqlQuery);
 		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
-		StringBuilder builder = new StringBuilder(sqlQuery + "\n");
-		String sqlCreate = builder.toString();
-		return builder.toString();
+		sqlQuery = sqlQuery + "\n";
+		return sqlQuery;
 	}
 
+	
+	public static String insertStatement(String sqlQuery, String tableNameRoot, String tableName) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("INSERT INTO " + tableName + "\n");
+		builder.append("SELECT * FROM " + tableNameRoot + "\n");
+		return builder.toString();
+	}
+	
 	
 }
 

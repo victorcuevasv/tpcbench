@@ -96,17 +96,11 @@ public class CreateDatabaseSparkBillionIntsTest1 extends CreateDatabaseSparkDeno
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			this.dropTable("drop table if exists " + tableName);
-			StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "\n");
-			builder.append("(" + tableName + " int)\n");
-			builder.append("USING " + format.toUpperCase() + "\n");
-			if( this.format.equals("parquet") )
-				builder.append("OPTIONS ('compression'='snappy')\n");
-			builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
-			String sqlCreate = builder.toString();
+			String sqlCreate = CreateDatabaseBillionIntsTest1.createTableStatement(sqlQuery, 
+					tableName, this.format, this.extTablePrefixCreated);
 			saveCreateTableFile("billionintscreate", tableName, sqlCreate);
-			builder = new StringBuilder("INSERT INTO " + tableName + " SELECT " + tableName + 
-					" FROM " + tableNameRoot + "\n");
-			String sqlInsert = builder.toString();
+			String sqlInsert = CreateDatabaseBillionIntsTest1.insertStatement(sqlQuery, 
+					tableNameRoot, tableName);
 			saveCreateTableFile("billionintsinsert", tableName, sqlInsert);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
@@ -129,8 +123,8 @@ public class CreateDatabaseSparkBillionIntsTest1 extends CreateDatabaseSparkDeno
 			}
 		}
 	}
-	
 
+	
 }
 
 
