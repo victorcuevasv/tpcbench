@@ -150,7 +150,7 @@ public class RunBenchmarkSparkETL {
 						.toArray(new String[0]);
 				this.saveTestParameters(argsCopy, "denormthousandcols");
 				System.out.println("\n\n\nRunning the DENORM THOUSAND COLS test.\n\n\n");
-				CreateDatabaseSparkMergeTest7.main(argsCopy);
+				CreateDatabaseSparkThousandColsTest6.main(argsCopy);
 			}
 			boolean doMerge = this.flags.charAt(8) == '1' ? true : false;
 			if( doMerge ) {

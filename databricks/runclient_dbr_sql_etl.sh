@@ -110,9 +110,9 @@ args[26]="--multiple-connections=true"
 # all or denorm table file
 args[27]="--denorm-all-or-file=store_sales.sql"
 # flags
-# schema       |load          |load denorm   |deep copy     |merge         |
-# billion ints |write un part |write part    |
-args[28]="--execution-flags=11111111"
+# schema       |load          |billion ints  |write unpart  |write part    |
+# load denorm  |deep copy     |thousand cols |merge         |
+args[28]="--execution-flags=111111111"
 
 paramsStr="${args[@]}"
 

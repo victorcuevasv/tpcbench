@@ -82,16 +82,16 @@ args[12]="--use-column-stats=true"
 args[13]="--all-or-query-file=all" 
 # number of streams
 args[14]="--number-of-streams=$3"
-# flags
-# schema       |load          |load denorm   |deep copy     |merge         |
-# billion ints |write un part |write part    |
-args[15]="--execution-flags=11111111"
 # "all" or create table file
-args[16]="--all-or-create-file=all"
+args[15]="--all-or-create-file=all"
 # count-queries
-args[17]="--count-queries=false"
+args[16]="--count-queries=false"
 # all or denorm table file
-args[18]="--denorm-all-or-file=store_sales.sql"
+args[17]="--denorm-all-or-file=store_sales.sql"
+# flags
+# schema       |load          |billion ints  |write unpart  |write part    |
+# load denorm  |deep copy     |thousand cols |merge         |
+args[18]="--execution-flags=111111111"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 
