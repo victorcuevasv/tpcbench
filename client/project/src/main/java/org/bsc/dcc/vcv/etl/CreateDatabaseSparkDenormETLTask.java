@@ -62,6 +62,7 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 	protected final Map<String, String> filterKeys;
 	protected final Map<String, String> filterValues;
 	protected final boolean partitionWithDistrubuteBy;
+	protected final boolean denormWithFilter;
 	
 	
 	public CreateDatabaseSparkDenormETLTask(CommandLine commandLine) {
@@ -105,6 +106,9 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 		String partitionWithDistrubuteByStr = commandLine.getOptionValue(
 				"partition-with-distribute-by", "false");
 		this.partitionWithDistrubuteBy = Boolean.parseBoolean(partitionWithDistrubuteByStr);
+		String denormWithFilterStr = commandLine.getOptionValue(
+				"denorm-with-filter", "true");
+		this.denormWithFilter = Boolean.parseBoolean(denormWithFilterStr);
 	}
 	
 	

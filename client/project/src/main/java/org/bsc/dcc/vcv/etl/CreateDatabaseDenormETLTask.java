@@ -73,6 +73,7 @@ public abstract class CreateDatabaseDenormETLTask {
 	protected final int numCores;
 	protected final String userId;
 	protected final boolean partitionWithDistrubuteBy;
+	protected final boolean denormWithFilter;
 	private final boolean useCachedResultSnowflake = false;
 	
 	public CreateDatabaseDenormETLTask(CommandLine commandLine) {
@@ -114,6 +115,9 @@ public abstract class CreateDatabaseDenormETLTask {
 		String partitionWithDistrubuteByStr = commandLine.getOptionValue(
 				"partition-with-distribute-by", "false");
 		this.partitionWithDistrubuteBy = Boolean.parseBoolean(partitionWithDistrubuteByStr);
+		String denormWithFilterStr = commandLine.getOptionValue(
+				"denorm-with-filter", "true");
+		this.denormWithFilter = Boolean.parseBoolean(denormWithFilterStr);
 		this.openConnection();
 	}
 	

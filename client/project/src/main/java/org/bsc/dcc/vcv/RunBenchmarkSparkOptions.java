@@ -139,6 +139,9 @@ public class RunBenchmarkSparkOptions {
 		options.addOption( Option.builder().longOpt( "partition-with-distribute-by" )
 				.desc( "use a distribute by clause for partitioning" )
 				.hasArg(true).required(false).type(Boolean.class).build() );
+		options.addOption( Option.builder().longOpt( "denorm-with-filter" )
+				.desc( "use a filter attribute and value for denormalization" )
+				.hasArg(true).required(false).type(Boolean.class).build() );
 		options.addOption( Option.builder().longOpt( "power-test-runs" )
 				.desc( "number of runs to perform for the power test (default 1)" )
 				.hasArg(true).required(false).type(Integer.class).build() );
@@ -148,6 +151,7 @@ public class RunBenchmarkSparkOptions {
 		options.addOption( Option.builder().longOpt( "datesk-gt-threshold" )
 				.desc( "greater than threshold for the date-sk attribute to generate update data" )
 				.hasArg(true).required(false).build() );
+		
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );

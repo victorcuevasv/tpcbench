@@ -132,7 +132,7 @@ public class CreateDatabaseBillionIntsTest1 extends CreateDatabaseDenormETLTask 
 		builder.append("CREATE TABLE " + tableName + " ");
 		builder.append("(" + tableName + " int) ");
 		builder.append("USING " + format);
-		if( this.format.equals("parquet") )
+		if( format.equals("parquet") )
 			builder.append("\nOPTIONS ('compression'='snappy')");
 		builder.append("\nLOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
 		return builder.toString();

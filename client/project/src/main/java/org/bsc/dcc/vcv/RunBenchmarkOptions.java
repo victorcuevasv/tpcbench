@@ -151,6 +151,9 @@ public class RunBenchmarkOptions {
 		options.addOption( Option.builder().longOpt( "partition-with-distribute-by" )
 				.desc( "use a distribute by clause for partitioning" )
 				.hasArg(true).required(false).type(Boolean.class).build() );
+		options.addOption( Option.builder().longOpt( "denorm-with-filter" )
+				.desc( "use a filter attribute and value for denormalization" )
+				.hasArg(true).required(false).type(Boolean.class).build() );
 		options.addOption( Option.builder().longOpt( "denorm-all-or-file" )
 				.desc( "\"all\" or create table file for denorm tables" )
 				.hasArg(true).required(false).build() );

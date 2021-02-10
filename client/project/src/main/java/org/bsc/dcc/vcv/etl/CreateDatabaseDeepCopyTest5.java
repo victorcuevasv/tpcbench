@@ -95,8 +95,8 @@ public class CreateDatabaseDeepCopyTest5 extends CreateDatabaseDenormETLTask {
 			System.out.println("Processing table " + index + ": " + tableNameRoot);
 			this.logger.info("Processing table " + index + ": " + tableNameRoot);
 			this.dropTable("drop table if exists " + tableName);
-			String sqlCreate = this.createTableStatement(sqlQuery, tableNameRoot, tableName, 
-					this.format, this.extTablePrefixCreated);
+			String sqlCreate = CreateDatabaseDeepCopyTest5.createTableStatement(sqlQuery, 
+					tableNameRoot, tableName, this.format, this.extTablePrefixCreated);
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot, tableName);
 			saveCreateTableFile("denormdeepcopy", tableName, sqlCreate);
@@ -122,27 +122,27 @@ public class CreateDatabaseDeepCopyTest5 extends CreateDatabaseDenormETLTask {
 		}
 	}
 	
-	private String createTableStatement(String sqlQuery, String tableNameRoot, String tableName,
+	public static String createTableStatement(String sqlQuery, String tableNameRoot, String tableName,
 			String format, Optional<String> extTablePrefixCreated) {
-		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "\n");
-		builder.append("USING " + format.toUpperCase() + "\n");
+		StringBuilder builder = new StringBuilder();
+		builder.append("CREATE TABLE " + tableName + "\n");
+		builder.append("USING " + format + "\n");
 		if( this.format.equals("parquet") )
 			builder.append("OPTIONS ('compression'='snappy')\n");
 		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
 		builder.append("AS\n");
-		builder.append("select * from " + tableNameRoot + "_denorm");
-		String sqlCreate = builder.toString();
-		return sqlCreate;
+		builder.append("SELECT * FROM " + tableNameRoot + "_denorm");
+		return builder.toString();
 	}
 	
 	
 	private String createTableStatementSnowflake(String sqlQuery, String tableNameRoot, 
 			String tableName) {
-		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "\n");
+		StringBuilder builder = new StringBuilder();
+		builder.append("CREATE TABLE " + tableName + "\n");
 		builder.append("AS\n");
-		builder.append("select * from " + tableNameRoot + "_denorm");
-		String sqlCreate = builder.toString();
-		return sqlCreate;
+		builder.append("SELECT * FROM " + tableNameRoot + "_denorm");
+		return builder.toString();
 	}
 	
 

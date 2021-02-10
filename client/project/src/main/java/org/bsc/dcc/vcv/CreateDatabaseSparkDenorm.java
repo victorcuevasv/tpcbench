@@ -123,7 +123,7 @@ public class CreateDatabaseSparkDenorm extends CreateDatabaseSparkDenormETLTask 
 	private String createTableStatement(String sqlQuery, String tableName, String format,
 			Optional<String> extTablePrefixCreated) {
 		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "_denorm\n");
-		builder.append("USING " + format.toUpperCase() + "\n");
+		builder.append("USING " + format + "\n");
 		if( format.equals("parquet") )
 			builder.append("OPTIONS ('compression'='snappy')\n");
 		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "_denorm" + "' \n");
@@ -133,9 +133,9 @@ public class CreateDatabaseSparkDenorm extends CreateDatabaseSparkDenormETLTask 
 				builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n" );
 		}
 		builder.append("AS\n");
-		builder.append(sqlQuery);
-		if( this.filterKeys.get(tableName) != null ) {
-			builder.append("and " + this.filterKeys.get(tableName) + " = " + 
+		builder.append(sqlQuery + "\n");
+		if( this.denormWithFilter && this.filterKeys.get(tableName) != null ) {
+			builder.append("AND " + this.filterKeys.get(tableName) + " = " + 
 					this.filterValues.get(tableName) + "\n");
 		}
 		if( this.partition && this.partitionWithDistrubuteBy ) {

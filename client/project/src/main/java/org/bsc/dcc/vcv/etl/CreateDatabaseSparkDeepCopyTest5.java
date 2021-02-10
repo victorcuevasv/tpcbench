@@ -91,26 +91,20 @@ public class CreateDatabaseSparkDeepCopyTest5 extends CreateDatabaseSparkDenormE
 	private void deepCopy(String sqlCreateFilename, String sqlQuery, int index) {
 		QueryRecord queryRecord = null;
 		try {
-			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
-			System.out.println("Processing table " + index + ": " + tableName);
-			this.logger.info("Processing table " + index + ": " + tableName);
-			this.dropTable("drop table if exists " + tableName + "_denorm_deep_copy");
-			StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + "_denorm_deep_copy\n");
-			builder.append("USING " + format.toUpperCase() + "\n");
-			if( this.format.equals("parquet") )
-				builder.append("OPTIONS ('compression'='snappy')\n");
-			builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + 
-					"_denorm_deep_copy" + "' \n");
-			builder.append("AS\n");
-			builder.append("select * from " + tableName + "_denorm");
-			String sqlCreate = builder.toString();
+			String tableNameRoot = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
+			String tableName = tableNameRoot + "_denorm_deep_copy";
+			System.out.println("Processing table " + index + ": " + tableNameRoot);
+			this.logger.info("Processing table " + index + ": " + tableNameRoot);
+			this.dropTable("drop table if exists " + tableName);
+			String sqlCreate = CreateDatabaseDeepCopyTest5.createTableStatement(sqlQuery, 
+					tableNameRoot, tableName, this.format, this.extTablePrefixCreated);
 			saveCreateTableFile("denormdeepcopy", tableName, sqlCreate);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(sqlCreate);
 			queryRecord.setSuccessful(true);
 			if( this.doCount )
-				countRowsQuery(tableName + "_denorm_deep_copy");
+				countRowsQuery(tableName);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
