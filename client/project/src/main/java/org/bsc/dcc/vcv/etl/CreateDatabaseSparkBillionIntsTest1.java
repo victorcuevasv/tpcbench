@@ -96,10 +96,10 @@ public class CreateDatabaseSparkBillionIntsTest1 extends CreateDatabaseSparkDeno
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			this.dropTable("drop table if exists " + tableName);
-			String sqlCreate = CreateDatabaseBillionIntsTest1.createTableStatement(sqlQuery, 
+			String sqlCreate = SQLBillionIntsTest1.createTableStatement(sqlQuery, 
 					tableName, this.format, this.extTablePrefixCreated);
 			saveCreateTableFile("billionintscreate", tableName, sqlCreate);
-			String sqlInsert = CreateDatabaseBillionIntsTest1.insertStatement(sqlQuery, 
+			String sqlInsert = SQLBillionIntsTest1.insertStatement(sqlQuery, 
 					tableNameRoot, tableName);
 			saveCreateTableFile("billionintsinsert", tableName, sqlInsert);
 			queryRecord = new QueryRecord(index);

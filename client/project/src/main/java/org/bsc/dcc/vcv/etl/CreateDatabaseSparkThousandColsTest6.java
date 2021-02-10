@@ -101,8 +101,8 @@ public class CreateDatabaseSparkThousandColsTest6 extends CreateDatabaseSparkDen
 			System.out.println("Processing table " + index + ": " + tableNameRoot + "_denorm");
 			this.logger.info("Processing table " + index + ": " + tableNameRoot + "_denorm");
 			this.dropTable("drop table if exists " + tableName);
-			String sqlCreate = this.createTableStatement(sqlQuery, tableName, this.format,
-					this.extTablePrefixCreated);
+			String sqlCreate = SQLThousandColsTest6.createTableStatement(sqlQuery, tableName, 
+					this.format, this.extTablePrefixCreated, this.partition);
 			saveCreateTableFile("denormthousandcols", tableName, sqlQuery);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
@@ -123,23 +123,6 @@ public class CreateDatabaseSparkThousandColsTest6 extends CreateDatabaseSparkDen
 				this.recorder.record(queryRecord);
 			}
 		}
-	}
-	
-	
-	private String createTableStatement(String sqlQuery, String tableName, String format,
-			Optional<String> extTablePrefixCreated) {
-		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + " ");
-		builder.append("USING " + format + " ");
-		if( format.equals("parquet") )
-			builder.append("OPTIONS ('compression'='snappy') ");
-		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
-		if( this.partition ) {
-			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
-			if( pos != -1 )
-				builder.append("partitioned BY (d_date_sk) AS\n" );
-		}
-		builder.append(sqlQuery);
-		return builder.toString();
 	}
 	
 

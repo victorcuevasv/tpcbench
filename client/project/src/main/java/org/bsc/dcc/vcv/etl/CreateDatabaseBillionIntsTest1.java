@@ -94,12 +94,12 @@ public class CreateDatabaseBillionIntsTest1 extends CreateDatabaseDenormETLTask 
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			this.dropTable("drop table if exists " + tableName);
-			String sqlCreate = CreateDatabaseBillionIntsTest1.createTableStatement(sqlQuery, 
+			String sqlCreate = SQLBillionIntsTest1.createTableStatement(sqlQuery, 
 					tableName, this.format, this.extTablePrefixCreated);
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableName);
 			saveCreateTableFile("billionintscreate", tableName, sqlCreate);
-			String sqlInsert = CreateDatabaseBillionIntsTest1.insertStatement(sqlQuery, 
+			String sqlInsert = SQLBillionIntsTest1.insertStatement(sqlQuery, 
 					tableNameRoot, tableName);
 			saveCreateTableFile("billionintsinsert", tableName, sqlInsert);
 			Statement stmt = this.con.createStatement();
@@ -125,33 +125,11 @@ public class CreateDatabaseBillionIntsTest1 extends CreateDatabaseDenormETLTask 
 		}
 	}
 	
-
-	public static String createTableStatement(String sqlQuery, String tableName,
-			String format, Optional<String> extTablePrefixCreated) {
-		StringBuilder builder = new StringBuilder();
-		builder.append("CREATE TABLE " + tableName + " ");
-		builder.append("(" + tableName + " int) ");
-		builder.append("USING " + format);
-		if( format.equals("parquet") )
-			builder.append("\nOPTIONS ('compression'='snappy')");
-		builder.append("\nLOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
-		return builder.toString();
-	}
-	
 	
 	private String createTableStatementSnowflake(String sqlQuery, String tableName) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("CREATE TABLE " + tableName + " ");
 		builder.append("(" + tableName + " int) ");
-		return builder.toString();
-	}
-	
-	
-	public static String insertStatement(String sqlQuery, String tableNameRoot, String tableName) {
-		StringBuilder builder = new StringBuilder();
-		builder.append("INSERT INTO " + tableName + "\n");
-		builder.append("SELECT " + tableName + "\n");
-		builder.append("FROM " + tableNameRoot + "\n");
 		return builder.toString();
 	}
 	

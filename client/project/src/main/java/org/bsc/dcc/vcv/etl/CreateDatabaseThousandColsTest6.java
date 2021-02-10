@@ -99,7 +99,10 @@ public class CreateDatabaseThousandColsTest6 extends CreateDatabaseDenormETLTask
 			System.out.println("Processing table " + index + ": " + tableNameRoot + "_denorm");
 			this.logger.info("Processing table " + index + ": " + tableNameRoot + "_denorm");
 			this.dropTable("drop table if exists " + tableName);
-			String sqlCreate = this.createTableStatement(sqlQuery, tableName);
+			String sqlCreate = SQLThousandColsTest6.createTableStatement(sqlQuery, 
+					tableName, this.format, this.extTablePrefixCreated, this.partition);
+			if( this.system.startsWith("snowflake") )
+				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableName);
 			saveCreateTableFile("denormthousandcols", tableName, sqlQuery);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
@@ -124,8 +127,9 @@ public class CreateDatabaseThousandColsTest6 extends CreateDatabaseDenormETLTask
 	}
 	
 	
-	private String createTableStatement(String sqlQuery, String tableName) {
-		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableName + " ");
+	private String createTableStatementSnowflake(String sqlQuery, String tableName) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("CREATE TABLE " + tableName + " ");
 		builder.append(sqlQuery);
 		return builder.toString();
 	}

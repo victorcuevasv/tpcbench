@@ -99,12 +99,12 @@ public class CreateDatabaseWriteUnPartitionedTest2 extends CreateDatabaseDenormE
 			this.logger.info("Processing table " + index + ": " + tableNameRoot);
 			String tableName = tableNameRoot + "_not_partitioned";
 			this.dropTable("drop table if exists " + tableName);
-			String sqlCreate = CreateDatabaseWriteUnPartitionedTest2.createTableStatement(sqlQuery, 
+			String sqlCreate = SQLWriteUnPartitionedTest2.createTableStatement(sqlQuery, 
 					tableNameRoot, tableName, this.format, this.extTablePrefixCreated);
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot, tableName);
 			saveCreateTableFile("writeunpartitionedcreate", tableName, sqlCreate);
-			String sqlInsert = CreateDatabaseWriteUnPartitionedTest2.insertStatement(sqlQuery, 
+			String sqlInsert = SQLWriteUnPartitionedTest2.insertStatement(sqlQuery, 
 					tableNameRoot, tableName);
 			saveCreateTableFile("writeunpartitionedinsert", tableName, sqlInsert);
 			Statement stmt = this.con.createStatement();
@@ -131,34 +131,12 @@ public class CreateDatabaseWriteUnPartitionedTest2 extends CreateDatabaseDenormE
 	}
 	
 	
-	public static String createTableStatement(String sqlQuery, String tableNameRoot, String tableName, 
-			String format, Optional<String> extTablePrefixCreated) {
-		sqlQuery = org.bsc.dcc.vcv.etl.Util.incompleteCreateTable(sqlQuery);
-		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
-		StringBuilder builder = new StringBuilder();
-		builder.append(sqlQuery + "\n");
-		builder.append("USING " + format + "\n");
-		if( format.equals("parquet") )
-			builder.append("OPTIONS ('compression'='snappy')\n");
-		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
-		return builder.toString();
-	}
-	
-	
 	private String createTableStatementSnowflake(String sqlQuery, String tableNameRoot, 
 			String tableName) {
 		sqlQuery = org.bsc.dcc.vcv.etl.Util.incompleteCreateTable(sqlQuery);
 		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
 		sqlQuery = sqlQuery + "\n";
 		return sqlQuery;
-	}
-
-	
-	public static String insertStatement(String sqlQuery, String tableNameRoot, String tableName) {
-		StringBuilder builder = new StringBuilder();
-		builder.append("INSERT INTO " + tableName + "\n");
-		builder.append("SELECT * FROM " + tableNameRoot + "\n");
-		return builder.toString();
 	}
 	
 	

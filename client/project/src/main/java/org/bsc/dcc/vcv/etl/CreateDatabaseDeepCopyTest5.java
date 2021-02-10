@@ -95,7 +95,7 @@ public class CreateDatabaseDeepCopyTest5 extends CreateDatabaseDenormETLTask {
 			System.out.println("Processing table " + index + ": " + tableNameRoot);
 			this.logger.info("Processing table " + index + ": " + tableNameRoot);
 			this.dropTable("drop table if exists " + tableName);
-			String sqlCreate = CreateDatabaseDeepCopyTest5.createTableStatement(sqlQuery, 
+			String sqlCreate = SQLDeepCopyTest5.createTableStatement(sqlQuery, 
 					tableNameRoot, tableName, this.format, this.extTablePrefixCreated);
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot, tableName);
@@ -120,19 +120,6 @@ public class CreateDatabaseDeepCopyTest5 extends CreateDatabaseDenormETLTask {
 				this.recorder.record(queryRecord);
 			}
 		}
-	}
-	
-	public static String createTableStatement(String sqlQuery, String tableNameRoot, String tableName,
-			String format, Optional<String> extTablePrefixCreated) {
-		StringBuilder builder = new StringBuilder();
-		builder.append("CREATE TABLE " + tableName + "\n");
-		builder.append("USING " + format + "\n");
-		if( format.equals("parquet") )
-			builder.append("OPTIONS ('compression'='snappy')\n");
-		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
-		builder.append("AS\n");
-		builder.append("SELECT * FROM " + tableNameRoot + "_denorm");
-		return builder.toString();
 	}
 	
 	
