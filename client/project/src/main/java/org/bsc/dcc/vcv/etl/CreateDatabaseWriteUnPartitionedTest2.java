@@ -133,12 +133,12 @@ public class CreateDatabaseWriteUnPartitionedTest2 extends CreateDatabaseDenormE
 	
 	public static String createTableStatement(String sqlQuery, String tableNameRoot, String tableName, 
 			String format, Optional<String> extTablePrefixCreated) {
-		sqlQuery = CreateDatabaseWriteUnPartitionedTest2.incompleteCreateTable(sqlQuery);
+		sqlQuery = org.bsc.dcc.vcv.etl.Util.incompleteCreateTable(sqlQuery);
 		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
 		StringBuilder builder = new StringBuilder();
 		builder.append(sqlQuery + "\n");
 		builder.append("USING " + format + "\n");
-		if( this.format.equals("parquet") )
+		if( format.equals("parquet") )
 			builder.append("OPTIONS ('compression'='snappy')\n");
 		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
 		return builder.toString();

@@ -127,7 +127,7 @@ public class CreateDatabaseDeepCopyTest5 extends CreateDatabaseDenormETLTask {
 		StringBuilder builder = new StringBuilder();
 		builder.append("CREATE TABLE " + tableName + "\n");
 		builder.append("USING " + format + "\n");
-		if( this.format.equals("parquet") )
+		if( format.equals("parquet") )
 			builder.append("OPTIONS ('compression'='snappy')\n");
 		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
 		builder.append("AS\n");
