@@ -20,7 +20,6 @@ import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.SparkSession;
-import org.bsc.dcc.vcv.etl.CreateDatabaseSparkDenormETLTask;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Encoders;
@@ -30,6 +29,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.bsc.dcc.vcv.etl.CreateDatabaseSparkDenormETLTask;
 
 
 public class CreateDatabaseSparkDenorm extends CreateDatabaseSparkDenormETLTask {
@@ -138,7 +138,7 @@ public class CreateDatabaseSparkDenorm extends CreateDatabaseSparkDenormETLTask 
 			builder.append("and " + this.filterKeys.get(tableName) + " = " + 
 					this.filterValues.get(tableName) + "\n");
 		}
-		if( this.partition ) {
+		if( this.partition && this.partitionWithDistrubuteBy ) {
 			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
 			if( pos != -1 )
 				builder.append("DISTRIBUTE BY " + Partitioning.partKeys[pos] + " \n" );

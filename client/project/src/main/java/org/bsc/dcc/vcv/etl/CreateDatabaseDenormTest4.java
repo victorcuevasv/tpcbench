@@ -141,7 +141,7 @@ public class CreateDatabaseDenormTest4 extends CreateDatabaseDenormETLTask {
 			builder.append("and " + this.filterKeys.get(tableName) + " = " + 
 					this.filterValues.get(tableName) + "\n");
 		}
-		if( this.partition ) {
+		if( this.partition && this.partitionWithDistrubuteBy ) {
 			int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
 			if( pos != -1 )
 				builder.append("DISTRIBUTE BY " + Partitioning.partKeys[pos] + " \n" );

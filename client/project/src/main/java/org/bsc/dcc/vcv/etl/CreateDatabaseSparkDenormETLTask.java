@@ -61,6 +61,8 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 	protected final Map<String, String> precombineKeys;
 	protected final Map<String, String> filterKeys;
 	protected final Map<String, String> filterValues;
+	protected final boolean partitionWithDistrubuteBy;
+	
 	
 	public CreateDatabaseSparkDenormETLTask(CommandLine commandLine) {
 		try {
@@ -100,6 +102,9 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
 		this.filterKeys = new FilterKeys().getMap();
 		this.filterValues = new FilterValues().getMap();
+		String partitionWithDistrubuteByStr = commandLine.getOptionValue(
+				"partition-with-distribute-by", "false");
+		this.partitionWithDistrubuteBy = Boolean.parseBoolean(partitionWithDistrubuteByStr);
 	}
 	
 	

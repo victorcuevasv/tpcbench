@@ -136,6 +136,9 @@ public class RunBenchmarkSparkOptions {
 				.desc( "force compaction between tests for merge on read tables" )
 				.hasArg(true).required(false).type(Boolean.class).build() );
 		
+		options.addOption( Option.builder().longOpt( "partition-with-distribute-by" )
+				.desc( "use a distribute by clause for partitioning" )
+				.hasArg(true).required(false).type(Boolean.class).build() );
 		options.addOption( Option.builder().longOpt( "power-test-runs" )
 				.desc( "number of runs to perform for the power test (default 1)" )
 				.hasArg(true).required(false).type(Integer.class).build() );
