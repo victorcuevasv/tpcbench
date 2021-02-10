@@ -96,7 +96,7 @@ public class CreateDatabaseSparkDeepCopyTest5 extends CreateDatabaseSparkDenormE
 			System.out.println("Processing table " + index + ": " + tableNameRoot);
 			this.logger.info("Processing table " + index + ": " + tableNameRoot);
 			this.dropTable("drop table if exists " + tableName);
-			String sqlCreate = CreateDatabaseDeepCopyTest5.createTableStatement(sqlQuery, 
+			String sqlCreate = SQLDeepCopyTest5.createTableStatement(sqlQuery, 
 					tableNameRoot, tableName, this.format, this.extTablePrefixCreated);
 			saveCreateTableFile("denormdeepcopy", tableName, sqlCreate);
 			queryRecord = new QueryRecord(index);

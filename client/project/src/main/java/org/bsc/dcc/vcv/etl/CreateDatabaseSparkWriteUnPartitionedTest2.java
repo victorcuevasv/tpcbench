@@ -101,10 +101,10 @@ public class CreateDatabaseSparkWriteUnPartitionedTest2 extends CreateDatabaseSp
 			this.logger.info("Processing table " + index + ": " + tableNameRoot);
 			String tableName = tableNameRoot + "_not_partitioned";
 			this.dropTable("drop table if exists " + tableName);
-			String sqlCreate = CreateDatabaseWriteUnPartitionedTest2.createTableStatement(sqlQuery, 
+			String sqlCreate = SQLWriteUnPartitionedTest2.createTableStatement(sqlQuery, 
 					tableNameRoot, tableName, this.format, this.extTablePrefixCreated);
 			saveCreateTableFile("writeunpartitionedcreate", tableName, sqlCreate);
-			String sqlInsert = CreateDatabaseWriteUnPartitionedTest2.insertStatement(sqlQuery, 
+			String sqlInsert = SQLWriteUnPartitionedTest2.insertStatement(sqlQuery, 
 					tableNameRoot, tableName);
 			saveCreateTableFile("writeunpartitionedinsert", tableName, sqlInsert);
 			queryRecord = new QueryRecord(index);
