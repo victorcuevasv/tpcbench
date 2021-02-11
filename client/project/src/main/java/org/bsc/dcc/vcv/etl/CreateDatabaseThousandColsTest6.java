@@ -100,7 +100,7 @@ public class CreateDatabaseThousandColsTest6 extends CreateDatabaseDenormETLTask
 			this.logger.info("Processing table " + index + ": " + tableNameRoot + "_denorm");
 			this.dropTable("drop table if exists " + tableName);
 			String sqlCreate = SQLThousandColsTest6.createTableStatement(sqlQuery, 
-					tableName, this.format, this.extTablePrefixCreated, this.partition);
+					tableNameRoot, tableName, this.format, this.extTablePrefixCreated, this.partition);
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableName);
 			saveCreateTableFile("denormthousandcols", tableName, sqlCreate);

@@ -101,8 +101,8 @@ public class CreateDatabaseSparkThousandColsTest6 extends CreateDatabaseSparkDen
 			System.out.println("Processing table " + index + ": " + tableNameRoot + "_denorm");
 			this.logger.info("Processing table " + index + ": " + tableNameRoot + "_denorm");
 			this.dropTable("drop table if exists " + tableName);
-			String sqlCreate = SQLThousandColsTest6.createTableStatement(sqlQuery, tableName, 
-					this.format, this.extTablePrefixCreated, this.partition);
+			String sqlCreate = SQLThousandColsTest6.createTableStatement(sqlQuery, tableNameRoot,
+					tableName, this.format, this.extTablePrefixCreated, this.partition);
 			saveCreateTableFile("denormthousandcols", tableName, sqlCreate);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
