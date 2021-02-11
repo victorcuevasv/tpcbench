@@ -104,9 +104,9 @@ args[24]="--denorm-all-or-file=store_sales.sql"
 # database password
 args[25]="--db-password=$DatabasePassword"
 # flags
-# schema       |load          |load denorm   |deep copy     |merge         |
-# billion ints |write un part |write part    |
-args[26]="--execution-flags=11111111"
+# schema       |load          |analyze       |billion ints  |write unpart  |
+# write part   |load denorm   |deep copy     |thousand cols |merge         |
+args[26]="--execution-flags=1111101111"
 
 paramsStr="${args[@]}"
 

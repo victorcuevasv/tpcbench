@@ -19,59 +19,57 @@ import java.sql.DriverManager;
 import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.Encoders;
-import org.apache.spark.sql.SaveMode;
+import org.bsc.dcc.vcv.AppUtil;
+import org.bsc.dcc.vcv.JarCreateTableReaderAsZipFile;
+import org.bsc.dcc.vcv.Partitioning;
+import org.bsc.dcc.vcv.QueryRecord;
+import org.bsc.dcc.vcv.RunBenchmarkOptions;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.bsc.dcc.vcv.Partitioning;
-import org.bsc.dcc.vcv.AppUtil;
-import org.bsc.dcc.vcv.JarCreateTableReaderAsZipFile;
-import org.bsc.dcc.vcv.QueryRecord;
-import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
 
 
-public class CreateDatabaseSparkWritePartitionedTest3 extends CreateDatabaseSparkDenormETLTask {
+public class CreateDatabaseWritePartitionedTest3 extends CreateDatabaseDenormETLTask {
 	
 	
-	public CreateDatabaseSparkWritePartitionedTest3(CommandLine commandLine) {	
+	public CreateDatabaseWritePartitionedTest3(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseSparkWritePartitionedTest3 application = null;
+		CreateDatabaseWritePartitionedTest3 application = null;
 		CommandLine commandLine = null;
 		try {
-			RunBenchmarkSparkOptions runOptions = new RunBenchmarkSparkOptions();
+			RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
 			Options options = runOptions.getOptions();
 			CommandLineParser parser = new DefaultParser();
 			commandLine = parser.parse(options, args);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseSparkWritePartitionedTest3 main.");
+			logger.error("Error in CreateDatabaseWritePartitionedTest3 main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseSparkWritePartitionedTest3(commandLine);
+		application = new CreateDatabaseWritePartitionedTest3(commandLine);
 		application.doTask();
 	}
 	
 	
 	protected void doTask() {
 		// Process each .sql create table file found in the jar file.
-		this.useDatabase(this.dbName);
+		if( this.system.contains("spark") )
+			this.useDatabaseQuery(this.dbName);
+		//else if( this.system.startsWith("snowflake") )
+		//	this.prepareSnowflake();
 		this.recorder.header();
 		//Override the default createTableReader to read from tables
 		JarCreateTableReaderAsZipFile createTableReader = new JarCreateTableReaderAsZipFile(
-								this.jarFile, "tables");
+						this.jarFile, "tables");
 		List<String> unorderedList = createTableReader.getFiles();
 		List<String> orderedList = unorderedList.stream().sorted().collect(Collectors.toList());
 		int i = 1;
@@ -97,27 +95,29 @@ public class CreateDatabaseSparkWritePartitionedTest3 extends CreateDatabaseSpar
 		QueryRecord queryRecord = null;
 		try {
 			String tableNameRoot = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
-			String tableName = tableNameRoot + "_partitioned";
 			System.out.println("Processing table " + index + ": " + tableNameRoot);
 			this.logger.info("Processing table " + index + ": " + tableNameRoot);
+			String tableName = tableNameRoot + "_not_partitioned";
 			this.dropTable("drop table if exists " + tableName);
-			sqlQuery = org.bsc.dcc.vcv.etl.Util.incompleteCreateTable(sqlQuery);
-			String sqlCreate = SQLWritePartitionedTest3.createTableStatement(sqlQuery, tableNameRoot, tableName, this.format,
-					this.extTablePrefixCreated, this.partition);
-			saveCreateTableFile("writepartitionedcreate", tableName, sqlCreate);
+			String sqlCreate = SQLWritePartitionedTest3.createTableStatement(sqlQuery, 
+					tableNameRoot, tableName, this.format, this.extTablePrefixCreated, this.partition);
+			//if( this.system.startsWith("snowflake") )
+			//	sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot, tableName);
+			saveCreateTableFile("writeunpartitionedcreate", tableName, sqlCreate);
 			String sqlInsert = SQLWritePartitionedTest3.insertStatement(tableNameRoot, tableName);
-			saveCreateTableFile("writepartitionedinsert", tableName, sqlInsert);
+			saveCreateTableFile("writeunpartitionedinsert", tableName, sqlInsert);
+			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
-			this.spark.sql(sqlCreate);
-			this.spark.sql(sqlInsert);
+			stmt.execute(sqlCreate);
+			stmt.execute(sqlInsert);
 			queryRecord.setSuccessful(true);
 			if( this.doCount )
-				countRowsQuery(tableName);
+				countRowsQuery(stmt, tableName);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkWritePartitionedTest3 writePartitioned.");
+			this.logger.error("Error in CreateDatabaseWritePartitionedTest3 writePartitioned.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -129,7 +129,7 @@ public class CreateDatabaseSparkWritePartitionedTest3 extends CreateDatabaseSpar
 		}
 	}
 	
-
+	
 }
 
 

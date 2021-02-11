@@ -89,9 +89,9 @@ args[16]="--count-queries=false"
 # all or denorm table file
 args[17]="--denorm-all-or-file=store_sales.sql"
 # flags
-# schema       |load          |billion ints  |write unpart  |write part    |
-# load denorm  |deep copy     |thousand cols |merge         |
-args[18]="--execution-flags=111111111"
+# schema       |load          |analyze       |billion ints  |write unpart  |
+# write part   |load denorm   |deep copy     |thousand cols |merge         |
+args[18]="--execution-flags=1111111111"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 

@@ -104,8 +104,7 @@ public class CreateDatabaseWriteUnPartitionedTest2 extends CreateDatabaseDenormE
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot, tableName);
 			saveCreateTableFile("writeunpartitionedcreate", tableName, sqlCreate);
-			String sqlInsert = SQLWriteUnPartitionedTest2.insertStatement(sqlQuery, 
-					tableNameRoot, tableName);
+			String sqlInsert = SQLWriteUnPartitionedTest2.insertStatement(tableNameRoot, tableName);
 			saveCreateTableFile("writeunpartitionedinsert", tableName, sqlInsert);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);

@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.stream.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bsc.dcc.vcv.AnalyzeTablesSpark;
 import org.bsc.dcc.vcv.AppUtil;
 import org.bsc.dcc.vcv.CreateDatabaseSpark;
 import org.bsc.dcc.vcv.CreateDatabaseSparkDenorm;
@@ -91,7 +92,13 @@ public class RunBenchmarkSparkETL {
 				System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
 				CreateDatabaseSpark.main(args);
 			}
-			boolean doBillionInts = this.flags.charAt(2) == '1' ? true : false;
+			boolean doAnalyze = this.flags.charAt(2) == '1' ? true : false;
+			if( doAnalyze) {
+				this.saveTestParameters(args, "analyze");
+				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
+				AnalyzeTablesSpark.main(args);
+			}
+			boolean doBillionInts = this.flags.charAt(3) == '1' ? true : false;
 			if( doBillionInts ) {
 				Stream<String> argsStream = Arrays.stream(args)
 						.filter(s -> ! s.contains("tpcds-test"));
@@ -102,7 +109,7 @@ public class RunBenchmarkSparkETL {
 				System.out.println("\n\n\nRunning the BILLION INTS test.\n\n\n");
 				CreateDatabaseSparkBillionIntsTest1.main(argsCopy);
 			}
-			boolean doWriteUnPartitioned = this.flags.charAt(3) == '1' ? true : false;
+			boolean doWriteUnPartitioned = this.flags.charAt(4) == '1' ? true : false;
 			if( doWriteUnPartitioned ) {
 				Stream<String> argsStream = Arrays.stream(args)
 						.filter(s -> ! s.contains("tpcds-test"));
@@ -113,7 +120,7 @@ public class RunBenchmarkSparkETL {
 				System.out.println("\n\n\nRunning the WRITE UNPARTITIONED test.\n\n\n");
 				CreateDatabaseSparkWriteUnPartitionedTest2.main(argsCopy);
 			}
-			boolean doWritePartitioned = this.flags.charAt(4) == '1' ? true : false;
+			boolean doWritePartitioned = this.flags.charAt(5) == '1' ? true : false;
 			if( doWritePartitioned ) {
 				Stream<String> argsStream = Arrays.stream(args)
 						.filter(s -> ! s.contains("tpcds-test"));
@@ -124,13 +131,13 @@ public class RunBenchmarkSparkETL {
 				System.out.println("\n\n\nRunning the WRITE PARTITIONED test.\n\n\n");
 				CreateDatabaseSparkWritePartitionedTest3.main(argsCopy);
 			}
-			boolean doLoadDenorm = this.flags.charAt(5) == '1' ? true : false;
+			boolean doLoadDenorm = this.flags.charAt(6) == '1' ? true : false;
 			if( doLoadDenorm ) {
 				this.saveTestParameters(args, "loaddenorm");
 				System.out.println("\n\n\nRunning the LOAD DENORM test.\n\n\n");
 				CreateDatabaseSparkDenorm.main(args);
 			}
-			boolean doDenormDeepCopy = this.flags.charAt(6) == '1' ? true : false;
+			boolean doDenormDeepCopy = this.flags.charAt(7) == '1' ? true : false;
 			if( doDenormDeepCopy ) {
 				Stream<String> argsStream = Arrays.stream(args)
 						.filter(s -> ! s.contains("tpcds-test"));
@@ -141,7 +148,7 @@ public class RunBenchmarkSparkETL {
 				System.out.println("\n\n\nRunning the DENORM DEEP COPY test.\n\n\n");
 				CreateDatabaseSparkDeepCopyTest5.main(argsCopy);
 			}
-			boolean doThousandCols = this.flags.charAt(7) == '1' ? true : false;
+			boolean doThousandCols = this.flags.charAt(8) == '1' ? true : false;
 			if( doThousandCols ) {
 				Stream<String> argsStream = Arrays.stream(args)
 						.filter(s -> ! s.contains("tpcds-test"));
@@ -152,7 +159,7 @@ public class RunBenchmarkSparkETL {
 				System.out.println("\n\n\nRunning the DENORM THOUSAND COLS test.\n\n\n");
 				CreateDatabaseSparkThousandColsTest6.main(argsCopy);
 			}
-			boolean doMerge = this.flags.charAt(8) == '1' ? true : false;
+			boolean doMerge = this.flags.charAt(9) == '1' ? true : false;
 			if( doMerge ) {
 				Stream<String> argsStream = Arrays.stream(args)
 						.filter(s -> ! s.contains("tpcds-test"));
