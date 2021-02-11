@@ -104,8 +104,7 @@ public class CreateDatabaseSparkWriteUnPartitionedTest2 extends CreateDatabaseSp
 			String sqlCreate = SQLWriteUnPartitionedTest2.createTableStatement(sqlQuery, 
 					tableNameRoot, tableName, this.format, this.extTablePrefixCreated);
 			saveCreateTableFile("writeunpartitionedcreate", tableName, sqlCreate);
-			String sqlInsert = SQLWriteUnPartitionedTest2.insertStatement(sqlQuery, 
-					tableNameRoot, tableName);
+			String sqlInsert = SQLWriteUnPartitionedTest2.insertStatement(tableNameRoot, tableName);
 			saveCreateTableFile("writeunpartitionedinsert", tableName, sqlInsert);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
