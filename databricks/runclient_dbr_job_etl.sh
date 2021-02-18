@@ -88,10 +88,12 @@ args[15]="--all-or-create-file=all"
 args[16]="--count-queries=false"
 # all or denorm table file
 args[17]="--denorm-all-or-file=store_sales.sql"
+# scale factor used to run the benchmark
+args[18]="--scale-factor=$1"
 # flags
 # schema       |load          |analyze       |billion ints  |write unpart  |
 # write part   |load denorm   |deep copy     |thousand cols |merge         |
-args[18]="--execution-flags=1110001000"
+args[19]="--execution-flags=1111111111"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 

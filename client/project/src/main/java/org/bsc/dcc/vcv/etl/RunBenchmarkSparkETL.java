@@ -5,8 +5,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.StringTokenizer;
 import java.util.stream.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -81,22 +83,54 @@ public class RunBenchmarkSparkETL {
 	
 	private void runBenchmark(String[] args) {
 		try {
+			String scaleFactorStr = this.getParamValue(args, "scale-factor");
+			long scaleFactor = Long.parseLong(scaleFactorStr);
 			boolean doSchema = this.flags.charAt(0) == '1' ? true : false;
 			if( doSchema ) {
 				System.out.println("\n\n\nCreating the database schema.\n\n\n");
 				CreateSchemaSpark.main(args);
+				//Additional 100 gb database
+				if( scaleFactor >= 1000 ) {
+					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor);
+					System.out.println("\n\n\nCreating the small database schema.\n\n\n");
+					CreateSchemaSpark.main(argsOneHundredSF);
+				}
 			}
 			boolean doLoad = this.flags.charAt(1) == '1' ? true : false;
 			if( doLoad ) {
 				this.saveTestParameters(args, "load");
 				System.out.println("\n\n\nRunning the LOAD test.\n\n\n");
 				CreateDatabaseSpark.main(args);
+				//Additional 100 gb database
+				if( scaleFactor >= 1000 ) {
+					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor);
+					Stream<String> argsStream = Arrays.stream(argsOneHundredSF)
+							.filter(s -> ! s.contains("tpcds-test"));
+					String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=loadsmall"), argsStream)
+							.collect(Collectors.toList())
+							.toArray(new String[0]);
+					this.saveTestParameters(argsCopy, "loadsmall");
+					System.out.println("\n\n\nRunning the LOAD small test.\n\n\n");
+					CreateDatabaseSpark.main(argsCopy);
+				}
 			}
 			boolean doAnalyze = this.flags.charAt(2) == '1' ? true : false;
 			if( doAnalyze) {
 				this.saveTestParameters(args, "analyze");
 				System.out.println("\n\n\nRunning the ANALYZE test.\n\n\n");
 				AnalyzeTablesSpark.main(args);
+				//Additional 100 gb database
+				if( scaleFactor >= 1000 ) {
+					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor);
+					Stream<String> argsStream = Arrays.stream(argsOneHundredSF)
+							.filter(s -> ! s.contains("tpcds-test"));
+					String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=analyzesmall"), argsStream)
+							.collect(Collectors.toList())
+							.toArray(new String[0]);
+					this.saveTestParameters(argsCopy, "analyzesmall");
+					System.out.println("\n\n\nRunning the ANALYZE small test.\n\n\n");
+					AnalyzeTablesSpark.main(argsCopy);
+				}
 			}
 			boolean doBillionInts = this.flags.charAt(3) == '1' ? true : false;
 			if( doBillionInts ) {
@@ -136,6 +170,19 @@ public class RunBenchmarkSparkETL {
 				this.saveTestParameters(args, "loaddenorm");
 				System.out.println("\n\n\nRunning the LOAD DENORM test.\n\n\n");
 				CreateDatabaseSparkDenorm.main(args);
+				//Additional 100 gb database
+				if( scaleFactor >= 1000 ) {
+					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor);
+					Stream<String> argsStream = Arrays.stream(argsOneHundredSF)
+							.filter(s -> ! s.contains("tpcds-test"));
+					String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=loaddenormsmall"), 
+							argsStream)
+							.collect(Collectors.toList())
+							.toArray(new String[0]);
+					this.saveTestParameters(argsCopy, "loaddenormsmall");
+					System.out.println("\n\n\nRunning the LOAD DENORM small test.\n\n\n");
+					CreateDatabaseSparkDenorm.main(argsCopy);
+				}
 			}
 			boolean doDenormDeepCopy = this.flags.charAt(7) == '1' ? true : false;
 			if( doDenormDeepCopy ) {
@@ -150,6 +197,7 @@ public class RunBenchmarkSparkETL {
 			}
 			boolean doThousandCols = this.flags.charAt(8) == '1' ? true : false;
 			if( doThousandCols ) {
+				/*
 				Stream<String> argsStream = Arrays.stream(args)
 						.filter(s -> ! s.contains("tpcds-test"));
 				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=denormthousandcols"), argsStream)
@@ -158,6 +206,20 @@ public class RunBenchmarkSparkETL {
 				this.saveTestParameters(argsCopy, "denormthousandcols");
 				System.out.println("\n\n\nRunning the DENORM THOUSAND COLS test.\n\n\n");
 				CreateDatabaseSparkThousandColsTest6.main(argsCopy);
+				*/
+				//Additional 100 gb database
+				if( scaleFactor >= 1000 ) {
+					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor);
+					Stream<String> argsStream = Arrays.stream(argsOneHundredSF)
+							.filter(s -> ! s.contains("tpcds-test"));
+					String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=denormthousandcolssmall"), 
+							argsStream)
+							.collect(Collectors.toList())
+							.toArray(new String[0]);
+					this.saveTestParameters(argsCopy, "denormthousandcolssmall");
+					System.out.println("\n\n\nRunning the DENORM THOUSAND COLS small test.\n\n\n");
+					CreateDatabaseSparkThousandColsTest6.main(argsCopy);
+				}
 			}
 			boolean doMerge = this.flags.charAt(9) == '1' ? true : false;
 			if( doMerge ) {
@@ -190,6 +252,50 @@ public class RunBenchmarkSparkETL {
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
+	}
+	
+	
+	private String[] differentScaleFactorParams(String[] args, long newScaleFactor) {
+		String dbNameParamVal = this.getParamValue(args, "schema-name");
+		dbNameParamVal = dbNameParamVal.replace("_" + newScaleFactor + "gb_",
+			"_" + 100 + "gb_");
+		String[] argsCopy = this.replaceParamValue(args, "schema-name", dbNameParamVal);
+		String extRawDataLocParamVal = this.getParamValue(args, "ext-raw-data-location");
+		extRawDataLocParamVal = extRawDataLocParamVal.replace("" + newScaleFactor, "" + 100);
+		argsCopy = this.replaceParamValue(argsCopy, "ext-raw-data-location", 
+				extRawDataLocParamVal);
+		String extTablesLocParamVal = this.getParamValue(args, "ext-tables-location");
+		extTablesLocParamVal = extTablesLocParamVal.replace("-" + newScaleFactor + "gb-",
+			"-" + 100 + "gb-");
+		argsCopy = this.replaceParamValue(args, "ext-tables-location", extTablesLocParamVal);
+		return argsCopy;
+	}
+	
+	
+	private String getParamValue(String[] args, String paramNameSimplified) {
+		String paramVal = null;
+		Optional<String> paramKeyValPair = Arrays.stream(args)
+				.filter(s -> s.contains("--" + paramNameSimplified)).findAny();
+		if( paramKeyValPair.isPresent() ) {
+			StringTokenizer tokenizer = new StringTokenizer(paramKeyValPair.get(), "=");
+			if( tokenizer.hasMoreTokens() ) {
+				String paramName = tokenizer.nextToken();
+			}
+			if( tokenizer.hasMoreTokens() )
+				paramVal = tokenizer.nextToken();
+		}
+		return paramVal;
+	}
+	
+	
+	private String[] replaceParamValue(String[] args, String paramNameSimplified, String newParamValue) {
+		Stream<String> argsStream = Arrays.stream(args)
+				.filter(s -> ! s.contains("--" + paramNameSimplified));
+		String[] argsCopy = Stream.concat(Stream.of("--" + paramNameSimplified + "=" + newParamValue),
+				argsStream)
+				.collect(Collectors.toList())
+				.toArray(new String[0]);
+		return argsCopy;
 	}
 	
 	

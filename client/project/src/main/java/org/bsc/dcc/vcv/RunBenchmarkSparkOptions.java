@@ -152,6 +152,9 @@ public class RunBenchmarkSparkOptions {
 				.desc( "greater than threshold for the date-sk attribute to generate update data" )
 				.hasArg(true).required(false).build() );
 		
+		options.addOption( Option.builder().longOpt( "scale-factor" )
+				.desc( "scale factor used to run the benchmark" )
+				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );
