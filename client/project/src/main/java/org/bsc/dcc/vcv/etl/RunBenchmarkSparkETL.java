@@ -273,7 +273,7 @@ public class RunBenchmarkSparkETL {
 		String extTablesLocParamVal = this.getParamValue(args, "ext-tables-location");
 		extTablesLocParamVal = extTablesLocParamVal.replace("-" + scaleFactor + "gb-",
 			"-" + newScaleFactor + "gb-");
-		argsCopy = this.replaceParamValue(args, "ext-tables-location", extTablesLocParamVal);
+		argsCopy = this.replaceParamValue(argsCopy, "ext-tables-location", extTablesLocParamVal);
 		return argsCopy;
 	}
 	
