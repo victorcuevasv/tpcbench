@@ -1,4 +1,4 @@
-
+-- Table containing the file operations as read from the CSV
 CREATE TABLE filelog_stage(
 	experiment varchar(200),
 	step int,
@@ -9,6 +9,9 @@ CREATE TABLE filelog_stage(
 	partition int
 );
 
+-- Table containing the 'add' file operations as they are in the csv 
+-- plus the 'remove' file operations with the records and size obtained
+-- from the matching 'add' file operation
 CREATE TABLE filelog(
 	experiment varchar(200),
 	step int,
@@ -19,6 +22,7 @@ CREATE TABLE filelog(
 	partition int
 );
 
+-- Table that represents the files after each committ
 CREATE TABLE filecommits(
 	experiment varchar(200),
 	state int,
@@ -28,26 +32,35 @@ CREATE TABLE filecommits(
 	partition int
 );
 
+
+-- Load the file operations from the CSV
 COPY filelog_stage
 FROM 'C:\Users\bscuser\Desktop\log.csv'
 DELIMITER '|'
 CSV HEADER;
 
+-- Insert the added files
 INSERT INTO filelog
 SELECT * FROM filelog_stage
 WHERE operation = 'add';
 
+-- Insert the removed files and recover their number of records and file size
+-- from the corresponding add operation
 INSERT INTO filelog
 SELECT s1.experiment, s1.step, s1.operation, s1.path, s2.records, s2.size, s1.partition
 FROM filelog_stage s1, filelog_stage s2
 WHERE s1.operation = 'remove' AND s2.operation = 'add' AND s1.path = s2.path;
 
+-- The filelog_stage table is no longer necessary
 DROP TABLE filelog_stage;
 
+-- Fill the filecommits table starting from the first added files at step 0
 INSERT INTO filecommits
 SELECT experiment, 0, path, records, size, partition
 FROM filelog WHERE step = 0 and operation = 'add';
 
+-- For each new commit state, insert in it the files added in the previous commit that
+-- were not removed in the new commit, plus the files added in the new commit
 do $$
 declare
 	i int := 0;
