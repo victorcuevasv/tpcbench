@@ -85,13 +85,14 @@ public class RunBenchmarkSparkETL {
 		try {
 			String scaleFactorStr = this.getParamValue(args, "scale-factor");
 			long scaleFactor = Long.parseLong(scaleFactorStr);
+			long newScaleFactor = 100;
 			boolean doSchema = this.flags.charAt(0) == '1' ? true : false;
 			if( doSchema ) {
 				System.out.println("\n\n\nCreating the database schema.\n\n\n");
 				CreateSchemaSpark.main(args);
 				//Additional 100 gb database
 				if( scaleFactor >= 1000 ) {
-					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor);
+					String[] argsOneHundredSF = this.differentScaleFactorParams(args, newScaleFactor);
 					System.out.println("\n\n\nCreating the small database schema.\n\n\n");
 					CreateSchemaSpark.main(argsOneHundredSF);
 				}
@@ -103,7 +104,7 @@ public class RunBenchmarkSparkETL {
 				CreateDatabaseSpark.main(args);
 				//Additional 100 gb database
 				if( scaleFactor >= 1000 ) {
-					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor);
+					String[] argsOneHundredSF = this.differentScaleFactorParams(args, newScaleFactor);
 					Stream<String> argsStream = Arrays.stream(argsOneHundredSF)
 							.filter(s -> ! s.contains("tpcds-test"));
 					String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=loadsmall"), argsStream)
@@ -121,7 +122,7 @@ public class RunBenchmarkSparkETL {
 				AnalyzeTablesSpark.main(args);
 				//Additional 100 gb database
 				if( scaleFactor >= 1000 ) {
-					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor);
+					String[] argsOneHundredSF = this.differentScaleFactorParams(args, newScaleFactor);
 					Stream<String> argsStream = Arrays.stream(argsOneHundredSF)
 							.filter(s -> ! s.contains("tpcds-test"));
 					String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=analyzesmall"), argsStream)
@@ -172,7 +173,7 @@ public class RunBenchmarkSparkETL {
 				CreateDatabaseSparkDenorm.main(args);
 				//Additional 100 gb database
 				if( scaleFactor >= 1000 ) {
-					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor);
+					String[] argsOneHundredSF = this.differentScaleFactorParams(args, newScaleFactor);
 					Stream<String> argsStream = Arrays.stream(argsOneHundredSF)
 							.filter(s -> ! s.contains("tpcds-test"));
 					String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=loaddenormsmall"), 
@@ -209,7 +210,7 @@ public class RunBenchmarkSparkETL {
 				*/
 				//Additional 100 gb database
 				if( scaleFactor >= 1000 ) {
-					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor);
+					String[] argsOneHundredSF = this.differentScaleFactorParams(args, newScaleFactor);
 					Stream<String> argsStream = Arrays.stream(argsOneHundredSF)
 							.filter(s -> ! s.contains("tpcds-test"));
 					String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=denormthousandcolssmall"), 
