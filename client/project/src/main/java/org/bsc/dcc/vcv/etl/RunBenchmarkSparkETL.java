@@ -92,7 +92,8 @@ public class RunBenchmarkSparkETL {
 				CreateSchemaSpark.main(args);
 				//Additional 100 gb database
 				if( scaleFactor >= 1000 ) {
-					String[] argsOneHundredSF = this.differentScaleFactorParams(args, newScaleFactor);
+					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor,
+							newScaleFactor);
 					System.out.println("\n\n\nCreating the small database schema.\n\n\n");
 					CreateSchemaSpark.main(argsOneHundredSF);
 				}
@@ -104,7 +105,8 @@ public class RunBenchmarkSparkETL {
 				CreateDatabaseSpark.main(args);
 				//Additional 100 gb database
 				if( scaleFactor >= 1000 ) {
-					String[] argsOneHundredSF = this.differentScaleFactorParams(args, newScaleFactor);
+					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor,
+							newScaleFactor);
 					Stream<String> argsStream = Arrays.stream(argsOneHundredSF)
 							.filter(s -> ! s.contains("tpcds-test"));
 					String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=loadsmall"), argsStream)
@@ -122,7 +124,8 @@ public class RunBenchmarkSparkETL {
 				AnalyzeTablesSpark.main(args);
 				//Additional 100 gb database
 				if( scaleFactor >= 1000 ) {
-					String[] argsOneHundredSF = this.differentScaleFactorParams(args, newScaleFactor);
+					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor,
+							newScaleFactor);
 					Stream<String> argsStream = Arrays.stream(argsOneHundredSF)
 							.filter(s -> ! s.contains("tpcds-test"));
 					String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=analyzesmall"), argsStream)
@@ -173,7 +176,8 @@ public class RunBenchmarkSparkETL {
 				CreateDatabaseSparkDenorm.main(args);
 				//Additional 100 gb database
 				if( scaleFactor >= 1000 ) {
-					String[] argsOneHundredSF = this.differentScaleFactorParams(args, newScaleFactor);
+					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor,
+							newScaleFactor);
 					Stream<String> argsStream = Arrays.stream(argsOneHundredSF)
 							.filter(s -> ! s.contains("tpcds-test"));
 					String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=loaddenormsmall"), 
@@ -210,7 +214,8 @@ public class RunBenchmarkSparkETL {
 				*/
 				//Additional 100 gb database
 				if( scaleFactor >= 1000 ) {
-					String[] argsOneHundredSF = this.differentScaleFactorParams(args, newScaleFactor);
+					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor,
+							newScaleFactor);
 					Stream<String> argsStream = Arrays.stream(argsOneHundredSF)
 							.filter(s -> ! s.contains("tpcds-test"));
 					String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=denormthousandcolssmall"), 
@@ -256,18 +261,18 @@ public class RunBenchmarkSparkETL {
 	}
 	
 	
-	private String[] differentScaleFactorParams(String[] args, long newScaleFactor) {
+	private String[] differentScaleFactorParams(String[] args, long scaleFactor, long newScaleFactor) {
 		String dbNameParamVal = this.getParamValue(args, "schema-name");
-		dbNameParamVal = dbNameParamVal.replace("_" + newScaleFactor + "gb_",
-			"_" + 100 + "gb_");
+		dbNameParamVal = dbNameParamVal.replace("_" + scaleFactor + "gb_",
+			"_" + newScaleFactor + "gb_");
 		String[] argsCopy = this.replaceParamValue(args, "schema-name", dbNameParamVal);
 		String extRawDataLocParamVal = this.getParamValue(args, "ext-raw-data-location");
-		extRawDataLocParamVal = extRawDataLocParamVal.replace("" + newScaleFactor, "" + 100);
+		extRawDataLocParamVal = extRawDataLocParamVal.replace("" + scaleFactor, "" + newScaleFactor);
 		argsCopy = this.replaceParamValue(argsCopy, "ext-raw-data-location", 
 				extRawDataLocParamVal);
 		String extTablesLocParamVal = this.getParamValue(args, "ext-tables-location");
-		extTablesLocParamVal = extTablesLocParamVal.replace("-" + newScaleFactor + "gb-",
-			"-" + 100 + "gb-");
+		extTablesLocParamVal = extTablesLocParamVal.replace("-" + scaleFactor + "gb-",
+			"-" + newScaleFactor + "gb-");
 		argsCopy = this.replaceParamValue(args, "ext-tables-location", extTablesLocParamVal);
 		return argsCopy;
 	}
