@@ -157,6 +157,9 @@ public class RunBenchmarkOptions {
 		options.addOption( Option.builder().longOpt( "denorm-all-or-file" )
 				.desc( "\"all\" or create table file for denorm tables" )
 				.hasArg(true).required(false).build() );
+		options.addOption( Option.builder().longOpt( "scale-factor" )
+				.desc( "scale factor used to run the benchmark" )
+				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );

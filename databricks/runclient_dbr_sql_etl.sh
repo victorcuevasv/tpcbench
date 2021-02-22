@@ -109,10 +109,12 @@ args[25]="--power-test-runs=1"
 args[26]="--multiple-connections=true"
 # all or denorm table file
 args[27]="--denorm-all-or-file=store_sales.sql"
+# scale factor used to run the benchmark
+args[28]="--scale-factor=$1"
 # flags
 # schema       |load          |analyze       |billion ints  |write unpart  |
 # write part   |load denorm   |deep copy     |thousand cols |merge         |
-args[28]="--execution-flags=1111111111"
+args[29]="--execution-flags=1111111111"
 
 paramsStr="${args[@]}"
 
