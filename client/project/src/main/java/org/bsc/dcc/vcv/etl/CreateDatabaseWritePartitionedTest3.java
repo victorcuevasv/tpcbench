@@ -97,8 +97,9 @@ public class CreateDatabaseWritePartitionedTest3 extends CreateDatabaseDenormETL
 			String tableNameRoot = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableNameRoot);
 			this.logger.info("Processing table " + index + ": " + tableNameRoot);
-			String tableName = tableNameRoot + "_not_partitioned";
+			String tableName = tableNameRoot + "_partitioned";
 			this.dropTable("drop table if exists " + tableName);
+			sqlQuery = org.bsc.dcc.vcv.etl.Util.incompleteCreateTable(sqlQuery);
 			String sqlCreate = SQLWritePartitionedTest3.createTableStatement(sqlQuery, 
 					tableNameRoot, tableName, this.format, this.extTablePrefixCreated, this.partition);
 			//if( this.system.startsWith("snowflake") )
