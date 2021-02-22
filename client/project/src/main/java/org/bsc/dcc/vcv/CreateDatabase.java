@@ -1003,7 +1003,7 @@ public class CreateDatabase {
 				if( pos != -1 )
 					builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n" );
 			}
-			//builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
+			builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
 		}
 		else {
 			builder.append("USING PARQUET \n" + "OPTIONS ('compression'='snappy') \n");
