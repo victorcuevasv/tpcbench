@@ -85,7 +85,9 @@ public class RunBenchmarkSparkETL {
 		try {
 			String scaleFactorStr = this.getParamValue(args, "scale-factor");
 			long scaleFactor = Long.parseLong(scaleFactorStr);
-			long newScaleFactor = 100;
+			long newScaleFactor = scaleFactor;
+			if( scaleFactor >= 1000 )
+				newScaleFactor = 100;
 			boolean doSchema = this.flags.charAt(0) == '1' ? true : false;
 			if( doSchema ) {
 				System.out.println("\n\n\nCreating the database schema.\n\n\n");
@@ -202,30 +204,20 @@ public class RunBenchmarkSparkETL {
 			}
 			boolean doThousandCols = this.flags.charAt(8) == '1' ? true : false;
 			if( doThousandCols ) {
-				/*
-				Stream<String> argsStream = Arrays.stream(args)
-						.filter(s -> ! s.contains("tpcds-test"));
-				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=denormthousandcols"), argsStream)
-						.collect(Collectors.toList())
-						.toArray(new String[0]);
-				this.saveTestParameters(argsCopy, "denormthousandcols");
-				System.out.println("\n\n\nRunning the DENORM THOUSAND COLS test.\n\n\n");
-				CreateDatabaseSparkThousandColsTest6.main(argsCopy);
-				*/
-				//Additional 100 gb database
-				if( scaleFactor >= 1000 ) {
-					String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor,
+				//For a scale factor >= 1000 change to the additional 100 gb database
+				//For a scale factor < 1000 the scaleFactor and newScaleFactor variables should
+				//have the same value, thus differentScaleFactorParams will in effect do no change
+				String[] argsOneHundredSF = this.differentScaleFactorParams(args, scaleFactor,
 							newScaleFactor);
-					Stream<String> argsStream = Arrays.stream(argsOneHundredSF)
+				Stream<String> argsStream = Arrays.stream(argsOneHundredSF)
 							.filter(s -> ! s.contains("tpcds-test"));
-					String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=denormthousandcolssmall"), 
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=denormthousandcolssmall"), 
 							argsStream)
 							.collect(Collectors.toList())
 							.toArray(new String[0]);
-					this.saveTestParameters(argsCopy, "denormthousandcolssmall");
-					System.out.println("\n\n\nRunning the DENORM THOUSAND COLS small test.\n\n\n");
-					CreateDatabaseSparkThousandColsTest6.main(argsCopy);
-				}
+				this.saveTestParameters(argsCopy, "denormthousandcolssmall");
+				System.out.println("\n\n\nRunning the DENORM THOUSAND COLS small test.\n\n\n");
+				CreateDatabaseSparkThousandColsTest6.main(argsCopy);
 			}
 			boolean doMerge = this.flags.charAt(9) == '1' ? true : false;
 			if( doMerge ) {
