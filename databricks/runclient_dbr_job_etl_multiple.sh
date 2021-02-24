@@ -85,7 +85,7 @@ post_data_func()
       "timeout_seconds":0,
       "spark_jar_task":{ 
          "jar_uri":"",
-         "main_class_name":"org.bsc.dcc.vcv.RunBenchmarkSparkETL",
+         "main_class_name":"org.bsc.dcc.vcv.etl.RunBenchmarkSparkETL",
          "parameters":[ 
 			$paramsStr
          ]
