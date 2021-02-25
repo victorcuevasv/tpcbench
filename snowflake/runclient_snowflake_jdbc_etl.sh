@@ -103,10 +103,12 @@ args[23]="--multiple-connections=true"
 args[24]="--denorm-all-or-file=store_sales.sql"
 # database password
 args[25]="--db-password=$DatabasePassword"
+# scale factor used to run the benchmark
+args[26]="--scale-factor=$1"
 # flags
 # schema       |load          |analyze       |billion ints  |write unpart  |
 # write part   |load denorm   |deep copy     |thousand cols |merge         |
-args[26]="--execution-flags=1111101111"
+args[27]="--execution-flags=1111101111"
 
 paramsStr="${args[@]}"
 
