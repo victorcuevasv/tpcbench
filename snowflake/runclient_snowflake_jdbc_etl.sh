@@ -108,7 +108,7 @@ args[26]="--scale-factor=$1"
 # flags
 # schema       |load          |analyze       |billion ints  |write unpart  |
 # write part   |load denorm   |deep copy     |thousand cols |merge         |
-args[27]="--execution-flags=1111101111"
+args[27]="--execution-flags=1101111111"
 
 paramsStr="${args[@]}"
 

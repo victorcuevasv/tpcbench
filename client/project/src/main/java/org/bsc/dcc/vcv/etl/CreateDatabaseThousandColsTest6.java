@@ -129,7 +129,7 @@ public class CreateDatabaseThousandColsTest6 extends CreateDatabaseDenormETLTask
 	
 	private String createTableStatementSnowflake(String sqlQuery, String tableName) {
 		StringBuilder builder = new StringBuilder();
-		builder.append("CREATE TABLE " + tableName + " ");
+		builder.append("CREATE TABLE " + tableName + " AS\n");
 		builder.append(sqlQuery);
 		return builder.toString();
 	}
