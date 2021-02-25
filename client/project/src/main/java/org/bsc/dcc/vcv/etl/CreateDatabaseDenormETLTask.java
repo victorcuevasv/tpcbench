@@ -23,6 +23,7 @@ import org.bsc.dcc.vcv.AWSUtil;
 import org.bsc.dcc.vcv.AnalyticsRecorder;
 import org.bsc.dcc.vcv.AppUtil;
 import org.bsc.dcc.vcv.BigQueryDAO;
+import org.bsc.dcc.vcv.ClusterByKeys;
 import org.bsc.dcc.vcv.FilterKeys;
 import org.bsc.dcc.vcv.FilterValues;
 import org.bsc.dcc.vcv.HudiPrecombineKeys;
@@ -74,6 +75,7 @@ public abstract class CreateDatabaseDenormETLTask {
 	protected final String userId;
 	protected final boolean partitionWithDistrubuteBy;
 	protected final boolean denormWithFilter;
+	protected final Map<String, String> clusterByKeys;
 	private final boolean useCachedResultSnowflake = false;
 	
 	public CreateDatabaseDenormETLTask(CommandLine commandLine) {
@@ -118,6 +120,7 @@ public abstract class CreateDatabaseDenormETLTask {
 		String denormWithFilterStr = commandLine.getOptionValue(
 				"denorm-with-filter", "true");
 		this.denormWithFilter = Boolean.parseBoolean(denormWithFilterStr);
+		this.clusterByKeys = new ClusterByKeys().getMap();
 		this.openConnection();
 	}
 	

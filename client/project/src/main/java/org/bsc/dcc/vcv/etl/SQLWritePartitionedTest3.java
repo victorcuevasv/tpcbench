@@ -9,7 +9,7 @@ import org.bsc.dcc.vcv.Partitioning;
 public class SQLWritePartitionedTest3 {
 	
 
-	public static String createTableStatement(String sqlQuery, String tableNameRoot, String tableName,
+	public static String createTableStatementSpark(String sqlQuery, String tableNameRoot, String tableName,
 			String format, Optional<String> extTablePrefixCreated, boolean partition) {
 		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
 		StringBuilder builder = new StringBuilder(sqlQuery);

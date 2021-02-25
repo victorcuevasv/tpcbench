@@ -6,7 +6,7 @@ import java.util.Optional;
 public class SQLWriteUnPartitionedTest2 {
 	
 
-	public static String createTableStatement(String sqlQuery, String tableNameRoot, String tableName, 
+	public static String createTableStatementSpark(String sqlQuery, String tableNameRoot, String tableName, 
 			String format, Optional<String> extTablePrefixCreated) {
 		sqlQuery = org.bsc.dcc.vcv.etl.Util.incompleteCreateTable(sqlQuery);
 		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);

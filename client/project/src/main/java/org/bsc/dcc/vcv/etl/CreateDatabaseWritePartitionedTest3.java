@@ -100,10 +100,10 @@ public class CreateDatabaseWritePartitionedTest3 extends CreateDatabaseDenormETL
 			String tableName = tableNameRoot + "_partitioned";
 			this.dropTable("drop table if exists " + tableName);
 			sqlQuery = org.bsc.dcc.vcv.etl.Util.incompleteCreateTable(sqlQuery);
-			String sqlCreate = SQLWritePartitionedTest3.createTableStatement(sqlQuery, 
+			String sqlCreate = SQLWritePartitionedTest3.createTableStatementSpark(sqlQuery, 
 					tableNameRoot, tableName, this.format, this.extTablePrefixCreated, this.partition);
-			//if( this.system.startsWith("snowflake") )
-			//	sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot, tableName);
+			if( this.system.startsWith("snowflake") )
+				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot, tableName);
 			saveCreateTableFile("writeunpartitionedcreate", tableName, sqlCreate);
 			String sqlInsert = SQLWritePartitionedTest3.insertStatement(tableNameRoot, tableName);
 			saveCreateTableFile("writeunpartitionedinsert", tableName, sqlInsert);
@@ -128,6 +128,17 @@ public class CreateDatabaseWritePartitionedTest3 extends CreateDatabaseDenormETL
 				this.recorder.record(queryRecord);
 			}
 		}
+	}
+	
+	
+	private String createTableStatementSnowflake(String sqlQuery, String tableNameRoot, 
+			String tableName) {
+		sqlQuery = org.bsc.dcc.vcv.etl.Util.incompleteCreateTable(sqlQuery);
+		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
+		String clusterByKey = this.clusterByKeys.get(tableNameRoot);
+		if( clusterByKey != null )
+			sqlQuery = sqlQuery + "\n CLUSTER BY(" + clusterByKey + ")";
+		return sqlQuery;
 	}
 	
 	

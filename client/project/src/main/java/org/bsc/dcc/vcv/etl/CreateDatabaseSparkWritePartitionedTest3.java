@@ -102,8 +102,8 @@ public class CreateDatabaseSparkWritePartitionedTest3 extends CreateDatabaseSpar
 			this.logger.info("Processing table " + index + ": " + tableNameRoot);
 			this.dropTable("drop table if exists " + tableName);
 			sqlQuery = org.bsc.dcc.vcv.etl.Util.incompleteCreateTable(sqlQuery);
-			String sqlCreate = SQLWritePartitionedTest3.createTableStatement(sqlQuery, tableNameRoot, tableName, this.format,
-					this.extTablePrefixCreated, this.partition);
+			String sqlCreate = SQLWritePartitionedTest3.createTableStatementSpark(sqlQuery, tableNameRoot,
+					tableName, this.format, this.extTablePrefixCreated, this.partition);
 			saveCreateTableFile("writepartitionedcreate", tableName, sqlCreate);
 			String sqlInsert = SQLWritePartitionedTest3.insertStatement(tableNameRoot, tableName);
 			saveCreateTableFile("writepartitionedinsert", tableName, sqlInsert);
