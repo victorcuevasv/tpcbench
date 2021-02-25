@@ -33,7 +33,7 @@ printf "\n\n%s\n\n" "${mag}Creating the jobs.${end}"
 #Cluster configuration.
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Nodes="2"
-MajorVersion="7"
+MajorVersion="8"
 MinorVersion="p"
 ScalaVersion="x-scala2.12"
 #Note that /dbfs or dbfs: is not included, these are added later.
@@ -55,12 +55,16 @@ post_data_func()
 { 
 	"name":"$JOB_NAME",
 	"new_cluster":{ 
-		"spark_version":"custom:custom-local__7.x-snapshot-scala2.12__unknown__head__8437e42__e60bf1b__toddgreenstein__2822c5f__format-2.lz4",
+		"spark_version":"8.x-snapshot-photon-scala2.12",
         "spark_conf":{
         	"spark.databricks.delta.optimizeWrite.enabled":"true",
         	"spark.sql.legacy.parquet.int96DatetimeRebaseModeInWrite":"EXCEPTION",
         	"spark.sql.legacy.parquet.datetimeRebaseModeInWrite":"EXCEPTION",
-        	"spark.databricks.photon.parquetWriter.enabled":"true"
+        	"spark.databricks.photon.parquetWriter.enabled":"true",
+        	"spark.executor.memory":"8000m",
+			"spark.memory.offHeap.enabled":"true",
+			"spark.memory.offHeap.size":"36000m",
+			"spark.databricks.photon.enabled":"true"
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
