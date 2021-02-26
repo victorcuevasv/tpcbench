@@ -64,8 +64,8 @@ public class CreateDatabaseWritePartitionedTest3 extends CreateDatabaseDenormETL
 		// Process each .sql create table file found in the jar file.
 		if( this.system.contains("spark") )
 			this.useDatabaseQuery(this.dbName);
-		//else if( this.system.startsWith("snowflake") )
-		//	this.prepareSnowflake();
+		else if( this.system.startsWith("snowflake") )
+			this.prepareSnowflake();
 		this.recorder.header();
 		//Override the default createTableReader to read from tables
 		JarCreateTableReaderAsZipFile createTableReader = new JarCreateTableReaderAsZipFile(
