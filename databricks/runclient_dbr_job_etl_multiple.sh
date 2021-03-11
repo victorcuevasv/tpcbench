@@ -41,7 +41,7 @@ JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
 Tag="$(date +%s)"
 #Script operation flags.
 RUN_CREATE_JOB=1
-RUN_RUN_JOB=0
+RUN_RUN_JOB=1
 JOB_NAME_PREFIX="Run TPC-DS Benchmark"
 
 #Used by the script, do not edit.
@@ -67,7 +67,8 @@ post_data_func()
 			"spark.databricks.photon.enabled":"true",
 			"spark.memory.offHeap.enabled":"true",
 			"spark.sql.legacy.parquet.int96DatetimeRebaseModeInWrite":"EXCEPTION",
-			"spark.databricks.delta.optimizeWrite.enabled":"true"
+			"spark.databricks.delta.optimizeWrite.enabled":"true",
+			"spark.databricks.delta.optimizeWrite.useAQE":"true"
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
