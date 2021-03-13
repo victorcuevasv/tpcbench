@@ -22,7 +22,7 @@ if [ -z "$DATABRICKS_TOKEN" ] && [ "$USE_DBR_CLI" -eq 0 ] ; then
 fi
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_fullbenchmark_job.sh <scale factor> <experiment instance number> <number of streams>${end}"
+    echo "${yel}Usage: bash runclient_dbr_job_updates.sh <scale factor> <experiment instance number> <number of streams>${end}"
     exit 0
 fi
 
@@ -32,7 +32,7 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Nodes="16"
 MajorVersion="7"
-MinorVersion="3"
+MinorVersion="6"
 ScalaVersion="x-scala2.12"
 #Run configuration.
 Tag="$(date +%s)"
@@ -146,6 +146,7 @@ post_data_func()
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
+            "instance_profile_arn": "arn:aws:iam::384416317380:instance-profile/ShardS3Access_SSE-2051",
             "availability":"ON_DEMAND"
          },
          "node_type_id":"i3.2xlarge",
