@@ -64,7 +64,7 @@ args[4]="--system-name=sparkdatabricks"
 # experiment instance number
 args[5]="--instance-number=$2"
 # prefix of external location for raw data tables (e.g. S3 bucket), null for none
-args[6]="--ext-raw-data-location=dbfs:/mnt/tpcdsbucket/$1GB"
+args[6]="--ext-raw-data-location=dbfs:/mnt/tpcds-datasets/$1GB"
 # prefix of external location for created tables (e.g. S3 bucket), null for none
 args[7]="--ext-tables-location=dbfs:/mnt/tpcds-warehouses-test/$DirNameWarehouse"
 # format for column-storage tables (PARQUET, DELTA)
