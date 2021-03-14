@@ -20,12 +20,12 @@ if [ $# -lt 3 ]; then
 fi
 
 #Cluster configuration.
-Nodes="16"
+Nodes="4"
 Version="6.2.0"
 VersionShort="620"
-AutoTerminate="false"
+AutoTerminate="true"
 #Run configuration.
-Tag="$(date +%s)huditest"
+Tag="$(date +%s)icebtest"
 ExperimentName="sparkemr-${VersionShort}-${Nodes}nodes-$1gb-$Tag"
 DirNameWarehouse="tpcds-warehouse-sparkemr-${VersionShort}-$1gb-$2-$Tag"
 DirNameResults="sparkemr-${VersionShort}-test"
@@ -80,7 +80,7 @@ args[15]="--number-of-streams=$3"
 # delete test |read test 3   |gdpr        |read test 4    |power          |
 # tput
 #args[16]="--execution-flags=111111100000111111100"
-args[16]="--execution-flags=000000000000000000000"
+args[16]="--execution-flags=111111100000000000000"
 # count-queries
 args[17]="--count-queries=false"
 # all or denorm table file
@@ -104,7 +104,7 @@ args[25]="--hudi-mor-force-compaction=false"
 # greater than threshold for the date-sk attribute (2452459 for last 10%, -1 to disable)
 args[26]="--datesk-gt-threshold=2452459"
 # column-storage format for the update tests (hudi, iceberg)
-args[27]="--update-table-format=hudi"
+args[27]="--update-table-format=iceberg"
 
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 

@@ -28,7 +28,7 @@ if [ ! -d /data ]; then
 fi
 
 #Copy iceberg jar.
-sudo cp /mnt/tpcds-jars/iceberg/iceberg-spark3-runtime-0.11.0.jar /usr/lib/spark/jars/
+sudo aws s3 cp s3://tpcds-jars/iceberg/iceberg-spark3-runtime-0.11.0.jar /usr/lib/spark/jars/
 
 
 

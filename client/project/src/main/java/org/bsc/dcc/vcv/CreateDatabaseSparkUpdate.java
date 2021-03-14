@@ -152,6 +152,8 @@ public class CreateDatabaseSparkUpdate {
 			}
 			if( this.format.equals("delta") )
 				createTableDelta(fileName, sqlQuery, i);
+			else if( this.format.equals("iceberg") )
+				createTableIceberg(fileName, sqlQuery, i);
 			else if( this.format.equals("hudi") )
 				createTableHudi(fileName, sqlQuery, i);
 			i++;
@@ -175,6 +177,64 @@ public class CreateDatabaseSparkUpdate {
 		}
 	}
 	
+	
+	private void createTableIceberg(String sqlCreateFilename, String sqlQueryIgnored, int index) {
+		QueryRecord queryRecord = null;
+		try {
+			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
+			System.out.println("Processing table " + index + ": " + tableName);
+			this.logger.info("Processing table " + index + ": " + tableName);
+			this.dropTable("drop table if exists " + tableName + "_denorm_iceberg");
+			String primaryKey = this.primaryKeys.get(tableName);
+			String partCol = null;
+			int posPart = Arrays.asList(Partitioning.tables).indexOf(tableName);
+			if( posPart != -1 )
+				partCol = Partitioning.partKeys[posPart];
+			String sqlSelect = "SELECT * FROM " + tableName + "_denorm";
+			String skipOrNot = "";
+			if( this.skipData )
+				skipOrNot = "_skip";
+			sqlSelect = sqlSelect + skipOrNot;
+			if( this.doCount )
+				countRowsQuery(tableName + "_denorm" + skipOrNot);
+			queryRecord = new QueryRecord(index);
+			queryRecord.setStartTime(System.currentTimeMillis());
+			if( ! this.partition ) {
+				this.spark.sql(sqlSelect).write()
+				.option("compression", "snappy")
+				.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_iceberg")
+				.mode("overwrite")
+				.format("iceberg")
+				.saveAsTable(tableName + "_denorm_iceberg");
+			}
+			else {
+				this.spark.sql(sqlSelect).write()
+				.option("compression", "snappy")
+				.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_iceberg")
+				.partitionBy(partCol)
+				.mode("overwrite")
+				.format("iceberg")
+				.saveAsTable(tableName + "_denorm_iceberg");
+			}
+			queryRecord.setSuccessful(true);
+			saveCreateTableFile("icebergdenorm", tableName, sqlSelect);
+			if( this.doCount )
+				countRowsQuery(tableName + "_denorm_iceberg");
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in CreateDatabaseSparkUpdate createTableIceberg.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		finally {
+			if( queryRecord != null ) {
+				queryRecord.setEndTime(System.currentTimeMillis());
+				this.recorder.record(queryRecord);
+			}
+		}
+	}
+
 	
 	private void createTableDelta(String sqlCreateFilename, String sqlQueryIgnored, int index) {
 		QueryRecord queryRecord = null;
