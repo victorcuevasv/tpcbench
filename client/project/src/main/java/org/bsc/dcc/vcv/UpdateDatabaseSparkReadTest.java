@@ -145,8 +145,8 @@ public class UpdateDatabaseSparkReadTest {
 				if( ! fileName.equals(this.querySingleOrAll) )
 					continue;
 			}
-			if( this.format.equals("delta") ) {
-				runQueryDelta(fileName, sqlQuery, i);
+			if( this.format.equals("delta") || this.format.equals("iceberg") ) {
+				runQueryDeltaIceberg(fileName, sqlQuery, i);
 				
 			}
 			else if( this.format.equals("hudi") ) {
@@ -174,10 +174,10 @@ public class UpdateDatabaseSparkReadTest {
 	}
 	
 	
-	private void runQueryDelta(String sqlFilename, String sqlQuery, int index) {
+	private void runQueryDeltaIceberg(String sqlFilename, String sqlQuery, int index) {
 		QueryRecord queryRecord = null;
 		try {
-			sqlQuery = sqlQuery.replace("<SUFFIX>", "_delta");
+			sqlQuery = sqlQuery.replace("<SUFFIX>", "_" + this.format);
 			String nQueryStr = sqlFilename.replaceAll("[^\\d]", "");
 			int nQuery = Integer.parseInt(nQueryStr);
 			System.out.println("Processing query " + index + ": " + sqlFilename);
@@ -194,7 +194,7 @@ public class UpdateDatabaseSparkReadTest {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in UpdateDatabaseSparkReadTest runQueryDelta.");
+			this.logger.error("Error in UpdateDatabaseSparkReadTest runQueryDeltaIceberg.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}

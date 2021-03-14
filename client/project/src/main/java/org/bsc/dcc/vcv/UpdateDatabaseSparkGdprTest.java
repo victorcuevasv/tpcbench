@@ -153,8 +153,8 @@ public class UpdateDatabaseSparkGdprTest {
 					continue;
 				}
 			}
-			if( this.format.equals("delta") ) {
-				deleteFromTableDelta(fileName, sqlQuery, i);
+			if( this.format.equals("delta") || this.format.equals("iceberg")) {
+				deleteFromTableDeltaIceberg(fileName, sqlQuery, i);
 				i++;
 			}
 			else if( this.format.equals("hudi") ) {
@@ -182,7 +182,7 @@ public class UpdateDatabaseSparkGdprTest {
 	}
 	
 	
-	private void deleteFromTableDelta(String sqlFilename, String sqlQuery, int index) {
+	private void deleteFromTableDeltaIceberg(String sqlFilename, String sqlQuery, int index) {
 		QueryRecord queryRecord = null;
 		try {
 			sqlQuery = sqlQuery.replace("<CUSTOMER_SK>", this.customerSK);
@@ -190,18 +190,18 @@ public class UpdateDatabaseSparkGdprTest {
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
 			if( this.doCount )
-				countRowsQuery(tableName + "_denorm_delta");
+				countRowsQuery(tableName + "_denorm_" + this.format);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(sqlQuery);
 			queryRecord.setSuccessful(true);
-			saveCreateTableFile("deltagdpr", tableName, sqlQuery);
+			saveCreateTableFile(this.format + "gdpr", tableName, sqlQuery);
 			if( this.doCount )
-				countRowsQuery(tableName + "_denorm_delta");
+				countRowsQuery(tableName + "_denorm_" + this.format);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in UpdateDatabaseSparkGdprTest deleteFromTableDelta.");
+			this.logger.error("Error in UpdateDatabaseSparkGdprTest deleteFromTableDeltaIceberg.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}

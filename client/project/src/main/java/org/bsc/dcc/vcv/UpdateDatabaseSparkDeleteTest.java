@@ -151,8 +151,8 @@ public class UpdateDatabaseSparkDeleteTest {
 				}
 			}
 			for(int j = 0; j < this.fractions.length; j++) {
-				if( this.system.equals("sparkdatabricks") )
-					deleteFromDeltaTable(fileName, i, j);
+				if( this.system.equals("sparkdatabricks") || this.system.equals("iceberg"))
+					deleteFromDeltaIcebergTable(fileName, i, j);
 				else if( this.system.equals("sparkemr") )
 					deleteFromHudiTable(fileName, i, j);
 			}
@@ -178,31 +178,31 @@ public class UpdateDatabaseSparkDeleteTest {
 	}
 	
 	
-	private void deleteFromDeltaTable(String sqlCreateFilename, int index, int fractionIndex) {
+	private void deleteFromDeltaIcebergTable(String sqlCreateFilename, int index, int fractionIndex) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			String denormTableName = tableName + "_denorm";
-			String denormDeltaTableName = tableName + "_denorm_delta";
+			String denormDeltaIcebergTableName = tableName + "_denorm_" + this.format;
 			String deleteTableName = denormTableName + "_delete_" + this.deleteSuffix[fractionIndex];
 			System.out.println("Processing table " + index + ": " + deleteTableName);
 			this.logger.info("Processing table " + index + ": " + deleteTableName);
-			String mergeSql = this.createMergeSQL(tableName, denormDeltaTableName,
+			String mergeSql = this.createMergeSQL(tableName, denormDeltaIcebergTableName,
 					deleteTableName, fractionIndex);
 			this.saveCreateTableFile("deletemerge", deleteTableName, mergeSql);
 			if( this.doCount )
-				countRowsQuery(denormDeltaTableName);
+				countRowsQuery(denormDeltaIcebergTableName);
 			//queryRecord = new QueryRecord(index);
 			queryRecord = new QueryRecord(fractionIndex + 1);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(mergeSql);
 			queryRecord.setSuccessful(true);
 			if( this.doCount )
-				countRowsQuery(denormDeltaTableName);
+				countRowsQuery(denormDeltaIcebergTableName);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in UpdateDatabaseSparkDeleteTest createTable.");
+			this.logger.error("Error in UpdateDatabaseSparkDeleteTest deleteFromDeltaIcebergTable.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -290,7 +290,7 @@ public class UpdateDatabaseSparkDeleteTest {
 	}
 
 	
-	private String createMergeSQL(String tableName, String denormDeltaTableName, 
+	private String createMergeSQL(String tableName, String denormDeltaIcebergTableName, 
 			String deleteTableName, int fractionIndex) {
 		String partKey = 
 				Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
@@ -301,7 +301,7 @@ public class UpdateDatabaseSparkDeleteTest {
 		if( tokenizer.hasMoreTokens() )
 			primaryKeyComp = tokenizer.nextToken();
 		StringBuilder builder = new StringBuilder();
-		builder.append("MERGE INTO " + denormDeltaTableName + " AS a \n");
+		builder.append("MERGE INTO " + denormDeltaIcebergTableName + " AS a \n");
 		builder.append("USING " + deleteTableName + " AS b \n");
 		builder.append("ON a." + partKey + " = b." + partKey + "\n");
 		builder.append("AND a." + primaryKey + " = b." + primaryKey + "\n");

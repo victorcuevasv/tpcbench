@@ -151,8 +151,8 @@ public class UpdateDatabaseSparkInsUpdTest {
 				}
 			}
 			for(int j = 0; j < this.fractions.length; j++) {
-				if( this.system.equals("sparkdatabricks") )
-					insUpdToDeltaTable(fileName, i, j);
+				if( this.system.equals("sparkdatabricks") || this.system.equals("iceberg") )
+					insUpdToDeltaIcebergTable(fileName, i, j);
 				else if( this.system.equals("sparkemr") )
 					insUpdToHudiTable(fileName, i, j);
 			}
@@ -178,30 +178,30 @@ public class UpdateDatabaseSparkInsUpdTest {
 	}
 	
 	
-	private void insUpdToDeltaTable(String sqlCreateFilename, int index, int fractionIndex) {
+	private void insUpdToDeltaIcebergTable(String sqlCreateFilename, int index, int fractionIndex) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			String denormTableName = tableName + "_denorm";
-			String denormDeltaTableName = tableName + "_denorm_delta";
+			String denormDeltaIcebergTableName = tableName + "_denorm_" + this.format;
 			String insUpdTableName = denormTableName + "_insert_" + this.insUpdSuffix[fractionIndex];
 			System.out.println("Processing table " + index + ": " + insUpdTableName);
 			this.logger.info("Processing table " + index + ": " + insUpdTableName);
-			String mergeSql = this.createMergeSQL(tableName, denormDeltaTableName,
+			String mergeSql = this.createMergeSQL(tableName, denormDeltaIcebergTableName,
 					insUpdTableName, fractionIndex);
 			saveCreateTableFile("insupdmerge", insUpdTableName, mergeSql);
 			if( this.doCount )
-				countRowsQuery(denormDeltaTableName);
+				countRowsQuery(denormDeltaIcebergTableName);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(mergeSql);
 			queryRecord.setSuccessful(true);
 			if( this.doCount )
-				countRowsQuery(denormDeltaTableName);
+				countRowsQuery(denormDeltaIcebergTableName);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			this.logger.error("Error in UpdateDatabaseSparkInsUpdTest createTable.");
+			this.logger.error("Error in UpdateDatabaseSparkInsUpdTest insUpdToDeltaIcebergTable.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -286,7 +286,7 @@ public class UpdateDatabaseSparkInsUpdTest {
 	}
 
 	
-	private String createMergeSQL(String tableName, String denormDeltaTableName, 
+	private String createMergeSQL(String tableName, String denormDeltaIcebergTableName, 
 			String insUpdTableName, int fractionIndex) {
 		String partKey = 
 				Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
@@ -297,7 +297,7 @@ public class UpdateDatabaseSparkInsUpdTest {
 		if( tokenizer.hasMoreTokens() )
 			primaryKeyComp = tokenizer.nextToken().trim();
 		StringBuilder builder = new StringBuilder();
-		builder.append("MERGE INTO " + denormDeltaTableName + " AS a \n");
+		builder.append("MERGE INTO " + denormDeltaIcebergTableName + " AS a \n");
 		builder.append("USING " + insUpdTableName + " AS b \n");
 		builder.append("ON a." + partKey + " = b." + partKey + "\n");
 		builder.append("AND a." + primaryKey + " = b." + primaryKey + "\n");
