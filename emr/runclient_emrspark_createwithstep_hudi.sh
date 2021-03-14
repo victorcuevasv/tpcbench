@@ -20,7 +20,7 @@ if [ $# -lt 3 ]; then
 fi
 
 #Cluster configuration.
-Nodes="4"
+Nodes="16"
 Version="6.2.0"
 VersionShort="620"
 AutoTerminate="true"
@@ -101,7 +101,7 @@ args[24]="--hudi-mor-default-compaction=false"
 # force compaction between tests for merge on read tables
 args[25]="--hudi-mor-force-compaction=false"
 # greater than threshold for the date-sk attribute (2452459 for last 10%, -1 to disable)
-args[26]="--datesk-gt-threshold=-1"
+args[26]="--datesk-gt-threshold=2452459"
 # column-storage format for the update tests (hudi, iceberg)
 args[27]="--update-table-format=hudi"
 
