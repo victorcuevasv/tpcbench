@@ -155,6 +155,9 @@ public class RunBenchmarkSparkOptions {
 		options.addOption( Option.builder().longOpt( "scale-factor" )
 				.desc( "scale factor used to run the benchmark" )
 				.hasArg(true).required(false).build() );
+		options.addOption( Option.builder().longOpt( "update-table-format" )
+				.desc( "column-storage format for the update tests" )
+				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );

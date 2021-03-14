@@ -92,7 +92,7 @@ public class UpdateDatabaseSparkGdprTest {
 		if( this.system.equalsIgnoreCase("sparkdatabricks") )
 			this.format = "delta";
 		else
-			this.format = "hudi";
+			this.format = commandLine.getOptionValue("update-table-format", "hudi");
 		String doCountStr = commandLine.getOptionValue("count-queries", "false");
 		this.doCount = Boolean.parseBoolean(doCountStr);
 		String partitionStr = commandLine.getOptionValue("use-partitioning");

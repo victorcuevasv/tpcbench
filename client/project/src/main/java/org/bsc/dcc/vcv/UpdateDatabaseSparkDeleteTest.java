@@ -87,7 +87,10 @@ public class UpdateDatabaseSparkDeleteTest {
 		//this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
 		this.createTableDir = "QueriesDenorm";
 		this.extTablePrefixCreated = Optional.ofNullable(commandLine.getOptionValue("ext-tables-location"));
-		this.format = commandLine.getOptionValue("table-format");
+		if( this.system.equalsIgnoreCase("sparkdatabricks") )
+			this.format = "delta";
+		else
+			this.format = commandLine.getOptionValue("update-table-format", "hudi");
 		String doCountStr = commandLine.getOptionValue("count-queries", "false");
 		this.doCount = Boolean.parseBoolean(doCountStr);
 		String partitionStr = commandLine.getOptionValue("use-partitioning");
