@@ -221,7 +221,8 @@ public class CreateDatabaseSparkUpdate {
 					.option("compression", "snappy")
 					.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_" + 
 					this.format)
-					.sortWithinPartitions(partCol)
+					.sort(partCol)
+					.partitionBy(partCol)
 					.mode("overwrite")
 					.format(this.format)
 					.saveAsTable(tableName + "_denorm_" + this.format);
