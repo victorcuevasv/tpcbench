@@ -151,9 +151,9 @@ public class UpdateDatabaseSparkDeleteTest {
 				}
 			}
 			for(int j = 0; j < this.fractions.length; j++) {
-				if( this.system.equals("sparkdatabricks") || this.system.equals("iceberg"))
+				if( this.format.equals("delta") || this.format.equals("iceberg"))
 					deleteFromDeltaIcebergTable(fileName, i, j);
-				else if( this.system.equals("sparkemr") )
+				else if( this.format.equals("hudi") )
 					deleteFromHudiTable(fileName, i, j);
 			}
 			i++;
