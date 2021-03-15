@@ -206,13 +206,26 @@ public class CreateDatabaseSparkUpdate {
 				.saveAsTable(tableName + "_denorm_" + this.format);
 			}
 			else {
-				this.spark.sql(sqlSelect).write()
-				.option("compression", "snappy")
-				.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_" + this.format)
-				.partitionBy(partCol)
-				.mode("overwrite")
-				.format(this.format)
-				.saveAsTable(tableName + "_denorm_" + this.format);
+				if(this.format.equals("delta")) {
+					this.spark.sql(sqlSelect).write()
+					.option("compression", "snappy")
+					.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_" + 
+					this.format)
+					.partitionBy(partCol)
+					.mode("overwrite")
+					.format(this.format)
+					.saveAsTable(tableName + "_denorm_" + this.format);
+				}
+				else if(this.format.equals("iceberg")) {
+					this.spark.sql(sqlSelect).write()
+					.option("compression", "snappy")
+					.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_" + 
+					this.format)
+					.sortWithinPartitions(partCol)
+					.mode("overwrite")
+					.format(this.format)
+					.saveAsTable(tableName + "_denorm_" + this.format);
+				}
 			}
 			queryRecord.setSuccessful(true);
 			saveCreateTableFile(this.format + "denorm", tableName, sqlSelect);
