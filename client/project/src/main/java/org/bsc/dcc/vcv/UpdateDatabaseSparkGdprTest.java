@@ -83,10 +83,10 @@ public class UpdateDatabaseSparkGdprTest {
 		String instanceStr = commandLine.getOptionValue("instance-number");
 		this.instance = Integer.parseInt(instanceStr);
 		//this.format = commandLine.getOptionValue("table-format");
-				if( this.system.equalsIgnoreCase("sparkdatabricks") )
-					this.format = "delta";
-				else
-					this.format = commandLine.getOptionValue("update-table-format", "hudi");
+		if( this.system.equalsIgnoreCase("sparkdatabricks") )
+			this.format = "delta";
+		else
+			this.format = commandLine.getOptionValue("update-table-format", "hudi");
 		//this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
 		if( this.system.equals("sparkdatabricks") || this.format.equals("iceberg"))
 			this.createTableDir = "DatabricksDeltaGdpr";
@@ -186,6 +186,7 @@ public class UpdateDatabaseSparkGdprTest {
 		QueryRecord queryRecord = null;
 		try {
 			sqlQuery = sqlQuery.replace("<CUSTOMER_SK>", this.customerSK);
+			sqlQuery = sqlQuery.replace("<FORMAT>", this.format);
 			String tableName = sqlFilename.substring(0, sqlFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableName);
 			this.logger.info("Processing table " + index + ": " + tableName);
