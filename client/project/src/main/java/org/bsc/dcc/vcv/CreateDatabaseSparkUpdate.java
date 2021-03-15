@@ -217,11 +217,12 @@ public class CreateDatabaseSparkUpdate {
 					.saveAsTable(tableName + "_denorm_" + this.format);
 				}
 				else if(this.format.equals("iceberg")) {
-					this.spark.sql(sqlSelect).write()
+					this.spark.sql(sqlSelect)
+					.sortWithinPartitions(partCol)
+					.write()
 					.option("compression", "snappy")
 					.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_" + 
-					this.format)
-					.sort(partCol)
+							this.format)
 					.partitionBy(partCol)
 					.mode("overwrite")
 					.format(this.format)
