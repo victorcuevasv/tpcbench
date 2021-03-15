@@ -218,7 +218,7 @@ public class CreateDatabaseSparkUpdate {
 				}
 				else if(this.format.equals("iceberg")) {
 					this.spark.sql(sqlSelect)
-					.sortWithinPartitions(partCol)
+					.sort(partCol)
 					.write()
 					.option("compression", "snappy")
 					.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_" + 
