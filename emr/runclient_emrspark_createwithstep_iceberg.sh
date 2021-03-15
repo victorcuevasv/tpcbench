@@ -25,7 +25,8 @@ Version="6.2.0"
 VersionShort="620"
 AutoTerminate="true"
 #Run configuration.
-Tag="$(date +%s)icebtest"
+#Tag="$(date +%s)icebtest"
+Tag="1615817302icebtest"
 ExperimentName="sparkemr-${VersionShort}-${Nodes}nodes-$1gb-$Tag"
 DirNameWarehouse="tpcds-warehouse-sparkemr-${VersionShort}-$1gb-$2-$Tag"
 DirNameResults="sparkemr-${VersionShort}-test"
@@ -79,7 +80,8 @@ args[15]="--number-of-streams=$3"
 # zorder      |zorder update |read test 1 |insupd test    |read test 2    |
 # delete test |read test 3   |gdpr        |read test 4    |power          |
 # tput
-args[16]="--execution-flags=111111100000111111100"
+#args[16]="--execution-flags=111111100000111111100"
+args[16]="--execution-flags=000000000000000001100"
 # count-queries
 args[17]="--count-queries=false"
 # all or denorm table file

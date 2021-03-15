@@ -82,17 +82,17 @@ public class UpdateDatabaseSparkGdprTest {
 		this.test = "gdprtest";
 		String instanceStr = commandLine.getOptionValue("instance-number");
 		this.instance = Integer.parseInt(instanceStr);
+		//this.format = commandLine.getOptionValue("table-format");
+				if( this.system.equalsIgnoreCase("sparkdatabricks") )
+					this.format = "delta";
+				else
+					this.format = commandLine.getOptionValue("update-table-format", "hudi");
 		//this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
-		if( this.system.equals("sparkdatabricks") )
+		if( this.system.equals("sparkdatabricks") || this.format.equals("iceberg"))
 			this.createTableDir = "DatabricksDeltaGdpr";
 		else
 			this.createTableDir = "EMRHudiGdpr";
 		this.extTablePrefixCreated = Optional.ofNullable(commandLine.getOptionValue("ext-tables-location"));
-		//this.format = commandLine.getOptionValue("table-format");
-		if( this.system.equalsIgnoreCase("sparkdatabricks") )
-			this.format = "delta";
-		else
-			this.format = commandLine.getOptionValue("update-table-format", "hudi");
 		String doCountStr = commandLine.getOptionValue("count-queries", "false");
 		this.doCount = Boolean.parseBoolean(doCountStr);
 		String partitionStr = commandLine.getOptionValue("use-partitioning");
