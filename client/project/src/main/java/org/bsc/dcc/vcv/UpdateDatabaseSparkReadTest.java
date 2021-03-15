@@ -223,8 +223,8 @@ public class UpdateDatabaseSparkReadTest {
 					.load(this.extTablePrefixCreated.get() + "/store_sales_denorm_hudi/*");
 			hudiDS.createOrReplaceTempView("store_sales_denorm_hudi_temp");		
 			Dataset<Row> resultDS = this.spark.sql(sqlQuery);
-			String resFileName = this.workDir + "/" + this.resultsDir + "/readresults/" +
-					this.experimentName + "/" + this.instance +
+			String resFileName = this.workDir + "/" + this.resultsDir + "/readresults" +
+					this.readInstance + "/" + this.experimentName + "/" + this.instance +
 					"/" + sqlFilename + ".txt";
 			int tuples = this.saveResults(resFileName, resultDS, false);
 			queryRecord.setTuples(queryRecord.getTuples() + tuples);
