@@ -20,7 +20,7 @@ if [ $# -lt 3 ]; then
 fi
 
 #Cluster configuration.
-Nodes="4"
+Nodes="16"
 Version="6.2.0"
 VersionShort="620"
 AutoTerminate="true"
@@ -79,7 +79,8 @@ args[15]="--number-of-streams=$3"
 # zorder      |zorder update |read test 1 |insupd test    |read test 2    |
 # delete test |read test 3   |gdpr        |read test 4    |power          |
 # tput
-args[16]="--execution-flags=111111100000111111100"
+#args[16]="--execution-flags=111111100000111111100"
+args[16]="--execution-flags=111111100000000000000"
 # count-queries
 args[17]="--count-queries=false"
 # all or denorm table file
