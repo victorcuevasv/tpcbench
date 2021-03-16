@@ -27,4 +27,8 @@ if [ ! -d /data ]; then
 	sudo chown $1:$1 -R /data
 fi
 
+#Copy iceberg jar.
+sudo aws s3 cp s3://tpcds-jars/iceberg/iceberg-spark3-runtime-0.11.0.jar /usr/lib/spark/jars/
+
+
 
