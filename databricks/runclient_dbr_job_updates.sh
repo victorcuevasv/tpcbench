@@ -104,6 +104,8 @@ args[20]="--analyze-zorder-all-or-file=query2.sql"
 args[21]="--gdpr-customer-sk=221580"
 # greater than threshold for the date-sk attribute (2452459 for last 10%, -1 to disable)
 args[22]="--datesk-gt-threshold=-1"
+# use a filter attribute and value for denormalization
+args[23]="--denorm-with-filter=false"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 
