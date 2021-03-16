@@ -79,8 +79,7 @@ args[15]="--number-of-streams=$3"
 # zorder      |zorder update |read test 1 |insupd test    |read test 2    |
 # delete test |read test 3   |gdpr        |read test 4    |power          |
 # tput
-#args[16]="--execution-flags=111111100000111111100"
-args[16]="--execution-flags=111111100000010100000"
+args[16]="--execution-flags=111111100000111111100"
 # count-queries
 args[17]="--count-queries=false"
 # all or denorm table file
@@ -278,7 +277,7 @@ bootstrap-actions_func()
   cat <<EOF
 [
    {
-      "Path":"s3://bsc-bootstrap/s3fs/emr_init.sh",
+      "Path":"s3://bsc-bootstrap/s3fs/emr_init_iceberg.sh",
       "Args":[
          "hadoop",
          "tpcds-jars,tpcds-results-test"
