@@ -137,11 +137,9 @@ post_data_func()
 { 
 	"name":"$JOB_NAME",
 	"new_cluster":{ 
-		"spark_version":"custom:custom-local__7.x-snapshot-scala2.12__unknown__head__8437e42__e60bf1b__toddgreenstein__2822c5f__format-2.lz4",
+		"spark_version":"7.3.x-lh-snapshot-scala2.12",
         "spark_conf":{
-            "spark.sql.legacy.parquet.int96DatetimeRebaseModeInWrite":"EXCEPTION",
-			"spark.sql.legacy.parquet.datetimeRebaseModeInWrite":"EXCEPTION",
-			"spark.databricks.photon.parquetWriter.enabled":"true"
+            "spark.databricks.delta.optimizeWrite.enabled":"true"
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
