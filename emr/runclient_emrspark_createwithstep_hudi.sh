@@ -102,8 +102,10 @@ args[24]="--hudi-mor-default-compaction=false"
 args[25]="--hudi-mor-force-compaction=false"
 # greater than threshold for the date-sk attribute (2452459 for last 10%, -1 to disable)
 args[26]="--datesk-gt-threshold=2452459"
+# use a filter attribute and value for denormalization
+args[27]="--denorm-with-filter=false"
 # column-storage format for the update tests (hudi, iceberg)
-args[27]="--update-table-format=hudi"
+args[28]="--update-table-format=hudi"
 
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
