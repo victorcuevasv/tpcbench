@@ -21,8 +21,8 @@ fi
 
 #Cluster configuration.
 Nodes="16"
-Version="6.2.0"
-VersionShort="620"
+Version="5.32.0"
+VersionShort="532"
 AutoTerminate="true"
 #Run configuration.
 Tag="$(date +%s)huditest"
@@ -249,7 +249,7 @@ configurations_func()
    {
       "Classification":"spark-defaults",
       "Properties":{
-         "spark.driver.memory":"5692M",
+         "spark.driver.memory":"18971MM",
          "spark.sql.broadcastTimeout":"7200",
          "spark.sql.crossJoin.enabled":"true"
       }
