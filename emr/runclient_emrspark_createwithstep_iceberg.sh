@@ -23,9 +23,10 @@ fi
 Nodes="16"
 Version="6.2.0"
 VersionShort="620"
-AutoTerminate="true"
+AutoTerminate="false"
 #Run configuration.
-Tag="$(date +%s)icebtest"
+#Tag="$(date +%s)icebtest"
+Tag="1616003058icebtest"
 ExperimentName="sparkemr-${VersionShort}-${Nodes}nodes-$1gb-$Tag"
 DirNameWarehouse="tpcds-warehouse-sparkemr-${VersionShort}-$1gb-$2-$Tag"
 DirNameResults="sparkemr-${VersionShort}-test"
@@ -80,7 +81,7 @@ args[15]="--number-of-streams=$3"
 # delete test |read test 3   |gdpr        |read test 4    |power          |
 # tput
 #args[16]="--execution-flags=111111100000111111100"
-args[16]="--execution-flags=000000100000111111100"
+args[16]="--execution-flags=000000000000011110000"
 # count-queries
 args[17]="--count-queries=false"
 # all or denorm table file
