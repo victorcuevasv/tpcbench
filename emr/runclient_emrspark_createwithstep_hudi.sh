@@ -25,7 +25,8 @@ Version="5.32.0"
 VersionShort="532"
 AutoTerminate="true"
 #Run configuration.
-Tag="$(date +%s)huditest"
+#Tag="$(date +%s)huditest"
+Tag="1616030068huditest" 
 ExperimentName="sparkemr-${VersionShort}-${Nodes}nodes-$1gb-$Tag"
 DirNameWarehouse="tpcds-warehouse-sparkemr-${VersionShort}-$1gb-$2-$Tag"
 DirNameResults="sparkemr-${VersionShort}-test"
@@ -79,7 +80,8 @@ args[15]="--number-of-streams=$3"
 # zorder      |zorder update |read test 1 |insupd test    |read test 2    |
 # delete test |read test 3   |gdpr        |read test 4    |power          |
 # tput
-args[16]="--execution-flags=111111100000111111100"
+#args[16]="--execution-flags=111111100000111111100"
+args[16]="--execution-flags=000000100000111111100"
 # count-queries
 args[17]="--count-queries=false"
 # all or denorm table file
@@ -144,7 +146,7 @@ ec2-attributes_func()
 EOF
 }
 
-
+#Options for action on failure: TERMINATE_CLUSTER, CANCEL_AND_WAIT, and CONTINUE
 steps_func()
 {
   cat <<EOF
@@ -162,7 +164,7 @@ steps_func()
          $paramsStr
       ],
       "Type":"CUSTOM_JAR",
-      "ActionOnFailure":"TERMINATE_CLUSTER",
+      "ActionOnFailure":"CONTINUE",
       "Jar":"command-runner.jar",
       "Properties":"",
       "Name":"Spark application"
@@ -171,7 +173,7 @@ steps_func()
 EOF
 }
 
-
+#Options for action on failure: TERMINATE_CLUSTER, CANCEL_AND_WAIT, and CONTINUE
 steps_func_hudi()
 {
   cat <<EOF
@@ -195,7 +197,7 @@ steps_func_hudi()
          $paramsStr
       ],
       "Type":"CUSTOM_JAR",
-      "ActionOnFailure":"TERMINATE_CLUSTER",
+      "ActionOnFailure":"CONTINUE",
       "Jar":"command-runner.jar",
       "Properties":"",
       "Name":"Spark application"

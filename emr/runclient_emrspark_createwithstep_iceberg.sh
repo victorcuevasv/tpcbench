@@ -79,7 +79,8 @@ args[15]="--number-of-streams=$3"
 # zorder      |zorder update |read test 1 |insupd test    |read test 2    |
 # delete test |read test 3   |gdpr        |read test 4    |power          |
 # tput
-args[16]="--execution-flags=111111100000111111100"
+#args[16]="--execution-flags=111111100000111111100"
+args[16]="--execution-flags=000000100000111111100"
 # count-queries
 args[17]="--count-queries=false"
 # all or denorm table file
@@ -253,7 +254,8 @@ configurations_func()
    {
       "Classification":"spark-defaults",
       "Properties":{
-         "spark.driver.memory":"5692M",
+         "spark.driver.memory":"18971M",
+         "spark.driver.maxResultSize":"5692M",
          "spark.sql.broadcastTimeout":"7200",
          "spark.sql.crossJoin.enabled":"true"
       }
