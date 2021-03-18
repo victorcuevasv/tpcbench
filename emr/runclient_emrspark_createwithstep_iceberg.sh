@@ -15,7 +15,7 @@ end=$'\e[0m'
 #$3 number of streams (positive integer)
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_emrspark_createwithstep_hudi.sh <scale factor> <experiment instance number> <number of streams>${end}"
+    echo "${yel}Usage: bash runclient_emrspark_createwithstep_iceberg.sh <scale factor> <experiment instance number> <number of streams>${end}"
     exit 0
 fi
 
@@ -171,8 +171,8 @@ steps_func()
 EOF
 }
 
-
-steps_func_hudi()
+#Options for action on failure: TERMINATE_CLUSTER, CANCEL_AND_WAIT, and CONTINUE
+steps_func_iceberg()
 {
   cat <<EOF
 [
@@ -199,7 +199,7 @@ steps_func_hudi()
          $paramsStr
       ],
       "Type":"CUSTOM_JAR",
-      "ActionOnFailure":"TERMINATE_CLUSTER",
+      "ActionOnFailure":"CONTINUE",
       "Jar":"command-runner.jar",
       "Properties":"",
       "Name":"Spark application"
@@ -309,7 +309,7 @@ wait_for_run_termination() {
 }
 
 ec2Attributes=$(jq -c . <<<  "$(ec2-attributes_func)")
-steps=$(jq -c . <<<  "$(steps_func_hudi)")
+steps=$(jq -c . <<<  "$(steps_func_iceberg)")
 instanceGroups=$(jq -c . <<<  "$(instance-groups_func)")
 configurations=$(jq -c . <<<  "$(configurations_func)")
 bootstrapActions=$(jq -c . <<<  "$(bootstrap-actions_func)")
