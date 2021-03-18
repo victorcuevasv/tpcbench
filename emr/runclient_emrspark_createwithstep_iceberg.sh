@@ -144,7 +144,7 @@ ec2-attributes_func()
 EOF
 }
 
-
+#Options for action on failure: TERMINATE_CLUSTER, CANCEL_AND_WAIT, and CONTINUE
 steps_func()
 {
   cat <<EOF
@@ -162,7 +162,7 @@ steps_func()
          $paramsStr
       ],
       "Type":"CUSTOM_JAR",
-      "ActionOnFailure":"TERMINATE_CLUSTER",
+      "ActionOnFailure":"CONTINUE",
       "Jar":"command-runner.jar",
       "Properties":"",
       "Name":"Spark application"
