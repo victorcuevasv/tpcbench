@@ -249,7 +249,7 @@ configurations_func()
    {
       "Classification":"spark-defaults",
       "Properties":{
-         "spark.driver.memory":"18971MM",
+         "spark.driver.memory":"18971M",
          "spark.sql.broadcastTimeout":"7200",
          "spark.sql.crossJoin.enabled":"true"
       }
