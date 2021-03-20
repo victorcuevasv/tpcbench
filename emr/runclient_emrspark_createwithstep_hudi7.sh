@@ -185,6 +185,8 @@ steps_func_hudi()
          "client",
          "--packages",
          "org.apache.hudi:hudi-spark-bundle_2.12:0.7.0,org.apache.spark:spark-avro_2.12:3.0.1",
+         "--jars",
+         "s3://tpcds-jars/hudi/hudi-spark-bundle_2.12-0.7.0.jar"
          "--conf",
          "spark.eventLog.enabled=true",
          "--conf",
@@ -354,5 +356,14 @@ if [ "$WAIT_FOR_TERMINATION" -eq 1 ]; then
     	aws s3 rm --recursive s3://tpcds-warehouses-test/$DirNameWarehouse
 	fi
 fi
+
+#Example CLI command to disable termination-protection for the cluster
+#aws emr modify-cluster-attributes --cluster-id j-1HH1WT0S7SZRB  --no-termination-protected
+#Example CLI command to terminate cluster
+#aws emr terminate-clusters --cluster-ids j-1HH1WT0S7SZRB
+
+
+
+
 
 

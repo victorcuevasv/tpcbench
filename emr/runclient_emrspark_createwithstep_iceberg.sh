@@ -361,3 +361,9 @@ if [ "$WAIT_FOR_TERMINATION" -eq 1 ]; then
 fi
 
 
+#Example CLI command to disable termination-protection for the cluster
+#aws emr modify-cluster-attributes --cluster-id j-1HH1WT0S7SZRB  --no-termination-protected
+#Example CLI command to terminate cluster
+#aws emr terminate-clusters --cluster-ids j-1HH1WT0S7SZRB
+
+
