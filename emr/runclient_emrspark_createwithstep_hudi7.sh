@@ -186,7 +186,7 @@ steps_func_hudi()
          "--packages",
          "org.apache.hudi:hudi-spark-bundle_2.12:0.7.0,org.apache.spark:spark-avro_2.12:3.0.1",
          "--jars",
-         "s3://tpcds-jars/hudi/hudi-spark-bundle_2.12-0.7.0.jar"
+         "s3://tpcds-jars/hudi/hudi-spark-bundle_2.12-0.7.0.jar,s3://tpcds-jars/avro/spark-avro_2.12-3.0.1.jar",
          "--conf",
          "spark.eventLog.enabled=true",
          "--conf",
