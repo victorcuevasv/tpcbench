@@ -184,7 +184,7 @@ steps_func_hudi()
          "--deploy-mode",
          "client",
          "--packages",
-         "org.apache.hudi:hudi-spark-bundle_2.12:0.7.0,org.apache.spark:spark-avro_2.12:3.0.1",
+         "org.apache.hudi:hudi-spark-bundle_2.12:0.7.0,org.apache.spark:spark-avro_2.12:2.4.7",
          "--jars",
          "s3://tpcds-jars/hudi/hudi-spark-bundle_2.12-0.7.0.jar,s3://tpcds-jars/avro/spark-avro_2.12-3.0.1.jar",
          "--conf",
@@ -326,7 +326,7 @@ cluster_id=""
 #}
 if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
     jsonCluster=$(aws emr create-cluster \
-	--termination-protected \
+	--no-termination-protected \
 	--applications Name=Hadoop Name=Hive Name=Spark Name=Ganglia \
 	--ec2-attributes "$ec2Attributes" \
 	--release-label emr-${Version} \
