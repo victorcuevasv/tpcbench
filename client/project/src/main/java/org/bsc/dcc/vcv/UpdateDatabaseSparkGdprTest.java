@@ -260,7 +260,7 @@ public class UpdateDatabaseSparkGdprTest {
 					.load(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/*");
 			hudiDS.createOrReplaceTempView(tableName + "_denorm_hudi_temp");
 			//Disable the vectorized reader to avoid an array index out of bounds exception at 1 TB
-			this.spark.conf("spark.sql.parquet.enableVectorizedReader", "false");
+			this.spark.sql("SET spark.sql.parquet.enableVectorizedReader = false");
 			Dataset<Row> resultDS = this.spark.sql(sqlQuery);
 			String resFileName = this.workDir + "/" + this.resultsDir + "/gdprdata/" +
 					this.experimentName + "/" + this.instance +
@@ -268,7 +268,7 @@ public class UpdateDatabaseSparkGdprTest {
 			int tuples = this.saveResults(resFileName, resultDS, false);
 			//Enable the vectorized reader disabled above to avoid an array index out of bounds 
 			//exception at 1 TB
-			this.spark.conf("spark.sql.parquet.enableVectorizedReader", "true");
+			this.spark.sql("SET spark.sql.parquet.enableVectorizedReader = true");
 			queryRecord1.setTuples(queryRecord1.getTuples() + tuples);
 			queryRecord1.setSuccessful(true);
 			queryRecord1.setEndTime(System.currentTimeMillis());
