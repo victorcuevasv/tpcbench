@@ -25,8 +25,8 @@ Version="5.32.0"
 VersionShort="532"
 AutoTerminate="true"
 #Run configuration.
-#Tag="$(date +%s)huditest"
-Tag="1616030068huditest" 
+Tag="$(date +%s)huditest"
+#Tag="1616030068huditest" 
 ExperimentName="sparkemr-${VersionShort}-${Nodes}nodes-$1gb-$Tag"
 DirNameWarehouse="tpcds-warehouse-sparkemr-${VersionShort}-$1gb-$2-$Tag"
 DirNameResults="sparkemr-${VersionShort}-test"
@@ -80,8 +80,7 @@ args[15]="--number-of-streams=$3"
 # zorder      |zorder update |read test 1 |insupd test    |read test 2    |
 # delete test |read test 3   |gdpr        |read test 4    |power          |
 # tput
-#args[16]="--execution-flags=111111100000111111100"
-args[16]="--execution-flags=000000100000111111100"
+args[16]="--execution-flags=111111100000111111100"
 # count-queries
 args[17]="--count-queries=false"
 # all or denorm table file
@@ -91,7 +90,7 @@ args[19]="--denorm-apply-skip=true"
 
 # all or query file for denorm analyze and z-order
 args[20]="--analyze-zorder-all-or-file=query2.sql"
-# customer surrogate key for the gdpr test
+# customer surrogate key for the gdpr test (221580 for 1 TB, 1000 for 1 GB)
 args[21]="--gdpr-customer-sk=221580"
 # target size for hudi files
 args[22]="--hudi-file-max-size=134217728" #1 GB: 1073741824, 128 MB: 134217728
