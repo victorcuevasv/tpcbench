@@ -266,9 +266,6 @@ public class UpdateDatabaseSparkGdprTest {
 					this.experimentName + "/" + this.instance +
 					"/" + tableName + ".txt";
 			int tuples = this.saveResults(resFileName, resultDS, false);
-			//Enable the vectorized reader disabled above to avoid an array index out of bounds 
-			//exception at 1 TB
-			this.spark.sql("SET spark.sql.parquet.enableVectorizedReader = true");
 			queryRecord1.setTuples(queryRecord1.getTuples() + tuples);
 			queryRecord1.setSuccessful(true);
 			queryRecord1.setEndTime(System.currentTimeMillis());
@@ -282,6 +279,9 @@ public class UpdateDatabaseSparkGdprTest {
 				.options(hudiOptions)
 				.mode(SaveMode.Append)
 				.save(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/");
+			//Enable the vectorized reader disabled above to avoid an array index out of bounds 
+			//exception at 1 TB
+			this.spark.sql("SET spark.sql.parquet.enableVectorizedReader = true");
 			queryRecord2.setSuccessful(true);
 			queryRecord2.setEndTime(System.currentTimeMillis());
 			saveCreateTableFile("hudigdpr", tableName, sqlQuery);
