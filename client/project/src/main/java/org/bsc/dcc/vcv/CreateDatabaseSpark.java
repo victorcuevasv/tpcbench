@@ -281,8 +281,12 @@ public class CreateDatabaseSpark {
 			else
 				createInternalTableSQL(sqlCreate, tableName);
 			queryRecord.setSuccessful(true);
-			if( this.doCount )
-				countRowsQuery(tableName);
+			if( this.doCount ) {
+				if( this.format.equals("hudi") && this.hudiUseMergeOnRead )
+					countRowsQuery(tableName + "_ro");
+				else
+					countRowsQuery(tableName);
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();
