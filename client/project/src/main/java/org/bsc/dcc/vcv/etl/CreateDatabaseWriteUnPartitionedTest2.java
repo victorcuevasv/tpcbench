@@ -100,7 +100,7 @@ public class CreateDatabaseWriteUnPartitionedTest2 extends CreateDatabaseDenormE
 			String tableName = tableNameRoot + "_not_partitioned";
 			this.dropTable("drop table if exists " + tableName);
 			String sqlCreate = SQLWriteUnPartitionedTest2.createTableStatementSpark(sqlQuery, 
-					tableNameRoot, tableName, this.format, this.extTablePrefixCreated);
+					tableNameRoot, tableName, this.format, this.extTablePrefixCreated, false);
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot, tableName);
 			saveCreateTableFile("writeunpartitionedcreate", tableName, sqlCreate);
