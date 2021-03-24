@@ -315,7 +315,8 @@ public class CreateDatabaseSpark {
 		String insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
 		if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
 			List<String> columns = extractColumnNames(incIntSqlCreate);
-			insertSql = createPartitionInsertStmt(tableName, columns, this.suffix, this.format);
+			insertSql = CreateDatabaseSpark.createPartitionInsertStmt(tableName, columns, this.suffix, this.format,
+					this.partitionIgnoreNulls);
 		}
 		//saveCreateTableFile("insert", tableName, insertSql);
 		saveCreateTableFile("insert" + this.format, tableName, insertSql);
@@ -324,7 +325,8 @@ public class CreateDatabaseSpark {
 		String selectSql = "SELECT * FROM " + tableName + suffix;
 		if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
 			List<String> columns = extractColumnNames(incIntSqlCreate); 
-			selectSql = createPartitionSelectStmt(tableName, columns, suffix, format);
+			selectSql = CreateDatabaseSpark.createPartitionSelectStmt(tableName, columns, suffix, 
+				format, this.partitionIgnoreNulls);
 		}
 		saveCreateTableFile("select", tableName, selectSql);
 		this.spark.sql(selectSql).coalesce(64).write().mode("overwrite").insertInto(tableName);	
@@ -582,11 +584,9 @@ public class CreateDatabaseSpark {
 	}
 	
 	
-	private String createPartitionInsertStmt(String tableName, List<String> columns, String suffix,
-			String format) {
+	public static String createPartitionInsertStmt(String tableName, List<String> columns, String suffix,
+			String format, boolean partitionIgnoreNulls) {
 		StringBuilder builder = new StringBuilder();
-		//builder.append("INSERT OVERWRITE TABLE " + tableName + " PARTITION (" +
-		//		Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + ") SELECT \n");
 		builder.append("INSERT OVERWRITE TABLE " + tableName + " SELECT \n");
 		if( format.equalsIgnoreCase("parquet") ) {
 			for(String column : columns) {
@@ -600,18 +600,22 @@ public class CreateDatabaseSpark {
 		else
 			builder.append("* \n");
 		builder.append("FROM " + tableName + suffix + "\n");
-		if( this.partitionIgnoreNulls ) {
+		if( partitionIgnoreNulls ) {
 			builder.append("WHERE " + 
 					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] +
 					" is not null \n");
 		}
-		builder.append("DISTRIBUTE BY " + Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
+		if( format.equals("iceberg") )
+			builder.append("ORDER BY " + 
+					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
+		else
+			builder.append("DISTRIBUTE BY " + Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
 		return builder.toString();
 	}
 	
 	
-	private String createPartitionSelectStmt(String tableName, List<String> columns, String suffix,
-			String format) {
+	public static String createPartitionSelectStmt(String tableName, List<String> columns, String suffix,
+			String format, boolean partitionIgnoreNulls) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("SELECT \n");
 		if( format.equalsIgnoreCase("parquet") ) {
@@ -625,12 +629,16 @@ public class CreateDatabaseSpark {
 		}
 		else
 			builder.append("* \n");
-		if( this.partitionIgnoreNulls ) {
+		builder.append("FROM " + tableName + suffix + "\n");
+		if( partitionIgnoreNulls ) {
 			builder.append("WHERE " + 
 					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] +
 					" is not null \n");
 		}
-		builder.append("FROM " + tableName + suffix + "\n");
+		if( format.equals("iceberg") ) {
+			builder.append("ORDER BY " + 
+					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
+		}
 		return builder.toString();
 	}
 	
