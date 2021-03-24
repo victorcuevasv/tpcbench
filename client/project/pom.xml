@@ -204,6 +204,7 @@
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkWritePartitionedTest3.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseSparkWriteUnPartitionedTest2.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/RunBenchmarkSparkETL.java</exclude>
+						<exclude>org/bsc/dcc/vcv/writesimple/RunBenchmarkSparkWriteSimple.java</exclude>
 					</excludes>
 					<testExcludes>
         				<testExclude>org/bsc/dcc/vcv/RunBenchmarkSparkOptionsTest.java</testExclude>
