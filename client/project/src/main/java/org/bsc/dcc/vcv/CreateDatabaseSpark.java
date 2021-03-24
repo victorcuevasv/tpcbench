@@ -528,8 +528,8 @@ public class CreateDatabaseSpark {
 			String format, boolean partitionIgnoreNulls) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("INSERT OVERWRITE TABLE " + tableName + "\n");
-		String selectStmt = CreateDatabaseSpark.createPartitionSelectStmt(tableName, columns, suffix, format, 
-				partitionIgnoreNulls);
+		String selectStmt = CreateDatabaseSparkUtil.createPartitionSelectStmt(tableName, columns, suffix, 
+				format, partitionIgnoreNulls);
 		builder.append(selectStmt);
 		return builder.toString();
 	}
