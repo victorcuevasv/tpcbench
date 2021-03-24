@@ -306,7 +306,7 @@ public class CreateDatabaseSpark {
 	private void createInternalTableSQL(String sqlCreate, String tableName) throws Exception {
 		//String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", true);
 		String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", false);
-		String intSqlCreate = CreateDatabaseSpark.internalCreateTable(incIntSqlCreate, tableName, 
+		String intSqlCreate = CreateDatabaseSparkUtil.internalCreateTable(incIntSqlCreate, tableName, 
 				this.extTablePrefixCreated, this.format, this.partition);
 		//saveCreateTableFile("parquet", tableName, intSqlCreate);
 		saveCreateTableFile("create" + this.format, tableName, intSqlCreate);
@@ -314,7 +314,7 @@ public class CreateDatabaseSpark {
 		this.spark.sql(intSqlCreate);
 		String insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
 		if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
-			List<String> columns = CreateDatabaseSpark.extractColumnNames(incIntSqlCreate);
+			List<String> columns = CreateDatabaseSparkUtil.extractColumnNames(incIntSqlCreate);
 			insertSql = this.createPartitionInsertStmt(tableName, columns, this.suffix, this.format,
 					this.partitionIgnoreNulls);
 		}
@@ -446,43 +446,6 @@ public class CreateDatabaseSpark {
 	}
 
 	
-	// Based on the supplied incomplete SQL create statement, generate a full create
-	// table statement for an internal parquet table in Hive.
-	public static String internalCreateTable(String incompleteSqlCreate, String tableName,
-			Optional<String> extTablePrefixCreated, String format, boolean partition) {
-		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
-		// Add the stored as statement.
-		if( extTablePrefixCreated.isPresent() ) {
-			if( format.equalsIgnoreCase("DELTA") )
-				builder.append("USING DELTA \n");
-			else if( format.equalsIgnoreCase("PARQUET") )
-				//builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
-				builder.append("USING PARQUET \n" + "OPTIONS ('compression'='snappy') \n");
-			else if( format.equalsIgnoreCase("ICEBERG") )
-				builder.append("USING ICEBERG \n");
-			if( this.partition ) {
-				int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
-				if( pos != -1 )
-					builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n" );
-			}
-			builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
-		}
-		else {
-			builder.append("USING PARQUET \n" + "OPTIONS ('compression'='snappy') \n");
-			if( partition ) {
-				int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
-				if( pos != -1 )
-					//Use for Hive format.
-					//builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + " integer) \n" );
-					builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n");
-			}
-			//Use for Hive format.
-			//builder.append("STORED AS PARQUET TBLPROPERTIES (\"parquet.compression\"=\"SNAPPY\") \n");
-		}
-		return builder.toString();
-	}
-
-	
 	public void saveCreateTableFile(String suffix, String tableName, String sqlCreate) {
 		try {
 			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + this.createTableDir +
@@ -561,28 +524,6 @@ public class CreateDatabaseSpark {
 	}
 	
 	
-	public static List<String> extractColumnNames(String sqlStr) {
-		List<String> list = new ArrayList<String>();
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new StringReader(sqlStr));
-			String line = null;
-			while ((line = reader.readLine()) != null) {
-				if( line.trim().length() == 0 )
-				continue;
-				if( line.trim().startsWith("create") || line.trim().startsWith("(") || line.trim().startsWith(")") )
-					continue;
-				StringTokenizer tokenizer = new StringTokenizer(line);
-				list.add(tokenizer.nextToken());
-			}
-		}
-		catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-		return list;
-	}
-	
-	
 	private String createPartitionInsertStmt(String tableName, List<String> columns, String suffix,
 			String format, boolean partitionIgnoreNulls) {
 		StringBuilder builder = new StringBuilder();
@@ -590,35 +531,6 @@ public class CreateDatabaseSpark {
 		String selectStmt = CreateDatabaseSpark.createPartitionSelectStmt(tableName, columns, suffix, format, 
 				partitionIgnoreNulls);
 		builder.append(selectStmt);
-		return builder.toString();
-	}
-	
-	
-	public static String createPartitionSelectStmt(String tableName, List<String> columns, String suffix,
-			String format, boolean partitionIgnoreNulls) {
-		StringBuilder builder = new StringBuilder();
-		builder.append("SELECT \n");
-		if( format.equalsIgnoreCase("parquet") ) {
-			for(String column : columns) {
-				if ( column.equalsIgnoreCase(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] ))
-					continue;
-				else
-					builder.append(column + ", \n");
-			}
-			builder.append(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + " \n");
-		}
-		else
-			builder.append("* \n");
-		builder.append("FROM " + tableName + suffix + "\n");
-		if( partitionIgnoreNulls ) {
-			builder.append("WHERE " + 
-					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] +
-					" is not null \n");
-		}
-		if( format.equals("iceberg") ) {
-			builder.append("ORDER BY " + 
-					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
-		}
 		return builder.toString();
 	}
 	
