@@ -56,6 +56,10 @@ public class CreateDatabaseSpark {
 	private final String createSingleOrAll;
 	private final boolean partitionIgnoreNulls;
 	private final Map<String, String> precombineKeys;
+	private final HudiUtil hudiUtil;
+	private final String hudiFileSize;
+	private final boolean hudiUseMergeOnRead;
+	private final boolean defaultCompaction;
 	
 	public CreateDatabaseSpark(CommandLine commandLine) {
 		try {
@@ -96,6 +100,14 @@ public class CreateDatabaseSpark {
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
+		this.hudiFileSize = commandLine.getOptionValue("hudi-file-max-size", "1073741824");
+		String hudiUseMergeOnReadStr = commandLine.getOptionValue("hudi-merge-on-read", "true");
+		this.hudiUseMergeOnRead = Boolean.parseBoolean(hudiUseMergeOnReadStr);
+		String defaultCompactionStr = commandLine.getOptionValue("hudi-mor-default-compaction", "true");
+		this.defaultCompaction = Boolean.parseBoolean(defaultCompactionStr);
+		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
+				this.experimentName, this.instance, this.hudiFileSize, this.hudiUseMergeOnRead,
+				this.defaultCompaction);
 	}
 	
 	/**
@@ -152,6 +164,12 @@ public class CreateDatabaseSpark {
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
+		this.hudiFileSize = "1073741824";
+		this.hudiUseMergeOnRead = true;
+		this.defaultCompaction = true;
+		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
+				this.experimentName, this.instance, this.hudiFileSize, this.hudiUseMergeOnRead,
+				this.defaultCompaction);
 		try {
 			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
 					.enableHiveSupport()
@@ -258,10 +276,10 @@ public class CreateDatabaseSpark {
 			this.spark.sql(extSqlCreate);
 			if( this.doCount )
 				countRowsQuery(tableName + this.suffix);
-			if( ! this.format.equals("hudi") )
-				createInternalTableSQL(sqlCreate, tableName);
-			else
+			if( this.format.equals("hudi") )
 				createInternalTableHudi(sqlCreate, tableName);
+			else
+				createInternalTableSQL(sqlCreate, tableName);
 			queryRecord.setSuccessful(true);
 			if( this.doCount )
 				countRowsQuery(tableName);
@@ -315,10 +333,12 @@ public class CreateDatabaseSpark {
 		if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
 			String partitionKey = 
 					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
-			hudiOptions = createHudiOptions(tableName, primaryKey, precombineKey, partitionKey, true);
+			hudiOptions = this.hudiUtil.createHudiOptions(tableName, 
+					primaryKey, precombineKey, partitionKey, true);
 		}
 		else {
-			hudiOptions = createHudiOptions(tableName, primaryKey, precombineKey, null, false);
+			hudiOptions = this.hudiUtil.createHudiOptions(tableName, 
+					primaryKey, precombineKey, null, false);
 		}
 		saveHudiOptions("hudi", tableName, hudiOptions);
 		String selectSql = "SELECT * FROM " + tableName + this.suffix;
@@ -332,41 +352,6 @@ public class CreateDatabaseSpark {
 		  .option("hoodie.datasource.write.operation", "insert")
 		  .options(hudiOptions).mode(SaveMode.Overwrite)
 		  .save(this.extTablePrefixCreated.get() + "/" + tableName + "/");
-	}
-	
-	
-	private Map<String, String> createHudiOptions(String tableName, String primaryKey,
-			String precombineKey, String partitionKey, boolean usePartitioning) {
-		Map<String, String> map = new HashMap<String, String>();
-		//For now only use simple keys.
-		StringTokenizer tokenizer = new StringTokenizer(primaryKey, ",");
-		primaryKey = tokenizer.nextToken();
-		map.put("hoodie.datasource.hive_sync.database", this.dbName);
-		map.put("hoodie.datasource.write.precombine.field", precombineKey);
-		map.put("hoodie.datasource.hive_sync.table", tableName);
-		map.put("hoodie.datasource.hive_sync.enable", "true");
-		map.put("hoodie.datasource.write.recordkey.field", primaryKey);
-		map.put("hoodie.table.name", tableName);
-		map.put("hoodie.datasource.write.storage.type", "COPY_ON_WRITE");
-		map.put("hoodie.datasource.write.hive_style_partitioning", "true");
-		map.put("hoodie.parquet.max.file.size", String.valueOf(1024 * 1024 * 1024));
-		map.put("hoodie.parquet.compression.codec", "snappy");
-		if( usePartitioning ) {
-			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 
-					"org.apache.hudi.hive.MultiPartKeysValueExtractor");
-			map.put("hoodie.datasource.hive_sync.partition_fields", partitionKey);
-			map.put("hoodie.datasource.write.partitionpath.field", partitionKey);
-			//map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.ComplexKeyGenerator");
-			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.SimpleKeyGenerator");
-		}
-		else {
-			map.put("hoodie.datasource.hive_sync.partition_extractor_class", 
-					"org.apache.hudi.hive.NonPartitionedExtractor");
-			map.put("hoodie.datasource.hive_sync.partition_fields", "");
-			map.put("hoodie.datasource.write.partitionpath.field", "");
-			map.put("hoodie.datasource.write.keygenerator.class", "org.apache.hudi.keygen.NonpartitionedKeyGenerator");   
-		}
-		return map;
 	}
 	
 	
