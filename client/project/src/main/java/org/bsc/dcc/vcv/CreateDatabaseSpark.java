@@ -308,7 +308,8 @@ public class CreateDatabaseSpark {
 		String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", false);
 		String intSqlCreate = internalCreateTable(incIntSqlCreate, tableName, 
 				this.extTablePrefixCreated, this.format);
-		saveCreateTableFile("parquet", tableName, intSqlCreate);
+		//saveCreateTableFile("parquet", tableName, intSqlCreate);
+		saveCreateTableFile("create" + this.format, tableName, intSqlCreate);
 		this.dropTable("drop table if exists " + tableName);
 		this.spark.sql(intSqlCreate);
 		String insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
@@ -316,7 +317,8 @@ public class CreateDatabaseSpark {
 			List<String> columns = extractColumnNames(incIntSqlCreate);
 			insertSql = createPartitionInsertStmt(tableName, columns, this.suffix, this.format);
 		}
-		saveCreateTableFile("insert", tableName, insertSql);
+		//saveCreateTableFile("insert", tableName, insertSql);
+		saveCreateTableFile("insert" + this.format, tableName, insertSql);
 		this.spark.sql(insertSql);
 		/*
 		String selectSql = "SELECT * FROM " + tableName + suffix;
@@ -451,9 +453,11 @@ public class CreateDatabaseSpark {
 		if( extTablePrefixCreated.isPresent() ) {
 			if( format.equalsIgnoreCase("DELTA") )
 				builder.append("USING DELTA \n");
-			else
+			else if( format.equalsIgnoreCase("PARQUET") )
 				//builder.append("USING org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat \n");
 				builder.append("USING PARQUET \n" + "OPTIONS ('compression'='snappy') \n");
+			else if( format.equalsIgnoreCase("ICEBERG") )
+				builder.append("USING ICEBERG \n");
 			if( this.partition ) {
 				int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
 				if( pos != -1 )
@@ -584,7 +588,7 @@ public class CreateDatabaseSpark {
 		//builder.append("INSERT OVERWRITE TABLE " + tableName + " PARTITION (" +
 		//		Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + ") SELECT \n");
 		builder.append("INSERT OVERWRITE TABLE " + tableName + " SELECT \n");
-		if( ! format.equalsIgnoreCase("delta") ) {
+		if( format.equalsIgnoreCase("parquet") ) {
 			for(String column : columns) {
 				if ( column.equalsIgnoreCase(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] ))
 					continue;
@@ -610,7 +614,7 @@ public class CreateDatabaseSpark {
 			String format) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("SELECT \n");
-		if( ! format.equalsIgnoreCase("delta") ) {
+		if( format.equalsIgnoreCase("parquet") ) {
 			for(String column : columns) {
 				if ( column.equalsIgnoreCase(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] ))
 					continue;
