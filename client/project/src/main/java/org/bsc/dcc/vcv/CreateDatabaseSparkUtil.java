@@ -30,7 +30,7 @@ public class CreateDatabaseSparkUtil {
 				builder.append("USING PARQUET \n" + "OPTIONS ('compression'='snappy') \n");
 			else if( format.equalsIgnoreCase("ICEBERG") )
 				builder.append("USING ICEBERG \n");
-			if( this.partition ) {
+			if( partition ) {
 				int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
 				if( pos != -1 )
 					builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n" );

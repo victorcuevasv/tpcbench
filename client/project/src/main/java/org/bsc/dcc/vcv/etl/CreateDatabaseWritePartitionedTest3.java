@@ -105,7 +105,8 @@ public class CreateDatabaseWritePartitionedTest3 extends CreateDatabaseDenormETL
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot, tableName);
 			saveCreateTableFile("writepartitionedcreate", tableName, sqlCreate);
-			String sqlInsert = SQLWritePartitionedTest3.insertStatement(tableNameRoot, tableName);
+			String sqlInsert = SQLWritePartitionedTest3.insertStatement(sqlQuery, tableNameRoot, 
+					tableName, this.format);
 			saveCreateTableFile("writepartitionedinsert", tableName, sqlInsert);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
