@@ -1,9 +1,8 @@
 package org.bsc.dcc.vcv.etl;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
-
-import org.bsc.dcc.vcv.Partitioning;
+import org.bsc.dcc.vcv.CreateDatabaseSpark;
 
 
 public class SQLWritePartitionedTest3 {
@@ -12,24 +11,19 @@ public class SQLWritePartitionedTest3 {
 	public static String createTableStatementSpark(String sqlQuery, String tableNameRoot, String tableName,
 			String format, Optional<String> extTablePrefixCreated, boolean partition) {
 		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
-		StringBuilder builder = new StringBuilder(sqlQuery);
-		builder.append("USING " + format + "\n");
-		if( format.equals("parquet") )
-			builder.append("OPTIONS ('compression'='snappy')\n");
-		if( partition ) {
-			int pos = Arrays.asList(Partitioning.tables).indexOf(tableNameRoot);
-			if( pos != -1 )
-				builder.append("PARTITIONED BY (" + Partitioning.partKeys[pos] + ") \n" );
-		}
-		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
-		return builder.toString();
+		return CreateDatabaseSpark.internalCreateTable(sqlQuery, tableNameRoot, 
+				extTablePrefixCreated, format, partition);
 	}
 	
 	
-	public static String insertStatement(String tableNameRoot, String tableName) {
+	public static String insertStatement(String sqlQuery, String tableNameRoot, String tableName,
+			String format) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("INSERT INTO " + tableName + "\n");
-		builder.append("SELECT * FROM " + tableNameRoot + "\n");
+		List<String> columns = CreateDatabaseSpark.extractColumnNames(sqlQuery);
+		String selectStmt = CreateDatabaseSpark.createPartitionSelectStmt(tableNameRoot, columns, "",
+				format, false);
+		builder.append(selectStmt);
 		return builder.toString();
 	}
 	

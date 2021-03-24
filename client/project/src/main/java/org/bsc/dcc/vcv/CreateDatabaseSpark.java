@@ -306,16 +306,16 @@ public class CreateDatabaseSpark {
 	private void createInternalTableSQL(String sqlCreate, String tableName) throws Exception {
 		//String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", true);
 		String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", false);
-		String intSqlCreate = internalCreateTable(incIntSqlCreate, tableName, 
-				this.extTablePrefixCreated, this.format);
+		String intSqlCreate = CreateDatabaseSpark.internalCreateTable(incIntSqlCreate, tableName, 
+				this.extTablePrefixCreated, this.format, this.partition);
 		//saveCreateTableFile("parquet", tableName, intSqlCreate);
 		saveCreateTableFile("create" + this.format, tableName, intSqlCreate);
 		this.dropTable("drop table if exists " + tableName);
 		this.spark.sql(intSqlCreate);
 		String insertSql = "INSERT OVERWRITE TABLE " + tableName + " SELECT * FROM " + tableName + suffix;
 		if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName)) {
-			List<String> columns = extractColumnNames(incIntSqlCreate);
-			insertSql = CreateDatabaseSpark.createPartitionInsertStmt(tableName, columns, this.suffix, this.format,
+			List<String> columns = CreateDatabaseSpark.extractColumnNames(incIntSqlCreate);
+			insertSql = this.createPartitionInsertStmt(tableName, columns, this.suffix, this.format,
 					this.partitionIgnoreNulls);
 		}
 		//saveCreateTableFile("insert", tableName, insertSql);
@@ -448,8 +448,8 @@ public class CreateDatabaseSpark {
 	
 	// Based on the supplied incomplete SQL create statement, generate a full create
 	// table statement for an internal parquet table in Hive.
-	private String internalCreateTable(String incompleteSqlCreate, String tableName,
-			Optional<String> extTablePrefixCreated, String format) {
+	public static String internalCreateTable(String incompleteSqlCreate, String tableName,
+			Optional<String> extTablePrefixCreated, String format, boolean partition) {
 		StringBuilder builder = new StringBuilder(incompleteSqlCreate);
 		// Add the stored as statement.
 		if( extTablePrefixCreated.isPresent() ) {
@@ -469,7 +469,7 @@ public class CreateDatabaseSpark {
 		}
 		else {
 			builder.append("USING PARQUET \n" + "OPTIONS ('compression'='snappy') \n");
-			if( this.partition ) {
+			if( partition ) {
 				int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
 				if( pos != -1 )
 					//Use for Hive format.
@@ -561,7 +561,7 @@ public class CreateDatabaseSpark {
 	}
 	
 	
-	private List<String> extractColumnNames(String sqlStr) {
+	public static List<String> extractColumnNames(String sqlStr) {
 		List<String> list = new ArrayList<String>();
 		BufferedReader reader = null;
 		try {
@@ -578,38 +578,18 @@ public class CreateDatabaseSpark {
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
-			this.logger.error(ioe);
 		}
 		return list;
 	}
 	
 	
-	public static String createPartitionInsertStmt(String tableName, List<String> columns, String suffix,
+	private String createPartitionInsertStmt(String tableName, List<String> columns, String suffix,
 			String format, boolean partitionIgnoreNulls) {
 		StringBuilder builder = new StringBuilder();
-		builder.append("INSERT OVERWRITE TABLE " + tableName + " SELECT \n");
-		if( format.equalsIgnoreCase("parquet") ) {
-			for(String column : columns) {
-				if ( column.equalsIgnoreCase(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] ))
-					continue;
-				else
-					builder.append(column + ", \n");
-			}
-			builder.append(Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + " \n");
-		}
-		else
-			builder.append("* \n");
-		builder.append("FROM " + tableName + suffix + "\n");
-		if( partitionIgnoreNulls ) {
-			builder.append("WHERE " + 
-					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] +
-					" is not null \n");
-		}
-		if( format.equals("iceberg") )
-			builder.append("ORDER BY " + 
-					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
-		else
-			builder.append("DISTRIBUTE BY " + Partitioning.distKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
+		builder.append("INSERT OVERWRITE TABLE " + tableName + "\n");
+		String selectStmt = CreateDatabaseSpark.createPartitionSelectStmt(tableName, columns, suffix, format, 
+				partitionIgnoreNulls);
+		builder.append(selectStmt);
 		return builder.toString();
 	}
 	

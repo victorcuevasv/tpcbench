@@ -105,7 +105,8 @@ public class CreateDatabaseSparkWritePartitionedTest3 extends CreateDatabaseSpar
 			String sqlCreate = SQLWritePartitionedTest3.createTableStatementSpark(sqlQuery, tableNameRoot,
 					tableName, this.format, this.extTablePrefixCreated, this.partition);
 			saveCreateTableFile("writepartitionedcreate", tableName, sqlCreate);
-			String sqlInsert = SQLWritePartitionedTest3.insertStatement(tableNameRoot, tableName);
+			String sqlInsert = SQLWritePartitionedTest3.insertStatement(sqlQuery, tableNameRoot, 
+					tableName, this.format);
 			saveCreateTableFile("writepartitionedinsert", tableName, sqlInsert);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
