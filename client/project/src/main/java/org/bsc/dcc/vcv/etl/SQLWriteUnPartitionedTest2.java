@@ -2,21 +2,18 @@ package org.bsc.dcc.vcv.etl;
 
 import java.util.Optional;
 
+import org.bsc.dcc.vcv.CreateDatabaseSparkUtil;
+
 
 public class SQLWriteUnPartitionedTest2 {
 	
 
 	public static String createTableStatementSpark(String sqlQuery, String tableNameRoot, String tableName, 
-			String format, Optional<String> extTablePrefixCreated) {
+			String format, Optional<String> extTablePrefixCreated, boolean partition) {
 		sqlQuery = org.bsc.dcc.vcv.etl.Util.incompleteCreateTable(sqlQuery);
 		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
-		StringBuilder builder = new StringBuilder();
-		builder.append(sqlQuery + "\n");
-		builder.append("USING " + format + "\n");
-		if( format.equals("parquet") )
-			builder.append("OPTIONS ('compression'='snappy')\n");
-		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableName + "' \n");
-		return builder.toString();
+		return CreateDatabaseSparkUtil.internalCreateTable(sqlQuery, tableNameRoot, 
+				extTablePrefixCreated, format, partition);
 	}
 
 	
