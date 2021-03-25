@@ -90,7 +90,7 @@ args[15]="--number-of-streams=$3"
 # write part   |
 args[16]="--execution-flags=110111"
 # count-queries
-args[17]="--count-queries=true"
+args[17]="--count-queries=false"
 # all or denorm table file
 args[18]="--denorm-all-or-file=store_sales.sql"
 # skip data to be inserted later
