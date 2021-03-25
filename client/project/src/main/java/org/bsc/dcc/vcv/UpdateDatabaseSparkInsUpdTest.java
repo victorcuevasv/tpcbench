@@ -196,6 +196,7 @@ public class UpdateDatabaseSparkInsUpdTest {
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(mergeSql);
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount )
 				countRowsQuery(denormDeltaIcebergTableName);
 		}
@@ -207,7 +208,6 @@ public class UpdateDatabaseSparkInsUpdTest {
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}
@@ -254,6 +254,7 @@ public class UpdateDatabaseSparkInsUpdTest {
 			.mode(SaveMode.Append)
 			.save(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/");
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount ) {
 				if( this.hudiUseMergeOnRead )
 					countRowsQuery(denormHudiTableName + "_ro");
@@ -269,7 +270,6 @@ public class UpdateDatabaseSparkInsUpdTest {
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}

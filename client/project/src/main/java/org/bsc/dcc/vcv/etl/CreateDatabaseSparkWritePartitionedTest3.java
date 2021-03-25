@@ -31,6 +31,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.bsc.dcc.vcv.Partitioning;
 import org.bsc.dcc.vcv.AppUtil;
+import org.bsc.dcc.vcv.CreateDatabaseSparkUtil;
 import org.bsc.dcc.vcv.JarCreateTableReaderAsZipFile;
 import org.bsc.dcc.vcv.QueryRecord;
 import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
@@ -113,6 +114,7 @@ public class CreateDatabaseSparkWritePartitionedTest3 extends CreateDatabaseSpar
 			this.spark.sql(sqlCreate);
 			this.spark.sql(sqlInsert);
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount )
 				countRowsQuery(tableName);
 		}
@@ -124,13 +126,56 @@ public class CreateDatabaseSparkWritePartitionedTest3 extends CreateDatabaseSpar
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}
 	}
 	
+	
+	private void writeUnPartitionedHudi(String sqlCreateFilename, String sqlQuery, int index) {
+		QueryRecord queryRecord = null;
+		try {
+			String tableNameRoot = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
+			System.out.println("Processing table " + index + ": " + tableNameRoot);
+			this.logger.info("Processing table " + index + ": " + tableNameRoot);
+			String tableName = tableNameRoot + "_not_partitioned";
+			String primaryKey = CreateDatabaseSparkUtil.extractPrimaryKey(sqlQuery);
+			String precombineKey = this.precombineKeys.get(tableName);
+			Map<String, String> hudiOptions = null;
+			String partitionKey = 
+						Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+			hudiOptions = this.hudiUtil.createHudiOptions(tableName, 
+						primaryKey, precombineKey, partitionKey, true);
+			saveHudiOptions("hudi" + "writepartitioned", tableName, hudiOptions);
+			String selectSql = "SELECT * FROM " + tableNameRoot;
+			queryRecord = new QueryRecord(index);
+			queryRecord.setStartTime(System.currentTimeMillis());
+			this.spark.sql(selectSql).write().format("org.apache.hudi")
+			  .option("hoodie.datasource.write.operation", "insert")
+			  .options(hudiOptions).mode(SaveMode.Overwrite)
+			  .save(this.extTablePrefixCreated.get() + "/" + tableName + "/");
+			queryRecord.setEndTime(System.currentTimeMillis());
+			if( this.doCount ) {
+				if( this.hudiUseMergeOnRead )
+					this.countRowsQuery(tableName + "_ro");
+				else
+					this.countRowsQuery(tableName);
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in CreateDatabaseSparkWritePartitionedTest3 writePartitioned.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		finally {
+			if( queryRecord != null ) {
+				this.recorder.record(queryRecord);
+			}
+		}
+	}
 
+	
 }
 
 

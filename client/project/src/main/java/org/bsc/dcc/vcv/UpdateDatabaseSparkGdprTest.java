@@ -198,6 +198,7 @@ public class UpdateDatabaseSparkGdprTest {
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(sqlQuery);
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			saveCreateTableFile(this.format + "gdpr", tableName, sqlQuery);
 			if( this.doCount )
 				countRowsQuery(tableName + "_denorm_" + this.format);
@@ -210,7 +211,6 @@ public class UpdateDatabaseSparkGdprTest {
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}
@@ -230,8 +230,6 @@ public class UpdateDatabaseSparkGdprTest {
 				else
 					countRowsQuery(tableName + "_denorm_hudi");
 			}
-			queryRecord1 = new QueryRecord(index);
-			queryRecord1.setStartTime(System.currentTimeMillis());
 			String primaryKey = this.primaryKeys.get(tableName);
 			String precombineKey = this.precombineKeys.get(tableName);
 			Map<String, String> hudiOptions = null;
@@ -254,6 +252,8 @@ public class UpdateDatabaseSparkGdprTest {
 			else
 				//sqlQuery = sqlQuery.replace("<SUFFIX>", "");
 				sqlQuery = sqlQuery.replace("<SUFFIX>", "_temp");
+			queryRecord1 = new QueryRecord(index);
+			queryRecord1.setStartTime(System.currentTimeMillis());
 			Dataset<Row> hudiDS = this.spark.read()
 					.format("org.apache.hudi")
 					.option("hoodie.datasource.query.type", "snapshot")
@@ -262,13 +262,13 @@ public class UpdateDatabaseSparkGdprTest {
 			//Disable the vectorized reader to avoid an array index out of bounds exception at 1 TB
 			this.spark.sql("SET spark.sql.parquet.enableVectorizedReader = false");
 			Dataset<Row> resultDS = this.spark.sql(sqlQuery);
+			queryRecord1.setEndTime(System.currentTimeMillis());
 			String resFileName = this.workDir + "/" + this.resultsDir + "/gdprdata/" +
 					this.experimentName + "/" + this.instance +
 					"/" + tableName + ".txt";
 			int tuples = this.saveResults(resFileName, resultDS, false);
 			queryRecord1.setTuples(queryRecord1.getTuples() + tuples);
 			queryRecord1.setSuccessful(true);
-			queryRecord1.setEndTime(System.currentTimeMillis());
 			queryRecord2 = new QueryRecord(index + 1);
 			queryRecord2.setStartTime(System.currentTimeMillis());
 			resultDS.write()

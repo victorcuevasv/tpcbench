@@ -21,6 +21,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.SparkSession;
 import org.bsc.dcc.vcv.AppUtil;
+import org.bsc.dcc.vcv.HudiUtil;
+import org.bsc.dcc.vcv.Partitioning;
 import org.bsc.dcc.vcv.QueryRecord;
 import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
 import org.apache.spark.sql.Dataset;
@@ -35,7 +37,7 @@ import org.apache.commons.cli.DefaultParser;
 
 
 public class CreateDatabaseSparkBillionIntsTest1 extends CreateDatabaseSparkDenormETLTask {
-	
+
 	
 	public CreateDatabaseSparkBillionIntsTest1(CommandLine commandLine) {	
 		super(commandLine);
@@ -78,7 +80,10 @@ public class CreateDatabaseSparkBillionIntsTest1 extends CreateDatabaseSparkDeno
 					continue;
 				}
 			}
-			billionInts(fileName, sqlQuery, i);
+			if( ! this.format.equalsIgnoreCase("hudi") )
+				billionInts(fileName, sqlQuery, i);
+			else
+				billionIntsHudi(fileName, sqlQuery, i);
 			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -119,6 +124,49 @@ public class CreateDatabaseSparkBillionIntsTest1 extends CreateDatabaseSparkDeno
 		finally {
 			if( queryRecord != null ) {
 				queryRecord.setEndTime(System.currentTimeMillis());
+				this.recorder.record(queryRecord);
+			}
+		}
+	}
+	
+	
+	private void billionIntsHudi(String sqlCreateFilename, String sqlQuery, int index) {
+		QueryRecord queryRecord = null;
+		try {
+			String tableNameRoot = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
+			String tableName = tableNameRoot.charAt(0) + "s_item_sk";
+			System.out.println("Processing table " + index + ": " + tableName);
+			this.logger.info("Processing table " + index + ": " + tableName);
+			String primaryKey = tableName;
+			String precombineKey = tableName;
+			Map<String, String> hudiOptions = null;
+			hudiOptions = this.hudiUtil.createHudiOptions(tableNameRoot, 
+						primaryKey, precombineKey, null, false);
+			this.saveHudiOptions("hudi" + "billionints", tableNameRoot, hudiOptions);
+			String selectSql = "SELECT " + primaryKey + " FROM " + tableNameRoot;
+			queryRecord = new QueryRecord(index);
+			queryRecord.setStartTime(System.currentTimeMillis());
+			this.spark.sql(selectSql).write().format("org.apache.hudi")
+			  .option("hoodie.datasource.write.operation", "insert")
+			  .options(hudiOptions).mode(SaveMode.Overwrite)
+			  .save(this.extTablePrefixCreated.get() + "/" + primaryKey + "/");
+			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
+			if( this.doCount ) {
+				if( this.hudiUseMergeOnRead )
+					this.countRowsQuery(tableName + "_ro");
+				else
+					this.countRowsQuery(tableName);
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in CreateDatabaseSparkBillionIntsTest1 billionIntsHudi.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		finally {
+			if( queryRecord != null ) {
 				this.recorder.record(queryRecord);
 			}
 		}

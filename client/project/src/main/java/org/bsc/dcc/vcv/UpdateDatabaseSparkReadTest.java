@@ -191,6 +191,7 @@ public class UpdateDatabaseSparkReadTest {
 					"/" + sqlFilename + ".txt";
 			int tuples = this.saveResults(resFileName, resultDS, false);
 			queryRecord.setTuples(queryRecord.getTuples() + tuples);
+			queryRecord.setEndTime(System.currentTimeMillis());
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -200,7 +201,6 @@ public class UpdateDatabaseSparkReadTest {
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}

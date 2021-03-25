@@ -285,6 +285,7 @@ public class CreateDatabaseSparkUpdate {
 				.mode(SaveMode.Overwrite)
 				.save(this.extTablePrefixCreated.get() + "/" + tableName + "_denorm_hudi" + "/");
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			saveCreateTableFile("hudidenorm", tableName, sqlSelect);
 			if( this.doCount ) {
 				if( this.hudiUseMergeOnRead )
@@ -301,7 +302,6 @@ public class CreateDatabaseSparkUpdate {
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}

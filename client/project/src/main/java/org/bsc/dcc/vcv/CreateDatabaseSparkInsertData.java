@@ -183,6 +183,7 @@ public class CreateDatabaseSparkInsertData {
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(parquetSqlCreate);
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount )
 				countRowsQuery(insertTableName);
 		}
@@ -194,7 +195,6 @@ public class CreateDatabaseSparkInsertData {
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}

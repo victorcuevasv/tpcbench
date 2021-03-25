@@ -25,6 +25,7 @@ import org.bsc.dcc.vcv.AppUtil;
 import org.bsc.dcc.vcv.FilterKeys;
 import org.bsc.dcc.vcv.FilterValues;
 import org.bsc.dcc.vcv.HudiPrecombineKeys;
+import org.bsc.dcc.vcv.HudiUtil;
 import org.bsc.dcc.vcv.JarCreateTableReaderAsZipFile;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -58,11 +59,17 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 	protected final String jarFile;
 	protected final String createSingleOrAll;
 	protected final String denormSingleOrAll;
+	protected final boolean partitionIgnoreNulls;
 	protected final Map<String, String> precombineKeys;
 	protected final Map<String, String> filterKeys;
 	protected final Map<String, String> filterValues;
 	protected final boolean partitionWithDistrubuteBy;
 	protected final boolean denormWithFilter;
+	protected final Map<String, String> precombineKeys;
+	protected final HudiUtil hudiUtil;
+	protected final String hudiFileSize;
+	protected final boolean hudiUseMergeOnRead;
+	protected final boolean defaultCompaction;
 	
 	
 	public CreateDatabaseSparkDenormETLTask(CommandLine commandLine) {
@@ -109,6 +116,17 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 		String denormWithFilterStr = commandLine.getOptionValue(
 				"denorm-with-filter", "true");
 		this.denormWithFilter = Boolean.parseBoolean(denormWithFilterStr);
+		this.precombineKeys = new HudiPrecombineKeys().getMap();
+		this.hudiFileSize = commandLine.getOptionValue("hudi-file-max-size", "1073741824");
+		String hudiUseMergeOnReadStr = commandLine.getOptionValue("hudi-merge-on-read", "true");
+		this.hudiUseMergeOnRead = Boolean.parseBoolean(hudiUseMergeOnReadStr);
+		String defaultCompactionStr = commandLine.getOptionValue("hudi-mor-default-compaction", "true");
+		this.defaultCompaction = Boolean.parseBoolean(defaultCompactionStr);
+		String partitionIgnoreNullsStr = commandLine.getOptionValue("partition-ignore-nulls", "false");
+		this.partitionIgnoreNulls = Boolean.parseBoolean(partitionIgnoreNullsStr);
+		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
+				this.experimentName, this.instance, this.hudiFileSize, this.hudiUseMergeOnRead,
+				this.defaultCompaction);
 	}
 	
 	
@@ -148,6 +166,29 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 			FileWriter fileWriter = new FileWriter(createTableFileName);
 			PrintWriter printWriter = new PrintWriter(fileWriter);
 			printWriter.println(sqlCreate);
+			printWriter.close();
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+			this.logger.error(ioe);
+		}
+	}
+	
+	
+	public void saveHudiOptions(String suffix, String tableName, Map<String, String> map) {
+		try {
+			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + this.createTableDir +
+					suffix + "/" + this.experimentName + "/" + this.instance +
+					"/" + tableName + ".txt";
+			StringBuilder builder = new StringBuilder();
+			for (Map.Entry<String, String> entry : map.entrySet()) {
+			    builder.append(entry.getKey() + "=" + entry.getValue().toString() + "\n");
+			}
+			File temp = new File(createTableFileName);
+			temp.getParentFile().mkdirs();
+			FileWriter fileWriter = new FileWriter(createTableFileName);
+			PrintWriter printWriter = new PrintWriter(fileWriter);
+			printWriter.println(builder.toString());
 			printWriter.close();
 		}
 		catch (IOException ioe) {

@@ -281,6 +281,7 @@ public class CreateDatabaseSpark {
 			else
 				createInternalTableSQL(sqlCreate, tableName);
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount ) {
 				if( this.format.equals("hudi") && this.hudiUseMergeOnRead )
 					countRowsQuery(tableName + "_ro");
@@ -296,7 +297,6 @@ public class CreateDatabaseSpark {
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}
@@ -335,7 +335,7 @@ public class CreateDatabaseSpark {
 	
 	
 	private void createInternalTableHudi(String sqlCreate, String tableName) throws Exception {
-		String primaryKey = extractPrimaryKey(sqlCreate);
+		String primaryKey = CreateDatabaseSparkUtil.extractPrimaryKey(sqlCreate);
 		String precombineKey = this.precombineKeys.get(tableName);
 		Map<String, String> hudiOptions = null;
 		if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
@@ -360,19 +360,6 @@ public class CreateDatabaseSpark {
 		  .option("hoodie.datasource.write.operation", "insert")
 		  .options(hudiOptions).mode(SaveMode.Overwrite)
 		  .save(this.extTablePrefixCreated.get() + "/" + tableName + "/");
-	}
-	
-	
-	private String extractPrimaryKey(String sqlCreate) {
-		String primaryKeyLine = Stream.of(sqlCreate.split("\\r?\\n")).
-				filter(s -> s.contains("primary key")).findAny().orElse(null);
-		if( primaryKeyLine == null ) {
-			System.out.println("Null value in extractPrimaryKey.");
-			this.logger.error("Null value in extractPrimaryKey.");
-		}
-		String primaryKey = primaryKeyLine.trim();
-		primaryKey = primaryKey.substring(primaryKey.indexOf('(') + 1, primaryKey.indexOf(')'));
-		return primaryKey.replace(" ", "");
 	}
 	
 	

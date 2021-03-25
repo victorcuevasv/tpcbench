@@ -198,6 +198,8 @@ public class UpdateDatabaseSparkForceCompaction {
 			queryRecord.setStartTime(System.currentTimeMillis());
 			int compactionInstant = this.scheduleCompaction(denormHudiTableName);
 			this.runCompaction(denormHudiTableName, compactionInstant);
+			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -207,7 +209,6 @@ public class UpdateDatabaseSparkForceCompaction {
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}

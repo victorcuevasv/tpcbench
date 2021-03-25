@@ -199,6 +199,7 @@ public class CreateDatabaseSparkDenormSkip {
 				.saveAsTable(tableName + "_denorm_skip");
 			}
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			saveCreateTableFile("parquetdenormskip", tableName, sqlSelect);
 			if( this.doCount )
 				countRowsQuery(tableName + "_denorm_skip");
@@ -211,7 +212,6 @@ public class CreateDatabaseSparkDenormSkip {
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}

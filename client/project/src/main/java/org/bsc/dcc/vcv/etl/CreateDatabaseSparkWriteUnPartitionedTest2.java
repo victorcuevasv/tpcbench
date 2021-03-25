@@ -25,6 +25,7 @@ import org.bsc.dcc.vcv.JarCreateTableReaderAsZipFile;
 import org.bsc.dcc.vcv.Partitioning;
 import org.bsc.dcc.vcv.QueryRecord;
 import org.bsc.dcc.vcv.RunBenchmarkSparkOptions;
+import org.bsc.dcc.vcv.CreateDatabaseSparkUtil;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Encoders;
@@ -83,7 +84,10 @@ public class CreateDatabaseSparkWriteUnPartitionedTest2 extends CreateDatabaseSp
 					continue;
 				}
 			}
-			writeUnPartitioned(fileName, sqlQuery, i);
+			if( ! this.format.equalsIgnoreCase("hudi") )
+				writeUnPartitioned(fileName, sqlQuery, i);
+			else
+				writeUnPartitionedHudi(fileName, sqlQuery, i);
 			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -111,6 +115,7 @@ public class CreateDatabaseSparkWriteUnPartitionedTest2 extends CreateDatabaseSp
 			this.spark.sql(sqlCreate);
 			this.spark.sql(sqlInsert);
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount )
 				countRowsQuery(tableName);
 		}
@@ -122,12 +127,53 @@ public class CreateDatabaseSparkWriteUnPartitionedTest2 extends CreateDatabaseSp
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}
 	}
 
+	
+	private void writeUnPartitionedHudi(String sqlCreateFilename, String sqlQuery, int index) {
+		QueryRecord queryRecord = null;
+		try {
+			String tableNameRoot = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
+			System.out.println("Processing table " + index + ": " + tableNameRoot);
+			this.logger.info("Processing table " + index + ": " + tableNameRoot);
+			String tableName = tableNameRoot + "_not_partitioned";
+			String primaryKey = CreateDatabaseSparkUtil.extractPrimaryKey(sqlQuery);
+			String precombineKey = this.precombineKeys.get(tableName);
+			Map<String, String> hudiOptions = null;
+			hudiOptions = this.hudiUtil.createHudiOptions(tableName, 
+						primaryKey, precombineKey, null, false);
+			saveHudiOptions("hudi" + "writeunpartitioned", tableName, hudiOptions);
+			String selectSql = "SELECT * FROM " + tableNameRoot;
+			queryRecord = new QueryRecord(index);
+			queryRecord.setStartTime(System.currentTimeMillis());
+			this.spark.sql(selectSql).write().format("org.apache.hudi")
+			  .option("hoodie.datasource.write.operation", "insert")
+			  .options(hudiOptions).mode(SaveMode.Overwrite)
+			  .save(this.extTablePrefixCreated.get() + "/" + tableName + "/");
+			queryRecord.setEndTime(System.currentTimeMillis());
+			if( this.doCount ) {
+				if( this.hudiUseMergeOnRead )
+					this.countRowsQuery(tableName + "_ro");
+				else
+					this.countRowsQuery(tableName);
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error in CreateDatabaseSparkWriteUnPartitionedTest2 writeUnPartitioned.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		finally {
+			if( queryRecord != null ) {
+				this.recorder.record(queryRecord);
+			}
+		}
+	}
+	
 	
 }
 

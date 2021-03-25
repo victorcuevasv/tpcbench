@@ -102,6 +102,7 @@ public class CreateDatabaseSparkDenorm extends CreateDatabaseSparkDenormETLTask 
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(sqlCreate);
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount )
 				countRowsQuery(tableName + "_denorm");
 		}
@@ -113,7 +114,6 @@ public class CreateDatabaseSparkDenorm extends CreateDatabaseSparkDenormETLTask 
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}
