@@ -192,7 +192,7 @@ steps_func_iceberg()
          "--conf",
          "spark.sql.catalog.spark_catalog.type=hive",
          "--class",
-         "org.bsc.dcc.vcv.RunBenchmarkSparkUpdateCLI",
+         "org.bsc.dcc.vcv.writesimple.RunBenchmarkSparkWriteSimple",
          "$JarFile",
          $paramsStr
       ],
