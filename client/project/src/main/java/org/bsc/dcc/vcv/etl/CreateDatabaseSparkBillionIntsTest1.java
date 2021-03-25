@@ -143,9 +143,14 @@ public class CreateDatabaseSparkBillionIntsTest1 extends CreateDatabaseSparkDeno
 			hudiOptions = this.hudiUtil.createHudiOptions(tableNameRoot, 
 						primaryKey, precombineKey, null, false);
 			this.saveHudiOptions("hudi" + "billionints", tableNameRoot, hudiOptions);
-			String selectSql = "SELECT " + primaryKey + " FROM " + tableNameRoot;
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
+			String selectSql = "SELECT " + primaryKey + " FROM " + tableNameRoot + "_temp";
+			Dataset<Row> hudiDS = this.spark.read()
+					.format("org.apache.hudi")
+					.option("hoodie.datasource.query.type", "snapshot")
+					.load(this.extTablePrefixCreated.get() + "/" + tableNameRoot + "/*");
+			hudiDS.createOrReplaceTempView(tableNameRoot + "_temp");
 			this.spark.sql(selectSql).write().format("org.apache.hudi")
 			  .option("hoodie.datasource.write.operation", "insert")
 			  .options(hudiOptions).mode(SaveMode.Overwrite)

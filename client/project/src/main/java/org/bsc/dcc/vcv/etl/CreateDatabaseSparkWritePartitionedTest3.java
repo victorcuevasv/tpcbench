@@ -146,13 +146,18 @@ public class CreateDatabaseSparkWritePartitionedTest3 extends CreateDatabaseSpar
 			String precombineKey = this.precombineKeys.get(tableName);
 			Map<String, String> hudiOptions = null;
 			String partitionKey = 
-						Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)];
+						Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableNameRoot)];
 			hudiOptions = this.hudiUtil.createHudiOptions(tableName, 
 						primaryKey, precombineKey, partitionKey, true);
 			saveHudiOptions("hudi" + "writepartitioned", tableName, hudiOptions);
-			String selectSql = "SELECT * FROM " + tableNameRoot;
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
+			String selectSql = "SELECT * FROM " + tableNameRoot;
+			Dataset<Row> hudiDS = this.spark.read()
+					.format("org.apache.hudi")
+					.option("hoodie.datasource.query.type", "snapshot")
+					.load(this.extTablePrefixCreated.get() + "/" + tableNameRoot + "/*");
+			hudiDS.createOrReplaceTempView(tableNameRoot + "_temp");
 			this.spark.sql(selectSql).write().format("org.apache.hudi")
 			  .option("hoodie.datasource.write.operation", "insert")
 			  .options(hudiOptions).mode(SaveMode.Overwrite)
