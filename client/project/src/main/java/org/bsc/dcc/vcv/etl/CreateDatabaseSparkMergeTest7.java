@@ -103,6 +103,7 @@ public class CreateDatabaseSparkMergeTest7 extends CreateDatabaseSparkDenormETLT
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(sqlQuery);
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount )
 				countRowsQuery(tableName + "_denorm");
 		}
@@ -114,7 +115,6 @@ public class CreateDatabaseSparkMergeTest7 extends CreateDatabaseSparkDenormETLT
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}

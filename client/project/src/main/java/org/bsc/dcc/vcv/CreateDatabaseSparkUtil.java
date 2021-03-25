@@ -109,7 +109,6 @@ public class CreateDatabaseSparkUtil {
 				filter(s -> s.contains("primary key")).findAny().orElse(null);
 		if( primaryKeyLine == null ) {
 			System.out.println("Null value in extractPrimaryKey.");
-			this.logger.error("Null value in extractPrimaryKey.");
 		}
 		String primaryKey = primaryKeyLine.trim();
 		primaryKey = primaryKey.substring(primaryKey.indexOf('(') + 1, primaryKey.indexOf(')'));

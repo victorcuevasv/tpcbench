@@ -108,6 +108,7 @@ public class CreateDatabaseSparkThousandColsTest6 extends CreateDatabaseSparkDen
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(sqlCreate);
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount )
 				countRowsQuery(tableName);
 		}
@@ -119,7 +120,6 @@ public class CreateDatabaseSparkThousandColsTest6 extends CreateDatabaseSparkDen
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}

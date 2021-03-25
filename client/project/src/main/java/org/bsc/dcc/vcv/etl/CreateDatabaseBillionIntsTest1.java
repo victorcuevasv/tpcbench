@@ -108,6 +108,7 @@ public class CreateDatabaseBillionIntsTest1 extends CreateDatabaseDenormETLTask 
 			stmt.execute(sqlCreate);
 			stmt.execute(sqlInsert);
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount )
 				countRowsQuery(stmt, tableName);
 		}
@@ -119,7 +120,6 @@ public class CreateDatabaseBillionIntsTest1 extends CreateDatabaseDenormETLTask 
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}

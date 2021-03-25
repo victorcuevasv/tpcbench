@@ -102,6 +102,7 @@ public class CreateDatabaseMergeTest7 extends CreateDatabaseDenormETLTask {
 			queryRecord.setStartTime(System.currentTimeMillis());
 			stmt.execute(sqlQuery);
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount )
 				countRowsQuery(stmt, tableName + "_denorm");
 		}
@@ -113,7 +114,6 @@ public class CreateDatabaseMergeTest7 extends CreateDatabaseDenormETLTask {
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}

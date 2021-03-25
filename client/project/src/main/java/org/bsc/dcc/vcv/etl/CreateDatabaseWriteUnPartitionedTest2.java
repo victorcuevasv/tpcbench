@@ -112,6 +112,7 @@ public class CreateDatabaseWriteUnPartitionedTest2 extends CreateDatabaseDenormE
 			stmt.execute(sqlCreate);
 			stmt.execute(sqlInsert);
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount )
 				countRowsQuery(stmt, tableName);
 		}
@@ -123,7 +124,6 @@ public class CreateDatabaseWriteUnPartitionedTest2 extends CreateDatabaseDenormE
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}

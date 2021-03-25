@@ -112,6 +112,7 @@ public class CreateDatabaseSparkBillionIntsTest1 extends CreateDatabaseSparkDeno
 			this.spark.sql(sqlCreate);
 			this.spark.sql(sqlInsert);
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount )
 				countRowsQuery(tableName);
 		}
@@ -123,7 +124,6 @@ public class CreateDatabaseSparkBillionIntsTest1 extends CreateDatabaseSparkDeno
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}

@@ -105,6 +105,7 @@ public class CreateDatabaseDenormTest4 extends CreateDatabaseDenormETLTask {
 			queryRecord.setStartTime(System.currentTimeMillis());
 			stmt.execute(sqlCreate);
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount )
 				countRowsQuery(stmt, tableName);
 		}
@@ -116,7 +117,6 @@ public class CreateDatabaseDenormTest4 extends CreateDatabaseDenormETLTask {
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}

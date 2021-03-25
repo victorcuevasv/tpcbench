@@ -114,6 +114,7 @@ public class CreateDatabaseWritePartitionedTest3 extends CreateDatabaseDenormETL
 			stmt.execute(sqlCreate);
 			stmt.execute(sqlInsert);
 			queryRecord.setSuccessful(true);
+			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount )
 				countRowsQuery(stmt, tableName);
 		}
@@ -125,7 +126,6 @@ public class CreateDatabaseWritePartitionedTest3 extends CreateDatabaseDenormETL
 		}
 		finally {
 			if( queryRecord != null ) {
-				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
 			}
 		}
