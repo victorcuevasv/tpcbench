@@ -152,7 +152,7 @@ public class CreateDatabaseSparkWritePartitionedTest3 extends CreateDatabaseSpar
 			saveHudiOptions("hudi" + "writepartitioned", tableName, hudiOptions);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
-			String selectSql = "SELECT * FROM " + tableNameRoot;
+			String selectSql = "SELECT * FROM " + tableNameRoot + "_temp";
 			Dataset<Row> hudiDS = this.spark.read()
 					.format("org.apache.hudi")
 					.option("hoodie.datasource.query.type", "snapshot")

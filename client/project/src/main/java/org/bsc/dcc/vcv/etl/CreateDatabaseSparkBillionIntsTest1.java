@@ -140,7 +140,7 @@ public class CreateDatabaseSparkBillionIntsTest1 extends CreateDatabaseSparkDeno
 			String primaryKey = tableName;
 			String precombineKey = tableName;
 			Map<String, String> hudiOptions = null;
-			hudiOptions = this.hudiUtil.createHudiOptions(tableNameRoot, 
+			hudiOptions = this.hudiUtil.createHudiOptions(primaryKey, 
 						primaryKey, precombineKey, null, false);
 			this.saveHudiOptions("hudi" + "billionints", tableNameRoot, hudiOptions);
 			queryRecord = new QueryRecord(index);
