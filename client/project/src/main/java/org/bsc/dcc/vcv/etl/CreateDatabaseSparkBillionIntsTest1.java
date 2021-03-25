@@ -154,9 +154,9 @@ public class CreateDatabaseSparkBillionIntsTest1 extends CreateDatabaseSparkDeno
 			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount ) {
 				if( this.hudiUseMergeOnRead )
-					this.countRowsQuery(tableName + "_ro");
+					this.countRowsQuery(primaryKey + "_ro");
 				else
-					this.countRowsQuery(tableName);
+					this.countRowsQuery(primaryKey);
 			}
 		}
 		catch (Exception e) {

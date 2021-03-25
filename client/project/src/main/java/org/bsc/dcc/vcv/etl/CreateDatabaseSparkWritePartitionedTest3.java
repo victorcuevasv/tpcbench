@@ -84,7 +84,10 @@ public class CreateDatabaseSparkWritePartitionedTest3 extends CreateDatabaseSpar
 					continue;
 				}
 			}
-			writePartitioned(fileName, sqlQuery, i);
+			if( ! this.format.equalsIgnoreCase("hudi") )
+				writePartitioned(fileName, sqlQuery, i);
+			else
+				writePartitionedHudi(fileName, sqlQuery, i);
 			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -132,7 +135,7 @@ public class CreateDatabaseSparkWritePartitionedTest3 extends CreateDatabaseSpar
 	}
 	
 	
-	private void writeUnPartitionedHudi(String sqlCreateFilename, String sqlQuery, int index) {
+	private void writePartitionedHudi(String sqlCreateFilename, String sqlQuery, int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableNameRoot = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));

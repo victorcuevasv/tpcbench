@@ -180,7 +180,8 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 					"/" + tableName + ".txt";
 			StringBuilder builder = new StringBuilder();
 			for (Map.Entry<String, String> entry : map.entrySet()) {
-			    builder.append(entry.getKey() + "=" + entry.getValue().toString() + "\n");
+				String entryVal = entry.getValue() != null ? entry.getValue().toString() : null;
+			    builder.append(entry.getKey() + "=" + entryVal + "\n");
 			}
 			File temp = new File(createTableFileName);
 			temp.getParentFile().mkdirs();
