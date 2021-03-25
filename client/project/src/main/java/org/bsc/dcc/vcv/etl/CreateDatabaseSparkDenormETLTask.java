@@ -65,7 +65,6 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 	protected final Map<String, String> filterValues;
 	protected final boolean partitionWithDistrubuteBy;
 	protected final boolean denormWithFilter;
-	protected final Map<String, String> precombineKeys;
 	protected final HudiUtil hudiUtil;
 	protected final String hudiFileSize;
 	protected final boolean hudiUseMergeOnRead;
