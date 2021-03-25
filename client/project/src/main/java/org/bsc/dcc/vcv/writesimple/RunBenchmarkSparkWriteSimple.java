@@ -137,6 +137,19 @@ public class RunBenchmarkSparkWriteSimple {
 				System.out.println("\n\n\nRunning the WRITE PARTITIONED test.\n\n\n");
 				CreateDatabaseSparkWritePartitionedTest3.main(argsCopy);
 			}
+			if( this.system.equals("sparkdatabricks")  ) {
+				this.executeCommand("mkdir -p /dbfs/mnt/tpcds-results-test/" + this.resultsDir);
+				this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /dbfs/mnt/tpcds-results-test/" + this.resultsDir + "/");
+			}
+			else if( this.system.equals("sparkemr")  ) {
+				this.executeCommand("aws s3 cp --recursive " + this.workDir + "/" + this.resultsDir + "/ " +
+						"s3://tpcds-results-test/" + this.resultsDir + "/");
+				this.executeCommand("aws s3 cp " + this.workDir + "/logs/all.log " +
+						"s3://tpcds-results-test/" + this.resultsDir + "/logs/" + 
+						this.experimentName + "/" + this.instance + "/all.log");
+				//this.executeCommand("mkdir -p /mnt/tpcds-results-test/" + this.resultsDir);
+				//this.executeCommand("cp -r " + this.workDir + "/" + this.resultsDir + "/* /mnt/tpcds-results-test/" + this.resultsDir + "/");
+			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
