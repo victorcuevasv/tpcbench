@@ -115,7 +115,6 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 		String denormWithFilterStr = commandLine.getOptionValue(
 				"denorm-with-filter", "true");
 		this.denormWithFilter = Boolean.parseBoolean(denormWithFilterStr);
-		this.precombineKeys = new HudiPrecombineKeys().getMap();
 		this.hudiFileSize = commandLine.getOptionValue("hudi-file-max-size", "1073741824");
 		String hudiUseMergeOnReadStr = commandLine.getOptionValue("hudi-merge-on-read", "true");
 		this.hudiUseMergeOnRead = Boolean.parseBoolean(hudiUseMergeOnReadStr);
