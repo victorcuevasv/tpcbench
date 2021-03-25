@@ -11,9 +11,9 @@ public class SQLWriteUnPartitionedTest2 {
 	public static String createTableStatementSpark(String sqlQuery, String tableNameRoot, String tableName, 
 			String format, Optional<String> extTablePrefixCreated, boolean partition) {
 		sqlQuery = org.bsc.dcc.vcv.etl.Util.incompleteCreateTable(sqlQuery);
-		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
-		return CreateDatabaseSparkUtil.internalCreateTable(sqlQuery, tableNameRoot, 
+		sqlQuery = CreateDatabaseSparkUtil.internalCreateTable(sqlQuery, tableNameRoot, 
 				extTablePrefixCreated, format, partition);
+		return sqlQuery.replace(tableNameRoot, tableName);
 	}
 
 	

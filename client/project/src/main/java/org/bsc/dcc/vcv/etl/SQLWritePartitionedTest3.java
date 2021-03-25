@@ -10,9 +10,9 @@ public class SQLWritePartitionedTest3 {
 
 	public static String createTableStatementSpark(String sqlQuery, String tableNameRoot, String tableName,
 			String format, Optional<String> extTablePrefixCreated, boolean partition) {
-		sqlQuery = sqlQuery.replace(tableNameRoot, tableName);
-		return CreateDatabaseSparkUtil.internalCreateTable(sqlQuery, tableNameRoot, 
+		sqlQuery = CreateDatabaseSparkUtil.internalCreateTable(sqlQuery, tableNameRoot, 
 				extTablePrefixCreated, format, partition);
+		return sqlQuery.replace(tableNameRoot, tableName);
 	}
 	
 	
