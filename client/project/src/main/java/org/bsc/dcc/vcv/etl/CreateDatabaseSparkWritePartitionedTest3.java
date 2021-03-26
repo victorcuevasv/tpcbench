@@ -162,6 +162,7 @@ public class CreateDatabaseSparkWritePartitionedTest3 extends CreateDatabaseSpar
 			  .option("hoodie.datasource.write.operation", "insert")
 			  .options(hudiOptions).mode(SaveMode.Overwrite)
 			  .save(this.extTablePrefixCreated.get() + "/" + tableName + "/");
+			queryRecord.setSuccessful(true);
 			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount ) {
 				if( this.hudiUseMergeOnRead )
