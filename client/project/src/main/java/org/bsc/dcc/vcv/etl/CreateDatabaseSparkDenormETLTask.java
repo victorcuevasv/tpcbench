@@ -25,6 +25,7 @@ import org.bsc.dcc.vcv.AppUtil;
 import org.bsc.dcc.vcv.FilterKeys;
 import org.bsc.dcc.vcv.FilterValues;
 import org.bsc.dcc.vcv.HudiPrecombineKeys;
+import org.bsc.dcc.vcv.HudiPrimaryKeys;
 import org.bsc.dcc.vcv.HudiUtil;
 import org.bsc.dcc.vcv.JarCreateTableReaderAsZipFile;
 import org.apache.spark.sql.Dataset;
@@ -61,6 +62,7 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 	protected final String denormSingleOrAll;
 	protected final boolean partitionIgnoreNulls;
 	protected final Map<String, String> precombineKeys;
+	protected final Map<String, String> primaryKeys;
 	protected final Map<String, String> filterKeys;
 	protected final Map<String, String> filterValues;
 	protected final boolean partitionWithDistrubuteBy;
@@ -107,6 +109,7 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
+		this.primaryKeys = new HudiPrimaryKeys().getMap();
 		this.filterKeys = new FilterKeys().getMap();
 		this.filterValues = new FilterValues().getMap();
 		String partitionWithDistrubuteByStr = commandLine.getOptionValue(

@@ -56,6 +56,7 @@ public class CreateDatabaseSpark {
 	private final String createSingleOrAll;
 	private final boolean partitionIgnoreNulls;
 	private final Map<String, String> precombineKeys;
+	private final Map<String, String> primaryKeys;
 	private final HudiUtil hudiUtil;
 	private final String hudiFileSize;
 	private final boolean hudiUseMergeOnRead;
@@ -164,6 +165,7 @@ public class CreateDatabaseSpark {
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
+		this.primaryKeys = new HudiPrimaryKeys().getMap();
 		this.hudiFileSize = "1073741824";
 		this.hudiUseMergeOnRead = true;
 		this.defaultCompaction = true;
@@ -335,7 +337,7 @@ public class CreateDatabaseSpark {
 	
 	
 	private void createInternalTableHudi(String sqlCreate, String tableName) throws Exception {
-		String primaryKey = CreateDatabaseSparkUtil.extractPrimaryKey(sqlCreate);
+		String primaryKey = this.primaryKeys.get(tableName);
 		String precombineKey = this.precombineKeys.get(tableName);
 		Map<String, String> hudiOptions = null;
 		if( this.partition && Arrays.asList(Partitioning.tables).contains(tableName) ) {
