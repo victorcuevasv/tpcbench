@@ -35,7 +35,8 @@ MajorVersion="7"
 MinorVersion="3"
 ScalaVersion="x-scala2.12"
 #Run configuration.
-Tag="$(date +%s)"
+#Tag="$(date +%s)"
+Tag="1615916430"
 ExperimentName="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-${Tag}"
 DirNameWarehouse="tpcds-databricks-${MajorVersion}${MinorVersion}-$1gb-$2-${Tag}"
 DirNameResults="dbr${MajorVersion}${MinorVersion}"
@@ -88,7 +89,8 @@ args[14]="--number-of-streams=$3"
 # zorder      |zorder update |read test 1 |insupd test    |read test 2    |
 # delete test |read test 3   |gdpr        |read test 4    |power          |
 # tput
-args[15]="--execution-flags=111111100000111111100"
+#args[15]="--execution-flags=111111100000111111100"
+args[16]="--execution-flags=000000100000111111100"
 # "all" or create table file
 args[16]="--all-or-create-file=all"
 # count-queries
