@@ -175,7 +175,7 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 	
 	public void saveHudiOptions(String suffix, String tableName, Map<String, String> map) {
 		try {
-			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + this.createTableDir +
+			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + "tables" +
 					suffix + "/" + this.experimentName + "/" + this.instance +
 					"/" + tableName + ".txt";
 			StringBuilder builder = new StringBuilder();

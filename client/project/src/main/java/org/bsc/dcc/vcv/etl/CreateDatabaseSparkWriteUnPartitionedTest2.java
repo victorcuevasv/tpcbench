@@ -141,7 +141,7 @@ public class CreateDatabaseSparkWriteUnPartitionedTest2 extends CreateDatabaseSp
 			this.logger.info("Processing table " + index + ": " + tableNameRoot);
 			String tableName = tableNameRoot + "_not_partitioned";
 			String primaryKey = CreateDatabaseSparkUtil.extractPrimaryKey(sqlQuery);
-			String precombineKey = this.precombineKeys.get(tableName);
+			String precombineKey = this.precombineKeys.get(tableNameRoot);
 			Map<String, String> hudiOptions = null;
 			hudiOptions = this.hudiUtil.createHudiOptions(tableName, 
 						primaryKey, precombineKey, null, false);

@@ -141,9 +141,9 @@ public class CreateDatabaseSparkWritePartitionedTest3 extends CreateDatabaseSpar
 			String tableNameRoot = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableNameRoot);
 			this.logger.info("Processing table " + index + ": " + tableNameRoot);
-			String tableName = tableNameRoot + "_not_partitioned";
+			String tableName = tableNameRoot + "_partitioned";
 			String primaryKey = CreateDatabaseSparkUtil.extractPrimaryKey(sqlQuery);
-			String precombineKey = this.precombineKeys.get(tableName);
+			String precombineKey = this.precombineKeys.get(tableNameRoot);
 			Map<String, String> hudiOptions = null;
 			String partitionKey = 
 						Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableNameRoot)];
