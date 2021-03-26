@@ -96,8 +96,12 @@ public class CreateDatabaseSparkUtil {
 					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] +
 					" is not null \n");
 		}
-		if( format.equals("iceberg") ) {
+		if( format.equalsIgnoreCase("iceberg") ) {
 			builder.append("ORDER BY " + 
+					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
+		}
+		if( format.equalsIgnoreCase("parquet") ) {
+			builder.append("DISTRIBUTE BY " + 
 					Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableName)] + "\n");
 		}
 		return builder.toString();
