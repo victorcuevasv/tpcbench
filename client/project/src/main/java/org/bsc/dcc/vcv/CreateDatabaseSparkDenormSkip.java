@@ -1,35 +1,17 @@
 package org.bsc.dcc.vcv;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.sql.SQLException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.sql.DriverManager;
-import java.io.*;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.spark.sql.SparkSession;
-import org.bsc.dcc.vcv.etl.CreateDatabaseSparkDenormETLTask;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.Encoders;
-import org.apache.spark.sql.SaveMode;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.bsc.dcc.vcv.etl.CreateDatabaseSparkDenormETLTask;
 
 
 public class CreateDatabaseSparkDenormSkip extends CreateDatabaseSparkDenormETLTask {
@@ -105,7 +87,7 @@ public class CreateDatabaseSparkDenormSkip extends CreateDatabaseSparkDenormETLT
 			if( this.dateskThreshold != -1 )
 				selectBuilder.append("OR " + partCol + " <= " + this.dateskThreshold + "\n");
 			selectBuilder.append(
-					"OR MOD(" + skipAtt + ", " + SkipMods.secondMod + ") <> 0");
+					"OR MOD(" + skipAtt + ", " + SkipMods.secondMod + ") <> 0 \n");
 			if( this.partition && this.partitionWithDistrubuteBy ) {
 				int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
 				if( pos != -1 )
