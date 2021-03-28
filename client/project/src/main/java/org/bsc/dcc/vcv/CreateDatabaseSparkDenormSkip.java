@@ -35,7 +35,7 @@ import org.apache.commons.cli.DefaultParser;
 public class CreateDatabaseSparkDenormSkip extends CreateDatabaseSparkDenormETLTask {
 	
 	
-	public CreateDatabaseSparkDenorm(CommandLine commandLine) {	
+	public CreateDatabaseSparkDenormSkip(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
