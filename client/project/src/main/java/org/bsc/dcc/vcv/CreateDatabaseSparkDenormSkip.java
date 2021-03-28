@@ -20,6 +20,7 @@ import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.SparkSession;
+import org.bsc.dcc.vcv.etl.CreateDatabaseSparkDenormETLTask;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Encoders;
@@ -31,69 +32,11 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseSparkDenormSkip {
-
-	private static final Logger logger = LogManager.getLogger("AllLog");
-	private SparkSession spark;
-	private final JarCreateTableReaderAsZipFile createTableReader;
-	private final AnalyticsRecorder recorder;
-	private final String workDir;
-	private final String dbName;
-	private final String resultsDir;
-	private final String experimentName;
-	private final String system;
-	private final String test;
-	private final int instance;
-	private final String createTableDir;
-	private final Optional<String> extTablePrefixCreated;
-	private final String format;
-	private final boolean doCount;
-	private final boolean partition;
-	private final String jarFile;
-	private final String createSingleOrAll;
-	private final String denormSingleOrAll;
-	private final Map<String, String> skipKeys;
-	private final int dateskThreshold;
+public class CreateDatabaseSparkDenormSkip extends CreateDatabaseSparkDenormETLTask {
 	
-	public CreateDatabaseSparkDenormSkip(CommandLine commandLine) {
-		try {
-
-			this.spark = SparkSession.builder().appName("TPC-DS Database Creation")
-					.enableHiveSupport()
-					.getOrCreate();
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkDenormSkip constructor.");
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-		}
-		this.workDir = commandLine.getOptionValue("main-work-dir");
-		this.dbName = commandLine.getOptionValue("schema-name");
-		this.resultsDir = commandLine.getOptionValue("results-dir");
-		this.experimentName = commandLine.getOptionValue("experiment-name");
-		this.system = commandLine.getOptionValue("system-name");
-		this.test = commandLine.getOptionValue("tpcds-test", "loaddenormskip");
-		String instanceStr = commandLine.getOptionValue("instance-number");
-		this.instance = Integer.parseInt(instanceStr);
-		//this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
-		this.createTableDir = "QueriesDenorm";
-		this.extTablePrefixCreated = Optional.ofNullable(commandLine.getOptionValue("ext-tables-location"));
-		//this.format = commandLine.getOptionValue("table-format");
-		this.format = "parquet";
-		String doCountStr = commandLine.getOptionValue("count-queries", "false");
-		this.doCount = Boolean.parseBoolean(doCountStr);
-		String partitionStr = commandLine.getOptionValue("use-partitioning");
-		this.partition = Boolean.parseBoolean(partitionStr);
-		this.createSingleOrAll = commandLine.getOptionValue("all-or-create-file", "all");
-		this.denormSingleOrAll = commandLine.getOptionValue("denorm-all-or-file", "all");
-		this.jarFile = commandLine.getOptionValue("jar-file");
-		this.createTableReader = new JarCreateTableReaderAsZipFile(this.jarFile, this.createTableDir);
-		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
-				this.system, this.test, this.instance);
-		this.skipKeys = new SkipKeys().getMap();
-		String dateskThresholdStr = commandLine.getOptionValue("datesk-gt-threshold", "-1");
-		this.dateskThreshold = Integer.parseInt(dateskThresholdStr);
+	
+	public CreateDatabaseSparkDenorm(CommandLine commandLine) {	
+		super(commandLine);
 	}
 	
 
@@ -176,6 +119,11 @@ public class CreateDatabaseSparkDenormSkip {
 				selectBuilder.append("OR " + partCol + " <= " + this.dateskThreshold + "\n");
 			selectBuilder.append(
 					"OR MOD(" + skipAtt + ", " + SkipMods.secondMod + ") <> 0");
+			if( this.partition && this.partitionWithDistrubuteBy ) {
+				int pos = Arrays.asList(Partitioning.tables).indexOf(tableName);
+				if( pos != -1 )
+					selectBuilder.append("DISTRIBUTE BY " + Partitioning.partKeys[pos] + " \n" );
+			}
 			sqlSelect = selectBuilder.toString();
 			if( this.doCount )
 				countRowsQuery(tableName + "_denorm");
