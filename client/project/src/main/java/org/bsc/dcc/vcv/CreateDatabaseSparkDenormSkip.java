@@ -57,11 +57,11 @@ public class CreateDatabaseSparkDenormSkip extends CreateDatabaseSparkDenormETLT
 			System.exit(1);
 		}
 		application = new CreateDatabaseSparkDenormSkip(commandLine);
-		application.createTables();
+		application.doTask();
 	}
 	
 	
-	private void createTables() {
+	protected void doTask() {
 		// Process each .sql create table file found in the jar file.
 		this.useDatabase(this.dbName);
 		this.recorder.header();
@@ -83,19 +83,6 @@ public class CreateDatabaseSparkDenormSkip extends CreateDatabaseSparkDenormETLT
 		//	this.closeConnection();
 		//}
 		this.recorder.close();
-	}
-
-	
-	private void useDatabase(String dbName) {
-		try {
-			this.spark.sql("USE " + dbName);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkDenormSkip useDatabase.");
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-		}
 	}
 	
 	
@@ -162,67 +149,6 @@ public class CreateDatabaseSparkDenormSkip extends CreateDatabaseSparkDenormETLT
 			if( queryRecord != null ) {
 				this.recorder.record(queryRecord);
 			}
-		}
-	}
-	
-	
-	private void dropTable(String dropStmt) {
-		try {
-			this.spark.sql(dropStmt);
-		}
-		catch(Exception ignored) {
-			//Do nothing.
-		}
-	}
-
-	
-	public void saveCreateTableFile(String suffix, String tableName, String sqlCreate) {
-		try {
-			String createTableFileName = this.workDir + "/" + this.resultsDir + "/" + "tables" +
-					suffix + "/" + this.experimentName + "/" + this.instance +
-					"/" + tableName + ".sql";
-			File temp = new File(createTableFileName);
-			temp.getParentFile().mkdirs();
-			FileWriter fileWriter = new FileWriter(createTableFileName);
-			PrintWriter printWriter = new PrintWriter(fileWriter);
-			printWriter.println(sqlCreate);
-			printWriter.close();
-		}
-		catch (IOException ioe) {
-			ioe.printStackTrace();
-			this.logger.error(ioe);
-		}
-	}
-
-	
-	private void countRowsQuery(String tableName) {
-		try {
-			String sqlCount = "select count(*) from " + tableName;
-			System.out.print("Running count query on " + tableName + ": ");
-			this.logger.info("Running count query on " + tableName + ": ");
-			Dataset<Row> countDataset = this.spark.sql(sqlCount);
-			List<String> list = countDataset.map(row -> row.mkString(), Encoders.STRING()).collectAsList();
-			for(String s: list) {
-				System.out.println(s);
-				this.logger.info("Count result: " + s);
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			this.logger.error(e);
-		}
-	}
-	
-	
-	public void closeConnection() {
-		try {
-			this.spark.stop();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseSparkDenormSkip closeConnection.");
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
 	}
 	

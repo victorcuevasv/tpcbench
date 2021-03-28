@@ -23,6 +23,7 @@ import org.apache.spark.sql.SparkSession;
 import org.bsc.dcc.vcv.AnalyticsRecorder;
 import org.bsc.dcc.vcv.AppUtil;
 import org.bsc.dcc.vcv.FilterKeys;
+import org.bsc.dcc.vcv.SkipKeys;
 import org.bsc.dcc.vcv.FilterValues;
 import org.bsc.dcc.vcv.HudiPrecombineKeys;
 import org.bsc.dcc.vcv.HudiPrimaryKeys;
@@ -65,12 +66,14 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 	protected final Map<String, String> primaryKeys;
 	protected final Map<String, String> filterKeys;
 	protected final Map<String, String> filterValues;
+	protected final Map<String, String> skipKeys;
 	protected final boolean partitionWithDistrubuteBy;
 	protected final boolean denormWithFilter;
 	protected final HudiUtil hudiUtil;
 	protected final String hudiFileSize;
 	protected final boolean hudiUseMergeOnRead;
 	protected final boolean defaultCompaction;
+	protected final int dateskThreshold;
 	
 	
 	public CreateDatabaseSparkDenormETLTask(CommandLine commandLine) {
@@ -111,6 +114,7 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
 		this.primaryKeys = new HudiPrimaryKeys().getMap();
 		this.filterKeys = new FilterKeys().getMap();
+		this.skipKeys = new SkipKeys().getMap();
 		this.filterValues = new FilterValues().getMap();
 		String partitionWithDistrubuteByStr = commandLine.getOptionValue(
 				"partition-with-distribute-by", "false");
@@ -125,6 +129,8 @@ public abstract class CreateDatabaseSparkDenormETLTask {
 		this.defaultCompaction = Boolean.parseBoolean(defaultCompactionStr);
 		String partitionIgnoreNullsStr = commandLine.getOptionValue("partition-ignore-nulls", "false");
 		this.partitionIgnoreNulls = Boolean.parseBoolean(partitionIgnoreNullsStr);
+		String dateskThresholdStr = commandLine.getOptionValue("datesk-gt-threshold", "-1");
+		this.dateskThreshold = Integer.parseInt(dateskThresholdStr);
 		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
 				this.experimentName, this.instance, this.hudiFileSize, this.hudiUseMergeOnRead,
 				this.defaultCompaction);
