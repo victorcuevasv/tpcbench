@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.sql.SQLException;
 import org.apache.logging.log4j.Logger;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
