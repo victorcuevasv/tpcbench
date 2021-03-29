@@ -31,8 +31,8 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 #Cluster configuration.
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Nodes="16"
-MajorVersion="7"
-MinorVersion="6"
+MajorVersion="8"
+MinorVersion="1"
 ScalaVersion="x-scala2.12"
 #Run configuration.
 Tag="$(date +%s)"
@@ -100,12 +100,14 @@ args[19]="--denorm-apply-skip=true"
 
 # all or query file for denorm analyze and z-order
 args[20]="--analyze-zorder-all-or-file=query2.sql"
-# customer surrogate key for the gdpr test
+# customer surrogate key for the gdpr test (221580 for 1 TB, 1000 for 1 GB)
 args[21]="--gdpr-customer-sk=221580"
 # greater than threshold for the date-sk attribute (2452459 for last 10%, -1 to disable)
-args[22]="--datesk-gt-threshold=-1"
+args[22]="--datesk-gt-threshold=2452459"
 # use a filter attribute and value for denormalization
 args[23]="--denorm-with-filter=false"
+# add a distrubute by clause for denormalization with partition
+args[24]="--partition-with-distribute-by=true"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 
@@ -139,12 +141,7 @@ post_data_func()
 	"new_cluster":{ 
 		"spark_version":"${MajorVersion}.${MinorVersion}.${ScalaVersion}",
         "spark_conf":{
-            "spark.databricks.delta.optimizeWrite.enabled":"true",
-            "spark.databricks.delta.autoCompact.enabled":"true",
-            "spark.databricks.delta.optimizeWrite.numShuffleBlocks":"5000000",
-            "spark.databricks.adaptive.autoOptimizeShuffle.enabled":"true",
-            "spark.sql.crossJoin.enabled":"true",
-            "spark.sql.broadcastTimeout":"7200"
+            "spark.databricks.delta.optimizeWrite.enabled":"true"
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
