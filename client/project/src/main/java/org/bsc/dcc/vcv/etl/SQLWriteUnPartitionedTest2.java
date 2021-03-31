@@ -20,10 +20,12 @@ public class SQLWriteUnPartitionedTest2 {
 	
 	//It is assumed that the tableNameRoot table is partitioned and that the null values for the partition
 	//attribute have been removed.
-	public static String insertStatement(String tableNameRoot, String tableName, List<String> columns,
+	public static String insertStatement(String sqlQuery, String tableNameRoot, String tableName,
 			String suffix, String format, boolean partitionIgnoreNulls) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("INSERT INTO " + tableName + "\n");
+		sqlQuery = org.bsc.dcc.vcv.etl.Util.incompleteCreateTable(sqlQuery);
+		List<String> columns = CreateDatabaseSparkUtil.extractColumnNames(sqlQuery);
 		String sqlSelect = CreateDatabaseSparkUtil.createPartitionSelectStmt(tableNameRoot, columns,
 				"", format, false);
 		builder.append(sqlSelect);
