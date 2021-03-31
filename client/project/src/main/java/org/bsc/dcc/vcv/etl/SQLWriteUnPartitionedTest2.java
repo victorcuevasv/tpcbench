@@ -30,7 +30,7 @@ public class SQLWriteUnPartitionedTest2 {
 		List<String> columns = CreateDatabaseSparkUtil.extractColumnNames(sqlQuery);
 		String sqlSelect = null;
 		if( format.equalsIgnoreCase("parquet") )
-			sqlSelect = SQLWriteUnPartitionedTest2.createParquetSelectStmt(tableName, columns, "", 
+			sqlSelect = SQLWriteUnPartitionedTest2.createParquetSelectStmt(tableNameRoot, columns, "", 
 					partitionIgnoreNulls);
 		else
 			sqlSelect = CreateDatabaseSparkUtil.createPartitionSelectStmt(tableNameRoot, columns,
