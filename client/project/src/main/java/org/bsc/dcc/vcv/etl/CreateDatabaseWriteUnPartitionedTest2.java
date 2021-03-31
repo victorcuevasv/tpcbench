@@ -106,8 +106,8 @@ public class CreateDatabaseWriteUnPartitionedTest2 extends CreateDatabaseDenormE
 				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot, tableName);
 			saveCreateTableFile("writeunpartitionedcreate", tableName, sqlCreate);
 			List<String> columns = CreateDatabaseSparkUtil.extractColumnNames(sqlQuery);
-			String sqlInsert = SQLWriteUnPartitionedTest2.insertStatement(tableNameRoot, tableName,
-					columns, "", this.format, false);
+			String sqlInsert = SQLWriteUnPartitionedTest2.insertStatement(sqlQuery, tableNameRoot,
+					tableName, "", this.format, false);
 			saveCreateTableFile("writeunpartitionedinsert", tableName, sqlInsert);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
