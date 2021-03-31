@@ -20,6 +20,7 @@ import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bsc.dcc.vcv.AppUtil;
+import org.bsc.dcc.vcv.CreateDatabaseSparkUtil;
 import org.bsc.dcc.vcv.JarCreateTableReaderAsZipFile;
 import org.bsc.dcc.vcv.Partitioning;
 import org.bsc.dcc.vcv.QueryRecord;
@@ -104,7 +105,9 @@ public class CreateDatabaseWriteUnPartitionedTest2 extends CreateDatabaseDenormE
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot, tableName);
 			saveCreateTableFile("writeunpartitionedcreate", tableName, sqlCreate);
-			String sqlInsert = SQLWriteUnPartitionedTest2.insertStatement(tableNameRoot, tableName);
+			List<String> columns = CreateDatabaseSparkUtil.extractColumnNames(sqlQuery);
+			String sqlInsert = SQLWriteUnPartitionedTest2.insertStatement(tableNameRoot, tableName,
+					columns, "", this.format, false);
 			saveCreateTableFile("writeunpartitionedinsert", tableName, sqlInsert);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
