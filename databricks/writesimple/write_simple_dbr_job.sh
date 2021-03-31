@@ -31,8 +31,8 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 #Cluster configuration.
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Nodes="2"
-MajorVersion="7"
-MinorVersion="6"
+MajorVersion="8"
+MinorVersion="1"
 ScalaVersion="x-scala2.12"
 #Run configuration.
 Tag="$(date +%s)"
@@ -45,7 +45,7 @@ JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
 JOB_NAME="Run TPC-DS Benchmark ${Tag} $2"
 #Script operation flags.
 RUN_CREATE_JOB=1
-RUN_RUN_JOB=0
+RUN_RUN_JOB=1
 WAIT_FOR_TERMINATION=0
 RUN_DELETE_WAREHOUSE=0
 
@@ -105,7 +105,7 @@ args[22]="--hudi-file-max-size=134217728" #1 GB: 1073741824, 128 MB: 134217728
 # use merge on read for writing hudi files (use copy on write otherwise)
 args[23]="--hudi-merge-on-read=true"
 # enable compaction by default for merge on read tables
-args[24]="--hudi-mor-default-compaction=false"
+args[24]="--hudi-mor-default-compaction=true"
 
 # force compaction between tests for merge on read tables
 args[25]="--hudi-mor-force-compaction=false"
