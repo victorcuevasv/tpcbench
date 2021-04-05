@@ -44,8 +44,8 @@ def processAddLine(line, output, experiment, step) :
     records = addedJSON["add"]["stats"]["numRecords"]
     size = addedJSON["add"]["size"]
     partition = addedJSON["add"]["partitionValues"]["ss_sold_date_sk"]
-    output.write(experiment + " | " + str(step) + " | " + "add" + " | " + path + " | " + str(records) 
-                 + " | " + str(size) + " | " + str(partition) + "\n")
+    output.write(experiment + "|" + str(step) + "|" + "add" + "|" + path + "|" + str(records) 
+                 + "|" + str(size) + "|" + str(partition) + "\n")
     
 def processRemoveLine(line, output, experiment, step) :
     global removed
@@ -56,12 +56,12 @@ def processRemoveLine(line, output, experiment, step) :
     records = 0
     size = removedJSON["remove"]["size"]
     partition = removedJSON["remove"]["partitionValues"]["ss_sold_date_sk"]
-    output.write(experiment + " | " + str(step) + " | " + "remove" + " | " + path + " | " + str(records) 
-                 + " | " + str(size) + " | " + str(partition) + "\n")
+    output.write(experiment + "|" + str(step) + "|" + "remove" + "|" + path + "|" + str(records) 
+                 + "|" + str(size) + "|" + str(partition) + "\n")
 
 
-output = open("log.txt", "w")
-output.write("experiment | step | operation | path | records | size | partition\n")
+output = open("log.csv", "w")
+output.write("experiment|step|operation|path|records|size|partition\n")
 step = 0
 for file in os.listdir(experiment):
     current = os.path.join(experiment, file)

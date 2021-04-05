@@ -1,0 +1,52 @@
+-- Table containing the file operations as read from the CSV
+CREATE TABLE iceberg_filelog_stage(
+	experiment varchar(200),
+	step int,
+	addedDataFiles int,
+	deletedDataFiles int,
+    addedRecords int,
+    deletedRecords int,
+    addedFilesSize bigint,
+    removedFilesSize bigint,
+    changedPartitionCount int,
+    totalRecords int,
+    totalDataFiles int,
+    totalDeleteFiles int,
+);
+
+
+-- Load the file operations from the CSV
+COPY iceberg_filelog_stage
+FROM 'C:\Users\bscuser\Desktop\icebergLog.csv'
+DELIMITER '|'
+CSV HEADER;
+
+
+
+--Query to summarize the state of the table after each operation
+
+SELECT step AS state,
+	totalDataFiles AS "Total data files",
+	totalDeleteFiles AS "Total delete files",
+	totalRecords AS "Total records"
+FROM iceberg_filelog_stage;
+
+--Query to summarize the changes induced by each operation
+
+
+SELECT step AS step,
+	addedDataFiles AS "Added files",
+	deletedDataFiles AS "Deleted files",
+	addedRecords AS "Added records",
+	deletedRecords AS "Deleted records",
+	ROUND(addedFilesSize/(1024*1024*1024), 2) AS "Total data written (GB)",
+	ROUND(removedFilesSize/(1024*1024*1024), 2) AS "Total data deleted (GB)",
+	changedPartitionCount AS "Partitions updated"
+FROM iceberg_filelog_stage;
+
+
+
+
+
+
+
