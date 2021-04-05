@@ -4,14 +4,14 @@ CREATE TABLE iceberg_filelog_stage(
 	step int,
 	addedDataFiles int,
 	deletedDataFiles int,
-    addedRecords int,
+    addedRecords bigint,
     deletedRecords int,
     addedFilesSize bigint,
     removedFilesSize bigint,
     changedPartitionCount int,
-    totalRecords int,
+    totalRecords bigint,
     totalDataFiles int,
-    totalDeleteFiles int,
+    totalDeleteFiles int
 );
 
 
@@ -39,8 +39,8 @@ SELECT step AS step,
 	deletedDataFiles AS "Deleted files",
 	addedRecords AS "Added records",
 	deletedRecords AS "Deleted records",
-	ROUND(addedFilesSize/(1024*1024*1024), 2) AS "Total data written (GB)",
-	ROUND(removedFilesSize/(1024*1024*1024), 2) AS "Total data deleted (GB)",
+	ROUND(addedFilesSize/(1024*1024*1024*1.0), 2) AS "Total data written (GB)",
+	ROUND(removedFilesSize/(1024*1024*1024*1.0), 2) AS "Total data deleted (GB)",
 	changedPartitionCount AS "Partitions updated"
 FROM iceberg_filelog_stage;
 
