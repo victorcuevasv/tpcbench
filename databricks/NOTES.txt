@@ -1,3 +1,11 @@
+#Enable sftp access (works with WinSCP client)
+
+Create a cluster, login via ssh and use the following commands:
+
+sudo apt-get purge openssh-client -y
+sudo apt install openssh-server -y
+sudo systemctl restart ssh
+
 
 #SSH access to the cluster master node (does not work, has to be enabled in AWS).
 
