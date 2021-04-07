@@ -1,0 +1,17 @@
+import org.apache.iceberg.Table
+import org.apache.iceberg.catalog.TableIdentifier
+import org.apache.iceberg.hive.HiveCatalog
+import org.apache.iceberg.Actions
+
+val tableId = TableIdentifier.of("tpcds_sparkemr_620_1gb_1_1617821720icebtest", "store_sales_denorm_iceberg")
+val table = catalog.loadTable(tableId);
+val catalog = new HiveCatalog(spark.sparkContext.hadoopConfiguration)
+//Rewrite with a size of 100 mb
+Actions.forTable(table).rewriteDataFiles().targetSizeInBytes(100 * 1024 * 1024).execute()
+
+//Expire commits older than a given timestamp (note that the supplied value is a long)
+table.expireSnapshots().expireOlderThan(1617829183372L).commit()
+
+//Call a maintenance function (spark_catalog is set as a Spark conf)
+spark.sql("CALL spark_catalog.system.rollback_to_snapshot('store_sales_denorm_iceberg', 9168233251967364780)").collect().foreach(println)
+
