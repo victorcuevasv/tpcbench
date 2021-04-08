@@ -193,8 +193,10 @@ public class UpdateDatabaseSparkDeleteTest {
 			if( this.doCount )
 				countRowsQuery(denormDeltaIcebergTableName);
 			queryRecord = new QueryRecord(index);
-			index += 1;
-			queryRecordRewrite = new QueryRecord(index);
+			if( this.format.equals("iceberg")) {
+				index += 1;
+				queryRecordRewrite = new QueryRecord(index);
+			}
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(mergeSql);
 			queryRecord.setSuccessful(true);

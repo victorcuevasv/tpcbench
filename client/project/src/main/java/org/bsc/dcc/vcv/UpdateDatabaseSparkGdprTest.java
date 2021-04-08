@@ -195,13 +195,15 @@ public class UpdateDatabaseSparkGdprTest {
 				countRowsQuery(tableName + "_denorm_" + this.format);
 			saveCreateTableFile(this.format + "gdpr", tableName, sqlQuery);
 			queryRecord = new QueryRecord(index);
+			if( this.format.equals("iceberg")) {
+				index += 1;
+				queryRecordRewrite = new QueryRecord(index);
+			}
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(sqlQuery);
 			queryRecord.setSuccessful(true);
 			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.format.equals("iceberg")) {
-				index += 1;
-				queryRecordRewrite = new QueryRecord(index);
 				queryRecordRewrite.setStartTime(System.currentTimeMillis());
 				IcebergUtil icebergUtil = new IcebergUtil();
 				long fileSize = Long.parseLong(this.hudiFileSize);
