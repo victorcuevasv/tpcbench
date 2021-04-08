@@ -3,15 +3,17 @@
 
 spark-shell --packages "org.apache.iceberg:iceberg-spark3-runtime:0.11.0" --conf "spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions" --conf "spark.sql.catalog.spark_catalog=org.apache.iceberg.spark.SparkSessionCatalog" --conf "spark.sql.catalog.spark_catalog.type=hive" --jars "/usr/lib/spark/jars/iceberg-spark3-runtime-0.11.0.jar"  
 
+spark.sql("use tpcds_sparkemr_620_1000gb_1_1616932275icebtest").collect().foreach(println)
 
 import org.apache.iceberg.Table
 import org.apache.iceberg.catalog.TableIdentifier
 import org.apache.iceberg.hive.HiveCatalog
-import org.apache.iceberg.Actions
+import org.apache.iceberg.actions.Actions
 
-val tableId = TableIdentifier.of("tpcds_sparkemr_620_1gb_1_1617821720icebtest", "store_sales_denorm_iceberg")
-val table = catalog.loadTable(tableId);
+val tableId = TableIdentifier.of("tpcds_sparkemr_620_1000gb_1_1616932275icebtest", "store_sales_denorm_iceberg")
 val catalog = new HiveCatalog(spark.sparkContext.hadoopConfiguration)
+val table = catalog.loadTable(tableId);
+
 //Rewrite with a size of 100 mb
 Actions.forTable(table).rewriteDataFiles().targetSizeInBytes(100 * 1024 * 1024).execute()
 
@@ -30,4 +32,5 @@ val duration = (System.nanoTime - t1) / 1e9d
 print(duration)
 
 
+duration: Double = 736.934318986
 

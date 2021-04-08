@@ -152,11 +152,10 @@ public class UpdateDatabaseSparkDeleteTest {
 			}
 			for(int j = 0; j < this.fractions.length; j++) {
 				if( this.format.equals("delta") || this.format.equals("iceberg"))
-					deleteFromDeltaIcebergTable(fileName, i, j);
+					i = deleteFromDeltaIcebergTable(fileName, i, j);
 				else if( this.format.equals("hudi") )
-					deleteFromHudiTable(fileName, i, j);
+					i = deleteFromHudiTable(fileName, i, j);
 			}
-			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
 		//	this.closeConnection();
@@ -178,8 +177,9 @@ public class UpdateDatabaseSparkDeleteTest {
 	}
 	
 	
-	private void deleteFromDeltaIcebergTable(String sqlCreateFilename, int index, int fractionIndex) {
+	private int deleteFromDeltaIcebergTable(String sqlCreateFilename, int index, int fractionIndex) {
 		QueryRecord queryRecord = null;
+		QueryRecord queryRecordRewrite = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			String denormTableName = tableName + "_denorm";
@@ -198,6 +198,16 @@ public class UpdateDatabaseSparkDeleteTest {
 			this.spark.sql(mergeSql);
 			queryRecord.setSuccessful(true);
 			queryRecord.setEndTime(System.currentTimeMillis());
+			if( this.format.equals("iceberg")) {
+				index += 1;
+				queryRecordRewrite = new QueryRecord(index);
+				queryRecordRewrite.setStartTime(System.currentTimeMillis());
+				IcebergUtil icebergUtil = new IcebergUtil();
+				long fileSize = Long.parseLong(this.hudiFileSize);
+				icebergUtil.rewriteData(this.spark, this.dbName, tableName, fileSize);
+				queryRecordRewrite.setSuccessful(true);
+				queryRecordRewrite.setEndTime(System.currentTimeMillis());
+			}
 			if( this.doCount )
 				countRowsQuery(denormDeltaIcebergTableName);
 		}
@@ -211,11 +221,15 @@ public class UpdateDatabaseSparkDeleteTest {
 			if( queryRecord != null ) {
 				this.recorder.record(queryRecord);
 			}
+			if( this.format.equals("iceberg") && queryRecordRewrite != null ) {
+				this.recorder.record(queryRecordRewrite);
+			}
 		}
+		return index + 1;
 	}
 	
 	
-	private void deleteFromHudiTable(String sqlCreateFilename, int index, int fractionIndex) {
+	private int deleteFromHudiTable(String sqlCreateFilename, int index, int fractionIndex) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
@@ -277,6 +291,7 @@ public class UpdateDatabaseSparkDeleteTest {
 				this.recorder.record(queryRecord);
 			}
 		}
+		return index + 1;
 	}
 	
 	

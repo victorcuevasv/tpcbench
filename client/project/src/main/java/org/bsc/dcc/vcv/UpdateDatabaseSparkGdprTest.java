@@ -156,12 +156,10 @@ public class UpdateDatabaseSparkGdprTest {
 				}
 			}
 			if( this.format.equals("delta") || this.format.equals("iceberg")) {
-				deleteFromTableDeltaIceberg(fileName, sqlQuery, i);
-				i++;
+				i = deleteFromTableDeltaIceberg(fileName, sqlQuery, i);
 			}
 			else if( this.format.equals("hudi") ) {
-				deleteFromTableHudi(fileName, sqlQuery, i);
-				i += 2;
+				i = deleteFromTableHudi(fileName, sqlQuery, i);
 			}
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -184,8 +182,9 @@ public class UpdateDatabaseSparkGdprTest {
 	}
 	
 	
-	private void deleteFromTableDeltaIceberg(String sqlFilename, String sqlQuery, int index) {
+	private int deleteFromTableDeltaIceberg(String sqlFilename, String sqlQuery, int index) {
 		QueryRecord queryRecord = null;
+		QueryRecord queryRecordRewrite = null;
 		try {
 			sqlQuery = sqlQuery.replace("<CUSTOMER_SK>", this.customerSK);
 			sqlQuery = sqlQuery.replace("<FORMAT>", this.format);
@@ -194,12 +193,22 @@ public class UpdateDatabaseSparkGdprTest {
 			this.logger.info("Processing table " + index + ": " + tableName);
 			if( this.doCount )
 				countRowsQuery(tableName + "_denorm_" + this.format);
+			saveCreateTableFile(this.format + "gdpr", tableName, sqlQuery);
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
 			this.spark.sql(sqlQuery);
 			queryRecord.setSuccessful(true);
 			queryRecord.setEndTime(System.currentTimeMillis());
-			saveCreateTableFile(this.format + "gdpr", tableName, sqlQuery);
+			if( this.format.equals("iceberg")) {
+				index += 1;
+				queryRecordRewrite = new QueryRecord(index);
+				queryRecordRewrite.setStartTime(System.currentTimeMillis());
+				IcebergUtil icebergUtil = new IcebergUtil();
+				long fileSize = Long.parseLong(this.hudiFileSize);
+				icebergUtil.rewriteData(this.spark, this.dbName, tableName, fileSize);
+				queryRecordRewrite.setSuccessful(true);
+				queryRecordRewrite.setEndTime(System.currentTimeMillis());
+			}
 			if( this.doCount )
 				countRowsQuery(tableName + "_denorm_" + this.format);
 		}
@@ -213,11 +222,15 @@ public class UpdateDatabaseSparkGdprTest {
 			if( queryRecord != null ) {
 				this.recorder.record(queryRecord);
 			}
+			if( this.format.equals("iceberg") && queryRecordRewrite != null ) {
+				this.recorder.record(queryRecordRewrite);
+			}
 		}
+		return index + 1;
 	}
 	
 	
-	private void deleteFromTableHudi(String sqlFilename, String sqlQuery, int index) {
+	private int deleteFromTableHudi(String sqlFilename, String sqlQuery, int index) {
 		QueryRecord queryRecord1 = null;
 		QueryRecord queryRecord2 = null;
 		try {
@@ -306,6 +319,7 @@ public class UpdateDatabaseSparkGdprTest {
 				this.recorder.record(queryRecord2);
 			}
 		}
+		return index + 2;
 	}
 	
 	

@@ -224,7 +224,7 @@ public class UpdateDatabaseSparkInsUpdTest {
 				this.recorder.record(queryRecordRewrite);
 			}
 		}
-		return index;
+		return index + 1;
 	}
 	
 	
@@ -287,7 +287,7 @@ public class UpdateDatabaseSparkInsUpdTest {
 				this.recorder.record(queryRecord);
 			}
 		}
-		return index;
+		return index + 1;
 	}
 	
 	
