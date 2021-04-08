@@ -203,7 +203,7 @@ public class UpdateDatabaseSparkInsUpdTest {
 				queryRecordRewrite.setStartTime(System.currentTimeMillis());
 				IcebergUtil icebergUtil = new IcebergUtil();
 				long fileSize = Long.parseLong(this.hudiFileSize);
-				icebergUtil.rewriteData(this.spark, this.dbName, tableName, fileSize);
+				icebergUtil.rewriteData(this.spark, this.dbName, denormDeltaIcebergTableName, fileSize);
 				queryRecordRewrite.setSuccessful(true);
 				queryRecordRewrite.setEndTime(System.currentTimeMillis());
 			}

@@ -205,7 +205,8 @@ public class UpdateDatabaseSparkGdprTest {
 				queryRecordRewrite.setStartTime(System.currentTimeMillis());
 				IcebergUtil icebergUtil = new IcebergUtil();
 				long fileSize = Long.parseLong(this.hudiFileSize);
-				icebergUtil.rewriteData(this.spark, this.dbName, tableName, fileSize);
+				icebergUtil.rewriteData(this.spark, this.dbName, tableName + "_denorm_" + this.format,
+						fileSize);
 				queryRecordRewrite.setSuccessful(true);
 				queryRecordRewrite.setEndTime(System.currentTimeMillis());
 			}
