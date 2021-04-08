@@ -12,7 +12,7 @@ public class IcebergUtil {
 		
 	}
 	
-	public void rewriteData(SparkSession spark, String dbName, String tableName, int sizeInMB) {
+	public void rewriteData(SparkSession spark, String dbName, String tableName, long sizeInBytes) {
 		TableIdentifier tableId = TableIdentifier.of(dbName, tableName);
 		HiveCatalog catalog = new HiveCatalog(spark.sparkContext().hadoopConfiguration());
 		Table table = catalog.loadTable(tableId);
