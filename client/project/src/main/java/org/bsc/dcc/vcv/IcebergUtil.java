@@ -8,7 +8,7 @@ import org.apache.iceberg.actions.Actions;
 
 public class IcebergUtil {
 	
-	public IcebrgUtil() {
+	public IcebergUtil() {
 		
 	}
 	
