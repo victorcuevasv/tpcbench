@@ -178,6 +178,7 @@
 						<exclude>org/bsc/dcc/vcv/HudiPrecombineKeys.java</exclude>
 						<exclude>org/bsc/dcc/vcv/HudiPrimaryKeys.java</exclude>
 						<exclude>org/bsc/dcc/vcv/HudiUtil.java</exclude>
+						<exclude>org/bsc/dcc/vcv/IcebergUtil.java</exclude>
 						<exclude>org/bsc/dcc/vcv/JavaSparkHiveExample.java</exclude>
 						<exclude>org/bsc/dcc/vcv/JavaSparkPiExample.java</exclude>
 						<exclude>org/bsc/dcc/vcv/QueryStreamSpark.java</exclude>
