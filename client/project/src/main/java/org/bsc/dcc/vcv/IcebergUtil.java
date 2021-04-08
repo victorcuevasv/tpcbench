@@ -17,7 +17,7 @@ public class IcebergUtil {
 		HiveCatalog catalog = new HiveCatalog(spark.sparkContext().hadoopConfiguration());
 		Table table = catalog.loadTable(tableId);
 		//Rewrite with a size of 100 mb
-		Actions.forTable(table).rewriteDataFiles().targetSizeInBytes(sizeInMB * 1024 * 1024).execute();
+		Actions.forTable(table).rewriteDataFiles().targetSizeInBytes(sizeInBytes).execute();
 	}
 
 }
