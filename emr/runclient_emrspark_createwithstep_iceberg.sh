@@ -25,9 +25,7 @@ Version="6.2.0"
 VersionShort="620"
 AutoTerminate="true"
 #Run configuration.
-#Tag="$(date +%s)icebtest"
-#Tag="1616003058icebtest"
-Tag="1616458849icebtest"
+Tag="$(date +%s)icebtest"
 ExperimentName="sparkemr-${VersionShort}-${Nodes}nodes-$1gb-$Tag"
 DirNameWarehouse="tpcds-warehouse-sparkemr-${VersionShort}-$1gb-$2-$Tag"
 DirNameResults="sparkemr-${VersionShort}-test"
@@ -81,8 +79,7 @@ args[15]="--number-of-streams=$3"
 # zorder      |zorder update |read test 1 |insupd test    |read test 2    |
 # delete test |read test 3   |gdpr        |read test 4    |power          |
 # tput
-#args[16]="--execution-flags=111111100000111111100"
-args[16]="--execution-flags=000000100000111111100"
+args[16]="--execution-flags=111111100000111111100"
 # count-queries
 args[17]="--count-queries=false"
 # all or denorm table file
@@ -107,8 +104,10 @@ args[25]="--hudi-mor-force-compaction=false"
 args[26]="--datesk-gt-threshold=2452459"
 # use a filter attribute and value for denormalization
 args[27]="--denorm-with-filter=false"
+# add a distribute by clause when using partitioning
+args[28]="--partition-with-distribute-by=true"
 # column-storage format for the update tests (hudi, iceberg)
-args[28]="--update-table-format=iceberg"
+args[29]="--update-table-format=iceberg"
 
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
