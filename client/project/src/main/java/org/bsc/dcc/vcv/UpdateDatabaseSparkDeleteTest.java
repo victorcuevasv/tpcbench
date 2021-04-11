@@ -193,7 +193,7 @@ public class UpdateDatabaseSparkDeleteTest {
 			if( this.doCount )
 				countRowsQuery(denormDeltaIcebergTableName);
 			queryRecord = new QueryRecord(index);
-			if( this.format.equals("iceberg")) {
+			if( this.format.equals("iceberg") && fractionIndex == (this.fractions.length - 1) ) {
 				index += 1;
 				queryRecordRewrite = new QueryRecord(index);
 			}
@@ -201,7 +201,7 @@ public class UpdateDatabaseSparkDeleteTest {
 			this.spark.sql(mergeSql);
 			queryRecord.setSuccessful(true);
 			queryRecord.setEndTime(System.currentTimeMillis());
-			if( this.format.equals("iceberg")) {
+			if( this.format.equals("iceberg") && fractionIndex == (this.fractions.length - 1) ) {
 				queryRecordRewrite.setStartTime(System.currentTimeMillis());
 				IcebergUtil icebergUtil = new IcebergUtil();
 				long fileSize = Long.parseLong(this.hudiFileSize);
