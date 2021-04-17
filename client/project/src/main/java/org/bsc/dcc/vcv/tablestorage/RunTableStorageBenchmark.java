@@ -123,6 +123,28 @@ public class RunTableStorageBenchmark {
 				System.out.println("\n\n\nRunning the LOAD DENORM SKIP test.\n\n\n");
 				CreateDatabaseDenormSkip.main(argsCopy);
 			}
+			boolean doInsertData = this.flags.charAt(5) == '1' ? true : false;
+			if( doInsertData ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=insertdata"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "insertdata");
+				System.out.println("\n\n\nRunning the CREATE INSERT DATA test.\n\n\n");
+				CreateDatabaseInsertData.main(argsCopy);
+			}
+			boolean doDeleteData = this.flags.charAt(6) == '1' ? true : false;
+			if( doDeleteData ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=deletedata"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "deletedata");
+				System.out.println("\n\n\nRunning the CREATE DELETE DATA test.\n\n\n");
+				//CreateDatabaseDeleteData.main(argsCopy);
+			}
 			/*
 			if( this.system.equals("sparkemr")  ) {
 				this.executeCommand("aws s3 cp --recursive " + this.workDir + "/" + this.resultsDir + "/ " +

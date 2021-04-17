@@ -104,7 +104,7 @@ public class CreateDatabaseInsertData extends CreateDatabaseDenormETLTask {
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStatementSnowflake(tableNameRoot, 
 						denormTableName, insertTableName);
-			saveCreateTableFile("denormskip", tableNameRoot, sqlCreate);
+			saveCreateTableFile("insertcreate", tableNameRoot, sqlCreate);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
@@ -152,29 +152,19 @@ public class CreateDatabaseInsertData extends CreateDatabaseDenormETLTask {
 	
 	
 	private String createUpdatesExpression(String denormTableName, String partKey, String skipAtt) {
-		String expr = null;
-		try {
-			String columnsStr = getColumnNames(denormTableName);
-			String columnsStrUpd = columnsStr.replace("s_quantity", "s_quantity + 1");
-			StringBuilder builder = new StringBuilder();
-			builder.append(
-					"( SELECT \n" +
-					 columnsStrUpd + "\n" +
-					 "FROM " + denormTableName + "\n" +
-					 "WHERE MOD(" + partKey + ", " + UpdateMods.firstMod + ") = 1 \n"
-					 );
-					 if( this.dateskThreshold != -1 )
-							builder.append("AND " + partKey + " > " + this.dateskThreshold + "\n");
-			builder.append("AND MOD(" + skipAtt + ", " + UpdateMods.secondMod + ") = 0 ) \n");
-			expr = builder.toString();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseInsertData createUpdatesExpression.");
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-		}
-		return expr;
+		String columnsStr = getColumnNames(denormTableName);
+		String columnsStrUpd = columnsStr.replace("s_quantity", "s_quantity + 1");
+		StringBuilder builder = new StringBuilder();
+		builder.append(
+				"( SELECT \n" +
+				 columnsStrUpd + "\n" +
+				 "FROM " + denormTableName + "\n" +
+				 "WHERE MOD(" + partKey + ", " + UpdateMods.firstMod + ") = 1 \n"
+				 );
+				 if( this.dateskThreshold != -1 )
+						builder.append("AND " + partKey + " > " + this.dateskThreshold + "\n");
+		builder.append("AND MOD(" + skipAtt + ", " + UpdateMods.secondMod + ") = 0 ) \n");
+		return builder.toString();
 	}
 	
 	
