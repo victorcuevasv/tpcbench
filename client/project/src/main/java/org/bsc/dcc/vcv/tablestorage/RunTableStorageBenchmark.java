@@ -143,7 +143,18 @@ public class RunTableStorageBenchmark {
 						.toArray(new String[0]);
 				this.saveTestParameters(argsCopy, "deletedata");
 				System.out.println("\n\n\nRunning the CREATE DELETE DATA test.\n\n\n");
-				//CreateDatabaseDeleteData.main(argsCopy);
+				CreateDatabaseDeleteData.main(argsCopy);
+			}
+			boolean doUpdate = this.flags.charAt(7) == '1' ? true : false;
+			if( doUpdate ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=loadupdate"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "loadupdate");
+				System.out.println("\n\n\nRunning the CREATE LOAD UPDATE test.\n\n\n");
+				CreateDatabaseDenormUpdate.main(argsCopy);
 			}
 			/*
 			if( this.system.equals("sparkemr")  ) {

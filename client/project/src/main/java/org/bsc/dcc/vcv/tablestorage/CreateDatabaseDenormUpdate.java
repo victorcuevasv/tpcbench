@@ -26,16 +26,16 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseDenormSkip extends CreateDatabaseDenormETLTask {
+public class CreateDatabaseDenormUpdate extends CreateDatabaseDenormETLTask {
 	
 	
-	public CreateDatabaseDenormSkip(CommandLine commandLine) {	
+	public CreateDatabaseDenormUpdate(CommandLine commandLine) {
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseDenormSkip application = null;
+		CreateDatabaseDenormUpdate application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
@@ -45,12 +45,12 @@ public class CreateDatabaseDenormSkip extends CreateDatabaseDenormETLTask {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseDenormSkip main.");
+			logger.error("Error in CreateDatabaseDenormUpdate main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseDenormSkip(commandLine);
+		application = new CreateDatabaseDenormUpdate(commandLine);
 		application.doTask();
 	}
 	
@@ -73,7 +73,7 @@ public class CreateDatabaseDenormSkip extends CreateDatabaseDenormETLTask {
 					continue;
 				}
 			}
-			denormskip(fileName, i);
+			loadupdate(fileName, i);
 			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -83,21 +83,26 @@ public class CreateDatabaseDenormSkip extends CreateDatabaseDenormETLTask {
 	}
 	
 	
-	private void denormskip(String sqlCreateFilename, int index) {
+	private void loadupdate(String sqlCreateFilename, int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableNameRoot = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
 			System.out.println("Processing table " + index + ": " + tableNameRoot);
 			this.logger.info("Processing table " + index + ": " + tableNameRoot);
-			String tableName = tableNameRoot + "_denorm_skip";
+			String suffix = null;
+			if( this.system.contains("spark") || this.system.contains("databricks") )
+				suffix = "delta";
+			else
+				suffix = "update";
+			String tableName = tableNameRoot + "_denorm_" + suffix;
 			this.dropTable("drop table if exists " + tableName);
 			String sqlCreate = null;
 			if( this.system.contains("spark") || this.system.contains("databricks") )
-				sqlCreate = this.createTableStatementDatabricks(tableNameRoot, this.format,
+				sqlCreate = this.createTableStmtDatabricks(tableNameRoot,
 					this.extTablePrefixCreated);
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStatementSnowflake(tableNameRoot);
-			saveCreateTableFile("denormskip", tableNameRoot, sqlCreate);
+			saveCreateTableFile("loadupdate", tableNameRoot, sqlCreate);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
@@ -109,7 +114,7 @@ public class CreateDatabaseDenormSkip extends CreateDatabaseDenormETLTask {
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseDenormSkip denormskip.");
+			this.logger.error("Error in CreateDatabaseDenormUpdate loadupdate.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -121,51 +126,29 @@ public class CreateDatabaseDenormSkip extends CreateDatabaseDenormETLTask {
 	}
 	
 	
-	private String createTableStatementDatabricks(String tableNameRoot, String format,
+	private String createTableStmtDatabricks(String tableNameRoot,
 			Optional<String> extTablePrefixCreated) {
-		String skipAtt = this.skipKeys.get(tableNameRoot);
 		String partCol = null;
 		int posPart = Arrays.asList(Partitioning.tables).indexOf(tableNameRoot);
 		if( posPart != -1 )
 			partCol = Partitioning.partKeys[posPart];
-		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableNameRoot + "_denorm_skip \n");
-		builder.append("USING " + format + "\n");
-		if( format.equals("parquet") )
-			builder.append("OPTIONS ('compression'='snappy') \n");
+		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableNameRoot + "_denorm_delta \n");
+		builder.append("USING DELTA \n");
 		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableNameRoot + 
-				"_denorm_skip" + " '\n");
+				"_denorm_delta" + " '\n");
 		if( this.partition ) {
 				builder.append("PARTITIONED BY (" + partCol + ") \n" );
 		}
 		builder.append("AS \n");
-		builder.append("SELECT * FROM " + tableNameRoot + "_denorm \n");
-		builder.append(
-				"WHERE MOD(" + partCol + ", " + SkipMods.firstMod + ") <> 0 \n");
-		if( this.dateskThreshold != -1 )
-			builder.append("OR " + partCol + " <= " + this.dateskThreshold + "\n");
-		builder.append(
-				"OR MOD(" + skipAtt + ", " + SkipMods.secondMod + ") <> 0 \n");
-		if( this.partition && this.partitionWithDistrubuteBy )
-				builder.append("DISTRIBUTE BY " + partCol + " \n" );
+		builder.append("SELECT * FROM " + tableNameRoot + "_denorm_skip \n");
 		return builder.toString();
 	}
 	
 	
 	private String createTableStatementSnowflake(String tableNameRoot) {
-		String skipAtt = this.skipKeys.get(tableNameRoot);
-		String partCol = null;
-		int posPart = Arrays.asList(Partitioning.tables).indexOf(tableNameRoot);
-		if( posPart != -1 )
-			partCol = Partitioning.partKeys[posPart];
-		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableNameRoot + "_denorm_skip \n");
+		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableNameRoot + "_denorm_update \n");
 		builder.append("AS \n");
-		builder.append("SELECT * FROM " + tableNameRoot + "_denorm \n");
-		builder.append(
-				"WHERE MOD(" + partCol + ", " + SkipMods.firstMod + ") <> 0 \n");
-		if( this.dateskThreshold != -1 )
-			builder.append("OR " + partCol + " <= " + this.dateskThreshold + "\n");
-		builder.append(
-				"OR MOD(" + skipAtt + ", " + SkipMods.secondMod + ") <> 0 \n");
+		builder.append("SELECT * FROM " + tableNameRoot + "_denorm_skip \n");
 		return builder.toString();
 	}
 	
