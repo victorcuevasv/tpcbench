@@ -124,7 +124,7 @@ public class UpdateDatabaseReadTest extends CreateDatabaseDenormETLTask {
 			queryRecord.setSuccessful(true);
 			queryRecord.setEndTime(System.currentTimeMillis());
 		}
-		catch (SQLException e) {
+		catch (SQLException | IOException e) {
 			e.printStackTrace();
 			this.logger.error("Error in UpdateDatabaseReadTest readtestQuery.");
 			this.logger.error(e);
