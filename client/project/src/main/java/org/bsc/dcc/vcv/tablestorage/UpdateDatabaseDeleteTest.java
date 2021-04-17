@@ -27,16 +27,20 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class UpdateDatabaseInsUpdTest extends CreateDatabaseDenormETLTask {
+public class UpdateDatabaseDeleteTest extends CreateDatabaseDenormETLTask {
 	
 	
-	public UpdateDatabaseInsUpdTest(CommandLine commandLine) {
+	private final double[] fractions = {0.1, 1.0, 10.0};
+	private final String[] deleteSuffix = {"pointone", "one", "ten"};
+	
+	
+	public UpdateDatabaseDeleteTest(CommandLine commandLine) {
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		UpdateDatabaseInsUpdTest application = null;
+		UpdateDatabaseDeleteTest application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
@@ -46,12 +50,12 @@ public class UpdateDatabaseInsUpdTest extends CreateDatabaseDenormETLTask {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in UpdateDatabaseInsUpdTest main.");
+			logger.error("Error in UpdateDatabaseDeleteTest main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new UpdateDatabaseInsUpdTest(commandLine);
+		application = new UpdateDatabaseDeleteTest(commandLine);
 		application.doTask();
 	}
 	
@@ -74,7 +78,8 @@ public class UpdateDatabaseInsUpdTest extends CreateDatabaseDenormETLTask {
 					continue;
 				}
 			}
-			insupdtest(fileName, i);
+			for(int j = 0; j < this.fractions.length; j++)
+				deletetest(fileName, i, j);
 			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -84,7 +89,7 @@ public class UpdateDatabaseInsUpdTest extends CreateDatabaseDenormETLTask {
 	}
 	
 	
-	private void insupdtest(String sqlCreateFilename, int index) {
+	private void deletetest(String sqlCreateFilename, int index, int fractionIndex) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableNameRoot = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
@@ -96,13 +101,14 @@ public class UpdateDatabaseInsUpdTest extends CreateDatabaseDenormETLTask {
 			else
 				suffix = "update";
 			String denormUpdateTableName = tableNameRoot + "_denorm_" + suffix;
-			String insertTableName = tableNameRoot + "_denorm_" + "_insert_ten";
+			String deleteTableName = tableNameRoot + "_denorm_" + "_delete_" + 
+					this.deleteSuffix[fractionIndex];
 			String sqlMerge = null;
 			if( this.system.contains("spark") || this.system.contains("databricks")
 					|| this.system.startsWith("snowflake") )
 				sqlMerge = this.createMergeSQL(tableNameRoot,
-						denormUpdateTableName, insertTableName);
-			saveCreateTableFile("insupdtest", tableNameRoot, sqlMerge);
+						denormUpdateTableName, deleteTableName);
+			saveCreateTableFile("deletetest", tableNameRoot, sqlMerge);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
@@ -114,7 +120,7 @@ public class UpdateDatabaseInsUpdTest extends CreateDatabaseDenormETLTask {
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
-			this.logger.error("Error in UpdateDatabaseInsUpdTest insupdtest.");
+			this.logger.error("Error in UpdateDatabaseDeleteTest deletetest.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -127,24 +133,23 @@ public class UpdateDatabaseInsUpdTest extends CreateDatabaseDenormETLTask {
 	
 	
 	private String createMergeSQL(String tableNameRoot, String denormUpdateTableName, 
-			String insUpdTableName) {
+			String deleteTableName) {
 		String partKey = 
 				Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableNameRoot)];
 		String primaryKeyFull = this.primaryKeys.get(tableNameRoot);
 		StringTokenizer tokenizer = new StringTokenizer(primaryKeyFull, ",");
-		String primaryKey = tokenizer.nextToken().trim();
+		String primaryKey = tokenizer.nextToken();
 		String primaryKeyComp = null;
 		if( tokenizer.hasMoreTokens() )
-			primaryKeyComp = tokenizer.nextToken().trim();
+			primaryKeyComp = tokenizer.nextToken();
 		StringBuilder builder = new StringBuilder();
 		builder.append("MERGE INTO " + denormUpdateTableName + " AS a \n");
-		builder.append("USING " + insUpdTableName + " AS b \n");
+		builder.append("USING " + deleteTableName + " AS b \n");
 		builder.append("ON a." + partKey + " = b." + partKey + "\n");
 		builder.append("AND a." + primaryKey + " = b." + primaryKey + "\n");
 		if( primaryKeyComp != null )
 			builder.append("AND a." + primaryKeyComp + " = b." + primaryKeyComp + "\n");
-		builder.append("WHEN MATCHED THEN UPDATE SET * \n");
-		builder.append("WHEN NOT MATCHED THEN INSERT * \n");
+		builder.append("WHEN MATCHED THEN DELETE \n");
 		return builder.toString();
 	}
 	
