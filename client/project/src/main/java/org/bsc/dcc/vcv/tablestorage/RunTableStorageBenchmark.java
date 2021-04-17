@@ -156,6 +156,39 @@ public class RunTableStorageBenchmark {
 				System.out.println("\n\n\nRunning the CREATE LOAD UPDATE test.\n\n\n");
 				CreateDatabaseDenormUpdate.main(argsCopy);
 			}
+			boolean doInsUpdTest = this.flags.charAt(8) == '1' ? true : false;
+			if( doInsUpdTest ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=insupdtest"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "insupdtest");
+				System.out.println("\n\n\nRunning the INSERT/UPDATE test.\n\n\n");
+				UpdateDatabaseInsUpdTest.main(argsCopy);
+			}
+			boolean doDeleteTest = this.flags.charAt(9) == '1' ? true : false;
+			if( doDeleteTest ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=deletetest"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "deletetest");
+				System.out.println("\n\n\nRunning the INSERT/UPDATE test.\n\n\n");
+				UpdateDatabaseDeleteTest.main(argsCopy);
+			}
+			boolean doGdprTest = this.flags.charAt(10) == '1' ? true : false;
+			if( doGdprTest ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=gdprtest"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "gdprtest");
+				System.out.println("\n\n\nRunning the GDPR test.\n\n\n");
+				UpdateDatabaseGdprTest.main(argsCopy);
+			}
 			/*
 			if( this.system.equals("sparkemr")  ) {
 				this.executeCommand("aws s3 cp --recursive " + this.workDir + "/" + this.resultsDir + "/ " +

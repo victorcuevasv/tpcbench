@@ -108,7 +108,7 @@ public class UpdateDatabaseDeleteTest extends CreateDatabaseDenormETLTask {
 					|| this.system.startsWith("snowflake") )
 				sqlMerge = this.createMergeSQL(tableNameRoot,
 						denormUpdateTableName, deleteTableName);
-			saveCreateTableFile("deletetest", tableNameRoot, sqlMerge);
+			saveCreateTableFile("deletemerge", deleteTableName, sqlMerge);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());

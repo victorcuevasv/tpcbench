@@ -82,6 +82,7 @@ public abstract class CreateDatabaseDenormETLTask {
 	private final boolean useCachedResultSnowflake = false;
 	protected final int dateskThreshold;
 	protected final Map<String, String> primaryKeys;
+	protected final String customerSK;
 	
 	
 	public CreateDatabaseDenormETLTask(CommandLine commandLine) {
@@ -131,6 +132,7 @@ public abstract class CreateDatabaseDenormETLTask {
 		String dateskThresholdStr = commandLine.getOptionValue("datesk-gt-threshold", "-1");
 		this.dateskThreshold = Integer.parseInt(dateskThresholdStr);
 		this.primaryKeys = new HudiPrimaryKeys().getMap();
+		this.customerSK = commandLine.getOptionValue("gdpr-customer-sk");
 		this.openConnection();
 	}
 	

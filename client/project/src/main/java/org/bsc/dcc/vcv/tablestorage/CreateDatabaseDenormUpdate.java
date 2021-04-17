@@ -102,7 +102,7 @@ public class CreateDatabaseDenormUpdate extends CreateDatabaseDenormETLTask {
 					this.extTablePrefixCreated);
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStatementSnowflake(tableNameRoot);
-			saveCreateTableFile("loadupdate", tableNameRoot, sqlCreate);
+			saveCreateTableFile(suffix + "denorm", tableNameRoot, sqlCreate);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
