@@ -27,6 +27,7 @@ import org.bsc.dcc.vcv.ClusterByKeys;
 import org.bsc.dcc.vcv.FilterKeys;
 import org.bsc.dcc.vcv.FilterValues;
 import org.bsc.dcc.vcv.HudiPrecombineKeys;
+import org.bsc.dcc.vcv.HudiPrimaryKeys;
 import org.bsc.dcc.vcv.JarCreateTableReaderAsZipFile;
 import org.bsc.dcc.vcv.SkipKeys;
 import org.apache.commons.cli.Option;
@@ -80,6 +81,7 @@ public abstract class CreateDatabaseDenormETLTask {
 	protected final Map<String, String> clusterByKeys;
 	private final boolean useCachedResultSnowflake = false;
 	protected final int dateskThreshold;
+	protected final Map<String, String> primaryKeys;
 	
 	
 	public CreateDatabaseDenormETLTask(CommandLine commandLine) {
@@ -128,6 +130,7 @@ public abstract class CreateDatabaseDenormETLTask {
 		this.clusterByKeys = new ClusterByKeys().getMap();
 		String dateskThresholdStr = commandLine.getOptionValue("datesk-gt-threshold", "-1");
 		this.dateskThreshold = Integer.parseInt(dateskThresholdStr);
+		this.primaryKeys = new HudiPrimaryKeys().getMap();
 		this.openConnection();
 	}
 	

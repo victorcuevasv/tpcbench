@@ -121,6 +121,7 @@
 						<exclude>org/bsc/dcc/vcv/tablestorage/CreateDatabaseDenormUpdate.java</exclude>
 						<exclude>org/bsc/dcc/vcv/tablestorage/CreateDatabaseInsertData.java</exclude>
 						<exclude>org/bsc/dcc/vcv/tablestorage/RunTableStorageBenchmark.java</exclude>
+						<exclude>org/bsc/dcc/vcv/tablestorage/UpdateDatabaseInsUpdTest.java</exclude>
 					</excludes>
 					<testExcludes>
         				<testExclude>org/bsc/dcc/vcv/RunBenchmarkOptionsTest.java</testExclude>
