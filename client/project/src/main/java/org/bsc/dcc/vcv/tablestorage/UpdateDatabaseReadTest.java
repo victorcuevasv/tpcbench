@@ -148,7 +148,7 @@ public class UpdateDatabaseReadTest extends CreateDatabaseDenormETLTask {
 	
 	
 	private int saveResults(String resFileName, ResultSet rs, boolean append) 
-			throws Exception {
+			throws SQLException, IOException {
 		File tmp = new File(resFileName);
 		tmp.getParentFile().mkdirs();
 		FileWriter fileWriter = new FileWriter(resFileName, append);
