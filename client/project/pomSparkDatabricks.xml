@@ -116,6 +116,8 @@
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseWritePartitionedTest3.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/CreateDatabaseWriteUnPartitionedTest2.java</exclude>
 						<exclude>org/bsc/dcc/vcv/etl/RunBenchmarkETL.java</exclude>
+						<exclude>org/bsc/dcc/vcv/tablestorage/CreateDatabaseDenormSkip.java</exclude>
+						<exclude>org/bsc/dcc/vcv/tablestorage/RunTableStorageBenchmark.java</exclude>
 					</excludes>
 					<testExcludes>
         				<testExclude>org/bsc/dcc/vcv/RunBenchmarkOptionsTest.java</testExclude>

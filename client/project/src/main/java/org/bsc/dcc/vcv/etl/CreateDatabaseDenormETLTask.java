@@ -28,6 +28,7 @@ import org.bsc.dcc.vcv.FilterKeys;
 import org.bsc.dcc.vcv.FilterValues;
 import org.bsc.dcc.vcv.HudiPrecombineKeys;
 import org.bsc.dcc.vcv.JarCreateTableReaderAsZipFile;
+import org.bsc.dcc.vcv.SkipKeys;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.CommandLine;
@@ -68,6 +69,7 @@ public abstract class CreateDatabaseDenormETLTask {
 	protected final Map<String, String> precombineKeys;
 	protected final Map<String, String> filterKeys;
 	protected final Map<String, String> filterValues;
+	protected final Map<String, String> skipKeys;
 	protected final String clusterId;
 	protected final String hostname;
 	protected final String dbPassword;
@@ -77,6 +79,8 @@ public abstract class CreateDatabaseDenormETLTask {
 	protected final boolean denormWithFilter;
 	protected final Map<String, String> clusterByKeys;
 	private final boolean useCachedResultSnowflake = false;
+	protected final int dateskThreshold;
+	
 	
 	public CreateDatabaseDenormETLTask(CommandLine commandLine) {
 		this.workDir = commandLine.getOptionValue("main-work-dir");
@@ -104,6 +108,7 @@ public abstract class CreateDatabaseDenormETLTask {
 		this.precombineKeys = new HudiPrecombineKeys().getMap();
 		this.filterKeys = new FilterKeys().getMap();
 		this.filterValues = new FilterValues().getMap();
+		this.skipKeys = new SkipKeys().getMap();
 		this.systemRunning = this.system;
 		if( commandLine.hasOption("override-load-system") ) {
 			this.systemRunning = commandLine.getOptionValue("override-load-system");
@@ -118,9 +123,11 @@ public abstract class CreateDatabaseDenormETLTask {
 				"partition-with-distribute-by", "false");
 		this.partitionWithDistrubuteBy = Boolean.parseBoolean(partitionWithDistrubuteByStr);
 		String denormWithFilterStr = commandLine.getOptionValue(
-				"denorm-with-filter", "true");
+				"denorm-with-filter", "false");
 		this.denormWithFilter = Boolean.parseBoolean(denormWithFilterStr);
 		this.clusterByKeys = new ClusterByKeys().getMap();
+		String dateskThresholdStr = commandLine.getOptionValue("datesk-gt-threshold", "-1");
+		this.dateskThreshold = Integer.parseInt(dateskThresholdStr);
 		this.openConnection();
 	}
 	
