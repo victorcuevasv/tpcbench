@@ -189,6 +189,18 @@ public class RunTableStorageBenchmark {
 				System.out.println("\n\n\nRunning the GDPR test.\n\n\n");
 				UpdateDatabaseGdprTest.main(argsCopy);
 			}
+			boolean doReadTest4 = this.flags.charAt(11) == '1' ? true : false;
+			if( doReadTest4 ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				Stream<String> tempStream = Stream.concat(Stream.of("--tpcds-test=readtest4"), argsStream);
+				String[] argsCopy = Stream.concat(tempStream, Stream.of("--read-instance=4"))
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "readtest4");
+				System.out.println("\n\n\nRunning the READ test 4.\n\n\n");
+				UpdateDatabaseReadTest.main(argsCopy);
+			}
 			/*
 			if( this.system.equals("sparkemr")  ) {
 				this.executeCommand("aws s3 cp --recursive " + this.workDir + "/" + this.resultsDir + "/ " +
