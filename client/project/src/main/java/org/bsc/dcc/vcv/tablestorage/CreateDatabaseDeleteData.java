@@ -29,16 +29,24 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
 
-public class CreateDatabaseInsertData extends CreateDatabaseDenormETLTask {
+public class CreateDatabaseDeleteData extends CreateDatabaseDenormETLTask {
 	
 	
-	public CreateDatabaseInsertData(CommandLine commandLine) {	
+	private final double[] fractions = {0.1, 1.0, 10.0};
+	private final String[] deleteSuffix = {"pointone", "one", "ten"};
+	private final int[] firstMod = {10, 10, 3};
+	private final int[] secondMod = {100, 10, 3};
+	private final int[] firstEqual = {1, 0, 0};
+	private final int[] secondEqual = {0, 0, 0};
+	
+	
+	public CreateDatabaseDeleteData(CommandLine commandLine) {	
 		super(commandLine);
 	}
 	
 	
 	public static void main(String[] args) throws SQLException {
-		CreateDatabaseInsertData application = null;
+		CreateDatabaseDeleteData application = null;
 		CommandLine commandLine = null;
 		try {
 			RunBenchmarkOptions runOptions = new RunBenchmarkOptions();
@@ -48,12 +56,12 @@ public class CreateDatabaseInsertData extends CreateDatabaseDenormETLTask {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			logger.error("Error in CreateDatabaseInsertData main.");
+			logger.error("Error in CreateDatabaseDeleteData main.");
 			logger.error(e);
 			logger.error(AppUtil.stringifyStackTrace(e));
 			System.exit(1);
 		}
-		application = new CreateDatabaseInsertData(commandLine);
+		application = new CreateDatabaseDeleteData(commandLine);
 		application.doTask();
 	}
 	
@@ -76,7 +84,8 @@ public class CreateDatabaseInsertData extends CreateDatabaseDenormETLTask {
 					continue;
 				}
 			}
-			insertdata(fileName, i);
+			for(int j = 0; j < this.fractions.length; j++)
+				deletedata(fileName, i, j);
 			i++;
 		}
 		//if( ! this.system.equals("sparkdatabricks") ) {
@@ -86,24 +95,24 @@ public class CreateDatabaseInsertData extends CreateDatabaseDenormETLTask {
 	}
 	
 	
-	private void insertdata(String sqlCreateFilename, int index) {
+	private void deletedata(String sqlCreateFilename, int index, int fractionIndex) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableNameRoot = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
+			String denormTableName = tableNameRoot + "_denorm";
+			String deleteTableName = denormTableName + "_delete_" + this.deleteSuffix[fractionIndex];
 			System.out.println("Processing table " + index + ": " + tableNameRoot);
 			this.logger.info("Processing table " + index + ": " + tableNameRoot);
-			String denormTableName = tableNameRoot + "_denorm";
-			String insertTableName = denormTableName + "_insert_ten";
-			this.dropTable("drop table if exists " + insertTableName);
+			this.dropTable("drop table if exists " + deleteTableName);
 			String sqlCreate = null;
 			if( this.system.contains("spark") || this.system.contains("databricks") )
-				sqlCreate = this.createTableStatementDatabricks(tableNameRoot, 
-						denormTableName, insertTableName, this.format,
-					this.extTablePrefixCreated);
+				sqlCreate = this.createTableStmtDatabricks(tableNameRoot, 
+						denormTableName, deleteTableName, this.format,
+					this.extTablePrefixCreated, fractionIndex);
 			if( this.system.startsWith("snowflake") )
-				sqlCreate = this.createTableStatementSnowflake(tableNameRoot, 
-						denormTableName, insertTableName);
-			saveCreateTableFile("insertcreate", tableNameRoot, sqlCreate);
+				sqlCreate = this.createTableStmtSnowflake(tableNameRoot, 
+						denormTableName, deleteTableName, fractionIndex);
+			saveCreateTableFile("deletecreate", tableNameRoot, sqlCreate);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
@@ -111,11 +120,11 @@ public class CreateDatabaseInsertData extends CreateDatabaseDenormETLTask {
 			queryRecord.setSuccessful(true);
 			queryRecord.setEndTime(System.currentTimeMillis());
 			if( this.doCount )
-				countRowsQuery(stmt, insertTableName);
+				countRowsQuery(stmt, deleteTableName);
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
-			this.logger.error("Error in CreateDatabaseInsertData insertdata.");
+			this.logger.error("Error in CreateDatabaseDeleteData deletedata.");
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
 		}
@@ -127,88 +136,44 @@ public class CreateDatabaseInsertData extends CreateDatabaseDenormETLTask {
 	}
 	
 	
-	private String createTableStatementDatabricks(String tableNameRoot, String denormTableName, 
-			String insertTableName, String format, Optional<String> extTablePrefixCreated) {
+	private String createTableStmtDatabricks(String tableNameRoot, String denormTableName, 
+			String deleteTableName, String format, Optional<String> extTablePrefixCreated,
+			int fractionIndex) {
 		String partKey = 
 				Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableNameRoot)];
 		String skipAtt = this.skipKeys.get(tableNameRoot);
-		StringBuilder builder = new StringBuilder("CREATE TABLE " + insertTableName + "\n");
+		StringBuilder builder = new StringBuilder("CREATE TABLE " + deleteTableName + "\n");
 		builder.append("USING " + format + "\n");
-		if( format.equals("parquet") )
+		if( format.equalsIgnoreCase("parquet") )
 			builder.append("OPTIONS ('compression'='snappy')\n");
-		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + insertTableName + "' \n");
-		builder.append("AS \n");
-		builder.append("( SELECT * FROM " + denormTableName + "\n");
-		builder.append("WHERE MOD(" + partKey + ", " + SkipMods.firstMod + ") = 0 \n");
+		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + deleteTableName + "' \n");
+		builder.append("AS\n");
+		builder.append("SELECT * FROM " + denormTableName + "\n");
+		builder.append("WHERE MOD(" + partKey + ", " + 
+				this.firstMod[fractionIndex] + ") = " + this.firstEqual[fractionIndex] + "\n");
 		if( this.dateskThreshold != -1 )
 			builder.append("AND " + partKey + " > " + this.dateskThreshold + "\n");
-		builder.append("AND MOD(" + skipAtt + ", " + SkipMods.secondMod + ") = 0 ) \n");
-		String updateExpr = this.createUpdatesExpression(denormTableName, partKey, skipAtt);
-		builder.append("UNION ALL\n");
-		builder.append(updateExpr);
+		builder.append("AND MOD(" + skipAtt + ", " + 
+				this.secondMod[fractionIndex] + ") = " + this.secondEqual[fractionIndex] + "\n");
 		return builder.toString();
 	}
 	
 	
-	private String createUpdatesExpression(String denormTableName, String partKey, String skipAtt) {
-		String columnsStr = getColumnNames(denormTableName);
-		String columnsStrUpd = columnsStr.replace("s_quantity", "s_quantity + 1");
-		StringBuilder builder = new StringBuilder();
-		builder.append(
-				"( SELECT \n" +
-				 columnsStrUpd + "\n" +
-				 "FROM " + denormTableName + "\n" +
-				 "WHERE MOD(" + partKey + ", " + UpdateMods.firstMod + ") = 1 \n"
-				 );
-				 if( this.dateskThreshold != -1 )
-						builder.append("AND " + partKey + " > " + this.dateskThreshold + "\n");
-		builder.append("AND MOD(" + skipAtt + ", " + UpdateMods.secondMod + ") = 0 ) \n");
-		return builder.toString();
-	}
-	
-	
-	private String createTableStatementSnowflake(String tableNameRoot, String denormTableName, 
-			String insertTableName) {
+	private String createTableStmtSnowflake(String tableNameRoot, String denormTableName, 
+			String deleteTableName, int fractionIndex) {
 		String partKey = 
 				Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableNameRoot)];
 		String skipAtt = this.skipKeys.get(tableNameRoot);
-		StringBuilder builder = new StringBuilder("CREATE TABLE " + insertTableName + "\n");
-		builder.append("AS \n");
-		builder.append("( SELECT * FROM " + denormTableName + "\n");
-		builder.append("WHERE MOD(" + partKey + ", " + SkipMods.firstMod + ") = 0 \n");
+		StringBuilder builder = new StringBuilder("CREATE TABLE " + deleteTableName + "\n");
+		builder.append("AS\n");
+		builder.append("SELECT * FROM " + denormTableName + "\n");
+		builder.append("WHERE MOD(" + partKey + ", " + 
+				this.firstMod[fractionIndex] + ") = " + this.firstEqual[fractionIndex] + "\n");
 		if( this.dateskThreshold != -1 )
 			builder.append("AND " + partKey + " > " + this.dateskThreshold + "\n");
-		builder.append("AND MOD(" + skipAtt + ", " + SkipMods.secondMod + ") = 0 ) \n");
-		String updateExpr = this.createUpdatesExpression(denormTableName, partKey, skipAtt);
-		builder.append("UNION ALL\n");
-		builder.append(updateExpr);
+		builder.append("AND MOD(" + skipAtt + ", " + 
+				this.secondMod[fractionIndex] + ") = " + this.secondEqual[fractionIndex] + "\n");
 		return builder.toString();
-	}
-	
-	
-	private String getColumnNames(String denormTableName) {
-		String retVal = null;
-		try {
-			Statement stmt = this.con.createStatement();
-			ResultSet rs = stmt.executeQuery("DESCRIBE " + denormTableName);
-			ResultSetMetaData metadata = rs.getMetaData();
-			int nCols = metadata.getColumnCount();
-			List<String> list = new ArrayList<String>();
-			for (int i = 1; i <= nCols - 1; i++) {
-				String colName = metadata.getColumnName(i);
-				list.add(colName);
-			}
-			String columnsStr = list.stream()
-					.collect(Collectors.joining(", \n"));
-			retVal = columnsStr;
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			this.logger.error("\"Error in CreateDatabaseInsertData getColumnNames.");
-			this.logger.error(e);
-			this.logger.error(AppUtil.stringifyStackTrace(e));
-		}
-		return retVal;
 	}
 	
 
