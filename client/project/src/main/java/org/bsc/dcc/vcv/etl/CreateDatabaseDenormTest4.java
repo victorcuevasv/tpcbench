@@ -97,7 +97,7 @@ public class CreateDatabaseDenormTest4 extends CreateDatabaseDenormETLTask {
 			this.dropTable("drop table if exists " + tableName);
 			String sqlCreate = null;
 			if( this.system.contains("spark") || this.system.contains("databricks") )
-				this.createTableStmtDatabricks(sqlQuery, tableNameRoot, this.format,
+				sqlCreate = this.createTableStmtDatabricks(sqlQuery, tableNameRoot, this.format,
 					this.extTablePrefixCreated);
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStatementSnowflake(sqlQuery, tableNameRoot);
