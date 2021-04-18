@@ -199,7 +199,7 @@ public class RunTableStorageBenchmark {
 						.collect(Collectors.toList())
 						.toArray(new String[0]);
 				this.saveTestParameters(argsCopy, "deletetest");
-				System.out.println("\n\n\nRunning the INSERT/UPDATE test.\n\n\n");
+				System.out.println("\n\n\nRunning the DELETE test.\n\n\n");
 				UpdateDatabaseDeleteTest.main(argsCopy);
 			}
 			boolean doReadTest3 = this.flags.charAt(12) == '1' ? true : false;
