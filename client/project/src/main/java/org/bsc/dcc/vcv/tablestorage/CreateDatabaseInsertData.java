@@ -194,6 +194,12 @@ public class CreateDatabaseInsertData extends CreateDatabaseDenormETLTask {
 			List<String> list = new ArrayList<String>();
 			while ( rs.next() )
 				list.add(rs.getString(1));
+			//Remove last three tuples since they do not represent columns in DBR SQL Analytics.
+			if( this.system.contains("spark") || this.system.contains("databricks") ) {
+				list.remove(list.size() - 1);
+				list.remove(list.size() - 1);
+				list.remove(list.size() - 1);
+			}
 			String columnsStr = list.stream()
 					.collect(Collectors.joining(", \n"));
 			retVal = columnsStr;
