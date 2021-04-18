@@ -160,6 +160,22 @@ public class RunBenchmarkOptions {
 		options.addOption( Option.builder().longOpt( "scale-factor" )
 				.desc( "scale factor used to run the benchmark" )
 				.hasArg(true).required(false).build() );
+		options.addOption( Option.builder().longOpt( "denorm-apply-skip" )
+				.desc( "skip data to be inserted from denorm tables" )
+				.hasArg(true).required(false).type(Boolean.class).build() );
+		
+		options.addOption( Option.builder().longOpt( "analyze-zorder-all-or-file" )
+				.desc( "\"all\" or query file for denorm analyze and z-order" )
+				.hasArg(true).required(false).build() );
+		options.addOption( Option.builder().longOpt( "gdpr-customer-sk" )
+				.desc( "customer surrogate key for the gdpr test" )
+				.hasArg(true).required(false).build() );
+		options.addOption( Option.builder().longOpt( "read-instance" )
+				.desc( "instance number of the read test" )
+				.hasArg(true).required(false).build() );
+		options.addOption( Option.builder().longOpt( "datesk-gt-threshold" )
+				.desc( "greater than threshold for the date-sk attribute to generate update data" )
+				.hasArg(true).required(false).build() );
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );
