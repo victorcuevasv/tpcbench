@@ -684,11 +684,6 @@ public class CreateDatabase {
 			// Drop the external table if it exists
 			stmt = con.createStatement();
 			stmt.execute("drop table if exists " + tableName + this.suffix);
-
-			// If count is enabled, count the number of rows and print them to console
-			if( this.doCount ) {
-				countRowsQuery(stmt, tableName + this.suffix);
-			}
 			
 			// Generate the internal create table sql and write it to file
 			String incIntSqlCreate = incompleteCreateTable(sqlCreate, tableName, false, "", false);
@@ -719,6 +714,11 @@ public class CreateDatabase {
 			System.out.println("Creating table " + tableName + "_ext");
 			// Create again the external table
 			stmt.execute(extSqlCreate);
+			
+			// If count is enabled, count the number of rows and print them to console
+			if( this.doCount ) {
+				countRowsQuery(stmt, tableName + this.suffix);
+			}
 
 			System.out.println("Creating table " + tableName);
 			// Create the internal table
