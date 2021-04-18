@@ -84,12 +84,6 @@ public class UpdateDatabaseReadTest extends CreateDatabaseDenormETLTask {
 		int i = 1;
 		for (final String fileName : orderedList) {
 			String sqlQuery = readTestTableReader.getFile(fileName);
-			if( ! this.denormSingleOrAll.equals("all") ) {
-				if( ! fileName.equals(this.denormSingleOrAll) ) {
-					System.out.println("Skipping: " + fileName);
-					continue;
-				}
-			}
 			readtestQuery(fileName, sqlQuery, i);
 			i++;
 		}

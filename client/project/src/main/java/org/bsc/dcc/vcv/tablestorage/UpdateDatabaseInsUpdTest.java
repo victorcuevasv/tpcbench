@@ -96,7 +96,7 @@ public class UpdateDatabaseInsUpdTest extends CreateDatabaseDenormETLTask {
 			else
 				suffix = "update";
 			String denormUpdateTableName = tableNameRoot + "_denorm_" + suffix;
-			String insertTableName = tableNameRoot + "_denorm_" + "_insert_ten";
+			String insertTableName = tableNameRoot + "_denorm" + "_insert_ten";
 			String sqlMerge = null;
 			if( this.system.contains("spark") || this.system.contains("databricks")
 					|| this.system.startsWith("snowflake") )
