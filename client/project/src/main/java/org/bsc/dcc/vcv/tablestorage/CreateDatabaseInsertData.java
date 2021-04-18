@@ -191,13 +191,9 @@ public class CreateDatabaseInsertData extends CreateDatabaseDenormETLTask {
 		try {
 			Statement stmt = this.con.createStatement();
 			ResultSet rs = stmt.executeQuery("DESCRIBE " + denormTableName);
-			ResultSetMetaData metadata = rs.getMetaData();
-			int nCols = metadata.getColumnCount();
 			List<String> list = new ArrayList<String>();
-			for (int i = 1; i <= nCols - 1; i++) {
-				String colName = metadata.getColumnName(i);
-				list.add(colName);
-			}
+			while ( rs.next() )
+				list.add(rs.getString(1));
 			String columnsStr = list.stream()
 					.collect(Collectors.joining(", \n"));
 			retVal = columnsStr;
