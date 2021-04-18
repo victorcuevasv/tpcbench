@@ -156,7 +156,19 @@ public class RunTableStorageBenchmark {
 				System.out.println("\n\n\nRunning the CREATE LOAD UPDATE test.\n\n\n");
 				CreateDatabaseDenormUpdate.main(argsCopy);
 			}
-			boolean doInsUpdTest = this.flags.charAt(8) == '1' ? true : false;
+			boolean doReadTest1 = this.flags.charAt(8) == '1' ? true : false;
+			if( doReadTest1 ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				Stream<String> tempStream = Stream.concat(Stream.of("--tpcds-test=readtest1"), argsStream);
+				String[] argsCopy = Stream.concat(tempStream, Stream.of("--read-instance=1"))
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "readtest1");
+				System.out.println("\n\n\nRunning the READ test 1.\n\n\n");
+				UpdateDatabaseReadTest.main(argsCopy);
+			}
+			boolean doInsUpdTest = this.flags.charAt(9) == '1' ? true : false;
 			if( doInsUpdTest ) {
 				Stream<String> argsStream = Arrays.stream(args)
 						.filter(s -> ! s.contains("tpcds-test"));
@@ -167,7 +179,19 @@ public class RunTableStorageBenchmark {
 				System.out.println("\n\n\nRunning the INSERT/UPDATE test.\n\n\n");
 				UpdateDatabaseInsUpdTest.main(argsCopy);
 			}
-			boolean doDeleteTest = this.flags.charAt(9) == '1' ? true : false;
+			boolean doReadTest2 = this.flags.charAt(10) == '1' ? true : false;
+			if( doReadTest2 ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				Stream<String> tempStream = Stream.concat(Stream.of("--tpcds-test=readtest2"), argsStream);
+				String[] argsCopy = Stream.concat(tempStream, Stream.of("--read-instance=2"))
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "readtest2");
+				System.out.println("\n\n\nRunning the READ test 2.\n\n\n");
+				UpdateDatabaseReadTest.main(argsCopy);
+			}
+			boolean doDeleteTest = this.flags.charAt(11) == '1' ? true : false;
 			if( doDeleteTest ) {
 				Stream<String> argsStream = Arrays.stream(args)
 						.filter(s -> ! s.contains("tpcds-test"));
@@ -178,7 +202,19 @@ public class RunTableStorageBenchmark {
 				System.out.println("\n\n\nRunning the INSERT/UPDATE test.\n\n\n");
 				UpdateDatabaseDeleteTest.main(argsCopy);
 			}
-			boolean doGdprTest = this.flags.charAt(10) == '1' ? true : false;
+			boolean doReadTest3 = this.flags.charAt(12) == '1' ? true : false;
+			if( doReadTest3 ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				Stream<String> tempStream = Stream.concat(Stream.of("--tpcds-test=readtest3"), argsStream);
+				String[] argsCopy = Stream.concat(tempStream, Stream.of("--read-instance=3"))
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
+				this.saveTestParameters(argsCopy, "readtest3");
+				System.out.println("\n\n\nRunning the READ test 3.\n\n\n");
+				UpdateDatabaseReadTest.main(argsCopy);
+			}
+			boolean doGdprTest = this.flags.charAt(13) == '1' ? true : false;
 			if( doGdprTest ) {
 				Stream<String> argsStream = Arrays.stream(args)
 						.filter(s -> ! s.contains("tpcds-test"));
@@ -189,7 +225,7 @@ public class RunTableStorageBenchmark {
 				System.out.println("\n\n\nRunning the GDPR test.\n\n\n");
 				UpdateDatabaseGdprTest.main(argsCopy);
 			}
-			boolean doReadTest4 = this.flags.charAt(11) == '1' ? true : false;
+			boolean doReadTest4 = this.flags.charAt(14) == '1' ? true : false;
 			if( doReadTest4 ) {
 				Stream<String> argsStream = Arrays.stream(args)
 						.filter(s -> ! s.contains("tpcds-test"));
