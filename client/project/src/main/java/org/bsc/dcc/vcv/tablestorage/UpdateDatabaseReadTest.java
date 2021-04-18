@@ -104,7 +104,7 @@ public class UpdateDatabaseReadTest extends CreateDatabaseDenormETLTask {
 				suffix = "delta";
 			else
 				suffix = "update";
-			sqlQuery = sqlQuery.replace("<SUFFIX>", suffix);
+			sqlQuery = sqlQuery.replace("<SUFFIX>", "_" + suffix);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
