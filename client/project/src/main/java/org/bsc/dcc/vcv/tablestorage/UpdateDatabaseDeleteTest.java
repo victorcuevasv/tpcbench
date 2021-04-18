@@ -101,7 +101,7 @@ public class UpdateDatabaseDeleteTest extends CreateDatabaseDenormETLTask {
 			else
 				suffix = "update";
 			String denormUpdateTableName = tableNameRoot + "_denorm_" + suffix;
-			String deleteTableName = tableNameRoot + "_denorm_" + "_delete_" + 
+			String deleteTableName = tableNameRoot + "_denorm" + "_delete_" + 
 					this.deleteSuffix[fractionIndex];
 			String sqlMerge = null;
 			if( this.system.contains("spark") || this.system.contains("databricks")
