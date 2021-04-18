@@ -261,7 +261,7 @@ public abstract class CreateDatabaseDenormETLTask {
 		try {
 			Statement stmt = this.con.createStatement();
 			String query = "USE DATABASE " + dbName;
-			if( this.systemRunning.contains("spark") )
+			if( this.systemRunning.contains("spark") || this.systemRunning.contains("databricks") )
 				query = "USE " + dbName;
 			stmt.executeUpdate(query);
 			stmt.close();
