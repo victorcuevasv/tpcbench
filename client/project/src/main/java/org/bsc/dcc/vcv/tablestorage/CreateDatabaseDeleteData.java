@@ -112,7 +112,7 @@ public class CreateDatabaseDeleteData extends CreateDatabaseDenormETLTask {
 			if( this.system.startsWith("snowflake") )
 				sqlCreate = this.createTableStmtSnowflake(tableNameRoot, 
 						denormTableName, deleteTableName, fractionIndex);
-			saveCreateTableFile("deletecreate", tableNameRoot, sqlCreate);
+			saveCreateTableFile("deletecreate", deleteTableName, sqlCreate);
 			Statement stmt = this.con.createStatement();
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
