@@ -135,7 +135,7 @@ public class CreateDatabaseDenormUpdate extends CreateDatabaseDenormETLTask {
 		StringBuilder builder = new StringBuilder("CREATE TABLE " + tableNameRoot + "_denorm_delta \n");
 		builder.append("USING DELTA \n");
 		builder.append("LOCATION '" + extTablePrefixCreated.get() + "/" + tableNameRoot + 
-				"_denorm_delta" + " '\n");
+				"_denorm_delta'" + "\n");
 		if( this.partition ) {
 				builder.append("PARTITIONED BY (" + partCol + ") \n" );
 		}
