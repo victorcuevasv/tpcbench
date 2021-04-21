@@ -37,7 +37,9 @@ ExperimentName="tpcds-snowflake-$1gb-${Tag}"
 DirNameWarehouse="tpcds-snowflake-$1gb-$2-${Tag}"
 DirNameResults="snowflake"
 #DatabaseName="tpcds_snowflake_$1gb_$2_${Tag}"
-DatabaseName="tpcds_snowflake_3000gb_1_1602522157"
+#DatabaseName="tpcds_snowflake_3000gb_1_1602522157"
+DatabaseName="tpcdsdb3000ExtTables"
+DatabasePassword=""
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 
 RUN_RUN_BENCHMARK=1
@@ -94,11 +96,14 @@ args[20]="--raw-column-delimiter=SOH"
 #save power test plans
 args[21]="--save-power-plans=true"
 #number of runs to perform for the power test (default 1)
-args[22]="--power-test-runs=1"
+args[22]="--power-test-runs=3"
 #use multiple connections
 args[23]="--multiple-connections=true"
+#password to connect to the database
+args[24]="--db-password=${DatabasePassword}"
+
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[24]="--execution-flags=000011"
+args[25]="--execution-flags=000010"
 
 paramsStr="${args[@]}"
 
