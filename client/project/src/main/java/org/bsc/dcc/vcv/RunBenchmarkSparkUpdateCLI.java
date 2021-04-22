@@ -89,12 +89,22 @@ public class RunBenchmarkSparkUpdateCLI {
 			}
 			boolean doLoadDenorm = this.flags.charAt(2) == '1' ? true : false;
 			if( doLoadDenorm ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=loaddenorm"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
 				this.saveTestParameters(args, "loaddenorm");
 				System.out.println("\n\n\nRunning the LOAD DENORM test.\n\n\n");
 				CreateDatabaseSparkDenorm.main(args);
 			}
 			boolean doLoadDenormSkip = this.flags.charAt(3) == '1' ? true : false;
 			if( doLoadDenormSkip ) {
+				Stream<String> argsStream = Arrays.stream(args)
+						.filter(s -> ! s.contains("tpcds-test"));
+				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=loaddenormskip"), argsStream)
+						.collect(Collectors.toList())
+						.toArray(new String[0]);
 				this.saveTestParameters(args, "loaddenormskip");
 				System.out.println("\n\n\nRunning the LOAD DENORM SKIP test.\n\n\n");
 				CreateDatabaseSparkDenormSkip.main(args);
