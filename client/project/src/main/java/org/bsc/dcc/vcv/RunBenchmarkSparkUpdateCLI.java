@@ -96,7 +96,7 @@ public class RunBenchmarkSparkUpdateCLI {
 						.toArray(new String[0]);
 				this.saveTestParameters(argsCopy, "loaddenorm");
 				System.out.println("\n\n\nRunning the LOAD DENORM test.\n\n\n");
-				CreateDatabaseSparkDenorm.main(args);
+				CreateDatabaseSparkDenorm.main(argsCopy);
 			}
 			boolean doLoadDenormSkip = this.flags.charAt(3) == '1' ? true : false;
 			if( doLoadDenormSkip ) {
@@ -107,7 +107,7 @@ public class RunBenchmarkSparkUpdateCLI {
 						.toArray(new String[0]);
 				this.saveTestParameters(argsCopy, "loaddenormskip");
 				System.out.println("\n\n\nRunning the LOAD DENORM SKIP test.\n\n\n");
-				CreateDatabaseSparkDenormSkip.main(args);
+				CreateDatabaseSparkDenormSkip.main(argsCopy);
 			}
 			boolean doInsertData = this.flags.charAt(4) == '1' ? true : false;
 			if( doInsertData ) {
