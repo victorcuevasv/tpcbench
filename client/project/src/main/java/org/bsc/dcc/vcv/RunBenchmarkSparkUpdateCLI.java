@@ -94,7 +94,7 @@ public class RunBenchmarkSparkUpdateCLI {
 				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=loaddenorm"), argsStream)
 						.collect(Collectors.toList())
 						.toArray(new String[0]);
-				this.saveTestParameters(args, "loaddenorm");
+				this.saveTestParameters(argsCopy, "loaddenorm");
 				System.out.println("\n\n\nRunning the LOAD DENORM test.\n\n\n");
 				CreateDatabaseSparkDenorm.main(args);
 			}
@@ -105,7 +105,7 @@ public class RunBenchmarkSparkUpdateCLI {
 				String[] argsCopy = Stream.concat(Stream.of("--tpcds-test=loaddenormskip"), argsStream)
 						.collect(Collectors.toList())
 						.toArray(new String[0]);
-				this.saveTestParameters(args, "loaddenormskip");
+				this.saveTestParameters(argsCopy, "loaddenormskip");
 				System.out.println("\n\n\nRunning the LOAD DENORM SKIP test.\n\n\n");
 				CreateDatabaseSparkDenormSkip.main(args);
 			}
