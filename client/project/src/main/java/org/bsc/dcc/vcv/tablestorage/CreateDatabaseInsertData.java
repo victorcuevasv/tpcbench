@@ -190,7 +190,10 @@ public class CreateDatabaseInsertData extends CreateDatabaseDenormETLTask {
 		String retVal = null;
 		try {
 			Statement stmt = this.con.createStatement();
-			ResultSet rs = stmt.executeQuery("DESCRIBE " + denormTableName);
+			String describeQuery = "DESCRIBE " + denormTableName;
+			if( this.system.contains("snowflake") )
+				describeQuery = "DESCRIBE TABLE " + denormTableName;
+			ResultSet rs = stmt.executeQuery(describeQuery);
 			List<String> list = new ArrayList<String>();
 			while ( rs.next() )
 				list.add(rs.getString(1));
