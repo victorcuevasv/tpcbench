@@ -106,6 +106,8 @@ args[21]="--gdpr-customer-sk=221580"
 args[22]="--datesk-gt-threshold=2452459"
 # use a filter attribute and value for denormalization
 args[23]="--denorm-with-filter=false"
+# add a distrubute by clause for denormalization with partition
+args[24]="--partition-with-distribute-by=true"
 
 printf "\n\n%s\n\n" "${mag}Creating the job.${end}"
 
