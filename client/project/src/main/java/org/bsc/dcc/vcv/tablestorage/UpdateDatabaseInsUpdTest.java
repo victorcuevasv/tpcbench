@@ -190,7 +190,7 @@ public class UpdateDatabaseInsUpdTest extends CreateDatabaseDenormETLTask {
 		StringBuilder builder = new StringBuilder();
 		for(int i = 0; i < colNamesList.size() - 1; i++) {
 			String col = colNamesList.get(i);
-			builder.append(aliasA + "." + col + " = " + aliasB + "." + col + ", ");
+			builder.append(aliasA + "." + col + " = " + aliasB + "." + col + ",\n");
 		}
 		builder.append(aliasA + "." + colNamesList.get(colNamesList.size() - 1) + " = " + 
 					aliasB + "." + colNamesList.get(colNamesList.size() - 1));
@@ -205,7 +205,7 @@ public class UpdateDatabaseInsUpdTest extends CreateDatabaseDenormETLTask {
 		for(int i = 0; i < colNamesList.size() - 1; i++) {
 			String col = colNamesList.get(i);
 			namesBuilder.append(col + ", ");
-			valsBuilder.append(aliasB + "." + col + ", ");
+			valsBuilder.append(aliasB + "." + col + ",\n");
 		}
 		namesBuilder.append(colNamesList.get(colNamesList.size() - 1) + ")");
 		valsBuilder.append(aliasB + "." + colNamesList.get(colNamesList.size() - 1) + ")");
@@ -223,7 +223,7 @@ public class UpdateDatabaseInsUpdTest extends CreateDatabaseDenormETLTask {
 			ResultSet rs = stmt.executeQuery(describeQuery);
 			list = new ArrayList<String>();
 			while ( rs.next() )
-				list.add(rs.getString(1));
+				list.add(rs.getString(1).toLowerCase());
 			//Remove last three tuples since they do not represent columns in DBR SQL Analytics.
 			if( this.system.contains("spark") || this.system.contains("databricks") ) {
 				list.remove(list.size() - 1);
