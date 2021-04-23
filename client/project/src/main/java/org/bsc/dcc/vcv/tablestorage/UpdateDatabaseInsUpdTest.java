@@ -2,6 +2,7 @@ package org.bsc.dcc.vcv.tablestorage;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.StringTokenizer;
@@ -98,9 +99,11 @@ public class UpdateDatabaseInsUpdTest extends CreateDatabaseDenormETLTask {
 			String denormUpdateTableName = tableNameRoot + "_denorm_" + suffix;
 			String insertTableName = tableNameRoot + "_denorm" + "_insert_ten";
 			String sqlMerge = null;
-			if( this.system.contains("spark") || this.system.contains("databricks")
-					|| this.system.startsWith("snowflake") )
+			if( this.system.contains("spark") || this.system.contains("databricks") )
 				sqlMerge = this.createMergeSQL(tableNameRoot,
+						denormUpdateTableName, insertTableName);
+			if( this.system.startsWith("snowflake") )
+				sqlMerge = this.createMergeSQLSnowflake(tableNameRoot,
 						denormUpdateTableName, insertTableName);
 			saveCreateTableFile("insupdmerge", insertTableName, sqlMerge);
 			Statement stmt = this.con.createStatement();
@@ -146,6 +149,95 @@ public class UpdateDatabaseInsUpdTest extends CreateDatabaseDenormETLTask {
 		builder.append("WHEN MATCHED THEN UPDATE SET * \n");
 		builder.append("WHEN NOT MATCHED THEN INSERT * \n");
 		return builder.toString();
+	}
+	
+	
+	private String createMergeSQLSnowflake(String tableNameRoot, String denormUpdateTableName, 
+			String insUpdTableName) {
+		String partKey = 
+				Partitioning.partKeys[Arrays.asList(Partitioning.tables).indexOf(tableNameRoot)];
+		String primaryKeyFull = this.primaryKeys.get(tableNameRoot);
+		StringTokenizer tokenizer = new StringTokenizer(primaryKeyFull, ",");
+		String primaryKey = tokenizer.nextToken().trim();
+		String primaryKeyComp = null;
+		if( tokenizer.hasMoreTokens() )
+			primaryKeyComp = tokenizer.nextToken().trim();
+		StringBuilder builder = new StringBuilder();
+		builder.append("MERGE INTO " + denormUpdateTableName + " AS a \n");
+		builder.append("USING " + insUpdTableName + " AS b \n");
+		builder.append("ON a." + partKey + " = b." + partKey + "\n");
+		builder.append("AND a." + primaryKey + " = b." + primaryKey + "\n");
+		if( primaryKeyComp != null )
+			builder.append("AND a." + primaryKeyComp + " = b." + primaryKeyComp + "\n");
+		List<String> colNamesList = this.getColumnNamesList(denormUpdateTableName);
+		String primaryKeyCompF = primaryKeyComp != null ? primaryKeyComp : "";
+		List<String> colNamesListFiltered = colNamesList
+				.stream()
+				.filter(s -> ! s.contains(partKey))
+				.filter(s -> ! s.contains(primaryKey))
+				.filter(s -> ! s.contains(primaryKeyCompF))
+				.collect(Collectors.toList());
+		String matchedExpListStr = createMergeSQLSnowflakeMatch(colNamesListFiltered, "a", "b"); 
+		builder.append("WHEN MATCHED THEN UPDATE SET " + matchedExpListStr + "\n");
+		String noMatchedExpListStr = createMergeSQLSnowflakeNoMatch(colNamesList, "a", "b");
+		builder.append("WHEN NOT MATCHED THEN INSERT " + noMatchedExpListStr + "\n");
+		return builder.toString();
+	}
+	
+	
+	public String createMergeSQLSnowflakeMatch(List<String> colNamesList, String aliasA, 
+			String aliasB) {
+		StringBuilder builder = new StringBuilder();
+		for(int i = 0; i < colNamesList.size() - 1; i++) {
+			String col = colNamesList.get(i);
+			builder.append(aliasA + "." + col + " = " + aliasB + "." + col + ", ");
+		}
+		builder.append(aliasA + "." + colNamesList.get(colNamesList.size() - 1) + " = " + 
+					aliasB + "." + colNamesList.get(colNamesList.size() - 1));
+		return builder.toString();
+	}
+	
+	
+	public String createMergeSQLSnowflakeNoMatch(List<String> colNamesList, String aliasAUnused, 
+			String aliasB) {
+		StringBuilder namesBuilder = new StringBuilder("(");
+		StringBuilder valsBuilder = new StringBuilder("(");
+		for(int i = 0; i < colNamesList.size() - 1; i++) {
+			String col = colNamesList.get(i);
+			namesBuilder.append(col + ", ");
+			valsBuilder.append(aliasB + "." + col + ", ");
+		}
+		namesBuilder.append(colNamesList.get(colNamesList.size() - 1) + ")");
+		valsBuilder.append(aliasB + "." + colNamesList.get(colNamesList.size() - 1) + ")");
+		return namesBuilder.toString() + " VALUES " + valsBuilder.toString();
+	}
+	
+	
+	private List<String> getColumnNamesList(String denormTableName) {
+		List<String> list = null;
+		try {
+			Statement stmt = this.con.createStatement();
+			String describeQuery = "DESCRIBE " + denormTableName;
+			if( this.system.contains("snowflake") )
+				describeQuery = "DESCRIBE TABLE " + denormTableName;
+			ResultSet rs = stmt.executeQuery(describeQuery);
+			list = new ArrayList<String>();
+			while ( rs.next() )
+				list.add(rs.getString(1));
+			//Remove last three tuples since they do not represent columns in DBR SQL Analytics.
+			if( this.system.contains("spark") || this.system.contains("databricks") ) {
+				list.remove(list.size() - 1);
+				list.remove(list.size() - 1);
+				list.remove(list.size() - 1);
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.logger.error("\"Error in CreateDatabaseInsertData getColumnNames.");
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		return list;
 	}
 	
 
