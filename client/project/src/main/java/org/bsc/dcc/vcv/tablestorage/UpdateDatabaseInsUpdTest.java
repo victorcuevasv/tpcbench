@@ -204,7 +204,7 @@ public class UpdateDatabaseInsUpdTest extends CreateDatabaseDenormETLTask {
 		StringBuilder valsBuilder = new StringBuilder("(");
 		for(int i = 0; i < colNamesList.size() - 1; i++) {
 			String col = colNamesList.get(i);
-			namesBuilder.append(col + ", ");
+			namesBuilder.append(col + ",\n");
 			valsBuilder.append(aliasB + "." + col + ",\n");
 		}
 		namesBuilder.append(colNamesList.get(colNamesList.size() - 1) + ")");
