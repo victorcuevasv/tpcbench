@@ -154,6 +154,7 @@ public class ExecuteQueries {
 		this.dbPassword = "UNUSED";
 		this.numCores = -1;
 		this.runs = 1;
+		this.forceSequentialRuns = false;
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 						this.system, this.test, this.instance);
