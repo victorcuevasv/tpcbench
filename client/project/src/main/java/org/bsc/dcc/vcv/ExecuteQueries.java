@@ -461,7 +461,7 @@ public class ExecuteQueries {
 	private void executeQuery(String fileName, int runId) {
 		if( ! this.querySingleOrAll.equals("all") ) {
 			if( ! fileName.equals(this.querySingleOrAll) )
-				continue;
+				return;
 		}
 		String sqlStr = this.queriesReader.getFile(fileName);
 		String nQueryStr = fileName.replaceAll("[^\\d]", "");
