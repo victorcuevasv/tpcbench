@@ -176,6 +176,10 @@ public class RunBenchmarkOptions {
 		options.addOption( Option.builder().longOpt( "datesk-gt-threshold" )
 				.desc( "greater than threshold for the date-sk attribute to generate update data" )
 				.hasArg(true).required(false).build() );
+		options.addOption( Option.builder().longOpt( "force-sequential-runs" )
+				.desc( "force power test runs to be of the form q1, q1, q2, q2,...qn, qn" )
+				.hasArg(true).required(false).type(Boolean.class).build() );
+		
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );

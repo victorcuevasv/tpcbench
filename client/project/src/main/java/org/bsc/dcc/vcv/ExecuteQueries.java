@@ -59,6 +59,7 @@ public class ExecuteQueries {
 	private final int runs;
 	private final String dbPassword;
 	private final int numCores;
+	private final boolean forceSequentialRuns;
 	
 	
 	public ExecuteQueries(CommandLine commandLine) {
@@ -91,6 +92,8 @@ public class ExecuteQueries {
 		this.numCores = Integer.parseInt(numCoresStr);
 		String runsStr = commandLine.getOptionValue("power-test-runs", "1");
 		this.runs = Integer.parseInt(runsStr);
+		String forceSequentialRunsStr = commandLine.getOptionValue("force-sequential-runs", "false");
+		this.forceSequentialRuns = Boolean.parseBoolean(forceSequentialRunsStr);
 		this.queriesReader = new JarQueriesReaderAsZipFile(this.jarFile, this.queriesDir);
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
 				this.system, this.test, this.instance);
@@ -432,49 +435,16 @@ public class ExecuteQueries {
 		if( this.test.equals("power") && this.savePlans )
 			this.savePlans();
 		this.recorder.header();
-		for(int i = 1; i <= this.runs; i++) {
+		if( ! this.forceSequentialRuns )
+			for(int i = 1; i <= this.runs; i++) {
+				for (final String fileName : this.queriesReader.getFilesOrdered()) {
+					this.executeQuery(fileName, i);
+				}
+			}
+		else {
 			for (final String fileName : this.queriesReader.getFilesOrdered()) {
-				if( ! this.querySingleOrAll.equals("all") ) {
-					if( ! fileName.equals(this.querySingleOrAll) )
-						continue;
-				}
-				String sqlStr = this.queriesReader.getFile(fileName);
-				String nQueryStr = fileName.replaceAll("[^\\d]", "");
-				int nQuery = Integer.parseInt(nQueryStr);
-				if( this.system.equals("prestoemr") )
-					this.setPrestoDefaultSessionOpts();
-				QueryRecord queryRecord = null;
-				if( this.system.equals("bigquery") )
-					queryRecord = new QueryRecordBigQuery(nQuery);
-				else
-					queryRecord = new QueryRecord(nQuery);
-				queryRecord.setRun(i);
-				this.logger.info("\nExecuting query: " + fileName + " (run " + i + ")\n" + sqlStr);
-				try {
-					if( ! this.system.equals("bigquery") )
-						this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
-					else
-						this.executeQueryMultipleCallsBigQuery(fileName, sqlStr, queryRecord);
-					//The results should have been saved by executeQueryMultipleCalls,
-					//check the generated file to obtain the results size.
-					if( this.saveResults ) {
-						String queryResultsFileName = this.generateResultsFileName(fileName, i);
-						File resultsFile = new File(queryResultsFileName);
-						queryRecord.setResultsSize(resultsFile.length());
-					}
-					else
-						queryRecord.setResultsSize(0);
-					queryRecord.setSuccessful(true);
-				}
-				catch(Exception e) {
-					e.printStackTrace();
-					this.logger.error("Error processing: " + fileName);
-					this.logger.error(e);
-					this.logger.error(AppUtil.stringifyStackTrace(e));
-				}
-				finally {
-					queryRecord.setEndTime(System.currentTimeMillis());
-					this.recorder.record(queryRecord);
+				for(int i = 1; i <= this.runs; i++) {
+					this.executeQuery(fileName, i);
 				}
 			}
 		}
@@ -485,6 +455,52 @@ public class ExecuteQueries {
 		//that prevent the application from closing. 
 		if (this.system.equals("redshift") || this.system.equals("synapse"))
 			this.closeConnection();
+	}
+	
+	
+	private void executeQuery(String fileName, int runId) {
+		if( ! this.querySingleOrAll.equals("all") ) {
+			if( ! fileName.equals(this.querySingleOrAll) )
+				continue;
+		}
+		String sqlStr = this.queriesReader.getFile(fileName);
+		String nQueryStr = fileName.replaceAll("[^\\d]", "");
+		int nQuery = Integer.parseInt(nQueryStr);
+		if( this.system.equals("prestoemr") )
+			this.setPrestoDefaultSessionOpts();
+		QueryRecord queryRecord = null;
+		if( this.system.equals("bigquery") )
+			queryRecord = new QueryRecordBigQuery(nQuery);
+		else
+			queryRecord = new QueryRecord(nQuery);
+		queryRecord.setRun(runId);
+		this.logger.info("\nExecuting query: " + fileName + " (run " + runId + ")\n" + sqlStr);
+		try {
+			if( ! this.system.equals("bigquery") )
+				this.executeQueryMultipleCalls(fileName, sqlStr, queryRecord);
+			else
+				this.executeQueryMultipleCallsBigQuery(fileName, sqlStr, queryRecord);
+			//The results should have been saved by executeQueryMultipleCalls,
+			//check the generated file to obtain the results size.
+			if( this.saveResults ) {
+				String queryResultsFileName = this.generateResultsFileName(fileName, runId);
+				File resultsFile = new File(queryResultsFileName);
+				queryRecord.setResultsSize(resultsFile.length());
+			}
+			else
+				queryRecord.setResultsSize(0);
+			queryRecord.setSuccessful(true);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.logger.error("Error processing: " + fileName);
+			this.logger.error(e);
+			this.logger.error(AppUtil.stringifyStackTrace(e));
+		}
+		finally {
+			queryRecord.setEndTime(System.currentTimeMillis());
+			this.recorder.record(queryRecord);
+		}
 	}
 	
 	

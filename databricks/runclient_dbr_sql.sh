@@ -35,12 +35,12 @@ Tag="$(date +%s)"
 ExperimentName="tpcds-dbrsql-$1gb-${Tag}"
 DirNameWarehouse="tpcds-dbrsql-$1gb-$2-${Tag}"
 DirNameResults="dbrsql"
-DatabaseName="tpcds_sf3000_delta"
-#DatabaseName="tpcds_dbrsql_$1gb_$2_${Tag}"
+DatabaseName="tpcds_dbrsql_$1gb_$2_${Tag}"
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 NumCores=16
-ClusterId="ae3c73418863d117"
-DatabasePassword="$(aws secretsmanager get-secret-value --secret-id DatabricksToken | jq -j '.SecretString' | jq -j '.DatabricksToken')"  
+ClusterId="f18152ace277edb3"
+#DatabasePassword="$(aws secretsmanager get-secret-value --secret-id DatabricksToken | jq -j '.SecretString' | jq -j '.DatabricksToken')"  
+DatabasePassword=""  
 
 RUN_RUN_BENCHMARK=1
 COPY_RESULTS_TO_S3=1
@@ -107,8 +107,10 @@ args[24]="--num-cores=${NumCores}"
 args[25]="--power-test-runs=1"
 #use multiple connections
 args[26]="--multiple-connections=true"
+#force power test runs to be of the form q1, q1, q2, q2,...qn, qn
+args[27]="--force-sequential-runs=true"
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[27]="--execution-flags=000010"
+args[28]="--execution-flags=111011"
 
 paramsStr="${args[@]}"
 

@@ -102,8 +102,10 @@ args[23]="--multiple-connections=true"
 #password to connect to the database
 args[24]="--db-password=${DatabasePassword}"
 
+#force power test runs to be of the form q1, q1, q2, q2,...qn, qn
+args[25]="--force-sequential-runs=true"
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[25]="--execution-flags=000010"
+args[26]="--execution-flags=111011"
 
 paramsStr="${args[@]}"
 
