@@ -108,7 +108,7 @@ args[25]="--power-test-runs=1"
 #use multiple connections
 args[26]="--multiple-connections=true"
 #force power test runs to be of the form q1, q1, q2, q2,...qn, qn
-args[27]="--force-sequential-runs=true"
+args[27]="--force-sequential-runs=false"
 #flags (110000 schema|load|analyze|zorder|power|tput)
 args[28]="--execution-flags=111011"
 
