@@ -180,10 +180,18 @@ post_data_func()
       },
       "libraries":[ 
          { 
-            "jar":"dbfs:$JarFile",
-            "maven":"org.apache.hudi:hudi-spark3-bundle_2.12:0.8.0",
-            "maven":"org.apache.spark:spark-avro_2.12:3.0.1"
-         }
+            "jar":"dbfs:$JarFile"
+         },
+         {
+      		"maven": {
+        		"coordinates": "org.apache.hudi:hudi-spark3-bundle_2.12:0.8.0"
+      		}
+    	},
+    	{
+      		"maven": {
+        		"coordinates": "org.apache.spark:spark-avro_2.12:3.0.1"
+      		}
+    	}
       ],
       "init_scripts": [
         {
