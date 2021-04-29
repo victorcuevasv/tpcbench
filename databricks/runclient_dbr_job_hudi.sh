@@ -180,7 +180,7 @@ post_data_func()
       },
       "libraries":[ 
          { 
-            "jar":"dbfs:$JarFile"
+            "jar":"dbfs:$JarFile",
             "maven":"org.apache.hudi:hudi-spark3-bundle_2.12:0.8.0",
             "maven":"org.apache.spark:spark-avro_2.12:3.0.1"
          }
