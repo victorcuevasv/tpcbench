@@ -194,7 +194,10 @@ post_data_func()
       "init_scripts": [
         {
             "dbfs": {
-                "destination": "dbfs:/databricks/init_scripts/additionalCalciteJar.sh"
+                "destination": "dbfs:/databricks/init_scripts/metastore237.sh"
+            },
+            "dbfs": {
+                "destination": "dbfs:/databricks/init_scripts/set_spark_embedded_metastore.sh"
             }
         }
       ],
