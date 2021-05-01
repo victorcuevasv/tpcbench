@@ -31,7 +31,7 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 #Cluster configuration.
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Nodes="2"
-MajorVersion="2-4"
+MajorVersion="2_4"
 MinorVersion="light"
 ScalaVersion="x-scala2.12"
 #Run configuration.
@@ -75,7 +75,7 @@ args[9]="--use-partitioning=true"
 # "all" or create table file
 args[10]="--all-or-create-file=all"
 # jar file
-args[11]="--jar-file=$JarFile"
+args[11]="--jar-file=/dbfs$JarFile"
 # whether to generate statistics by analyzing tables (true/false)
 args[12]="--use-row-stats=true"
 # if argument above is true, whether to compute statistics for columns (true/false)
