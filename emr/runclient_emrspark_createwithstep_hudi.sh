@@ -274,7 +274,7 @@ bootstrap-actions_func()
   cat <<EOF
 [
    {
-      "Path":"s3://bsc-bootstrap/s3fs/emr_init.sh",
+      "Path":"s3://bsc-bootstrap/s3fs/emr_init_allow_other.sh",
       "Args":[
          "hadoop",
          "tpcds-jars,tpcds-results-test"
@@ -324,7 +324,7 @@ cluster_id=""
 if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
     jsonCluster=$(aws emr create-cluster \
 	--termination-protected \
-	--applications Name=Hadoop Name=Hive Name=Spark Name=Ganglia \
+	--applications Name=Hadoop Name=Hive Name=Spark Name=Ganglia Name=JupyterEnterpriseGateway\
 	--ec2-attributes "$ec2Attributes" \
 	--release-label emr-${Version} \
 	--log-uri 's3n://bsc-emr-logs/' \
