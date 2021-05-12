@@ -34,6 +34,6 @@ fi
 sleep 15
 sudo mkdir -p /home/hadoop/extrajars/
 sudo cp /mnt/tpcds-jars/orgjson/json-20210307.jar /home/hadoop/extrajars/
-sudo chmod 755 /mnt/tpcds-jars/orgjson/json-20210307.jar
+sudo chmod 755 /home/hadoop/extrajars/json-20210307.jar
 
 
