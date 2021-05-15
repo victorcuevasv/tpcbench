@@ -15,18 +15,17 @@ end=$'\e[0m'
 #$3 number of streams (positive integer)
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_emrspark_createwithstep_hudi.sh <scale factor> <experiment instance number> <number of streams>${end}"
+    echo "${yel}Usage: bash runclient_emrspark_createwithstep_hudi8.sh <scale factor> <experiment instance number> <number of streams>${end}"
     exit 0
 fi
 
 #Cluster configuration.
 Nodes="16"
-Version="5.32.0"
-VersionShort="532"
+Version="5.33.0"
+VersionShort="533"
 AutoTerminate="true"
 #Run configuration.
-#Tag="$(date +%s)huditest"
-Tag="1616030068huditest" 
+Tag="$(date +%s)hudi8test" 
 ExperimentName="sparkemr-${VersionShort}-${Nodes}nodes-$1gb-$Tag"
 DirNameWarehouse="tpcds-warehouse-sparkemr-${VersionShort}-$1gb-$2-$Tag"
 DirNameResults="sparkemr-${VersionShort}-test"
@@ -80,8 +79,7 @@ args[15]="--number-of-streams=$3"
 # zorder      |zorder update |read test 1 |insupd test    |read test 2    |
 # delete test |read test 3   |gdpr        |read test 4    |power          |
 # tput
-#args[16]="--execution-flags=111111100000111111100"
-args[16]="--execution-flags=000000100000111111100"
+args[16]="--execution-flags=111111100000111111100"
 # count-queries
 args[17]="--count-queries=false"
 # all or denorm table file
@@ -91,14 +89,14 @@ args[19]="--denorm-apply-skip=true"
 
 # all or query file for denorm analyze and z-order
 args[20]="--analyze-zorder-all-or-file=query2.sql"
-# customer surrogate key for the gdpr test
+# customer surrogate key for the gdpr test (221580 for 1 TB, 1000 for 1 GB)
 args[21]="--gdpr-customer-sk=221580"
 # target size for hudi files
 args[22]="--hudi-file-max-size=134217728" #1 GB: 1073741824, 128 MB: 134217728
 # use merge on read for writing hudi files (use copy on write otherwise)
 args[23]="--hudi-merge-on-read=true"
 # enable compaction by default for merge on read tables
-args[24]="--hudi-mor-default-compaction=false"
+args[24]="--hudi-mor-default-compaction=true"
 
 # force compaction between tests for merge on read tables
 args[25]="--hudi-mor-force-compaction=false"
@@ -183,16 +181,14 @@ steps_func_hudi()
          "spark-submit",
          "--deploy-mode",
          "client",
-         "--packages",
-         "org.apache.hudi:hudi-spark-bundle_2.12:0.7.0,org.apache.spark:spark-avro_2.12:2.4.7",
-         "--jars",
-         "s3://tpcds-jars/hudi/hudi-spark-bundle_2.12-0.7.0.jar,s3://tpcds-jars/avro/spark-avro_2.12-3.0.1.jar",
          "--conf",
          "spark.eventLog.enabled=true",
          "--conf",
          "spark.serializer=org.apache.spark.serializer.KryoSerializer",
          "--conf",
          "spark.sql.hive.convertMetastoreParquet=false",
+		 "--jars",
+		 "s3://tpcds-jars/hudi/hudi-spark-bundle_2.11-0.8.0.jar,/usr/lib/spark/external/lib/spark-avro.jar",
          "--class",
          "org.bsc.dcc.vcv.RunBenchmarkSparkUpdateCLI",
          "$JarFile",
@@ -277,7 +273,7 @@ bootstrap-actions_func()
   cat <<EOF
 [
    {
-      "Path":"s3://bsc-bootstrap/s3fs/emr_init.sh",
+      "Path":"s3://bsc-bootstrap/s3fs/emr_init_allow_other.sh",
       "Args":[
          "hadoop",
          "tpcds-jars,tpcds-results-test"
@@ -326,8 +322,8 @@ cluster_id=""
 #}
 if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
     jsonCluster=$(aws emr create-cluster \
-	--no-termination-protected \
-	--applications Name=Hadoop Name=Hive Name=Spark Name=Ganglia \
+	--termination-protected \
+	--applications Name=Hadoop Name=Hive Name=Spark Name=Ganglia Name=JupyterEnterpriseGateway Name=Zeppelin \
 	--ec2-attributes "$ec2Attributes" \
 	--release-label emr-${Version} \
 	--log-uri 's3n://bsc-emr-logs/' \
@@ -357,13 +353,10 @@ if [ "$WAIT_FOR_TERMINATION" -eq 1 ]; then
 	fi
 fi
 
+
 #Example CLI command to disable termination-protection for the cluster
 #aws emr modify-cluster-attributes --cluster-id j-1HH1WT0S7SZRB  --no-termination-protected
 #Example CLI command to terminate cluster
 #aws emr terminate-clusters --cluster-ids j-1HH1WT0S7SZRB
-
-
-
-
 
 
