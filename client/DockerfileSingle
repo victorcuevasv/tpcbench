@@ -10,7 +10,7 @@ RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
 #Install less for the Presto cli pager and wget to download the presto cli.
 
 RUN apt-get update && apt-get install -y \
-    less wget curl
+    less wget curl gnupg
 
 ARG APACHE_MIRROR=archive.apache.org
 ARG PRESTO_MIRROR=repo1.maven.org
