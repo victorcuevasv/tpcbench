@@ -144,7 +144,7 @@ class TPCDSLoadTables(val spark : SparkSession) {
   
   def genUpdateDataQuery(createTableDict: Map[String, String], tableName: String, partitionKeys: Map[String, String], skipAttr: String, skipRatio: Int, updateAttr: String, partitionThreshold: Int = -1) = {
     //val tableAttributes = table("store_sales_denorm").columns
-    val tableAttributes = Map.empty[String, String]
+    val tableAttributes = spark.sql("describe store_sales_denorm").collect.dropRight(3).map(x => x.getString(0))
     if (!(tableAttributes contains updateAttr)) {
       println(s"Error[genRetrieveUpdateDataQuery]: Update attribute is not one of ${tableName}'s attributes or it is the partition key")
       None
