@@ -1,3 +1,5 @@
+package org.bsc.dcc
+
 class TPCDSQueries {
   
 	//TPC-DS create table statements generated with the TPC-DS toolkit to extract the schema from
@@ -1294,7 +1296,7 @@ limit 100"""),
 }
 
 object Main extends App {
-  val tpcdsQueries = new TPCDSQueries()
+  val tpcdsQueries = new org.bsc.dcc.TPCDSQueries()
   val tpcdsSchemas = tpcdsQueries.tpcdsSchemas
   println(tpcdsSchemas("call_center"))
   val partitionKeys = tpcdsQueries.partitionKeys
