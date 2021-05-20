@@ -110,6 +110,9 @@ args[28]="--partition-with-distribute-by=true"
 # column-storage format for the update tests (hudi, iceberg)
 args[29]="--update-table-format=delta"
 
+# use string instead of varchar in table schemas
+args[30]="--varchar-to-string=true"
+
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
 function auto_terminate_func() {

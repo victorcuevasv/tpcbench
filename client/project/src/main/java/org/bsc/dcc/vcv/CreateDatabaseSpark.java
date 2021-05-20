@@ -84,7 +84,12 @@ public class CreateDatabaseSpark {
 		String instanceStr = commandLine.getOptionValue("instance-number");
 		this.instance = Integer.parseInt(instanceStr);
 		this.rawDataDir = commandLine.getOptionValue("raw-data-dir", "UNUSED");
-		this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
+		String varcharToStringStr = commandLine.getOptionValue("varchar-to-string", "false");
+		boolean varcharToString = Boolean.parseBoolean(varcharToStringStr);
+		if( ! varcharToString )
+			this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
+		else
+			this.createTableDir = commandLine.getOptionValue("create-table-dir", "tablesstring");
 		this.suffix = commandLine.getOptionValue("text-file-suffix", "_ext");
 		this.extTablePrefixRaw = Optional.ofNullable(commandLine.getOptionValue("ext-raw-data-location"));
 		this.extTablePrefixCreated = Optional.ofNullable(commandLine.getOptionValue("ext-tables-location"));
