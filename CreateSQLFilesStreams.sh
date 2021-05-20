@@ -37,8 +37,13 @@ bash $DIR/compileCreateScript.sh
 
 cp $DIR/dqgen2/tpcdsvarchar.sql $DIR/vols/data/tpcdsvarchar.sql
 printf "\n\n%s\n\n" "${mag}Processing the tpcds[varchar].sql file.${end}"
-bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID tpcdsvarchar.sql
+bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID tpcdsvarchar.sql tables
 cp -r $DIR/vols/data/tables $DIR/client/project/src/main/resources/
+
+cp $DIR/dqgen2/tpcdsstring.sql $DIR/vols/data/tpcdsstring.sql
+printf "\n\n%s\n\n" "${mag}Processing the tpcds[string].sql file.${end}"
+bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID tpcdsstring.sql tablesstring
+cp -r $DIR/vols/data/tablesstring $DIR/client/project/src/main/resources/
 
 #Generate the unused Netezza queries.
 printf "\n\n%s\n\n" "${mag}Generating the Netezza queries.${end}"

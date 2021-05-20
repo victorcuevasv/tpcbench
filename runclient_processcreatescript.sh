@@ -23,13 +23,13 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #and used to identify the folder that holds the data.
 #$1 scale factor (positive integer)
 
-if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_processcreatescript.sh <user id> <group id> <create tables sql file>.${end}"
+if [ $# -lt 4 ]; then
+    echo "${yel}Usage: bash runclient_processcreatescript.sh <user id> <group id> <create tables sql file> <output dir>.${end}"
     exit 0
 fi
 
 docker run --rm --user $1:$2 -v $DIR/client/project:/project -v $DIR/vols/data:/data \
 	--entrypoint mvn clientbuilder:dev exec:java \
 	 -Dexec.mainClass="org.bsc.dcc.vcv.ProcessCreateScript" \
-	 -Dexec.args="/data tables $3" -q -f /project/pomCreateScript.xml   
+	 -Dexec.args="/data $4 $3" -q -f /project/pomCreateScript.xml   
 
