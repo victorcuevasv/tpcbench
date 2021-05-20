@@ -88,7 +88,8 @@ public class UpdateDatabaseSparkGdprTest {
 		else
 			this.format = commandLine.getOptionValue("update-table-format", "hudi");
 		//this.createTableDir = commandLine.getOptionValue("create-table-dir", "tables");
-		if( this.system.equals("sparkdatabricks") )
+		//if( this.system.equals("sparkdatabricks") )
+		if( this.format.equals("delta") )
 			this.createTableDir = "DatabricksDeltaGdpr";
 		else if( this.format.equals("iceberg"))
 			this.createTableDir = "EMRIcebergGdpr";
