@@ -193,7 +193,7 @@ class TPCDSLoadTables(val spark : SparkSession) {
   def genDelete1Query(tableName: String, partitionKeys: Map[String, String], skipAttr: String, partitionThreshold: Int = -1) = {
     var sb = new StringBuilder(
       s"""SELECT * FROM ${tableName}_denorm
-  WHERE MOD(${partitionKeys(tableName)},10) = 1 AND MOD(${skipAttr},10) = 0
+  WHERE MOD(${partitionKeys(tableName)},10) = 0 AND MOD(${skipAttr},10) = 0
   """)
     if (partitionThreshold > 0) sb ++= s"AND ${partitionKeys(tableName)} > ${partitionThreshold}"
     sb.toString()
@@ -202,7 +202,7 @@ class TPCDSLoadTables(val spark : SparkSession) {
   def genDelete10Query(tableName: String, partitionKeys: Map[String, String], skipAttr: String, partitionThreshold: Int = -1) = {
     var sb = new StringBuilder(
       s"""SELECT * FROM ${tableName}_denorm
-  WHERE MOD(${partitionKeys(tableName)},3) = 1 AND MOD(${skipAttr},3) = 0
+  WHERE MOD(${partitionKeys(tableName)},3) = 0 AND MOD(${skipAttr},3) = 0
   """)
     if (partitionThreshold > 0) sb ++= s"AND ${partitionKeys(tableName)} > ${partitionThreshold}"
     sb.toString()
