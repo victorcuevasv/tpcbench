@@ -22,5 +22,5 @@ describe-notebook-execution --notebook-execution-id $1)
 
 echo "${blu}Describing notebook: ${jsonNotebook}.${end}"
 notebook_status=$(jq -j '.NotebookExecution.Status'  <<<  "$jsonNotebook")
-echo "${cyn}Notebook status ${notebook_exec_id}.${end}"
+echo "${cyn}Notebook status ${notebook_status}.${end}"
 	
