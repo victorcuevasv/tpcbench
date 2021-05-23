@@ -12,7 +12,7 @@ end=$'\e[0m'
 
 #$1 scale factor (positive integer)
 
-if [ $# -lt 3 ]; then
+if [ $# -lt 1 ]; then
     echo "${yel}Usage: bash emr_notebook_stop.sh <notebook-execution-id>${end}"
     exit 0
 fi
