@@ -269,7 +269,15 @@ configurations_func()
          "javax.jdo.option.ConnectionUserName": "hive",
          "javax.jdo.option.ConnectionPassword": "hive"
       }
-   }
+   },
+   {
+        "Classification": "livy-conf",
+        "Properties": {
+            "livy.server.session.timeout-check": "true",
+            "livy.server.session.timeout": "24h",
+            "livy.server.yarn.app-lookup-timeout": "600s"
+        }
+    }
 ]
 EOF
 }
