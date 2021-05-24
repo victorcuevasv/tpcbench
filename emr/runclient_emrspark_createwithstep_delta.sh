@@ -79,8 +79,8 @@ args[15]="--number-of-streams=$3"
 # zorder      |zorder update |read test 1 |insupd test    |read test 2    |
 # delete test |read test 3   |gdpr        |read test 4    |power          |
 # tput
-#args[16]="--execution-flags=111111100000111111100"
-args[16]="--execution-flags=000000000000000000000"
+args[16]="--execution-flags=111111100000111111100"
+#args[16]="--execution-flags=000000000000000000000"
 # count-queries
 args[17]="--count-queries=false"
 # all or denorm table file
@@ -111,7 +111,7 @@ args[28]="--partition-with-distribute-by=true"
 args[29]="--update-table-format=delta"
 
 # use string instead of varchar in table schemas
-args[30]="--varchar-to-string=true"
+args[30]="--varchar-to-string=false"
 
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
