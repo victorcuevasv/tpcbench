@@ -31,8 +31,8 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 #Cluster configuration.
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Nodes="16"
-MajorVersion="9"
-MinorVersion="p"
+MajorVersion="8"
+MinorVersion="3p"
 ScalaVersion="x-scala2.12"
 #Run configuration.
 Tag="$(date +%s)"
@@ -119,13 +119,13 @@ post_data_func()
 { 
 	"name":"$JOB_NAME",
 	"new_cluster":{ 
-		"spark_version":"custom:snapshot__9.x-snapshot-photon-scala2.12__databricks-universe__head__c22963c__241bece__jenkins__2787613__format-2.lz4",
+		"spark_version":"8.3.x-photon-scala2.12",
         "spark_conf":{
             "spark.databricks.photon.enabled":"true",
             "spark.memory.offHeap.enabled":"true",
             "spark.memory.offHeap.size":"36000m",
             "spark.executor.memory":"8000m",
-            "spark.databricks.execution.adaptiveParallelism.enabled":"true",
+            "spark.databricks.execution.adaptiveParallelism.enabled":"false",
             "spark.sql.shuffle.partitions":"256"
          },
          "aws_attributes":{ 
