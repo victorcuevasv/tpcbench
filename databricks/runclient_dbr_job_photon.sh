@@ -119,7 +119,7 @@ post_data_func()
 { 
 	"name":"$JOB_NAME",
 	"new_cluster":{ 
-		"spark_version":"8.3.x-photon-scala2.12",
+		"spark_version":"custom:release__8.3.x-snapshot-photon-scala2.12__databricks-universe__head__fd0ce79__6b751c3__jenkins__65df5fa__format-2.lz4",
         "spark_conf":{
             "spark.databricks.photon.enabled":"true",
             "spark.memory.offHeap.enabled":"true",
