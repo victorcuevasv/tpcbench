@@ -59,6 +59,38 @@ INSERT INTO filecommits
 SELECT experiment, 0, path, records, size, partition
 FROM filelog WHERE step = 0 and operation = 'add';
 
+--SLOW version
+-- For each new commit state, insert in it the files added in the previous commit that
+-- were not removed in the new commit, plus the files added in the new commit
+--do $$
+--declare
+--	i int := 0;
+--	maxCommit int := 1;
+--	stmt text;
+--begin
+--	SELECT max(step) INTO maxCommit FROM filelog;
+--	loop
+--		exit when i = maxCommit; 
+--		stmt = FORMAT('INSERT INTO filecommits
+--		(SELECT experiment, %2$s, path, records, size, partition
+--		FROM filecommits
+--		WHERE state = %1$s AND 
+--			NOT EXISTS (SELECT *
+--						  FROM filelog
+--						  WHERE step = %2$s
+--						  AND operation = ''remove''
+--						  AND filelog.path = filecommits.path))
+--		UNION
+--		(SELECT experiment, %2$s, path, records, size, partition
+--		FROM filelog WHERE step = %2$s AND operation = ''add'')', i, i+1);
+--		EXECUTE stmt;
+--		RAISE NOTICE '%' , stmt;
+--		i := i + 1;
+--	end loop;	
+--end; $$
+
+
+
 -- For each new commit state, insert in it the files added in the previous commit that
 -- were not removed in the new commit, plus the files added in the new commit
 do $$
@@ -74,11 +106,10 @@ begin
 		(SELECT experiment, %2$s, path, records, size, partition
 		FROM filecommits
 		WHERE state = %1$s AND 
-			NOT EXISTS (SELECT *
+			filecommits.path NOT IN (SELECT filelog.path
 						  FROM filelog
 						  WHERE step = %2$s
-						  AND operation = ''remove''
-						  AND filelog.path = filecommits.path))
+						  AND operation = ''remove''))
 		UNION
 		(SELECT experiment, %2$s, path, records, size, partition
 		FROM filelog WHERE step = %2$s AND operation = ''add'')', i, i+1);
