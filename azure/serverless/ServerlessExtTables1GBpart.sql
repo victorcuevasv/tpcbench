@@ -24,7 +24,9 @@ WITH
 --Execute as tpcds_user 
 
 CREATE VIEW catalog_returns
-AS SELECT *, catalog_returns_rs.filepath(1) AS [cr_returned_date_sk]
+AS SELECT *, 
+CASE WHEN catalog_returns_rs.filepath(1) = '__HIVE_DEFAULT_PARTITION__' THEN null
+	ELSE CAST(catalog_returns_rs.filepath(1) AS int) END AS [cr_returned_date_sk]
 FROM
     OPENROWSET(
         BULK 'catalog_returns/cr_returned_date_sk=*/*.parquet',
@@ -34,7 +36,9 @@ FROM
 
 
 CREATE VIEW web_returns
-AS SELECT *, web_returns_rs.filepath(1) AS [wr_returned_date_sk]
+AS SELECT *, 
+CASE WHEN web_returns_rs.filepath(1) = '__HIVE_DEFAULT_PARTITION__' THEN null
+    ELSE CAST(web_returns_rs.filepath(1) AS int) END AS [wr_returned_date_sk]
 FROM
     OPENROWSET(
         BULK 'web_returns/wr_returned_date_sk=*/*.parquet',
@@ -44,7 +48,8 @@ FROM
 
 
 CREATE VIEW web_sales
-AS SELECT *, web_sales_rs.filepath(1) AS [ws_sold_date_sk]
+AS SELECT *, CASE WHEN web_sales_rs.filepath(1) = '__HIVE_DEFAULT_PARTITION__' THEN null
+    ELSE CAST(web_sales_rs.filepath(1) AS int) END AS [ws_sold_date_sk]
 FROM
     OPENROWSET(
         BULK 'web_sales/ws_sold_date_sk=*/*.parquet',
@@ -54,7 +59,8 @@ FROM
 
 
 CREATE VIEW catalog_sales
-AS SELECT *, catalog_sales_rs.filepath(1) AS [cs_sold_date_sk]
+AS SELECT *, CASE WHEN catalog_sales_rs.filepath(1) = '__HIVE_DEFAULT_PARTITION__' THEN null
+    ELSE CAST(catalog_sales_rs.filepath(1) AS int) END AS [cs_sold_date_sk]
 FROM
     OPENROWSET(
         BULK 'catalog_sales/cs_sold_date_sk=*/*.parquet',
@@ -64,7 +70,9 @@ FROM
 
 
 CREATE VIEW store_sales
-AS SELECT *, store_sales_rs.filepath(1) AS [ss_sold_date_sk]
+AS SELECT *, 
+    CASE WHEN store_sales_rs.filepath(1) = '__HIVE_DEFAULT_PARTITION__' THEN null 
+        ELSE CAST(store_sales_rs.filepath(1) AS int) END AS [ss_sold_date_sk]
 FROM
     OPENROWSET(
         BULK 'store_sales/ss_sold_date_sk=*/*.parquet',
@@ -74,7 +82,8 @@ FROM
 
 
 CREATE VIEW inventory
-AS SELECT *, inventory_rs.filepath(1) AS [inv_date_sk]
+AS SELECT *, CASE WHEN inventory_rs.filepath(1) = '__HIVE_DEFAULT_PARTITION__' THEN null
+    ELSE CAST(inventory_rs.filepath(1) AS int) END AS [inv_date_sk]
 FROM
     OPENROWSET(
         BULK 'inventory/inv_date_sk=*/*.parquet',
@@ -84,7 +93,8 @@ FROM
     
 
 CREATE VIEW store_returns
-AS SELECT *, store_returns_rs.filepath(1) AS [sr_returned_date_sk]
+AS SELECT *, CASE WHEN store_returns_rs.filepath(1) = '__HIVE_DEFAULT_PARTITION__' THEN null
+    ELSE CAST(store_returns_rs.filepath(1) AS int) END AS [sr_returned_date_sk]
 FROM
     OPENROWSET(
         BULK 'store_returns/sr_returned_date_sk=*/*.parquet',
