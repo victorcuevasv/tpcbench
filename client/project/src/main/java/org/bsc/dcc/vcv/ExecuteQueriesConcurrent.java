@@ -217,10 +217,11 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 						this.hostname + ":8889/hive/" + this.dbName, "hive", "");
 				setPrestoDefaultSessionOpts();
 			}
-			else if( this.system.equals("sparkdatabricksjdbc") ) {
-				String dbrToken = AWSUtil.getValue("DatabricksToken");
+			else if( this.systemRunning.equals("sparkdatabricksjdbc") ) {
+				//String dbrToken = AWSUtil.getValue("DatabricksToken");
+				String dbrToken = this.dbPassword;
 				Class.forName(databricksDriverName);
-				con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
+				this.con = DriverManager.getConnection("jdbc:spark://" + this.hostname + ":443/" +
 				this.dbName + ";transportMode=http;ssl=1" + 
 				";httpPath=sql/protocolv1/o/538214631695239/" + 
 				this.clusterId + ";AuthMech=3;UID=token;PWD=" + dbrToken +
