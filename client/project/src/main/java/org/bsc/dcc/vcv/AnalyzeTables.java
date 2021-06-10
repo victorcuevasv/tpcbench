@@ -1,17 +1,16 @@
 package org.bsc.dcc.vcv;
 
-import java.sql.SQLException;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.facebook.presto.jdbc.PrestoConnection;
@@ -282,7 +281,7 @@ public class AnalyzeTables {
 			if( this.systemRunning.startsWith("spark") || this.systemRunning.startsWith("databrickssql"))
 				this.executeAnalyzeTableSpark(fileName, sqlCreate, i);
 			else
-				this.executeAnalyzeTable(fileName, i);
+				this.executeAnalyzeTable(fileName, sqlCreate, i);
 			i++;
 		}
 		this.recorder.close();
@@ -318,7 +317,7 @@ public class AnalyzeTables {
 	}
 	
 	
-	private void executeAnalyzeTable(String sqlCreateFilename, int index) {
+	private void executeAnalyzeTable(String sqlCreateFilename, String sqlCreate, int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
@@ -336,8 +335,9 @@ public class AnalyzeTables {
 			if( this.systemRunning.equals("hive") && this.computeForCols ) {
 				//sqlStr = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS";
 				//stmt.executeUpdate(sqlStr);
-				ResultSet rs = stmt.executeQuery("DESCRIBE " + tableName);
-				String columnsStr = extractColumns(rs, 1);
+				//ResultSet rs = stmt.executeQuery("DESCRIBE " + tableName);
+				//String columnsStr = extractColumns(rs, 1);
+				String columnsStr = extractColumnNames(sqlCreate);
 				String sqlStrCols = "ANALYZE TABLE " + tableName + 
 						" COMPUTE STATISTICS FOR COLUMNS " + columnsStr;
 				this.saveAnalyzeTableFile("analyze", tableName, sqlStrCols);
