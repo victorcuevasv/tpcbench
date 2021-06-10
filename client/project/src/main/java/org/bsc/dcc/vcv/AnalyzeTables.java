@@ -280,7 +280,7 @@ public class AnalyzeTables {
 				}
 			}
 			if( this.systemRunning.startsWith("spark") || this.systemRunning.startsWith("databrickssql"))
-				this.executeAnalyzeTableSpark(fileName, i);
+				this.executeAnalyzeTableSpark(fileName, sqlCreate, i);
 			else
 				this.executeAnalyzeTable(fileName, i);
 			i++;
@@ -363,7 +363,7 @@ public class AnalyzeTables {
 	}
 	
 	
-	private void executeAnalyzeTableSpark(String sqlCreateFilename, int index) {
+	private void executeAnalyzeTableSpark(String sqlCreateFilename, String sqlCreate, int index) {
 		QueryRecord queryRecord = null;
 		try {
 			String tableName = sqlCreateFilename.substring(0, sqlCreateFilename.indexOf('.'));
@@ -383,8 +383,9 @@ public class AnalyzeTables {
 				if (this.systemRunning.startsWith("databrickssql")) 
 					sqlStrCols = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR ALL COLUMNS;";
 				else {
-					ResultSet rs = stmt.executeQuery("DESCRIBE " + tableName);
-					String columnsStr = extractColumns(rs, 0);
+					//ResultSet rs = stmt.executeQuery("DESCRIBE " + tableName);
+					//String columnsStr = extractColumns(rs, 0);
+					String columnsStr = extractColumnNames(sqlCreate);
 					sqlStrCols = "ANALYZE TABLE " + tableName + " COMPUTE STATISTICS FOR COLUMNS " + 
 							columnsStr;
 				}
@@ -413,20 +414,27 @@ public class AnalyzeTables {
 	}
 	
 	
-	private String extractColumns(ResultSet rs, int firstColumn) 
-			throws SQLException {
-		StringBuilder builder = new StringBuilder();
-		int counter = 0;
-		while (rs.next()) {
-			if( counter > 0 )
-				builder.append(", ");
-			if( ( counter > 0 ) && ( counter % 3 == 0 ) )
-				builder.append("\n");
-			builder.append(rs.getString(firstColumn));
-			counter++;
+	private String extractColumnNames(String sqlStr) {
+		List<String> list = new ArrayList<String>();
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new StringReader(sqlStr));
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				if( line.trim().length() == 0 )
+				continue;
+				if( line.trim().startsWith("create") || line.trim().startsWith("(") 
+						|| line.trim().startsWith(")") || line.trim().startsWith("primary key") )
+					continue;
+				StringTokenizer tokenizer = new StringTokenizer(line);
+				list.add(tokenizer.nextToken());
+			}
 		}
-		rs.close();
-		return builder.toString();
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+			this.logger.error(ioe);
+		}
+		return list.stream().collect( Collectors.joining( ", " ) );
 	}
 	
 	
