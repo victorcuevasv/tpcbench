@@ -181,6 +181,7 @@ if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
 	docker run --network="host" --rm --user $USER_ID:$GROUP_ID --name clientbuildercontainer -ti \
 	--volume $DIR/../vols/data:/data \
 	--volume $DIR/../client/project:/project \
+	--volume $HOME/tpcdsbench/client/project/target:/mnt/tpcds-jars/target \
 	--entrypoint mvn clientbuilder:dev \
 	exec:java -Dexec.mainClass="org.bsc.dcc.vcv.RunBenchmarkCLI" \
 	-Dexec.args="$paramsStr" \
