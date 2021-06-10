@@ -41,6 +41,7 @@ ExperimentName="tpcds-dbrjdbc-${MajorVersion}${MinorVersion}-$1gb-${Tag}"
 DirNameWarehouse="tpcds-dbrjdbc-${MajorVersion}${MinorVersion}-$1gb-$2-${Tag}"
 DirNameResults="dbr${MajorVersion}${MinorVersion}jdbc"
 DatabaseName="tpcds_dbrjdbc_${MajorVersion}${MinorVersion}_$1gb_$2_${Tag}"
+DatabasePassword=""
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 
 CLUSTER_NAME="TPC-DS_${Tag}_$2"
@@ -97,8 +98,12 @@ args[19]="--raw-column-delimiter=SOH"
 
 #number of runs to perform for the power test (default 1)
 args[20]="--power-test-runs=1"
+#database password
+args[21]="--db-password=${DatabasePassword}"
+#identifier of the cluster to use to evaluate queries (assigned below, after cluster creation)
+args[22]="--cluster-id="
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[21]="--execution-flags=111011"
+args[23]="--execution-flags=111011"
 
 #Wait until the cluster is in a given state by polling using the Databricks CLI.
 #$1 cluster_id
@@ -169,7 +174,7 @@ if [ "$RUN_CREATE_CLUSTER" -eq 1 ]; then
 fi
 
 #add the cluster id to the parameters
-args[16]="--cluster-id=$cluster_id"
+args[22]="--cluster-id=$cluster_id"
 paramsStr="${args[@]}"
 
 if [ "$RUN_RUN_BENCHMARK" -eq 1 ]; then
