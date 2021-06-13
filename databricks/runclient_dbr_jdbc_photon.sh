@@ -49,6 +49,7 @@ RUN_CREATE_CLUSTER=1
 cluster_id=""
 RUN_RUN_BENCHMARK=1
 RUN_TERMINATE_CLUSTER=1
+COPY_RESULTS_TO_S3=1
 
 args=()
 
@@ -102,8 +103,10 @@ args[20]="--power-test-runs=1"
 args[21]="--db-password=${DatabasePassword}"
 #identifier of the cluster to use to evaluate queries (assigned below, after cluster creation)
 args[22]="--cluster-id="
+#use multiple connections
+args[23]="--multiple-connections=true"
 #flags (110000 schema|load|analyze|zorder|power|tput)
-args[23]="--execution-flags=111011"
+args[24]="--execution-flags=111011"
 
 #Wait until the cluster is in a given state by polling using the Databricks CLI.
 #$1 cluster_id
@@ -199,5 +202,7 @@ if [ "$RUN_TERMINATE_CLUSTER" -eq 1 ]; then
 fi
 
 
-
+if [ "$COPY_RESULTS_TO_S3" -eq 1 ]; then
+	cp -r $DIR/../vols/data/$DirNameResults/* $HOME/tpcds-results-test/$DirNameResults/
+fi
 
