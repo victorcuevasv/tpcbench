@@ -1,0 +1,12 @@
+
+#Get table of commits
+
+(echo "connect --path s3://tpcds-warehouses-test/tpcds-warehouse-sparkemr-530-1gb-1-1599176765hudinotforced/store_sales_denorm_hudi" ; echo "commits show") | /usr/lib/hudi/cli/bin/hudi-cli.sh > commits.txt
+
+#Get partitions info on specific commit
+
+(echo "connect --path s3://tpcds-warehouses-test/tpcds-warehouse-sparkemr-530-1000gb-1-1598583340huditest/store_sales_denorm_hudi" ; echo "commit showpartitions --commit 20200828072947 --desc true") | /usr/lib/hudi/cli/bin/hudi-cli.sh > commit0partitions.txt                                           
+
+#List compactions
+
+(echo "connect --path s3://tpcds-warehouses-test/tpcds-warehouse-sparkemr-530-1gb-1-1599176765hudinotforced/store_sales_denorm_hudi" ; echo "compactions show all") | /usr/lib/hudi/cli/bin/hudi-cli.sh > compactions.txt                                 
