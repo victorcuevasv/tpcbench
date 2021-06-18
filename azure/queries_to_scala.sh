@@ -14,14 +14,15 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 printf "\n\n%s\n\n" "${mag}Generating scala files.${end}"
 
-q1to10file = "q1to10.scala"
+q1to10file="q1to10.scala"
+rm $q1to10file
 printf "" > $q1to10file
 printf "//START 3TB queries 1 to 10" >> $q1to10file
 printf "\n\n" >> $q1to10file
 for i in {1..10};
 do 
 	printf "TPCDSQueries3TB += (\"q${i}\" -> \"\"\"\n" >> $q1to10file
-	cat q${i}.sql >> $q1to10file
+	cat query${i}.sql >> $q1to10file
 	printf "\"\"\")\n" >> $q1to10file
 	printf "\n\n" >> $q1to10file;
 done
