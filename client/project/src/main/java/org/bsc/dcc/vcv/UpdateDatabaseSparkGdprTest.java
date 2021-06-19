@@ -59,6 +59,7 @@ public class UpdateDatabaseSparkGdprTest {
 	private final String hudiFileSize;
 	private final boolean hudiUseMergeOnRead;
 	private final boolean defaultCompaction;
+	private final boolean icebergCompact;
 	
 	public UpdateDatabaseSparkGdprTest(CommandLine commandLine) {
 		try {
@@ -114,6 +115,8 @@ public class UpdateDatabaseSparkGdprTest {
 		this.hudiUseMergeOnRead = Boolean.parseBoolean(hudiUseMergeOnReadStr);
 		String defaultCompactionStr = commandLine.getOptionValue("hudi-mor-default-compaction", "true");
 		this.defaultCompaction = Boolean.parseBoolean(defaultCompactionStr);
+		String icebergCompactStr = commandLine.getOptionValue("iceberg-compact", "false");
+		this.icebergCompact = Boolean.parseBoolean(icebergCompactStr);
 		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
 				this.experimentName, this.instance, this.hudiFileSize, this.hudiUseMergeOnRead,
 				this.defaultCompaction);
@@ -196,7 +199,7 @@ public class UpdateDatabaseSparkGdprTest {
 				countRowsQuery(tableName + "_denorm_" + this.format);
 			saveCreateTableFile(this.format + "gdpr", tableName, sqlQuery);
 			queryRecord = new QueryRecord(index);
-			if( this.format.equals("iceberg")) {
+			if( this.format.equals("iceberg") && this.icebergCompact ) {
 				index += 1;
 				queryRecordRewrite = new QueryRecord(index);
 			}
@@ -204,7 +207,7 @@ public class UpdateDatabaseSparkGdprTest {
 			this.spark.sql(sqlQuery);
 			queryRecord.setSuccessful(true);
 			queryRecord.setEndTime(System.currentTimeMillis());
-			if( this.format.equals("iceberg")) {
+			if( this.format.equals("iceberg") && this.icebergCompact ) {
 				queryRecordRewrite.setStartTime(System.currentTimeMillis());
 				IcebergUtil icebergUtil = new IcebergUtil();
 				long fileSize = Long.parseLong(this.hudiFileSize);

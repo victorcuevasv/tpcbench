@@ -62,6 +62,7 @@ public class UpdateDatabaseSparkDeleteTest {
 	private final String hudiFileSize;
 	private final boolean hudiUseMergeOnRead;
 	private final boolean defaultCompaction;
+	private final boolean icebergCompact;
 	
 	public UpdateDatabaseSparkDeleteTest(CommandLine commandLine) {
 		try {
@@ -108,6 +109,8 @@ public class UpdateDatabaseSparkDeleteTest {
 		this.hudiUseMergeOnRead = Boolean.parseBoolean(hudiUseMergeOnReadStr);
 		String defaultCompactionStr = commandLine.getOptionValue("hudi-mor-default-compaction", "true");
 		this.defaultCompaction = Boolean.parseBoolean(defaultCompactionStr);
+		String icebergCompactStr = commandLine.getOptionValue("iceberg-compact", "false");
+		this.icebergCompact = Boolean.parseBoolean(icebergCompactStr);
 		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
 				this.experimentName, this.instance, this.hudiFileSize, this.hudiUseMergeOnRead,
 				this.defaultCompaction);
@@ -193,7 +196,8 @@ public class UpdateDatabaseSparkDeleteTest {
 			if( this.doCount )
 				countRowsQuery(denormDeltaIcebergTableName);
 			queryRecord = new QueryRecord(index);
-			if( this.format.equals("iceberg") && fractionIndex == (this.fractions.length - 1) ) {
+			if( this.format.equals("iceberg") && fractionIndex == (this.fractions.length - 1)
+					&& this.icebergCompact ) {
 				index += 1;
 				queryRecordRewrite = new QueryRecord(index);
 			}
@@ -201,7 +205,8 @@ public class UpdateDatabaseSparkDeleteTest {
 			this.spark.sql(mergeSql);
 			queryRecord.setSuccessful(true);
 			queryRecord.setEndTime(System.currentTimeMillis());
-			if( this.format.equals("iceberg") && fractionIndex == (this.fractions.length - 1) ) {
+			if( this.format.equals("iceberg") && fractionIndex == (this.fractions.length - 1) 
+					&& this.icebergCompact ) {
 				queryRecordRewrite.setStartTime(System.currentTimeMillis());
 				IcebergUtil icebergUtil = new IcebergUtil();
 				long fileSize = Long.parseLong(this.hudiFileSize);
