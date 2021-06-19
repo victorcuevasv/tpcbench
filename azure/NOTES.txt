@@ -170,7 +170,13 @@ The following statements within the bsc-tpcds-test-pool database.
 
 CREATE USER tpcds_user FROM LOGIN tpcds_user WITH DEFAULT_SCHEMA = tpcds_test;
 
+CREATE DATABASE bsc_tpcds_test_pool_utf8;
+
+GRANT CONTROL TO tpcds_user;
+
 GRANT CREATE TABLE TO tpcds_user;
+
+GRANT CREATE VIEW TO tpcds_user;
 
 GRANT ALTER ON SCHEMA::tpcds_test TO tpcds_user;
 
@@ -282,6 +288,11 @@ EXEC sp_addrolemember 'xlargerc', 'tpcds_user';
 SELECT IS_ROLEMEMBER ('xlargerc');
 
 
+
+Serverless
+
+alter database bsc_tpcds_test_pool
+       COLLATE Latin1_General_100_BIN2_UTF8;
 
 
 

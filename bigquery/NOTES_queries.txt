@@ -62,4 +62,13 @@ Solution: change the expression to the number 1 to refer to that expression in t
 Issues: fivetran also uses this approach but also with the remaining columns in the group by.
 
 
+Query 67 had to be implemented as in the fivetran repository due to out of memory errors for both
+the original query and its alternative.
+
+
+
+
+
+
+
 

@@ -1,0 +1,7 @@
+
+--SELECT * FROM pg_database;
+
+--select current_database();
+
+--select * from public.call_center;
+

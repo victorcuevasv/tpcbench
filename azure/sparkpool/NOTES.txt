@@ -1,0 +1,38 @@
+
+# setup access key or SAS token
+sc._jsc.hadoopConfiguration().set("fs.azure.account.key.<storage account name>.blob.core.windows.net", "<access key>")
+sc._jsc.hadoopConfiguration().set("fs.azure.sas.<container name>.<storage account name>.blob.core.windows.net", "<sas token>")
+
+# read from blob 
+df = spark.read.option("header", "true").csv("wasbs://demo@dprepdata.blob.core.windows.net/Titanic.csv")
+
+
+
+%%pyspark
+
+# setup access key or SAS token
+sc._jsc.hadoopConfiguration().set("fs.azure.account.key.bsctpcdsnew.blob.core.windows.net", "odootJRszznszrRQaUpaUHSruyHVc/5LglYsPU+mpm5+LVST1He4TGL5ciEq0cW+W7idv7q0KUkaXmrO7k/1yg==")
+sc._jsc.hadoopConfiguration().set("fs.azure.sas.performance-datasets.bsctpcdsnew.blob.core.windows.net", "?sv=2020-02-10&ss=bfqt&srt=sco&sp=rwdlacupx&se=2021-07-15T03:26:54Z&st=2021-06-14T19:26:54Z&spr=https&sig=%2BYGf25kx03RIqXFldhmsQNvznztoWZ8dgSsdvquPhnY%3D")
+
+val df = spark.read.load("wasbs://performance-datasets@bsctpcdsnew.blob.core.windows.net/tpc/tpcds-2.13/tpcds_sf1_delta/call_center/")
+df.printSchema()
+
+%%sql
+CREATE DATABASE tpcds_sf1_delta_part;
+
+%%sql
+USE tpcds_sf1_delta_part;
+
+%%sql
+SHOW TABLES;
+
+df.write.mode("overwrite").saveAsTable("call_center")
+
+spark.sql("select * from call_center").collect.foreach(println)
+
+
+abfss://bsc-tpcds-fs@bsctpcdsnew.dfs.core.windows.net/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar
+
+
+
+

@@ -2,7 +2,7 @@ import os
 import sys
 import json
 
-experiment = 'tpcds-databricks-81-1000gb-1-1617051128'
+experiment = 'tpcds-dbrsql-1000gb-1-1618784145'
 
 added = 0
 removed = 0

@@ -2,7 +2,7 @@ import os
 import sys
 import json
 
-experiment = 'tpcds-warehouse-sparkemr-532-1000gb-1-1616980602huditest'
+experiment = 'tpcds-warehouse-sparkemr-533-1000gb-1-1621858621huditest'
 
 def processFile(data, output, experiment, step) :
     jsonObj = json.load(data)["partitionToWriteStats"]
