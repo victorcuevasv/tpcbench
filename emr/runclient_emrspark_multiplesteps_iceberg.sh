@@ -106,10 +106,10 @@ args[26]="--datesk-gt-threshold=2452459"
 args[27]="--denorm-with-filter=false"
 # add a distribute by clause when using partitioning
 args[28]="--partition-with-distribute-by=true"
-# compact iceberg files after a merge
-args[29]="--iceberg-compact=true"
-
 # column-storage format for the update tests (hudi, iceberg)
+args[29]="--update-table-format=iceberg"
+
+# compact iceberg files after a merge
 args[30]="--iceberg-compact=true"
 
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
