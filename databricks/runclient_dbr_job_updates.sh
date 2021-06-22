@@ -32,7 +32,7 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Nodes="16"
 MajorVersion="8"
-MinorVersion="1"
+MinorVersion="3"
 ScalaVersion="x-scala2.12"
 #Run configuration.
 Tag="$(date +%s)"
