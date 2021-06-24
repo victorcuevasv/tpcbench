@@ -31,7 +31,7 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 #Cluster configuration.
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Nodes="16"
-MajorVersion="8"
+MajorVersion="83"
 MinorVersion="p"
 ScalaVersion="x-scala2.12"
 #Run configuration.
@@ -139,10 +139,15 @@ post_data_func()
 { 
 	"name":"$JOB_NAME",
 	"new_cluster":{ 
-		"spark_version":"custom:custom-local__8.x-snapshot-photon-scala2.12__unknown__master__9982c96__4b4c575__alex.behm__d7b454e__format-2.lz4",
+		"spark_version":"custom:release__8.3.x-snapshot-photon-scala2.12__databricks-universe__head__83b02b5__e760fb6__jenkins__6aae6d7__format-2.lz4",
         "spark_conf":{
-            "spark.databricks.photon.enabled":"true",
-            "spark.databricks.photon.parquetWriter.enabled":"true"
+        	"spark.executor.memory":"8000m",
+        	"spark.memory.offHeap.enabled":"true",
+        	"spark.memory.offHeap.size":"36000m",
+        	"spark.databricks.photon.enabled":"true",
+        	"spark.databricks.photon.parquetWriter.enabled":"true",
+            "spark.databricks.io.parquet.nativeReader.enabled":"false",
+            "spark.databricks.delta.optimizeWrite.enabled":"true"
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
