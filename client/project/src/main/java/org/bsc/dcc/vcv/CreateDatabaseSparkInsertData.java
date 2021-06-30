@@ -230,6 +230,7 @@ public class CreateDatabaseSparkInsertData {
 		String updateExpr = this.createUpdatesExpression(denormTableName, partKey, skipAtt);
 		builder.append("UNION ALL\n");
 		builder.append(updateExpr);
+		builder.append("DISTRIBUTE BY " + partKey + "\n");
 		return builder.toString();
 	}
 

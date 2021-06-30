@@ -229,6 +229,7 @@ public class CreateDatabaseSparkDeleteData {
 			builder.append("AND " + partKey + " > " + this.dateskThreshold + "\n");
 		builder.append("AND MOD(" + skipAtt + ", " + 
 				this.secondMod[fractionIndex] + ") = " + this.secondEqual[fractionIndex] + "\n");
+		builder.append("DISTRIBUTE BY " + partKey + "\n");
 		return builder.toString();
 	}
 
