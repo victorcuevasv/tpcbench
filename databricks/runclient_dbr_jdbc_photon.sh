@@ -22,7 +22,7 @@ GROUP_ID=$(id -g)
 #$3 number of streams (positive integer)
 
 if [ $# -lt 3 ]; then
-    echo "${yel}Usage: bash runclient_fullbenchmark_jdbc.sh <scale factor> <experiment instance number> <number of streams>${end}"
+    echo "${yel}Usage: bash runclient_dbr_jdbc_photon.sh <scale factor> <experiment instance number> <number of streams>${end}"
     exit 0
 fi
 
@@ -137,14 +137,15 @@ post_data_func()
 {
     "num_workers": $Nodes,
     "cluster_name":"$CLUSTER_NAME",
-    "spark_version": "custom:release__8.3.x-snapshot-photon-scala2.12__databricks-universe__head__fd0ce79__6b751c3__jenkins__65df5fa__format-2.lz4",
+    "spark_version": "custom:release__8.3.x-snapshot-photon-scala2.12__databricks-universe__head__83b02b5__e760fb6__jenkins__6aae6d7__format-2.lz4",
     "spark_conf":{
-            "spark.databricks.photon.enabled":"true",
-            "spark.memory.offHeap.enabled":"true",
-            "spark.memory.offHeap.size":"36000m",
             "spark.executor.memory":"8000m",
-            "spark.databricks.execution.adaptiveParallelism.enabled":"false",
-            "spark.sql.shuffle.partitions":"256"
+        	"spark.memory.offHeap.enabled":"true",
+        	"spark.memory.offHeap.size":"36000m",
+        	"spark.databricks.photon.enabled":"true",
+        	"spark.databricks.photon.parquetWriter.enabled":"true",
+            "spark.databricks.io.parquet.nativeReader.enabled":"false",
+            "spark.databricks.delta.optimizeWrite.enabled":"true"
     },
     "aws_attributes":{ 
          "zone_id":"us-west-2b",
