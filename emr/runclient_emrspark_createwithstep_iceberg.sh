@@ -109,6 +109,9 @@ args[28]="--partition-with-distribute-by=true"
 # column-storage format for the update tests (hudi, iceberg)
 args[29]="--update-table-format=iceberg"
 
+# use cluster by with primary key instead of distribute by with partition key
+args[30]="--use-cluster-by=true"
+
 printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
 function auto_terminate_func() {

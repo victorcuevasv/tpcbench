@@ -58,6 +58,8 @@ public class CreateDatabaseSparkInsertData {
 	//private final String[] insertSuffix = {"pointone", "one", "ten"};
 	private final String[] insertSuffix = {"ten"};
 	private final int dateskThreshold;
+	private final boolean useClusterBy;
+	private final Map<String, String> primaryKeys;
 	
 	
 	public CreateDatabaseSparkInsertData(CommandLine commandLine) {
@@ -98,6 +100,9 @@ public class CreateDatabaseSparkInsertData {
 		this.skipKeys = new SkipKeys().getMap();
 		String dateskThresholdStr = commandLine.getOptionValue("datesk-gt-threshold", "-1");
 		this.dateskThreshold = Integer.parseInt(dateskThresholdStr);
+		String useClusterByStr = commandLine.getOptionValue("use-cluster-by", "false");
+		this.useClusterBy = Boolean.parseBoolean(useClusterByStr);
+		this.primaryKeys = new HudiPrimaryKeys().getMap();
 	}
 	
 
@@ -230,7 +235,10 @@ public class CreateDatabaseSparkInsertData {
 		String updateExpr = this.createUpdatesExpression(denormTableName, partKey, skipAtt);
 		builder.append("UNION ALL\n");
 		builder.append(updateExpr);
-		builder.append("DISTRIBUTE BY " + partKey + "\n");
+		if( this.useClusterBy )
+			builder.append("CLUSTER BY " + this.primaryKeys.get(tableName) + "\n");
+		else
+			builder.append("DISTRIBUTE BY " + partKey + "\n");
 		return builder.toString();
 	}
 

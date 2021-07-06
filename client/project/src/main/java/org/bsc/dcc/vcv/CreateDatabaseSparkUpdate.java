@@ -59,6 +59,7 @@ public class CreateDatabaseSparkUpdate {
 	private final String hudiFileSize;
 	private final boolean hudiUseMergeOnRead;
 	private final boolean defaultCompaction;
+	private final boolean useClusterBy;
 	
 	public CreateDatabaseSparkUpdate(CommandLine commandLine) {
 		try {
@@ -108,6 +109,8 @@ public class CreateDatabaseSparkUpdate {
 		this.hudiUseMergeOnRead = Boolean.parseBoolean(hudiUseMergeOnReadStr);
 		String defaultCompactionStr = commandLine.getOptionValue("hudi-mor-default-compaction", "true");
 		this.defaultCompaction = Boolean.parseBoolean(defaultCompactionStr);
+		String useClusterByStr = commandLine.getOptionValue("use-cluster-by", "false");
+		this.useClusterBy = Boolean.parseBoolean(useClusterByStr);
 		this.hudiUtil = new HudiUtil(this.dbName, this.workDir, this.resultsDir, 
 				this.experimentName, this.instance, this.hudiFileSize, this.hudiUseMergeOnRead,
 				this.defaultCompaction);
@@ -217,16 +220,31 @@ public class CreateDatabaseSparkUpdate {
 					.saveAsTable(tableName + "_denorm_" + this.format);
 				}
 				else if(this.format.equals("iceberg")) {
-					this.spark.sql(sqlSelect)
-					.sort(partCol)
-					.write()
-					.option("compression", "snappy")
-					.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_" + 
-							this.format)
-					.partitionBy(partCol)
-					.mode("overwrite")
-					.format(this.format)
-					.saveAsTable(tableName + "_denorm_" + this.format);
+					if( this.useClusterBy ) {
+						this.spark.sql(sqlSelect)
+						.repartition(this.primaryKeys.get(tableName))
+						.sortWithinPartitions()
+						.write()
+						.option("compression", "snappy")
+						.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_" + 
+								this.format)
+						.partitionBy(partCol)
+						.mode("overwrite")
+						.format(this.format)
+						.saveAsTable(tableName + "_denorm_" + this.format);
+					}
+					else {
+						this.spark.sql(sqlSelect)
+						.sort(partCol)
+						.write()
+						.option("compression", "snappy")
+						.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_" + 
+								this.format)
+						.partitionBy(partCol)
+						.mode("overwrite")
+						.format(this.format)
+						.saveAsTable(tableName + "_denorm_" + this.format);
+					}
 				}
 			}
 			queryRecord.setSuccessful(true);

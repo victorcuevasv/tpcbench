@@ -60,6 +60,9 @@ public class CreateDatabaseSparkDeleteData {
 	private final int[] firstEqual = {1, 0, 0};
 	private final int[] secondEqual = {0, 0, 0};
 	private final int dateskThreshold;
+	private final boolean useClusterBy;
+	private final Map<String, String> primaryKeys;
+	
 	
 	public CreateDatabaseSparkDeleteData(CommandLine commandLine) {
 		try {
@@ -99,6 +102,9 @@ public class CreateDatabaseSparkDeleteData {
 		this.skipKeys = new SkipKeys().getMap();
 		String dateskThresholdStr = commandLine.getOptionValue("datesk-gt-threshold", "-1");
 		this.dateskThreshold = Integer.parseInt(dateskThresholdStr);
+		String useClusterByStr = commandLine.getOptionValue("use-cluster-by", "false");
+		this.useClusterBy = Boolean.parseBoolean(useClusterByStr);
+		this.primaryKeys = new HudiPrimaryKeys().getMap();
 	}
 	
 
@@ -229,7 +235,10 @@ public class CreateDatabaseSparkDeleteData {
 			builder.append("AND " + partKey + " > " + this.dateskThreshold + "\n");
 		builder.append("AND MOD(" + skipAtt + ", " + 
 				this.secondMod[fractionIndex] + ") = " + this.secondEqual[fractionIndex] + "\n");
-		builder.append("DISTRIBUTE BY " + partKey + "\n");
+		if( this.useClusterBy )
+			builder.append("CLUSTER BY " + this.primaryKeys.get(tableName) + "\n");
+		else
+			builder.append("DISTRIBUTE BY " + partKey + "\n");
 		return builder.toString();
 	}
 
