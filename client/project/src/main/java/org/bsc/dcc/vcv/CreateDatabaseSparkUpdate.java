@@ -229,7 +229,7 @@ public class CreateDatabaseSparkUpdate {
 						.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_" + 
 								this.format)
 						.partitionBy(partCol)
-						.sortWithinPartitions(new Column(this.primaryKeys.get(tableName)))
+						.sortWithinPartitions(this.primaryKeys.get(tableName))
 						.mode("overwrite")
 						.format(this.format)
 						.saveAsTable(tableName + "_denorm_" + this.format);
