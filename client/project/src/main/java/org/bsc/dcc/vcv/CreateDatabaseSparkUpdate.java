@@ -224,12 +224,12 @@ public class CreateDatabaseSparkUpdate {
 					if( this.useClusterBy ) {
 						this.spark.sql(sqlSelect)
 						.repartition(new Column(this.primaryKeys.get(tableName)))
+						.sortWithinPartitions(this.primaryKeys.get(tableName))
 						.write()
 						.option("compression", "snappy")
 						.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_" + 
 								this.format)
 						.partitionBy(partCol)
-						.sortWithinPartitions(this.primaryKeys.get(tableName))
 						.mode("overwrite")
 						.format(this.format)
 						.saveAsTable(tableName + "_denorm_" + this.format);
