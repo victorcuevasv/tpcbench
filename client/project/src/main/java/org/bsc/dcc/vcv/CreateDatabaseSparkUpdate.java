@@ -22,6 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.SaveMode;
 import org.apache.commons.cli.Option;
@@ -222,13 +223,13 @@ public class CreateDatabaseSparkUpdate {
 				else if(this.format.equals("iceberg")) {
 					if( this.useClusterBy ) {
 						this.spark.sql(sqlSelect)
-						.repartition(this.primaryKeys.get(tableName))
-						.sortWithinPartitions()
+						.repartition(new Column(this.primaryKeys.get(tableName)))
 						.write()
 						.option("compression", "snappy")
 						.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_" + 
 								this.format)
 						.partitionBy(partCol)
+						.sortWithinPartitions(new Column(this.primaryKeys.get(tableName)))
 						.mode("overwrite")
 						.format(this.format)
 						.saveAsTable(tableName + "_denorm_" + this.format);
