@@ -226,7 +226,8 @@ public class CreateDatabaseSparkUpdate {
 								this.primaryKeys.get(tableName), ",");
 						String pk = tokenizer.nextToken();
 						this.spark.sql(sqlSelect)
-						.repartition(new Column(partCol))
+						.sort(partCol)
+						//.repartition(new Column(partCol))
 						.sortWithinPartitions(pk)
 						.write()
 						.option("compression", "snappy")
