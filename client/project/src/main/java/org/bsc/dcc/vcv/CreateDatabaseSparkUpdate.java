@@ -222,9 +222,12 @@ public class CreateDatabaseSparkUpdate {
 				}
 				else if(this.format.equals("iceberg")) {
 					if( this.useClusterBy ) {
+						StringTokenizer tokenizer = new StringTokenizer(
+								this.primaryKeys.get(tableName), ",");
+						String primaryKey = tokenizer.nextToken();
 						this.spark.sql(sqlSelect)
-						.repartition(new Column(this.primaryKeys.get(tableName)))
-						.sortWithinPartitions(this.primaryKeys.get(tableName))
+						.repartition(new Column(primaryKey))
+						.sortWithinPartitions(primaryKey)
 						.write()
 						.option("compression", "snappy")
 						.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_" + 

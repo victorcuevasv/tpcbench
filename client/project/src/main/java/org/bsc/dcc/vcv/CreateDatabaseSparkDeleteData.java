@@ -235,8 +235,12 @@ public class CreateDatabaseSparkDeleteData {
 			builder.append("AND " + partKey + " > " + this.dateskThreshold + "\n");
 		builder.append("AND MOD(" + skipAtt + ", " + 
 				this.secondMod[fractionIndex] + ") = " + this.secondEqual[fractionIndex] + "\n");
-		if( this.useClusterBy )
-			builder.append("CLUSTER BY " + this.primaryKeys.get(tableName) + "\n");
+		if( this.useClusterBy ) {
+			StringTokenizer tokenizer = new StringTokenizer(
+					this.primaryKeys.get(tableName), ",");
+			String primaryKey = tokenizer.nextToken();
+			builder.append("CLUSTER BY " + primaryKey + "\n");
+		}
 		else
 			builder.append("DISTRIBUTE BY " + partKey + "\n");
 		return builder.toString();

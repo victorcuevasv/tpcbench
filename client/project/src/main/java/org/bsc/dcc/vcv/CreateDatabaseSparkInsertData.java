@@ -235,8 +235,12 @@ public class CreateDatabaseSparkInsertData {
 		String updateExpr = this.createUpdatesExpression(denormTableName, partKey, skipAtt);
 		builder.append("UNION ALL\n");
 		builder.append(updateExpr);
-		if( this.useClusterBy )
-			builder.append("CLUSTER BY " + this.primaryKeys.get(tableName) + "\n");
+		if( this.useClusterBy ) {
+			StringTokenizer tokenizer = new StringTokenizer(
+					this.primaryKeys.get(tableName), ",");
+			String primaryKey = tokenizer.nextToken();
+			builder.append("CLUSTER BY " + primaryKey + "\n");
+		}
 		else
 			builder.append("DISTRIBUTE BY " + partKey + "\n");
 		return builder.toString();
