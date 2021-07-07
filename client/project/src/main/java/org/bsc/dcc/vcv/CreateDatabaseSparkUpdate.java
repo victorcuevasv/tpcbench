@@ -226,9 +226,9 @@ public class CreateDatabaseSparkUpdate {
 								this.primaryKeys.get(tableName), ",");
 						String pk = tokenizer.nextToken();
 						this.spark.sql(sqlSelect)
-						.sort(partCol)
+						.sort(partCol, pk)
 						//.repartition(new Column(partCol))
-						.sortWithinPartitions(pk)
+						//.sortWithinPartitions(pk)
 						.write()
 						.option("compression", "snappy")
 						.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_" + 
