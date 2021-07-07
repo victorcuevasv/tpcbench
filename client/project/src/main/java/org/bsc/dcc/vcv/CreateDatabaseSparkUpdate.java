@@ -224,10 +224,10 @@ public class CreateDatabaseSparkUpdate {
 					if( this.useClusterBy ) {
 						StringTokenizer tokenizer = new StringTokenizer(
 								this.primaryKeys.get(tableName), ",");
-						String primaryKey = tokenizer.nextToken();
+						String pk = tokenizer.nextToken();
 						this.spark.sql(sqlSelect)
-						.repartition(new Column(primaryKey))
-						.sortWithinPartitions(primaryKey)
+						.repartition(new Column(pk))
+						.sortWithinPartitions(pk)
 						.write()
 						.option("compression", "snappy")
 						.option("path", extTablePrefixCreated.get() + "/" + tableName + "_denorm_" + 
