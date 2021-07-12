@@ -141,8 +141,7 @@ post_data_func()
 	"new_cluster":{ 
 		"spark_version":"custom:custom-local__8.x-snapshot-photon-scala2.12__unknown__master__9982c96__4b4c575__alex.behm__d7b454e__format-2.lz4",
         "spark_conf":{
-        	"spark.databricks.photon.enabled":"true",
-            "spark.databricks.photon.parquetWriter.enabled":"true"
+        	"spark.databricks.delta.optimizeWrite.enabled":"true"
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
