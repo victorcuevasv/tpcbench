@@ -45,7 +45,7 @@ JarFile="/mnt/tpcds-jars/targetsparkdatabricks/client-1.2-SNAPSHOT-SHADED.jar"
 JOB_NAME="Run TPC-DS Benchmark ${Tag} $2"
 #Script operation flags.
 RUN_CREATE_JOB=1
-RUN_RUN_JOB=0
+RUN_RUN_JOB=1
 WAIT_FOR_TERMINATION=0
 RUN_DELETE_WAREHOUSE=0
 
@@ -124,15 +124,6 @@ function json_string_list() {
 
 paramsStr=$(json_string_list "${args[@]}")
 
-#Reference configuration.
-#"spark.databricks.delta.optimize.maxFileSize":"134217728",
-#"spark.databricks.delta.optimize.minFileSize":"134217728",
-#"spark.sql.crossJoin.enabled":"true",
-#"spark.databricks.optimizer.deltaTableFilesThreshold":"100",
-#"spark.sql.broadcastTimeout":"7200",
-#"spark.databricks.delta.autoCompact.maxFileSize":"134217728",
-#"hive.exec.dynamic.partition.mode":"nonstrict",
-#"hive.exec.max.dynamic.partitions":"3000"
 post_data_func()
 {
   cat <<EOF
