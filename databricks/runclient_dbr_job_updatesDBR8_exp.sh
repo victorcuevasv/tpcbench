@@ -32,7 +32,7 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
 Nodes="16"
 MajorVersion="8"
-MinorVersion="p"
+MinorVersion="3p"
 ScalaVersion="x-scala2.12"
 #Run configuration.
 Tag="$(date +%s)"
@@ -133,15 +133,17 @@ paramsStr=$(json_string_list "${args[@]}")
 #"spark.databricks.delta.autoCompact.maxFileSize":"134217728",
 #"hive.exec.dynamic.partition.mode":"nonstrict",
 #"hive.exec.max.dynamic.partitions":"3000"
+#custom:custom-local__8.x-snapshot-photon-scala2.12__unknown__master__9982c96__4b4c575__alex.behm__d7b454e__format-2.lz4
 post_data_func()
 {
   cat <<EOF
 { 
 	"name":"$JOB_NAME",
 	"new_cluster":{ 
-		"spark_version":"custom:custom-local__8.x-snapshot-photon-scala2.12__unknown__master__9982c96__4b4c575__alex.behm__d7b454e__format-2.lz4",
+		"spark_version":"custom:release__8.3.x-snapshot-photon-scala2.12__databricks-universe__head__83b02b5__e760fb6__jenkins__6aae6d7__format-2.lz4",
         "spark_conf":{
-        	"spark.databricks.delta.optimizeWrite.enabled":"true"
+        	"spark.databricks.photon.parquetWriter.enabled":"true",
+			"spark.databricks.photon.enabled":"true"
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
