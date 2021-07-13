@@ -35,6 +35,7 @@ MajorVersion="8"
 MinorVersion="3"
 ScalaVersion="x-scala2.12"
 #Run configuration.
+ScaleFactor = "$1"
 Tag="$(date +%s)"
 #Script operation flags.
 RUN_CREATE_JOB=1
@@ -76,7 +77,7 @@ post_data_func()
       "notebook_task": {
             "notebook_path": "/BSC/BSC-TPC_DS-HudiVsDelta (Final Copy)/BSC-TPC_DS-HudiVsDelta (FCjob)",
             "base_parameters": {
-                "scaleFactor": "$1",
+                "scaleFactor": "${ScaleFactor}",
                 "instance": "${instance}",
                 "tag": "${Tag}",
                 "majorVersion": "${MajorVersion}",
