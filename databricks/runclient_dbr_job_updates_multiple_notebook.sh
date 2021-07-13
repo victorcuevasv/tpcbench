@@ -30,7 +30,7 @@ printf "\n\n%s\n\n" "${mag}Running the TPC-DS benchmark.${end}"
 
 #Cluster configuration.
 DatabricksHost="dbc-08fc9045-faef.cloud.databricks.com"
-Nodes="16"
+Nodes="2"
 MajorVersion="8"
 MinorVersion="3"
 ScalaVersion="x-scala2.12"
@@ -74,7 +74,7 @@ post_data_func()
       },
       "timeout_seconds":0,
       "notebook_task": {
-            "notebook_path": "/Engineering/Benchmarking/TPC/TPC-notebook-runner",
+            "notebook_path": "/BSC/BSC-TPC_DS-HudiVsDelta (Final Copy)/BSC-TPC_DS-HudiVsDelta (FCjob)",
             "base_parameters": {
                 "scaleFactor": "$1",
                 "instance": "${instance}",
