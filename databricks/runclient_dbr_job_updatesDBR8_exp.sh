@@ -140,10 +140,14 @@ post_data_func()
 { 
 	"name":"$JOB_NAME",
 	"new_cluster":{ 
-		"spark_version":"custom:release__8.3.x-snapshot-photon-scala2.12__databricks-universe__head__83b02b5__e760fb6__jenkins__6aae6d7__format-2.lz4",
+		"spark_version":"custom:release__8.3.x-snapshot-photon-scala2.12__databricks-universe__head__095f3d4__815684c__jenkins__7a67413__format-2.lz4",
         "spark_conf":{
-        	"spark.databricks.photon.parquetWriter.enabled":"true",
-			"spark.databricks.photon.enabled":"true"
+        	"spark.executor.memory":"8000m",
+			"spark.memory.offHeap.enabled":"true",
+			"spark.memory.offHeap.size":"36000m",
+			"spark.databricks.photon.enabled":"true",
+			"spark.databricks.photon.parquetWriter.enabled":"true",
+			"spark.databricks.io.parquet.nativeReader.enabled":"false"
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
