@@ -75,7 +75,8 @@ post_data_func()
 			"spark.memory.offHeap.size":"36000m",
 			"spark.databricks.photon.enabled":"true",
 			"spark.databricks.photon.parquetWriter.enabled":"true",
-			"spark.databricks.io.parquet.nativeReader.enabled":"false"
+			"spark.databricks.io.parquet.nativeReader.enabled":"false",
+			"spark.databricks.delta.optimizeWrite.enabled":"true"
          },
          "aws_attributes":{ 
             "zone_id":"us-west-2b",
