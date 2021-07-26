@@ -127,7 +127,7 @@ args[34]="--scale-factor=$1"
 # schema      |load          |analyze     |load denorm    |load skip      |
 # insupd data |delete data   |load update |read test 1    |insupd test    |
 # read test 2 |delete test   |read test 3 |gdpr           |read test 4    |
-args[35]="--execution-flags=111111111111111"
+args[35]="--execution-flags=110111111111111"
 
 paramsStr="${args[@]}"
 
