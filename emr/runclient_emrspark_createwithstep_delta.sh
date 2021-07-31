@@ -258,7 +258,8 @@ configurations_func()
          "spark.driver.memory":"18971M",
          "spark.driver.maxResultSize":"5692M",
          "spark.sql.broadcastTimeout":"7200",
-         "spark.sql.crossJoin.enabled":"true"
+         "spark.sql.crossJoin.enabled":"true",
+         "spark.databricks.delta.merge.repartitionBeforeWrite.enabled":"true"
       }
    },
    {
