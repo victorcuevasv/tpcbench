@@ -19,9 +19,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #The globalVars.sh script defines the TPCDS_VERSION variable.
 source $DIR/globalVars.sh
 
-printf "\n\n%s\n\n" "${blu}Generating the BigQuery query stream files.${end}"
+printf "\n\n%s\n\n" "${blu}Generating the Databricks query stream files.${end}"
 
 docker run --rm --user $1:$2 --name tpc --volume $DIR/../vols/data:/TPC-DS/$TPCDS_VERSION/output \
-	tpcds:dev /TPC-DS/$TPCDS_VERSION/tools/createStreamsBigQuery.sh $3 $4    
+	tpcds:dev /TPC-DS/$TPCDS_VERSION/tools/createStreamsDatabricks.sh $3 $4    
 	
 

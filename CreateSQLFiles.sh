@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -euxo pipefail
 #Variables for console output with colors.
 
 red=$'\e[1;31m'
@@ -39,15 +39,15 @@ printf "\n\n%s\n\n" "${mag}Processing the tpcds[varchar].sql file.${end}"
 bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID tpcdsvarchar.sql
 cp -r $DIR/vols/data/tables $DIR/client/project/src/main/resources/
 
-#Generate the unused Netezza queries.
+#Generate the Databricks photon queries.
 printf "\n\n%s\n\n" "${mag}Generating the Netezza queries.${end}"
-bash $DIR/dqgen2/generateQueries.sh $USER_ID $GROUP_ID $1
-cp -r $DIR/vols/data/QueriesNetezza $DIR/client/project/src/main/resources/
+bash $DIR/dqgen2/generateQueriesDatabricks.sh $USER_ID $GROUP_ID $1
+cp -r $DIR/vols/data/QueriesDatabricks $DIR/client/project/src/main/resources/
 
 #Generate the Presto queries.
-printf "\n\n%s\n\n" "${mag}Generating the Presto queries.${end}"
-bash $DIR/dqgen2/generateQueriesPresto.sh $USER_ID $GROUP_ID $1
-cp -r $DIR/vols/data/QueriesPresto $DIR/client/project/src/main/resources/
+# printf "\n\n%s\n\n" "${mag}Generating the Presto queries.${end}"
+# bash $DIR/dqgen2/generateQueriesPresto.sh $USER_ID $GROUP_ID $1
+# cp -r $DIR/vols/data/QueriesPresto $DIR/client/project/src/main/resources/
 
 #Generate the Spark queries.
 printf "\n\n%s\n\n" "${mag}Generating the Spark queries.${end}"

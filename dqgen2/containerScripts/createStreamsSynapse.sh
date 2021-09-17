@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -euxo pipefail
 #PARAMETERS.
 #$1 scale
 #$2 number of streams

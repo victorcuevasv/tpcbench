@@ -1,2 +1,0 @@
-The required subfolders in the output folder have to be created manually.
- 

@@ -12,9 +12,9 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
-#Create a directory for the Spark queries, if it doesn't exist
-if [ ! -d ../output/StreamsSpark ]; then
-  mkdir ../output/StreamsSpark
+#Create a directory for the Databricks queries, if it doesn't exist
+if [ ! -d ../output/StreamsDatabricks ]; then
+  mkdir ../output/StreamsDatabricks
 fi
 
 #Create a temporary directory holding the query templates, copy to it the
@@ -33,15 +33,12 @@ fi
 #Copy the original templates.
 cp ../query_templates/* ../query_templates_temp
 
-#Override the modified templates for Spark
-cp ../query_templates_spark/* ../query_templates_temp
+#Override the modified templates for Databricks
+cp ../query_templates_databricks/* ../query_templates_temp
 
-#Override the netezza.tpl template with netezzaLong.tpl
-cp ../netezzaLong.tpl ../query_templates_temp/netezza.tpl
+printf "\n\n%s\n\n" "${blu}Generating the Databricks query streams with dsqgen.${end}"
 
-printf "\n\n%s\n\n" "${blu}Generating the Spark query streams with dsqgen.${end}"
-
-./dsqgen -DIRECTORY ../query_templates_temp -INPUT ../query_templates_temp/templates.lst -OUTPUT_DIR ../output/StreamsSpark -dialect netezza -scale $1 -streams $2   
+./dsqgen -DIRECTORY ../query_templates_temp -INPUT ../query_templates_temp/templates.lst -OUTPUT_DIR ../output/StreamsDatabricks -dialect databricks -scale $1 -streams $2   
 
 
 

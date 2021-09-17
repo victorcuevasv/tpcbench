@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -euxo pipefail
 #Variables for console output with colors.
 
 red=$'\e[1;31m'
@@ -45,15 +45,15 @@ printf "\n\n%s\n\n" "${mag}Processing the tpcds[string].sql file.${end}"
 bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID tpcdsstring.sql tablesstring
 cp -r $DIR/vols/data/tablesstring $DIR/client/project/src/main/resources/
 
-#Generate the unused Netezza queries.
-printf "\n\n%s\n\n" "${mag}Generating the Netezza queries.${end}"
-bash $DIR/dqgen2/generateQueries.sh $USER_ID $GROUP_ID $1
-cp -r $DIR/vols/data/QueriesNetezza $DIR/client/project/src/main/resources/
+#Generate the Databricks queries.
+printf "\n\n%s\n\n" "${mag}Generating the Databricks queries.${end}"
+bash $DIR/dqgen2/generateQueriesDatabricks.sh $USER_ID $GROUP_ID $1
+cp -r $DIR/vols/data/QueriesDatabricks $DIR/client/project/src/main/resources/
 
-#Generate the Presto queries.
-printf "\n\n%s\n\n" "${mag}Generating the Presto queries.${end}"
-bash $DIR/dqgen2/generateQueriesPresto.sh $USER_ID $GROUP_ID $1
-cp -r $DIR/vols/data/QueriesPresto $DIR/client/project/src/main/resources/
+# #Generate the Presto queries.
+# printf "\n\n%s\n\n" "${mag}Generating the Presto queries.${end}"
+# bash $DIR/dqgen2/generateQueriesPresto.sh $USER_ID $GROUP_ID $1
+# cp -r $DIR/vols/data/QueriesPresto $DIR/client/project/src/main/resources/
 
 #Generate the Spark queries.
 printf "\n\n%s\n\n" "${mag}Generating the Spark queries.${end}"
@@ -80,16 +80,16 @@ printf "\n\n%s\n\n" "${mag}Generating the BigQuery queries.${end}"
 bash $DIR/dqgen2/generateQueriesBigQuery.sh $USER_ID $GROUP_ID $1
 cp -r $DIR/vols/data/QueriesBigQuery $DIR/client/project/src/main/resources/
 
-#Generate the unused Netezza query streams.
-printf "\n\n%s\n\n" "${mag}Generating the Netezza query streams.${end}"
+#Generate the Databricks query streams.
+printf "\n\n%s\n\n" "${mag}Generating the Databricks query streams.${end}"
 bash $DIR/createStreams.sh $1 $2
-bash $DIR/runclient_processStreamFilesQueries.sh Netezza
+bash $DIR/runclient_processStreamFilesQueries.sh Databricks
 START=0
 END=$2
 for (( i=$START; i<$END; i++ ))
 do
-	mkdir $DIR/client/project/src/main/resources/QueriesNetezzaStream$i
-	cp $DIR/vols/data/StreamsNetezzaProcessed/stream$i/* $DIR/client/project/src/main/resources/QueriesNetezzaStream$i
+	mkdir $DIR/client/project/src/main/resources/QueriesDatabricksStream$i
+	cp $DIR/vols/data/StreamsDatabricksProcessed/stream$i/* $DIR/client/project/src/main/resources/QueriesDatabricksStream$i
 done
 
 #Generate the Spark query streams.
@@ -104,17 +104,17 @@ do
 	cp $DIR/vols/data/StreamsSparkProcessed/stream$i/* $DIR/client/project/src/main/resources/QueriesSparkStream$i
 done
 
-#Generate the Presto query streams.
-printf "\n\n%s\n\n" "${mag}Generating the Presto query streams.${end}"
-bash $DIR/createStreamsPresto.sh $1 $2
-bash $DIR/runclient_processStreamFilesQueries.sh Presto
-START=0
-END=$2
-for (( i=$START; i<$END; i++ ))
-do
-	mkdir $DIR/client/project/src/main/resources/QueriesPrestoStream$i
-	cp $DIR/vols/data/StreamsPrestoProcessed/stream$i/* $DIR/client/project/src/main/resources/QueriesPrestoStream$i
-done
+# #Generate the Presto query streams.
+# printf "\n\n%s\n\n" "${mag}Generating the Presto query streams.${end}"
+# bash $DIR/createStreamsPresto.sh $1 $2
+# bash $DIR/runclient_processStreamFilesQueries.sh Presto
+# START=0
+# END=$2
+# for (( i=$START; i<$END; i++ ))
+# do
+# 	mkdir $DIR/client/project/src/main/resources/QueriesPrestoStream$i
+# 	cp $DIR/vols/data/StreamsPrestoProcessed/stream$i/* $DIR/client/project/src/main/resources/QueriesPrestoStream$i
+# done
 
 #Generate the Snowflake query streams.
 printf "\n\n%s\n\n" "${mag}Generating the Snowflake query streams.${end}"
