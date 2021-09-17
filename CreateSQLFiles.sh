@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euxo pipefail
+set -x
 #Variables for console output with colors.
 
 red=$'\e[1;31m'
@@ -40,7 +40,7 @@ bash $DIR/runclient_processcreatescript.sh $USER_ID $GROUP_ID tpcdsvarchar.sql
 cp -r $DIR/vols/data/tables $DIR/client/project/src/main/resources/
 
 #Generate the Databricks photon queries.
-printf "\n\n%s\n\n" "${mag}Generating the Netezza queries.${end}"
+printf "\n\n%s\n\n" "${mag}Generating the Databricks queries.${end}"
 bash $DIR/dqgen2/generateQueriesDatabricks.sh $USER_ID $GROUP_ID $1
 cp -r $DIR/vols/data/QueriesDatabricks $DIR/client/project/src/main/resources/
 

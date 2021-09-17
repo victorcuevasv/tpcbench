@@ -26,9 +26,9 @@ if [ $# -lt 2 ]; then
     exit 1
 fi
 
-#Generate the Netezza queries.
+#Generate the Databricks queries.
 printf "\n\n%s\n\n" "${mag}Generating query streams.${end}"
-bash $DIR/dqgen2/generateStreams.sh $USER_ID $GROUP_ID $1 $2
+bash $DIR/dqgen2/generateStreamsDatabricks.sh $USER_ID $GROUP_ID $1 $2
  
 
 
