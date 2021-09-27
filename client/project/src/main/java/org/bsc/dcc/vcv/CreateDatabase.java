@@ -76,6 +76,7 @@ public class CreateDatabase {
 	private final Map<String, String> sortKeys;
 	private final Map<String, String> clusterByKeys;
 	private final boolean useDistKeys;
+	private final String synapseToken;
 	
 	public CreateDatabase(CommandLine commandLine) {
 		this.workDir = commandLine.getOptionValue("main-work-dir");
@@ -121,6 +122,7 @@ public class CreateDatabase {
 		if( commandLine.hasOption("override-load-system") ) {
 			this.systemRunning = commandLine.getOptionValue("override-load-system");
 		}
+		this.synapseToken = commandLine.getOptionValue("synapse-token", "UNSET");
 		this.openConnection();
 	}
 	
@@ -179,7 +181,7 @@ public class CreateDatabase {
 		this.bucketing = Boolean.parseBoolean(args[15]);
 		this.hostname = args[16];
 		this.createSingleOrAll = "all";
-		this.clusterId = "UNUSED";
+		this.clusterId = args[26];
 		this.columnDelimiter = "SOH";
 		this.userId = "UNUSED";
 		this.dbPassword = "UNUSED";
@@ -197,7 +199,8 @@ public class CreateDatabase {
 		if( this.system.equals("hive") || 
 				( ( this.partition || this.bucketing ) && this.system.startsWith("presto") ) ) {
 			this.systemRunning = "hive";
-		}
+		}		
+		this.synapseToken = args[25];
 		this.openConnection();
 	}
 	
@@ -274,19 +277,19 @@ public class CreateDatabase {
 						"user=" + this.userId + "&password=" + snowflakePwd +
 						"&warehouse=" + this.clusterId + "&schema=" + this.dbName);
 			}
-			else if( this.system.startsWith("synapse") ) {
-				String synapsePwd = AWSUtil.getValue("SynapsePassword");
-				Class.forName(synapseDriverName);
-				this.con = DriverManager.getConnection("jdbc:sqlserver://" +
-				this.hostname + ":1433;" +
-				"database=bsc-tpcds-test-pool;" +
-				"user=tpcds_user_loader@bsctest;" +
-				"password=" + synapsePwd + ";" +
-				"encrypt=true;" +
-				"trustServerCertificate=false;" +
-				"hostNameInCertificate=*.database.windows.net;" +
-				"loginTimeout=30;");
-			}
+            else if( this.system.startsWith("synapse") ) {
+                String synapsePwd = this.dbPassword; //AWSUtil.getValue("SynapsePassword");
+                Class.forName(synapseDriverName);
+                this.con = DriverManager.getConnection("jdbc:sqlserver://" +
+                this.hostname + ":1433;" +
+                "database=" + this.clusterId + ";" +
+                "user=tpcds_user@cdw-2021;" +
+                "password=" + synapsePwd + ";" +
+                "encrypt=true;" +
+                "trustServerCertificate=false;" +
+                "hostNameInCertificate=*.sql.azuresynapse.net;" +
+                "loginTimeout=30;");
+            }
 			else if( this.system.startsWith("bigquery") ) {
 				this.bigQueryDAO = new BigQueryDAO("databricks-bsc-benchmark", this.dbName);
 			}
@@ -344,6 +347,7 @@ public class CreateDatabase {
 	}
 	
 	private void createTables() {
+		System.out.println("### DEBUG ### : Start CreateTables");
 		if( this.system.startsWith("snowflake") ) {
 			this.useDatabaseQuery(this.dbName);
 			this.useSchemaQuery(this.dbName);
@@ -380,9 +384,10 @@ public class CreateDatabase {
 			}
 			else if (this.systemRunning.equals("databrickssql"))
 				this.createTableDatabricksSQL(fileName, sqlCreate, i);
-			else if (this.systemRunning.equals("bigquery"))
+			else if (this.systemRunning.equals("bigquery")) {
+				System.out.println("### DEBUG ### Create BigQuery\n" +  sqlCreate);
 				this.createTableBigQuery(fileName, sqlCreate, i);
-			else
+			} else
 				this.createTable(fileName, sqlCreate, i);
 			i++;
 		}
@@ -482,6 +487,7 @@ public class CreateDatabase {
 				bigQuerySqlCreate = bigQuerySqlCreate + "\n CLUSTER BY(" + clusterByKey + ")";
 			queryRecord = new QueryRecord(index);
 			queryRecord.setStartTime(System.currentTimeMillis());
+			System.out.println("### DEBUG ### BigQuery table create \n" + bigQuerySqlCreate);
 			bigQuerySqlCreate = this.bigQueryDAO.createTable(tableName, bigQuerySqlCreate);
 			saveCreateTableFile("bigquerytable", tableName, bigQuerySqlCreate);
 			//A null extTablePrefixRaw indicates to use local files for table creation.
@@ -547,10 +553,10 @@ public class CreateDatabase {
 			stmt.execute("if object_id ('" + tableName + suffix +  "','U') is not null drop table " + 
 					tableName + suffix);
 			stmt.execute(synapseSqlCreate);
-			String synapseToken = AWSUtil.getValue("SynapseToken");
-			String fieldTerminator = "'0x01'";
-			if( this.columnDelimiter.equals("PIPE") )
-				fieldTerminator = "'|'";
+			//String synapseToken = this.synapseToken;// AWSUtil.getValue("SynapseToken");
+			String fieldTerminator = "'|'";
+			if( this.columnDelimiter.equals("SOH") )
+				fieldTerminator = "'0x01'";
 			String copySql = "COPY INTO " + tableName + " FROM '" + 
 						this.extTablePrefixRaw.get() + "/" + tableName + "/' \n" +
 						"WITH (" + 
@@ -561,7 +567,9 @@ public class CreateDatabase {
 						"SECRET='<SECRET>') \n" +
 						") \n";
 			saveCreateTableFile("synapsecopy", tableName, copySql);
-			copySql = copySql.replace("<SECRET>", synapseToken);
+			System.out.println("### DEBUG ### \n" + copySql);
+			copySql = copySql.replace("<SECRET>", this.synapseToken);
+
 			stmt.execute(copySql);
 			queryRecord.setSuccessful(true);
 			if( doCount )
@@ -577,6 +585,8 @@ public class CreateDatabase {
 			if( queryRecord != null ) {
 				queryRecord.setEndTime(System.currentTimeMillis());
 				this.recorder.record(queryRecord);
+				this.closeConnection();
+				this.openConnection();
 			}
 		}
 	}
@@ -1161,7 +1171,11 @@ public class CreateDatabase {
 	
 	private void countRowsQuery(Statement stmt, String tableName) {
 		try {
-			String sql = "select count(*) from " + tableName;
+			String sql = sql = "select count(*) from " + tableName; 
+
+			if( this.system.startsWith("synapse") ) 
+				sql = "select count_big(*) from " + tableName; 
+
 			System.out.print("Running count query on " + tableName + ": ");
 			ResultSet res = stmt.executeQuery(sql);
 			while (res.next()) {

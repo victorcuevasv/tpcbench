@@ -172,7 +172,7 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 		this.random = new Random(seed);
 		this.tputChangingStreams = true;
 		this.tupleLimit = -1;
-		this.clusterId = "UNUSED";
+		this.clusterId = args[26];
 		this.userId = "UNUSED";
 		this.dbPassword = "UNUSED";
 		this.numCores = -1;
@@ -261,19 +261,19 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
 				con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
 				this.dbName + "?ssl=true&UID=" + this.userId + "&PWD=" + redshiftPwd);
 			}
-			else if( this.system.startsWith("synapse") ) {
-				String synapsePwd = AWSUtil.getValue("SynapsePassword");
-				Class.forName(synapseDriverName);
-				con = DriverManager.getConnection("jdbc:sqlserver://" +
-				this.hostname + ":1433;" +
-				"database=bsc-tpcds-test-pool;" +
-				"user=tpcds_user@bsctest;" +
-				"password=" + synapsePwd + ";" +
-				"encrypt=true;" +
-				"trustServerCertificate=false;" +
-				"hostNameInCertificate=*.database.windows.net;" +
-				"loginTimeout=30;");
-			}
+            else if( this.system.startsWith("synapse") ) {
+                String synapsePwd = this.dbPassword; //AWSUtil.getValue("SynapsePassword");
+                Class.forName(synapseDriverName);
+                this.con = DriverManager.getConnection("jdbc:sqlserver://" +
+                this.hostname + ":1433;" +
+                "database=" + this.clusterId + ";" +
+                "user=tpcds_user@cdw-2021;" +
+                "password=" + synapsePwd + ";" +
+                "encrypt=true;" +
+                "trustServerCertificate=false;" +
+                "hostNameInCertificate=*.sql.azuresynapse.net;" +
+                "loginTimeout=30;");
+            }
 			else if( this.system.startsWith("bigquery") ) {
 				this.bigQueryDAO = new BigQueryDAO("databricks-bsc-benchmark", this.dbName);
 			}
@@ -539,6 +539,8 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
         }
 		catch (InterruptedException e) {
             e.printStackTrace();
+            this.closeConnection();
+			this.openConnection();
         }
 	}
 	

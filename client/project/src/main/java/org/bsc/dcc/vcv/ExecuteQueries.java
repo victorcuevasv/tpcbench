@@ -149,7 +149,7 @@ public class ExecuteQueries {
 			this.querySingleOrAll = "all";
 		else
 			this.querySingleOrAll = args[14];
-		this.clusterId = "UNUSED";
+		this.clusterId = args[26];
 		this.userId = "UNUSED";
 		this.dbPassword = "UNUSED";
 		this.numCores = -1;
@@ -227,19 +227,19 @@ public class ExecuteQueries {
 				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
 				this.dbName + "?ssl=true&UID=" + this.userId + "&PWD=" + redshiftPwd);
 			}
-			else if( this.system.startsWith("synapse") ) {
-				String synapsePwd = AWSUtil.getValue("SynapsePassword");
-				Class.forName(synapseDriverName);
-				this.con = DriverManager.getConnection("jdbc:sqlserver://" +
-				this.hostname + ":1433;" +
-				"database=bsc-tpcds-test-pool;" +
-				"user=tpcds_user@bsctest;" +
-				"password=" + synapsePwd + ";" +
-				"encrypt=true;" +
-				"trustServerCertificate=false;" +
-				"hostNameInCertificate=*.database.windows.net;" +
-				"loginTimeout=30;");
-			}
+            else if( this.system.startsWith("synapse") ) {
+                String synapsePwd = this.dbPassword; //AWSUtil.getValue("SynapsePassword");
+                Class.forName(synapseDriverName);
+                this.con = DriverManager.getConnection("jdbc:sqlserver://" +
+                this.hostname + ":1433;" +
+                "database=" + this.clusterId + ";" +
+                "user=tpcds_user@cdw-2021;" +
+                "password=" + synapsePwd + ";" +
+                "encrypt=true;" +
+                "trustServerCertificate=false;" +
+                "hostNameInCertificate=*.sql.azuresynapse.net;" +
+                "loginTimeout=30;");
+            }
 			else if( this.system.startsWith("bigquery") ) {
 				this.bigQueryDAO = new BigQueryDAO("databricks-bsc-benchmark", this.dbName);
 			}
@@ -498,10 +498,12 @@ public class ExecuteQueries {
 			this.logger.error("Error processing: " + fileName);
 			this.logger.error(e);
 			this.logger.error(AppUtil.stringifyStackTrace(e));
+			this.closeConnection();			
 		}
 		finally {
 			queryRecord.setEndTime(System.currentTimeMillis());
 			this.recorder.record(queryRecord);
+			this.openConnection();
 		}
 	}
 	

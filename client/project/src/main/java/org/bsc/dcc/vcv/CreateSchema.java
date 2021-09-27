@@ -68,7 +68,7 @@ public class CreateSchema {
 		this.hostname = args[0];
 		this.system = args[1];
 		this.dbName = args[2];
-		this.clusterId = "UNUSED";
+		this.clusterId = args[26];
 		this.userId = "UNUSED";
 		this.dbPassword = "UNUSED";
 		this.openConnection();
@@ -135,17 +135,21 @@ public class CreateSchema {
 						"user=bsctest&password=" + snowflakePwd);
 			}
 			else if( this.system.startsWith("synapse") ) {
-				String synapsePwd = AWSUtil.getValue("SynapsePassword");
-				Class.forName(synapseDriverName);
-				this.con = DriverManager.getConnection("jdbc:sqlserver://" +
+				String synapsePwd = this.dbPassword; //AWSUtil.getValue("SynapsePassword");
+				String connSynapse = "jdbc:sqlserver://" +
 				this.hostname + ":1433;" +
-				"database=bsc-tpcds-test-pool;" +
-				"user=azureuser@bsctest;" +
+				"database=" + this.clusterId + ";" +
+				"user=tpcds_user@cdw-2021;" +
 				"password=" + synapsePwd + ";" +
 				"encrypt=true;" +
 				"trustServerCertificate=false;" +
-				"hostNameInCertificate=*.database.windows.net;" +
-				"loginTimeout=30;");
+				"hostNameInCertificate=*.sql.azuresynapse.net;" +
+				"loginTimeout=30;";
+
+				System.out.println("DEBUG " + connSynapse);	
+
+				Class.forName(synapseDriverName);
+				this.con = DriverManager.getConnection(connSynapse);
 			}
 			else if( this.system.startsWith("bigquery") ) {
 				;

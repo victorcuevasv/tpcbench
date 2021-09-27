@@ -183,6 +183,9 @@ public class RunBenchmarkOptions {
 		options.addOption( Option.builder().longOpt( "execution-flags" )
 				.desc( "execution flags (111111 schema|load|analyze|zorder|power|tput)" )
 				.hasArg(true).required(false).type(Integer.class).build() );
+		options.addOption( Option.builder().longOpt( "synapse-token" )
+				.desc( "storage account SAS toke for synapse import" )
+				.hasArg(true).required(false).build() );		
 	}
 	
 	public Options getOptions() {

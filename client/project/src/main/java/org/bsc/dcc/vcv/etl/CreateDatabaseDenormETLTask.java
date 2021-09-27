@@ -213,19 +213,19 @@ public abstract class CreateDatabaseDenormETLTask {
 						"user=" + this.userId + "&password=" + snowflakePwd +
 						"&warehouse=" + this.clusterId + "&schema=" + this.dbName);
 			}
-			else if( this.system.startsWith("synapse") ) {
-				String synapsePwd = AWSUtil.getValue("SynapsePassword");
-				Class.forName(synapseDriverName);
-				this.con = DriverManager.getConnection("jdbc:sqlserver://" +
-				this.hostname + ":1433;" +
-				"database=bsc-tpcds-test-pool;" +
-				"user=tpcds_user_loader@bsctest;" +
-				"password=" + synapsePwd + ";" +
-				"encrypt=true;" +
-				"trustServerCertificate=false;" +
-				"hostNameInCertificate=*.database.windows.net;" +
-				"loginTimeout=30;");
-			}
+            else if( this.system.startsWith("synapse") ) {
+                String synapsePwd = this.dbPassword;
+                Class.forName(synapseDriverName);
+                this.con = DriverManager.getConnection("jdbc:sqlserver://" +
+                this.hostname + ":1433;" +
+                "database=" + this.clusterId + ";" +
+                "user=tpcds_user@cdw-2021;" +
+                "password=" + synapsePwd + ";" +
+                "encrypt=true;" +
+                "trustServerCertificate=false;" +
+                "hostNameInCertificate=*.sql.azuresynapse.net;" +
+                "loginTimeout=30;");
+            }
 			else if( this.system.startsWith("bigquery") ) {
 				this.bigQueryDAO = new BigQueryDAO("databricks-bsc-benchmark", this.dbName);
 			}

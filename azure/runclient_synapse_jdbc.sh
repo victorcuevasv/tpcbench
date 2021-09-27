@@ -30,13 +30,17 @@ fi
 
 printf "\n\n%s\n\n" "${mag}Running the full TPC-DS benchmark.${end}"
 
-Host="bsctest.database.windows.net"
+Host="cdw-2021.sql.azuresynapse.net"
+ClusterId="cdw_DW2000c"
 #Run configuration.
 Tag="$(date +%s)"
 ExperimentName="tpcds-synapse-$1gb-${Tag}"
 DirNameWarehouse="tpcds-synapse-$1gb-$2-${Tag}"
 DirNameResults="synapse"
 DatabaseName="tpcds_synapse_$1gb_$2_${Tag}"
+DatabasePassword="ADD"
+SynapseToken="ADD"
+
 JarFile="/mnt/tpcds-jars/target/client-1.2-SNAPSHOT-SHADED.jar"
 
 RUN_RUN_BENCHMARK=1
@@ -96,6 +100,12 @@ args[21]="--use-distribute-keys=false"
 args[22]="--power-test-runs=1"
 #flags (110000 schema|load|analyze|zorder|power|tput)
 args[23]="--execution-flags=110010"
+#password to connect to the database
+args[24]="--db-password=${DatabasePassword}"
+#token for the storage account (for importing from source)
+args[25]="--synapse-token=${SynapseToken}"
+args[26]="--count-queries=true"
+args[27]="--cluster-id=${ClusterId}"
 
 paramsStr="${args[@]}"
 
