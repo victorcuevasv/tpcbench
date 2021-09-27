@@ -117,7 +117,7 @@ public class AnalyzeTables {
 		this.jarFile = args[9];
 		this.createTableDir = args[10];
 		this.createSingleOrAll = "all";
-		this.clusterId = "UNUSED";
+		this.clusterId = args[26];
 		this.userId = "UNUSED";
 		this.dbPassword = "UNUSED";
 		this.recorder = new AnalyticsRecorder(this.workDir, this.resultsDir, this.experimentName,
@@ -191,19 +191,19 @@ public class AnalyzeTables {
 				this.con = DriverManager.getConnection("jdbc:redshift://" + this.hostname + ":5439/" +
 				this.dbName + "?ssl=true&UID=" + this.userId + "&PWD=" + redshiftPwd);
 			}
-			else if( this.system.startsWith("synapse") ) {
-				String synapsePwd = AWSUtil.getValue("SynapsePassword");
-				Class.forName(synapseDriverName);
-				this.con = DriverManager.getConnection("jdbc:sqlserver://" +
-				this.hostname + ":1433;" +
-				"database=bsc-tpcds-test-pool;" +
-				"user=tpcds_user@bsctest;" +
-				"password=" + synapsePwd + ";" +
-				"encrypt=true;" +
-				"trustServerCertificate=false;" +
-				"hostNameInCertificate=*.database.windows.net;" +
-				"loginTimeout=30;");
-			}
+            else if( this.system.startsWith("synapse") ) {
+                String synapsePwd = AWSUtil.getValue("SynapsePassword");
+                Class.forName(synapseDriverName);
+                this.con = DriverManager.getConnection("jdbc:sqlserver://" +
+                this.hostname + ":1433;" +
+                "database=" + this.clusterId + ";" +
+                "user=tpcds_user@cdw-2021;" +
+                "password=" + synapsePwd + ";" +
+                "encrypt=true;" +
+                "trustServerCertificate=false;" +
+                "hostNameInCertificate=*.sql.azuresynapse.net;" +
+                "loginTimeout=30;");
+            }
 			// con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default",
 			// "hive", "");
 		}
