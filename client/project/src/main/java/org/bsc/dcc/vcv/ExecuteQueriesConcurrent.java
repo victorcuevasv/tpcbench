@@ -539,8 +539,6 @@ public class ExecuteQueriesConcurrent implements ConcurrentExecutor {
         }
 		catch (InterruptedException e) {
             e.printStackTrace();
-            this.closeConnection();
-			this.openConnection();
         }
 	}
 	
