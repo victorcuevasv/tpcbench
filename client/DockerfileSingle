@@ -43,13 +43,13 @@ RUN wget --no-check-certificate -q -P /opt \
     
 #Download the Simba JDBC driver for Databricks.
 
-RUN if test "$DBR_JDBC" = 'true' ; then wget -q -P /opt http://$SIMBADRIVER_MIRROR/simbadriver/SparkJDBC42.jar ; fi 
+RUN if test "$DBR_JDBC" = 'true' ; then wget -q -P /opt http://$SIMBADRIVER_MIRROR/simbadriver/DatabricksJDBC42.jar ; fi 
 
 #Install the Simba JDBC driver jar with Maven.
 
 USER $UNAME
 
-RUN if test "$DBR_JDBC" = 'true' ; then mvn install:install-file -Dfile=/opt/SparkJDBC42.jar -DgroupId=com.simba.spark.jdbc42 -DartifactId=Driver -Dversion=2.6.16.1020 -Dpackaging=jar ; fi    
+RUN if test "$DBR_JDBC" = 'true' ; then mvn install:install-file -Dfile=/opt/DatabricksJDBC42.jar -DgroupId=com.databricks.client.jdbc42 -DartifactId=Driver -Dversion=2.6.29.1051 -Dpackaging=jar ; fi    
 
 #Download the Maven dependencies.
 
