@@ -35,4 +35,8 @@ sudo -u ec2-user python get-pip.py --user
 sudo rm get-pip.py
 sudo -u ec2-user /home/ec2-user/.local/bin/pip install databricks-cli
 
+#Install Github CLI
+sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+sudo yum install gh -y
+
 
