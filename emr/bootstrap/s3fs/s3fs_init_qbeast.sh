@@ -9,7 +9,6 @@ buckets=("benchmarking-jars-1664735376" "benchmarking-results-1664735376")
 
 #Install s3fs.
 sudo yum install -y gcc libstdc++-devel gcc-c++ fuse fuse-devel curl-devel libxml2-devel mailcap automake openssl-devel git
-git clone https://github.com/s3fs-fuse/s3fs-fuse
 sudo amazon-linux-extras install epel -y
 sudo yum install s3fs-fuse -y
 
