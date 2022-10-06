@@ -76,9 +76,9 @@
       		<version>1.4</version>
 		</dependency>
 		<dependency>
-			<groupId>com.simba.spark.jdbc42</groupId>
+			<groupId>com.databricks.client.jdbc42</groupId>
 			<artifactId>Driver</artifactId>
-			<version>2.6.16.1020</version>
+			<version>2.6.29.1051</version>
 		</dependency>
 		<dependency>
     		<groupId>com.microsoft.sqlserver</groupId>
