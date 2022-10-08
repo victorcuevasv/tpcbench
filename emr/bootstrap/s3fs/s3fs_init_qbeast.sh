@@ -42,3 +42,9 @@ sudo yum install gh -y
 #Install OpenJDK
 sudo amazon-linux-extras install java-openjdk11 -y
 
+#Install sbt
+sudo rm -f /etc/yum.repos.d/bintray-rpm.repo
+curl -L https://www.scala-sbt.org/sbt-rpm.repo > sbt-rpm.repo
+sudo mv sbt-rpm.repo /etc/yum.repos.d/
+sudo yum install sbt -y
+
