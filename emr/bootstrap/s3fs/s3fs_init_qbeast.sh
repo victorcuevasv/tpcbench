@@ -39,4 +39,6 @@ sudo -u ec2-user /home/ec2-user/.local/bin/pip install databricks-cli
 sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
 sudo yum install gh -y
 
+#Install OpenJDK
+sudo amazon-linux-extras install java-openjdk11 -y
 
