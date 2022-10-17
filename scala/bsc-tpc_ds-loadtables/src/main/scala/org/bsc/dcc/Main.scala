@@ -30,7 +30,7 @@ class TPCDSLoadTables(val spark : SparkSession) {
     .drop(2)        // Drop the CREATE TABLE and the parentheses on the first two lines
     .map(           
       _.split(" +") // Split the line by any amount of spaces
-      .drop(1)      // Drop the initial whitespace and the parentheses
+      .drop(1)      // Drop the initial whitespace
       .take(2)      // Take only the first two as we do only want the column name and type
     ).filter(tokens => tokens.length > 0 && tokens(0) != "primary")  // Filter out empty lines and primary key lines (if any)
     .map(tokens => if (tokens(1) == "integer") (tokens(0), "int") else (tokens(0), tokens(1)))
@@ -96,11 +96,12 @@ class TPCDSLoadTables(val spark : SparkSession) {
   def genDenormQuery(tableName: String, targetLocation: String, partitionKeys: Map[String, String], denormQueries: Map[String, String]) = {
     var sb = new StringBuilder(
       s"""CREATE TABLE ${tableName}_denorm
-  USING PARQUET
-  OPTIONS('compression'='snappy')
-  LOCATION '${targetLocation}/${tableName}_denorm'
-  PARTITIONED BY (${partitionKeys(tableName)}) AS
-  """)
+      USING PARQUET
+      OPTIONS('compression'='snappy')
+      LOCATION '${targetLocation}/${tableName}_denorm'
+      PARTITIONED BY (${partitionKeys(tableName)}) AS
+      """
+    )
     sb ++= denormQueries(tableName)
     sb ++= s"\nDISTRIBUTE BY ${partitionKeys(tableName)}"
     sb.toString()
@@ -112,39 +113,42 @@ class TPCDSLoadTables(val spark : SparkSession) {
   
   //Generate the data to be inserted into Delta/Hudi tables by sampling the denormalized table
   // Generate the query to sample the denormalized table in order to generate the data to be inserted into Delta/Hudi
-  def genSkipQuery(tableName: String, partitionKeys: Map[String, String], skipAttribute: String, skipRatio: Int, partitionThreshold: Int = -1) = {
+  def genSkipQuery(tableName: String, partitionKeys: Map[String, String], skipAttribute: String, skipMod: Int, partitionThreshold: Int = -1) = {
     var sb = new StringBuilder(
       s"""SELECT * FROM ${tableName}_denorm
-  WHERE MOD(${partitionKeys(tableName)},2) <> 0
-  OR MOD(${skipAttribute},${skipRatio}) <> 0
-  """)
-      if (partitionThreshold > 0) sb ++= s"\nOR ${partitionKeys(tableName)} <= ${partitionThreshold}"
+      WHERE MOD(${partitionKeys(tableName)},2) <> 0
+      OR MOD(${skipAttribute},${skipMod}) <> 0
+      """
+    )
+    if (partitionThreshold > 0) sb ++= s"\nOR ${partitionKeys(tableName)} <= ${partitionThreshold}"
     sb.toString()
   }
   
-  def createSkipTable(tableName: String, targetLocation: String, partitionKeys: Map[String, String], skipAttr: String, skipRatio: Int, partitionThreshold: Int = -1) = {
+  def createSkipTable(tableName: String, targetLocation: String, partitionKeys: Map[String, String], skipAttr: String, skipMod: Int,
+    partitionThreshold: Int = -1) = {
     println(s"START: Creating table ${tableName}_denorm_skip")  
-    spark.sql(genSkipQuery(tableName, partitionKeys, skipAttr, skipRatio, partitionThreshold)).write
+    spark.sql(genSkipQuery(tableName, partitionKeys, skipAttr, skipMod, partitionThreshold)).write
       .option("path", s"${targetLocation}/${tableName}_denorm_skip")
       .partitionBy(partitionKeys(tableName))
       .mode("overwrite").format("parquet")
       .saveAsTable(s"${tableName}_denorm_skip")
     println(s"STOP: Creating table ${tableName}_denorm_skip") 
   }
-  
+
   //Generate the data to be Upserted into Delta/Hudi tables by sampling the denormalized table
-  def genInsertDataQuery(tableName: String, partitionKeys: Map[String, String], skipAttr: String, skipRatio: Int, partitionThreshold: Int = -1) = {
+  def genInsertDataQuery(tableName: String, partitionKeys: Map[String, String], skipAttr: String, skipMod: Int, partitionThreshold: Int = -1) = {
     var sb = new StringBuilder(
       s"""SELECT * FROM ${tableName}_denorm
-  WHERE MOD(${partitionKeys(tableName)},2) = 0
-  AND MOD(${skipAttr},${skipRatio}) = 0
-  """)
-      if (partitionThreshold > 0) sb ++= s"\nAND ${partitionKeys(tableName)} > ${partitionThreshold}"
+      WHERE MOD(${partitionKeys(tableName)},2) = 0
+      AND MOD(${skipAttr},${skipMod}) = 0
+      """
+    )
+    if (partitionThreshold > 0) sb ++= s"\nAND ${partitionKeys(tableName)} > ${partitionThreshold}"
     sb.toString()
   }
-
   
-  def genUpdateDataQuery(createTableDict: Map[String, String], tableName: String, partitionKeys: Map[String, String], skipAttr: String, skipRatio: Int, updateAttr: String, partitionThreshold: Int = -1) = {
+  def genUpdateDataQuery(createTableDict: Map[String, String], tableName: String, partitionKeys: Map[String, String], skipAttr: String, skipMod: Int, 
+    updateAttr: String, partitionThreshold: Int = -1) = {
     //val tableAttributes = table("store_sales_denorm").columns
     val tableAttributes = spark.sql("describe store_sales_denorm").collect.dropRight(3).map(x => x.getString(0))
     if (!(tableAttributes contains updateAttr)) {
@@ -154,63 +158,69 @@ class TPCDSLoadTables(val spark : SparkSession) {
     var sb = new StringBuilder("SELECT\n")
     sb ++= tableAttributes.map(attr => if (attr == updateAttr) s"${updateAttr} + 1" else attr).mkString(",\n")
     sb ++= s"""\n${partitionKeys(tableName)}
-  FROM ${tableName}_denorm
-  WHERE MOD(${partitionKeys(tableName)},2)=1
-  AND MOD(${skipAttr},${skipRatio}) = 0
-  """
+      FROM ${tableName}_denorm
+      WHERE MOD(${partitionKeys(tableName)},2)=1
+      AND MOD(${skipAttr},${skipMod}) = 0
+      """
     if (partitionThreshold > 0) sb ++= s"\nAND ${partitionKeys(tableName)} > ${partitionThreshold}"
     sb.toString()
   }
   
-  
-  def genUpsertDataQuery(createTableDict: Map[String, String], tableName: String, partitionKeys: Map[String, String], skipAttr: String, skipRatioInsert: Int, skipRatioUpdate: Int, updateAttr: String, partitionThreshold: Int = -1) = {
-    var sb = new StringBuilder(genInsertDataQuery(tableName, partitionKeys, skipAttr, skipRatioInsert, partitionThreshold))
+  def genUpsertDataQuery(createTableDict: Map[String, String], tableName: String, partitionKeys: Map[String, String], skipAttr: String, skipModInsert: Int, 
+    skipModUpdate: Int, updateAttr: String, partitionThreshold: Int = -1) = {
+    var sb = new StringBuilder(genInsertDataQuery(tableName, partitionKeys, skipAttr, skipModInsert, partitionThreshold))
     sb ++= "\nUNION ALL\n"
-    sb ++= genUpdateDataQuery(createTableDict, tableName, partitionKeys, skipAttr, skipRatioUpdate, updateAttr, partitionThreshold)
+    sb ++= genUpdateDataQuery(createTableDict, tableName, partitionKeys, skipAttr, skipModUpdate, updateAttr, partitionThreshold)
     sb.toString()
   }
   
-  def createUpsertTable(createTableDict: Map[String, String], tableName: String, targetLocation: String, partitionKeys: Map[String, String], skipAttr: String, skipRatioInsert: Int, skipRatioUpdate: Int, updateAttr: String, partitionThreshold: Int = -1) = {
+  def createUpsertTable(createTableDict: Map[String, String], tableName: String, targetLocation: String, partitionKeys: Map[String, String], skipAttr: String,
+    skipModInsert: Int, skipModUpdate: Int, updateAttr: String, partitionThreshold: Int = -1) = {
     println(s"START: Creating table ${tableName}_denorm_upsert") 
-    spark.sql(genUpsertDataQuery(createTableDict, tableName, partitionKeys, skipAttr, skipRatioInsert, skipRatioUpdate, updateAttr, partitionThreshold)).write
+    spark.sql(genUpsertDataQuery(createTableDict, tableName, partitionKeys, skipAttr, skipModInsert, skipModUpdate, updateAttr, partitionThreshold))
+      .write
       .option("path", s"${targetLocation}/${tableName}_denorm_upsert")
       .partitionBy(partitionKeys(tableName))
       .mode("overwrite").format("parquet")
       .saveAsTable(s"${tableName}_denorm_upsert")
     println(s"STOP: Creating table ${tableName}_denorm_upsert") 
   }
-  
+
   //Generate the data to be Deleted from Delta/Hudi tables by sampling the denormalized table
   def genDelete01Query(tableName: String, partitionKeys: Map[String, String], skipAttr: String, partitionThreshold: Int = -1) = {
     var sb = new StringBuilder(
       s"""SELECT * FROM ${tableName}_denorm
-  WHERE MOD(${partitionKeys(tableName)},10) = 1 AND MOD(${skipAttr},100) = 0
-  """)
+      WHERE MOD(${partitionKeys(tableName)},10) = 1 AND MOD(${skipAttr},100) = 0
+      """
+    )
     if (partitionThreshold > 0) sb ++= s"AND ${partitionKeys(tableName)} > ${partitionThreshold}"
     sb.toString()
   }
-  
+
   def genDelete1Query(tableName: String, partitionKeys: Map[String, String], skipAttr: String, partitionThreshold: Int = -1) = {
     var sb = new StringBuilder(
       s"""SELECT * FROM ${tableName}_denorm
-  WHERE MOD(${partitionKeys(tableName)},10) = 0 AND MOD(${skipAttr},10) = 0
-  """)
+      WHERE MOD(${partitionKeys(tableName)},10) = 0 AND MOD(${skipAttr},10) = 0
+      """
+    )
     if (partitionThreshold > 0) sb ++= s"AND ${partitionKeys(tableName)} > ${partitionThreshold}"
     sb.toString()
   }
-  
+
   def genDelete10Query(tableName: String, partitionKeys: Map[String, String], skipAttr: String, partitionThreshold: Int = -1) = {
     var sb = new StringBuilder(
       s"""SELECT * FROM ${tableName}_denorm
-  WHERE MOD(${partitionKeys(tableName)},3) = 0 AND MOD(${skipAttr},3) = 0
-  """)
+      WHERE MOD(${partitionKeys(tableName)},3) = 0 AND MOD(${skipAttr},3) = 0
+      """
+    )
     if (partitionThreshold > 0) sb ++= s"AND ${partitionKeys(tableName)} > ${partitionThreshold}"
     sb.toString()
   }
   
   def createDelete01Table(tableName: String, targetLocation: String, partitionKeys: Map[String, String], skipAttr: String, partitionThreshold: Int = -1) = {
     println(s"START: Creating table ${tableName}_denorm_delete_01") 
-    spark.sql(genDelete01Query(tableName, partitionKeys, skipAttr, partitionThreshold)).write
+    spark.sql(genDelete01Query(tableName, partitionKeys, skipAttr, partitionThreshold))
+      .write
       .option("path", s"${targetLocation}/${tableName}_denorm_delete_01")
       .partitionBy(partitionKeys(tableName))
       .mode("overwrite").format("parquet")
@@ -220,7 +230,8 @@ class TPCDSLoadTables(val spark : SparkSession) {
   
   def createDelete1Table(tableName: String, targetLocation: String, partitionKeys: Map[String, String], skipAttr: String, partitionThreshold: Int = -1) = {
     println(s"START: Creating table ${tableName}_denorm_delete_1") 
-    spark.sql(genDelete1Query(tableName, partitionKeys, skipAttr, partitionThreshold)).write
+    spark.sql(genDelete1Query(tableName, partitionKeys, skipAttr, partitionThreshold))
+      .write
       .option("path", s"${targetLocation}/${tableName}_denorm_delete_1")
       .partitionBy(partitionKeys(tableName))
       .mode("overwrite").format("parquet")
@@ -230,7 +241,8 @@ class TPCDSLoadTables(val spark : SparkSession) {
   
   def createDelete10Table(tableName: String, targetLocation: String, partitionKeys: Map[String, String], skipAttr: String, partitionThreshold: Int = -1) = {
     println(s"START: Creating table ${tableName}_denorm_delete_10") 
-    spark.sql(genDelete10Query(tableName, partitionKeys, skipAttr, partitionThreshold)).write
+    spark.sql(genDelete10Query(tableName, partitionKeys, skipAttr, partitionThreshold))
+      .write
       .option("path", s"${targetLocation}/${tableName}_denorm_delete_10")
       .partitionBy(partitionKeys(tableName))
       .mode("overwrite").format("parquet")
