@@ -12,10 +12,11 @@ class AnalyticsRecorder(val workDir: String,
                         val instance: Int) {
 
   var writer: BufferedWriter = null
+  var logFile: File = null
   
   def createWriter(): Unit = {
     try {
-      val logFile: File = new File(
+      this.logFile = new File(
       this.workDir + "/" + this.resultsDir+ "/" + this.experimentName + "/analytics/" +
         this.test + "/" + this.instance + "/analytics.log")
       logFile.getParentFile.mkdirs()
@@ -110,6 +111,10 @@ class AnalyticsRecorder(val workDir: String,
         e.printStackTrace()
       }
     }
+  }
+
+  def getLogFilePath(): String = {
+    this.logFile.getAbsolutePath()
   }
   
 }
