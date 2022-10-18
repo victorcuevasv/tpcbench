@@ -1,5 +1,5 @@
 package com.qbeast.opensourcedev
 
-class QueryRecord (val query: Int, val run: Int, val startTime: Long, val endTime: Long, val successful: Boolean, 
-                   val resultsSize: Long, val tuples: Int) {  
+class QueryRecord (var query: Int, var run: Int, var startTime: Long, var endTime: Long, var successful: Boolean, 
+                   var resultsSize: Long, var tuples: Int) {  
 }

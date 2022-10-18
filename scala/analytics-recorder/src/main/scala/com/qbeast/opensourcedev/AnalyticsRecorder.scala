@@ -2,7 +2,10 @@ package com.qbeast.opensourcedev
 
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.io._
+import java.io.BufferedWriter
+import java.io.FileWriter
+import java.io.File
+import java.nio.file.Paths
 
 class AnalyticsRecorder(val workDir: String,
                         val resultsDir: String,
@@ -17,8 +20,9 @@ class AnalyticsRecorder(val workDir: String,
   def createWriter(): Unit = {
     try {
       this.logFile = new File(
-      this.workDir + "/" + this.resultsDir+ "/" + this.experimentName + "/analytics/" +
-        this.test + "/" + this.instance + "/analytics.log")
+        Paths.get(this.workDir, this.resultsDir, this.experimentName, this.test, "analytics",
+          this.instance.toString, "analytics.log").toString
+      )
       logFile.getParentFile.mkdirs()
       this.writer = new BufferedWriter(new FileWriter(logFile))
     }
@@ -113,8 +117,12 @@ class AnalyticsRecorder(val workDir: String,
     }
   }
 
-  def getLogFilePath(): String = {
-    this.logFile.getAbsolutePath()
+  def getLogFileCanonicalPath(): String = {
+    this.logFile.getCanonicalPath()
+  }
+
+  def getLogFileConstructorPath(): String = {
+    this.logFile.getPath()
   }
   
 }

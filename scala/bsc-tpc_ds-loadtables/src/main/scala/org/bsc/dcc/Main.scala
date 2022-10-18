@@ -50,8 +50,10 @@ class TPCDSLoadTables(val spark : SparkSession) {
     sb.toString()
   }
   
-  def createTextfileTable(createTableDict: Map[String, String], tableName: String, sourceLocation: String) = {
-    runQuery(genTextfileQuery(createTableDict, tableName, sourceLocation))
+  def createTextfileTable(createTableDict: Map[String, String], tableName: String, sourceLocation: String) : String = {
+    val textFileQuery = genTextfileQuery(createTableDict, tableName, sourceLocation)
+    runQuery(textFileQuery)
+    textFileQuery
   }
   
   //Create and populate parquet tables from textfile tables
@@ -86,9 +88,13 @@ class TPCDSLoadTables(val spark : SparkSession) {
     sb.toString()
   }
   
-  def createParquetTable(createTableDict: Map[String, String], tableName: String, targetLocation: String, partitionKeys: Map[String, String]) = {
-    runQuery(genCreateParquetQuery(createTableDict, tableName, targetLocation, partitionKeys))
-    runQuery(genInsertParquetQuery(createTableDict, tableName, partitionKeys))
+  def createParquetTable(createTableDict: Map[String, String], tableName: String, targetLocation: String, partitionKeys: Map[String, String]) :
+    (String, String) = {
+    val createParquetQuery = genCreateParquetQuery(createTableDict, tableName, targetLocation, partitionKeys)
+    runQuery(createParquetQuery)
+    val insertParquetQuery = genInsertParquetQuery(createTableDict, tableName, partitionKeys)
+    runQuery(insertParquetQuery)
+    (createParquetQuery, insertParquetQuery)
   }
   
   //Create the denormalized tables from the parquet tables
