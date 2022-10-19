@@ -254,7 +254,7 @@ class TPCDSLoadTables(val spark : SparkSession) {
       .option("path", s"${targetLocation}/${tableName}_denorm_delete_11")
       .partitionBy(partitionKeys(tableName))
       .mode("overwrite").format("parquet")
-      .saveAsTable(s"${tableName}_denorm_delete_10")
+      .saveAsTable(s"${tableName}_denorm_delete_11")
     delete11Query
   }
   
