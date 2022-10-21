@@ -195,6 +195,18 @@ class TPCDSLoadTables(val spark : SparkSession) {
     upsertDataQuery
   }
 
+  def createInsertTable(createTableDict: Map[String, String], tableName: String, targetLocation: String, partitionKeys: Map[String, String],
+    skipAttr: String, skipModInsert: Int, skipModUpdate: Int, updateAttr: String, partitionThreshold: Int = -1) = {
+    val insertDataQuery = genInsertDataQuery(tableName, partitionKeys, skipAttr, skipModInsert, partitionThreshold)
+    spark.sql(insertDataQuery)
+      .write
+      .option("path", s"${targetLocation}/${tableName}_denorm_insert")
+      .partitionBy(partitionKeys(tableName))
+      .mode("overwrite").format("parquet")
+      .saveAsTable(s"${tableName}_denorm_insert")
+    insertDataQuery
+  }
+
   def genDelete01Query(tableName: String, partitionKeys: Map[String, String], skipAttr: String, partitionThreshold: Int = -1) = {
     var sb = new StringBuilder(
       s"""SELECT * FROM ${tableName}_denorm
