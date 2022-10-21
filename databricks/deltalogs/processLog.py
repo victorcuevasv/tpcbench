@@ -2,18 +2,13 @@ import os
 import sys
 import json
 
-experiment = 'tpcds-dbrsql-1000gb-1-1618784145'
-
-added = 0
-removed = 0
-
-def processFile(data, output, experiment, step):
+def processFile(data, output, experiment, step, counter):
     Lines = data.readlines()
     for line in Lines:
         if ( line.startswith("{\"add\"") ) :
-            processAddLine(line, output, experiment, step)
+            processAddLine(line, output, experiment, step, counter)
         elif ( line.startswith("{\"remove\"") ) :
-            processRemoveLine(line, output, experiment, step)
+            processRemoveLine(line, output, experiment, step, counter)
         else :
             continue
     
@@ -36,9 +31,8 @@ def convertAddLineToJSON(line) :
 def convertRemoveLineToJSON(line) :
     return json.loads(line)
     
-def processAddLine(line, output, experiment, step) :
-    global added
-    added += 1
+def processAddLine(line, output, experiment, step, counter) :
+    counter['added'] += 1
     addedJSON = convertAddLineToJSON(line)
     path = addedJSON["add"]["path"]
     records = addedJSON["add"]["stats"]["numRecords"]
@@ -47,9 +41,8 @@ def processAddLine(line, output, experiment, step) :
     output.write(experiment + "|" + str(step) + "|" + "add" + "|" + path + "|" + str(records) 
                  + "|" + str(size) + "|" + str(partition) + "\n")
     
-def processRemoveLine(line, output, experiment, step) :
-    global removed
-    removed += 1
+def processRemoveLine(line, output, experiment, step, counter) :
+    counter['removed'] += 1
     removedJSON = convertRemoveLineToJSON(line)
     path = removedJSON["remove"]["path"]
     #The numRecords field is not present for remove
@@ -63,16 +56,18 @@ def processRemoveLine(line, output, experiment, step) :
 output = open("log.csv", "w")
 output.write("experiment|step|operation|path|records|size|partition\n")
 step = 0
-for file in os.listdir(experiment):
+counter = {'added':0, 'removed':0}
+experiment = sys.argv[1]
+for file in sorted(os.listdir(experiment)):
     current = os.path.join(experiment, file)
     if os.path.isfile(current) :
         data = open(current, "r")
-        processFile(data, output, experiment, step)
+        processFile(data, output, experiment, step, counter)
     step += 1
 output.close()
 
-print("added: " + str(added))
-print("removed: " + str(removed))
+print("added: " + str(counter['added']))
+print("removed: " + str(counter['removed']))
 
 
 

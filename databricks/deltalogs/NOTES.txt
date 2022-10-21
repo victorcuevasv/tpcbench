@@ -126,25 +126,49 @@ end; $$
 
 --Query to summarize the state of the table after each operation
 
-SELECT state AS state, count(*) AS "total files", SUM(records) AS "total records", 
-ROUND(SUM(size)/(1024*1024*1024), 1) AS "total size (GB)", COUNT(DISTINCT partition) AS "total partitions",
-ROUND(SUM(size)/SUM(records),0) AS "avg record size (bytes)",
-ROUND( (SUM(size)/(1024*1024))/COUNT(*), 1) AS "avg file size (MB)"
+SELECT state AS state, count(*) AS total_files,
+SUM(records) AS total_records, 
+ROUND(SUM(size)/(1024*1024*1024), 1) AS total_size_GB,
+COUNT(DISTINCT partition) AS total_partitions,
+ROUND(SUM(size)/SUM(records),0) AS avg_record_size_bytes,
+ROUND( (SUM(size)/(1024*1024))/COUNT(*), 1) AS avg_file_size_MB
 FROM filecommits
 GROUP BY state;
 
 --Query to summarize the changes induced by each operation
 
 SELECT step AS step, 
-SUM(CASE WHEN operation = 'add' THEN 1 ELSE 0 END) AS "added files",
-SUM(CASE WHEN operation = 'remove' THEN 1 ELSE 0 END) AS "removed files", 
-SUM(CASE WHEN operation = 'add' THEN records ELSE 0 END) AS "added records",
-SUM(CASE WHEN operation = 'remove' THEN records ELSE 0 END) AS "removed records", 
-ROUND(SUM(CASE WHEN operation = 'add' THEN size ELSE 0 END)/(1024*1024*1024), 2) AS "data added (GB)", 
-ROUND(SUM(CASE WHEN operation = 'remove' THEN size ELSE 0 END)/(1024*1024*1024), 2) AS "data removed (GB)", 
-COUNT(DISTINCT CASE WHEN operation = 'add' THEN partition ELSE null END) AS "partitions added to",
-COUNT(DISTINCT CASE WHEN operation = 'remove' THEN partition ELSE null END) AS "partitions removed from"
+SUM(CASE WHEN operation = 'add' THEN 1 ELSE 0 END) AS added_files,
+SUM(CASE WHEN operation = 'remove' THEN 1 ELSE 0 END) AS removed_files, 
+SUM(CASE WHEN operation = 'add' THEN records ELSE 0 END) AS added_records,
+SUM(CASE WHEN operation = 'remove' THEN records ELSE 0 END) AS removed_records, 
+ROUND(SUM(CASE WHEN operation = 'add' THEN size ELSE 0 END)/(1024*1024*1024), 2) AS data_added_GB, 
+ROUND(SUM(CASE WHEN operation = 'remove' THEN size ELSE 0 END)/(1024*1024*1024), 2) AS data_removed_GB, 
+COUNT(DISTINCT CASE WHEN operation = 'add' THEN partition ELSE null END) AS partitions_added_to,
+COUNT(DISTINCT CASE WHEN operation = 'remove' THEN partition ELSE null END) AS partitions_removed_from
 FROM filelog
 GROUP BY step;
+
+--Query to summarize the balance of the changes induced by each operation
+
+WITH changes AS(
+	SELECT step AS step, 
+	SUM(CASE WHEN operation = 'add' THEN 1 ELSE 0 END) AS added_files,
+	SUM(CASE WHEN operation = 'remove' THEN 1 ELSE 0 END) AS removed_files, 
+	SUM(CASE WHEN operation = 'add' THEN records ELSE 0 END) AS added_records,
+	SUM(CASE WHEN operation = 'remove' THEN records ELSE 0 END) AS removed_records, 
+	ROUND(SUM(CASE WHEN operation = 'add' THEN size ELSE 0 END)/(1024*1024*1024), 2) AS data_added_GB, 
+	ROUND(SUM(CASE WHEN operation = 'remove' THEN size ELSE 0 END)/(1024*1024*1024), 2) AS data_removed_GB, 
+	COUNT(DISTINCT CASE WHEN operation = 'add' THEN partition ELSE null END) AS partitions_added_to,
+	COUNT(DISTINCT CASE WHEN operation = 'remove' THEN partition ELSE null END) AS partitions_removed_from
+	FROM filelog
+	GROUP BY step
+)
+SELECT step, added_files - removed_files AS delta_files, added_records - removed_records AS delta_records, 
+				data_added_GB - data_removed_GB AS delta_data_GB, partitions_added_to, partitions_removed_from
+FROM changes;
+
+
+
 
 
