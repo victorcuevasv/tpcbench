@@ -97,8 +97,8 @@ EOF
 }
 
 #Create the template
-aws ec2 create-launch-template \
---launch-template-name BenchmarkVM \
+aws --profile benchmarking ec2 create-launch-template \
+--launch-template-name BenchmarkDataGenVM \
 --version-description version1 \
 --launch-template-data "$(json_data_func)"
 
