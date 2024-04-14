@@ -35,7 +35,7 @@ mkdir -p tarserver/static-html-directory/simbadriver
 
 The Databricks JDBC driver jar is stored in:
 
-s3://static-html-directory/simbadriver/SparkJDBC42.jar
+s3://static-html-directory/simbadriver/DatabricksJDBC42.jar
 
 If permissions to copy it directly are not available, copy it manually into the directory created previously
 via sftp.
