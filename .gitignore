@@ -1,5 +1,8 @@
 /.classpath
 /.project
+/.metals
+/.scala-build
+/.vscode
 /hivevol/
 /datavol/
 /warehousevol/

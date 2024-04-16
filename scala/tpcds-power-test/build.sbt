@@ -13,7 +13,7 @@ scalaVersion := "2.12.15"
 
 // It's possible to define many kinds of settings, such as:
 
-name := "appends-test"
+name := "tpcds-power-test"
 organization := "ch.epfl.scala"
 version := "1.0"
 
