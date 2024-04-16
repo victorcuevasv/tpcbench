@@ -25,7 +25,7 @@
 /bin/
 /out1GB.txt
 /out1TB.txt
-/scala/appends-test/project/
-/scala/appends-test/target/
-/scala/tpcds-power-test/project/
-/scala/tpcds-power-test/target/
+/scala_apps/appends-test/project/
+/scala_apps/appends-test/target/
+/scala_apps/tpcds-power-test/project/
+/scala_apps/tpcds-power-test/target/
