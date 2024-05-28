@@ -1,442 +1,166 @@
-import org.apache.spark.sql.SparkSession
+import picocli.CommandLine
+import picocli.CommandLine.{Command, Option}
+import java.util.concurrent.Callable
+import java.time.Instant
+import java.net.URL
 
-object Main extends App {
+@Command(name = "tpcdsbench", mixinStandardHelpOptions = true, version = Array("tpcdsbench 1.0"),
+  description = Array("Executes the TPC-DS benchmark power test"))
+class TpcdsBench extends Callable[Int] {
 
-  val spark = SparkSession
-    .builder()
-    .appName("Appends Writing Benchmark")
-    .enableHiveSupport()
-    .getOrCreate()
-  val sql = spark.sql(_)
-  //val inputURL = "s3://benchmarking-warehouses-1665074575/write_test_tpcds_sf1_1669294980/"
-  val inputURL = "s3://benchmarking-datasets-1664540209/write_test_tpcds_sf1_1669294980/"
-  val scaleFactor = 1
-  val genDataTag = "1669294980"
-  val fileFormat = "qbeast"
-  val targetDbName = s"write_test_tpcds_sf${scaleFactor}_${genDataTag}"
-  val targetLocation = s"s3://benchmarking-datasets-1664540209/${targetDbName}"
-  val targetLocation2 = s"s3://benchmarking-warehouses-1665074575/${targetDbName}"
-  val targetTable = "store_sales"
-  //val runExpTag = "1685120298"
-  val runExpTag = args(0).toInt
-  val workTable = s"${targetTable}_denorm_${fileFormat}${runExpTag}"
-  val workTable2 = s"${targetTable}_denorm2_${fileFormat}${runExpTag}"
+  val timestamp = Instant.now.getEpochSecond
+  @Option(names = Array("--exec-flags"), description = Array("Flags for the execution of different tests create_db|load|power"))
+  private var flags = "111"
+  @Option(names = Array("--scale-factor"), description = Array("Scale factor in GB for the benchmark"))
+  private var scaleFactor = 1
+  @Option(names = Array("--raw-data-url"), description = Array("URL of the input raw TPC-DS CSV data"))
+  private var rawDataURL = s"s3://tpcds-data-1713123644/${scaleFactor}GB/"
+  @Option(names = Array("--warehouse-base-url"), description = Array("Base URL for the generated TPC-DS tables data"))
+  private var warehouseBaseURL = s"s3://tpcds-warehouses-1713123644/"
+  @Option(names = Array("--gen-data-tag"), description = Array("Unix timestamp identifying the generated data"))
+  var genDataTag = timestamp
+  @Option(names = Array("--run-exp-tag"), description = Array("Unix timestamp identifying the experiment"))
+  var runExpTag = timestamp
+  @Option(names = Array("--file-format"), description = Array("File format to use for the tables"))
+  var format = "delta"
+  val dbName = s"tpcds_sf${scaleFactor}_${genDataTag}"
+  val whLocation = TpcdsBenchUtil.addPathToURI(warehouseBaseURL, dbName)
 
-  runTest()
+  //Fact Tables partition keys
+  val partitionKeys = Map (
+    "catalog_returns" -> "cr_returned_date_sk",
+    "catalog_sales" -> "cs_sold_date_sk",
+    "inventory" -> "inv_date_sk",
+    "store_returns" -> "sr_returned_date_sk",
+    "store_sales" -> "ss_sold_date_sk",
+    "web_returns" -> "wr_returned_date_sk",
+    "web_sales" -> "ws_sold_date_sk"
+  )
 
-  def runTest() = {
-    //spark.sparkContext.setLogLevel("DEBUG")
-    //spark.sparkContext.setLogLevel("INFO")
-    println(s"Creating database ${targetDbName}.")
-    //sql(s"DROP DATABASE IF EXISTS ${targetDbName}")
-    sql(s"CREATE DATABASE IF NOT EXISTS ${targetDbName}")
-    sql(s"USE ${targetDbName}")
-    println("Creating temporal view with loaddenormskip data.")
-    val dfLoad = spark.read.parquet(f"${inputURL}store_sales_denorm_skip/")
-    dfLoad.createOrReplaceTempView("store_sales_denorm_skip")
-    println("Creating temporal views with inserts data.")
-    createInsertTables(inputURL)
-    println("Running loaddenorm skip test.")
-    //spark.sparkContext.setLogLevel("DEBUG");
-    //createWorkTable(workTable, fileFormat, targetLocation, "WHERE ss_sold_date_sk=2450816")
-    //val dfCallCenter = spark.read.parquet("s3://benchmarking-warehouses-1665074575/write_test_tpcds_sf1_1669294980/call_center/")
-    //dfCallCenter.collect.foreach(println)
-    //spark.sparkContext.setLogLevel("DEBUG");
-    createWorkTable(workTable2, fileFormat, targetLocation2, "WHERE ss_sold_date_sk=2450816")
-    //println("Running insert test 1.")
-    //insertIntoWorkTable(workTable, 1)
+  def sql(stmt:String) = {
+    println(stmt)
   }
 
-  def createInsertTables(inputURL: String) = {
-    val dfInsert1 = spark.read.parquet(f"${inputURL}store_sales_denorm_insert1/")
-    dfInsert1.createOrReplaceTempView("store_sales_denorm_insert1")
-    val dfInsert2 = spark.read.parquet(f"${inputURL}store_sales_denorm_insert2/")
-    dfInsert2.createOrReplaceTempView("store_sales_denorm_insert2")
-    val dfInsert3 = spark.read.parquet(f"${inputURL}store_sales_denorm_insert3/")
-    dfInsert3.createOrReplaceTempView("store_sales_denorm_insert3")
-    val dfInsert4 = spark.read.parquet(f"${inputURL}store_sales_denorm_insert4/")
-    dfInsert4.createOrReplaceTempView("store_sales_denorm_insert4")
-    val dfInsert5 = spark.read.parquet(f"${inputURL}store_sales_denorm_insert5/")
-    dfInsert5.createOrReplaceTempView("store_sales_denorm_insert5")
-    val dfInsert6 = spark.read.parquet(f"${inputURL}store_sales_denorm_insert6/")
-    dfInsert6.createOrReplaceTempView("store_sales_denorm_insert6")
-    val dfInsert7 = spark.read.parquet(f"${inputURL}store_sales_denorm_insert7/")
-    dfInsert7.createOrReplaceTempView("store_sales_denorm_insert7")
-    val dfInsert8 = spark.read.parquet(f"${inputURL}store_sales_denorm_insert8/")
-    dfInsert8.createOrReplaceTempView("store_sales_denorm_insert8")
+  def call(): Int = {
+    runTests()
+    0
   }
 
-  def createWorkTable(workTable: String, fileFormat: String, targetLocation: String, whereClause: String) = {
-    sql(s"""
-          CREATE TABLE ${workTable}
-        USING ${fileFormat}
-        OPTIONS('columnsToIndex'='ss_sold_date_sk,ss_ticket_number', 'cubeSize'='4000000') 
-        LOCATION '${targetLocation}/${workTable}'
-        AS
-        SELECT
-        ss_sold_date_sk,
-        ss_sold_time_sk,
-        ss_item_sk,
-        ss_customer_sk,
-        ss_cdemo_sk,
-        ss_hdemo_sk,
-        ss_addr_sk,
-        ss_store_sk,
-        ss_promo_sk,
-        ss_ticket_number,
-        ss_quantity,
-        ss_wholesale_cost,
-        ss_list_price,
-        ss_sales_price,
-        ss_ext_discount_amt,
-        ss_ext_sales_price,
-        ss_ext_wholesale_cost,
-        ss_ext_list_price,
-        ss_ext_tax,
-        ss_coupon_amt,
-        ss_net_paid,
-        ss_net_paid_inc_tax,
-        ss_net_profit,
-        d_date_sk,
-        d_date_id,
-        d_date,
-        d_month_seq,
-        d_week_seq,
-        d_quarter_seq,
-        d_year,
-        d_dow,
-        d_moy,
-        d_dom,
-        d_qoy,
-        d_fy_year,
-        d_fy_quarter_seq,
-        d_fy_week_seq,
-        d_day_name,
-        d_quarter_name,
-        d_holiday,
-        d_weekend,
-        d_following_holiday,
-        d_first_dom,
-        d_last_dom,
-        d_same_day_ly,
-        d_same_day_lq,
-        d_current_day,
-        d_current_week,
-        d_current_month,
-        d_current_quarter,
-        d_current_year,
-        t_time_sk,
-        t_time_id,
-        t_time,
-        t_hour,
-        t_minute,
-        t_second,
-        t_am_pm,
-        t_shift,
-        t_sub_shift,
-        t_meal_time,
-        c_customer_sk,
-        c_customer_id,
-        c_current_cdemo_sk,
-        c_current_hdemo_sk,
-        c_current_addr_sk,
-        c_first_shipto_date_sk,
-        c_first_sales_date_sk,
-        c_salutation,
-        c_first_name,
-        c_last_name,
-        c_preferred_cust_flag,
-        c_birth_day,
-        c_birth_month,
-        c_birth_year,
-        c_birth_country,
-        c_login,
-        c_email_address,
-        c_last_review_date,
-        cd_demo_sk,
-        cd_gender,
-        cd_marital_status,
-        cd_education_status,
-        cd_purchase_estimate,
-        cd_credit_rating,
-        cd_dep_count,
-        cd_dep_employed_count,
-        cd_dep_college_count,
-        hd_demo_sk,
-        hd_income_band_sk,
-        hd_buy_potential,
-        hd_dep_count,
-        hd_vehicle_count,
-        ca_address_sk,
-        ca_address_id,
-        ca_street_number,
-        ca_street_name,
-        ca_street_type,
-        ca_suite_number,
-        ca_city,
-        ca_county,
-        ca_state,
-        ca_zip,
-        ca_country,
-        ca_gmt_offset,
-        ca_location_type,
-        s_store_sk,
-        s_store_id,
-        s_rec_start_date,
-        s_rec_end_date,
-        s_closed_date_sk,
-        s_store_name,
-        s_number_employees,
-        s_floor_space,
-        s_hours,
-        s_manager,
-        s_market_id,
-        s_geography_class,
-        s_market_desc,
-        s_market_manager,
-        s_division_id,
-        s_division_name,
-        s_company_id,
-        s_company_name,
-        s_street_number,
-        s_street_name,
-        s_street_type,
-        s_suite_number,
-        s_city,
-        s_county,
-        s_state,
-        s_zip,
-        s_country,
-        s_gmt_offset,
-        s_tax_precentage,
-        p_promo_sk,
-        p_promo_id,
-        p_start_date_sk,
-        p_end_date_sk,
-        p_item_sk,
-        p_cost,
-        p_response_target,
-        p_promo_name,
-        p_channel_dmail,
-        p_channel_email,
-        p_channel_catalog,
-        p_channel_tv,
-        p_channel_radio,
-        p_channel_press,
-        p_channel_event,
-        p_channel_demo,
-        p_channel_details,
-        p_purpose,
-        p_discount_active,
-        i_item_sk,
-        i_item_id,
-        i_rec_start_date,
-        i_rec_end_date,
-        i_item_desc,
-        i_current_price,
-        i_wholesale_cost,
-        i_brand_id,
-        i_brand,
-        i_class_id,
-        i_class,
-        i_category_id,
-        i_category,
-        i_manufact_id,
-        i_manufact,
-        i_size,
-        i_formulation,
-        i_color,
-        i_units,
-        i_container,
-        i_manager_id,
-        i_product_name
-        FROM store_sales_denorm_skip
-        ${whereClause}
-    """)
+  def runTests() = {
+    println(s"Running the TPC-DS benchmark at the ${scaleFactor} scale factor.")
+    if ( flags.charAt(0) == '1' )
+      createDatabase()
+    if ( flags.charAt(1) == '1')
+      runLoadTest()
+    if ( flags.charAt(2) == '1')
+      runPowerTest()
   }
 
-  def insertIntoWorkTable(workTable: String, insertNum: Integer) = {
-    sql(s"""
-        INSERT INTO ${workTable}
-        SELECT
-        ss_sold_date_sk,
-        ss_sold_time_sk,
-        ss_item_sk,
-        ss_customer_sk,
-        ss_cdemo_sk,
-        ss_hdemo_sk,
-        ss_addr_sk,
-        ss_store_sk,
-        ss_promo_sk,
-        ss_ticket_number,
-        ss_quantity,
-        ss_wholesale_cost,
-        ss_list_price,
-        ss_sales_price,
-        ss_ext_discount_amt,
-        ss_ext_sales_price,
-        ss_ext_wholesale_cost,
-        ss_ext_list_price,
-        ss_ext_tax,
-        ss_coupon_amt,
-        ss_net_paid,
-        ss_net_paid_inc_tax,
-        ss_net_profit,
-        d_date_sk,
-        d_date_id,
-        d_date,
-        d_month_seq,
-        d_week_seq,
-        d_quarter_seq,
-        d_year,
-        d_dow,
-        d_moy,
-        d_dom,
-        d_qoy,
-        d_fy_year,
-        d_fy_quarter_seq,
-        d_fy_week_seq,
-        d_day_name,
-        d_quarter_name,
-        d_holiday,
-        d_weekend,
-        d_following_holiday,
-        d_first_dom,
-        d_last_dom,
-        d_same_day_ly,
-        d_same_day_lq,
-        d_current_day,
-        d_current_week,
-        d_current_month,
-        d_current_quarter,
-        d_current_year,
-        t_time_sk,
-        t_time_id,
-        t_time,
-        t_hour,
-        t_minute,
-        t_second,
-        t_am_pm,
-        t_shift,
-        t_sub_shift,
-        t_meal_time,
-        c_customer_sk,
-        c_customer_id,
-        c_current_cdemo_sk,
-        c_current_hdemo_sk,
-        c_current_addr_sk,
-        c_first_shipto_date_sk,
-        c_first_sales_date_sk,
-        c_salutation,
-        c_first_name,
-        c_last_name,
-        c_preferred_cust_flag,
-        c_birth_day,
-        c_birth_month,
-        c_birth_year,
-        c_birth_country,
-        c_login,
-        c_email_address,
-        c_last_review_date,
-        cd_demo_sk,
-        cd_gender,
-        cd_marital_status,
-        cd_education_status,
-        cd_purchase_estimate,
-        cd_credit_rating,
-        cd_dep_count,
-        cd_dep_employed_count,
-        cd_dep_college_count,
-        hd_demo_sk,
-        hd_income_band_sk,
-        hd_buy_potential,
-        hd_dep_count,
-        hd_vehicle_count,
-        ca_address_sk,
-        ca_address_id,
-        ca_street_number,
-        ca_street_name,
-        ca_street_type,
-        ca_suite_number,
-        ca_city,
-        ca_county,
-        ca_state,
-        ca_zip,
-        ca_country,
-        ca_gmt_offset,
-        ca_location_type,
-        s_store_sk,
-        s_store_id,
-        s_rec_start_date,
-        s_rec_end_date,
-        s_closed_date_sk,
-        s_store_name,
-        s_number_employees,
-        s_floor_space,
-        s_hours,
-        s_manager,
-        s_market_id,
-        s_geography_class,
-        s_market_desc,
-        s_market_manager,
-        s_division_id,
-        s_division_name,
-        s_company_id,
-        s_company_name,
-        s_street_number,
-        s_street_name,
-        s_street_type,
-        s_suite_number,
-        s_city,
-        s_county,
-        s_state,
-        s_zip,
-        s_country,
-        s_gmt_offset,
-        s_tax_precentage,
-        p_promo_sk,
-        p_promo_id,
-        p_start_date_sk,
-        p_end_date_sk,
-        p_item_sk,
-        p_cost,
-        p_response_target,
-        p_promo_name,
-        p_channel_dmail,
-        p_channel_email,
-        p_channel_catalog,
-        p_channel_tv,
-        p_channel_radio,
-        p_channel_press,
-        p_channel_event,
-        p_channel_demo,
-        p_channel_details,
-        p_purpose,
-        p_discount_active,
-        i_item_sk,
-        i_item_id,
-        i_rec_start_date,
-        i_rec_end_date,
-        i_item_desc,
-        i_current_price,
-        i_wholesale_cost,
-        i_brand_id,
-        i_brand,
-        i_class_id,
-        i_class,
-        i_category_id,
-        i_category,
-        i_manufact_id,
-        i_manufact,
-        i_size,
-        i_formulation,
-        i_color,
-        i_units,
-        i_container,
-        i_manager_id,
-        i_product_name
-        FROM store_sales_denorm_insert${insertNum}
-    """)
+  def createDatabase() = {
+    println(s"Creating database ${dbName}.")
+    sql(s"DROP DATABASE IF EXISTS ${dbName}")
+    sql(s"CREATE DATABASE IF NOT EXISTS ${dbName}")
   }
 
+  def useDatabase() = {
+    sql(s"USE ${dbName}")
+  }
+
+  def runLoadTest() = {
+    println(s"Running the TPC-DS benchmark load test at the ${scaleFactor} scale factor.")
+    useDatabase()
+    val schemasMap = new TPCDS_Schemas().tpcdsSchemasMap
+    val tableNames = schemasMap.keys.toList.sorted
+    for (tableName <- tableNames) {
+      loadTable(tableName, schemasMap(tableName))
+    }
+  }
+
+  def loadTable(schema: String, tableName: String) = {
+    val banner = schema.split("\n")(0) + "..."
+    println(s"START: $banner")  
+    try {
+      //sql(str)
+      println(s"END: $banner" )
+    }
+    catch {
+      case e: Exception => {  
+        println(e.getMessage)
+      }
+    }
+  }
+
+  def runPowerTest() = {
+
+  }
+
+  // Parse the schema of a given table out of a "create table" query generated by the tpcds toolkit.
+  // Returns an array of tuples (Attribute, Type)
+  def parseSchemaFromSQL(tableName: String) : Array[(String, String)]= {
+    tableName
+    .split("\n")    // Split the schema into lines
+    .drop(2)        // Drop the CREATE TABLE and the parenthesis on the first two lines
+    .map(           
+      _.split(" +") // Split the lines by any amount of spaces generating arrays of strings (tokens)
+      .drop(1)      // Drop the initial whitespace
+      .take(2)      // Take only the first two elements as we do only want the column name and type
+    ).filter( // Filter out empty lines and primary key lines (if any)
+      tokens => tokens.length > 0 && tokens(0) != "primary")
+    .map( // Generate the (attribute, type) pairs, changing integer into int when applicable
+      tokens => if (tokens(1) == "integer") (tokens(0), "int") else (tokens(0), tokens(1))) 
+  }
+
+  // Generate a SQL statement to create an external table over the raw CSV data
+  def genExtTableStmt(tableName: String, whLocation: String) = {
+    var sb = new StringBuilder(s"CREATE EXTERNAL TABLE ${tableName}_ext\n(\n")
+    sb ++= parseSchemaFromSQL(tableName).map(t=> s"    ${t._1} ${t._2}").mkString(",\n")
+    sb ++= s"""
+    )
+    ROW FORMAT DELIMITED FIELDS TERMINATED BY '\001'
+    STORED AS TEXTFILE
+    LOCATION '${whLocation}/${tableName}'
+    """
+    sb.toString()
+  }
+
+  // Generate a SQL statement to create a warehouse table to store the data in the desired format
+  def genWarehouseTableStmt(tableName: String, whLocation: String, 
+    partitionKeys: Map[String, String], format: String) = {
+    var sb = new StringBuilder(s"CREATE TABLE ${tableName}\n(\n")
+    sb ++= parseSchemaFromSQL(tableName).map(t=> s"    ${t._1} ${t._2}").mkString(",\n")
+    sb ++= s"""
+    )
+    USING ${format}
+    OPTIONS('compression'='lzo')
+    """
+    if (partitionKeys.contains(tableName)) sb ++= s"PARTITIONED BY (${partitionKeys(tableName)})\n"
+    sb ++= s"LOCATION '${whLocation}/${tableName}'"
+    sb.toString()
+  }
+
+  // Generate a SQL statement to insert the data from the external table into the warehouse table
+  def genInsertStmt(tableName: String, partitionKeys: Map[String, String]) = {
+    var sb = new StringBuilder(s"INSERT OVERWRITE TABLE ${tableName} SELECT")
+    // If the table is partitioned, the attributes need to be listed with the partition attributes at the end
+    if (partitionKeys.contains(tableName)) {
+      sb ++= "\n"                                            // Add a new line if we have to list the attributes
+      sb ++= parseSchemaFromSQL(tableName)       // Get the list of attributes
+      .map(_._1)                                             // Select only the attribute names
+      .filter(_ != partitionKeys(tableName))                 // Filter out the partition key
+      .mkString(",\n")                                       // Concatenate into a string
+      sb ++= s",\n${partitionKeys(tableName)}\n"             // Add the partition key to the end of the list
+    } else sb ++= " * "                                      // Select everything if the table is not partitioned
+    sb ++= s"FROM ${tableName}_ext"
+    // If the table is partitioned add a DISTRIBUTE BY directive
+    if (partitionKeys.contains(tableName)) sb ++= s"\nDISTRIBUTE BY ${partitionKeys(tableName)}"
+    sb.toString()
+  }
+  
+
+}
+
+object TpcdsBench {
+  def main(args: Array[String]): Unit = {
+    System.exit(new CommandLine(new TpcdsBench()).execute(args: _*))
+  }
 }

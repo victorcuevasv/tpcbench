@@ -1,7 +1,7 @@
 
 // The simplest possible sbt build file is just one line:
 
-scalaVersion := "2.12.15"
+scalaVersion := "2.12.19"
 // That is, to create a valid sbt build, all you've got to do is define the
 // version of Scala you'd like your project to use.
 
@@ -29,6 +29,7 @@ libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % 
 
 libraryDependencies ++= Seq(
     "org.scala-lang.modules" %% "scala-parser-combinators" % "2.1.1",
+    "info.picocli" % "picocli" % "4.7.6",
     "org.apache.spark" %% "spark-sql" % "3.2.3" % "provided"
 )
 

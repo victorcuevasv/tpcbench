@@ -29,3 +29,5 @@
 /scala_apps/appends-test/target/
 /scala_apps/tpcds-power-test/project/
 /scala_apps/tpcds-power-test/target/
+/scala_apps/.metals/
+/scala_apps/.vscode/
