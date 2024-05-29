@@ -1,5 +1,6 @@
 import java.net.URI
 import java.io.File
+import scala.io.Source
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 
 object TpcdsBenchUtil {
@@ -23,6 +24,28 @@ object TpcdsBenchUtil {
         val bucketName = objURI.getAuthority
         val absPath = objURI.getPath
         val objKey = absPath.substring(1, absPath.length)
+        s3Client.putObject(bucketName, objKey, contents)
+    }
+    catch {
+      case e: Exception => {  
+        println(e.getMessage)
+      }
+    }
+  }
+
+  def readFileToString(filePath: String) = {
+    val source = scala.io.Source.fromFile(filePath)
+    source.getLines mkString "\n"
+  }
+
+  def uploadFileToS3(baseURL: String, s3Path: String, filePath: String) = {
+    try {
+        val s3Client: AmazonS3 = AmazonS3ClientBuilder.defaultClient
+        val objURI = new URI(addPathToURI(baseURL, s3Path))
+        val bucketName = objURI.getAuthority
+        val absPath = objURI.getPath
+        val objKey = absPath.substring(1, absPath.length)
+        val contents = readFileToString(filePath)
         s3Client.putObject(bucketName, objKey, contents)
     }
     catch {
