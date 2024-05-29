@@ -1,3 +1,4 @@
+import org.apache.spark.sql.SparkSession
 import picocli.CommandLine
 import picocli.CommandLine.{Command, Option}
 import java.util.concurrent.Callable
@@ -11,20 +12,52 @@ class TpcdsBench extends Callable[Int] {
   val timestamp = Instant.now.getEpochSecond
   @Option(names = Array("--exec-flags"), description = Array("Flags for the execution of different tests create_db|load|power"))
   private var flags = "111"
+  @Option(names = Array("--cold-run"), description = Array("Run without executing any SQL statements"))
+  private var isColdRun = false
   @Option(names = Array("--scale-factor"), description = Array("Scale factor in GB for the benchmark"))
   private var scaleFactor = 1
   @Option(names = Array("--raw-data-url"), description = Array("URL of the input raw TPC-DS CSV data"))
   private var rawDataURL = s"s3://tpcds-data-1713123644/${scaleFactor}GB/"
   @Option(names = Array("--warehouse-base-url"), description = Array("Base URL for the generated TPC-DS tables data"))
   private var warehouseBaseURL = s"s3://tpcds-warehouses-1713123644/"
+  @Option(names = Array("--results-base-url"), description = Array("Base URL for the results and saved queries"))
+  private var resultsBaseURL = s"s3://tpcds-results-1713123644/"
   @Option(names = Array("--gen-data-tag"), description = Array("Unix timestamp identifying the generated data"))
   var genDataTag = timestamp
   @Option(names = Array("--run-exp-tag"), description = Array("Unix timestamp identifying the experiment"))
   var runExpTag = timestamp
-  @Option(names = Array("--file-format"), description = Array("File format to use for the tables"))
-  var format = "delta"
+  @Option(names = Array("--table-format"), description = Array("File format to use for the tables"))
+  var tableFormat = "parquet"
+  @Option(names = Array("--output-sql"), description = Array("Output the benchmark SQL statements"))
+  private var isOutputSql = true
+
+  def sqlStmtOut(stmt: String) = { 
+    if( isOutputSql )
+      println(stmt)
+  }
+
+  def sqlStmtSpark(stmt: String) = { 
+    if( isOutputSql )
+      println(stmt)
+    try {
+      //spark.sql(stmt)
+    }
+    catch {
+      case e: Exception => {  
+        println(e.getMessage)
+      }
+    }
+  }
+
+  //var spark: SparkSession = SparkSession.builder().appName("TPC-DS Benchmark").enableHiveSupport().getOrCreate()
+
+  var sqlStmt = sqlStmtOut(_)
+  if( ! isColdRun )
+    sqlStmt = sqlStmtSpark(_)
+
   val dbName = s"tpcds_sf${scaleFactor}_${genDataTag}"
   val whLocation = TpcdsBenchUtil.addPathToURI(warehouseBaseURL, dbName)
+  val resultsLocation = TpcdsBenchUtil.addPathToURI(resultsBaseURL, s"${dbName}_${runExpTag}")
 
   //Fact Tables partition keys
   val partitionKeys = Map (
@@ -37,51 +70,57 @@ class TpcdsBench extends Callable[Int] {
     "web_sales" -> "ws_sold_date_sk"
   )
 
-  def sql(stmt:String) = {
-    println(stmt)
-  }
-
   def call(): Int = {
-    runTests()
+    runTests(dbName, flags, scaleFactor, whLocation, resultsLocation, partitionKeys, tableFormat)
     0
   }
 
-  def runTests() = {
+  def runTests(dbName: String, flags: String, scaleFactor: Integer, whLocation: String, resultsLocation: String,
+    partitionKeys: Map[String, String], tableFormat: String) = {
     println(s"Running the TPC-DS benchmark at the ${scaleFactor} scale factor.")
     if ( flags.charAt(0) == '1' )
-      createDatabase()
+      createDatabase(dbName)
     if ( flags.charAt(1) == '1')
-      runLoadTest()
+      runLoadTest("load", dbName, scaleFactor, whLocation, resultsLocation, partitionKeys, tableFormat)
     if ( flags.charAt(2) == '1')
       runPowerTest()
   }
 
-  def createDatabase() = {
+  def createDatabase(dbName: String) = {
     println(s"Creating database ${dbName}.")
-    sql(s"DROP DATABASE IF EXISTS ${dbName}")
-    sql(s"CREATE DATABASE IF NOT EXISTS ${dbName}")
+    sqlStmt(s"DROP DATABASE IF EXISTS ${dbName}")
+    sqlStmt(s"CREATE DATABASE IF NOT EXISTS ${dbName}")
   }
 
-  def useDatabase() = {
-    sql(s"USE ${dbName}")
+  def useDatabase(dbName: String) = {
+      sqlStmt(s"USE ${dbName}")
   }
 
-  def runLoadTest() = {
+  def runLoadTest(testName: String, dbName: String, scaleFactor: Integer, whLocation: String, resultsLocation: String,
+    partitionKeys: Map[String, String], tableFormat: String) = {
     println(s"Running the TPC-DS benchmark load test at the ${scaleFactor} scale factor.")
-    useDatabase()
+    useDatabase(dbName)
     val schemasMap = new TPCDS_Schemas().tpcdsSchemasMap
     val tableNames = schemasMap.keys.toList.sorted
     for (tableName <- tableNames) {
-      loadTable(tableName, schemasMap(tableName))
+      loadTable(testName, tableName, schemasMap(tableName), whLocation, resultsLocation, partitionKeys, tableFormat)
     }
   }
 
-  def loadTable(schema: String, tableName: String) = {
-    val banner = schema.split("\n")(0) + "..."
-    println(s"START: $banner")  
+  def loadTable(testName: String, tableName: String, schema: String, whLocation: String, resultsLocation: String,
+    partitionKeys: Map[String, String], tableFormat: String) = {  
     try {
-      //sql(str)
-      println(s"END: $banner" )
+      println(s"START: load table $tableName")
+      val createExtStmt = genExtTableStmt(tableName, schema, whLocation)
+      TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/external/${tableName}.sql", createExtStmt)
+      sqlStmt(createExtStmt)
+      val createWhStmt = genWarehouseTableStmt(tableName, schema, whLocation, partitionKeys, tableFormat)
+      TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/warehouse/${tableName}.sql", createWhStmt)
+      sqlStmt(createWhStmt)
+      val insertStmt = genInsertStmt(tableName, partitionKeys)
+      TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/insert/${tableName}.sql", insertStmt)
+      sqlStmt(insertStmt)
+      println(s"END: load table $tableName" )
     }
     catch {
       case e: Exception => {  
@@ -96,8 +135,8 @@ class TpcdsBench extends Callable[Int] {
 
   // Parse the schema of a given table out of a "create table" query generated by the tpcds toolkit.
   // Returns an array of tuples (Attribute, Type)
-  def parseSchemaFromSQL(tableName: String) : Array[(String, String)]= {
-    tableName
+  def parseSchemaFromSQL(schema: String) : Array[(String, String)]= {
+    schema
     .split("\n")    // Split the schema into lines
     .drop(2)        // Drop the CREATE TABLE and the parenthesis on the first two lines
     .map(           
@@ -111,9 +150,9 @@ class TpcdsBench extends Callable[Int] {
   }
 
   // Generate a SQL statement to create an external table over the raw CSV data
-  def genExtTableStmt(tableName: String, whLocation: String) = {
+  def genExtTableStmt(tableName: String, schema: String, whLocation: String) = {
     var sb = new StringBuilder(s"CREATE EXTERNAL TABLE ${tableName}_ext\n(\n")
-    sb ++= parseSchemaFromSQL(tableName).map(t=> s"    ${t._1} ${t._2}").mkString(",\n")
+    sb ++= parseSchemaFromSQL(schema).map(t=> s"    ${t._1} ${t._2}").mkString(",\n")
     sb ++= s"""
     )
     ROW FORMAT DELIMITED FIELDS TERMINATED BY '\001'
@@ -124,13 +163,13 @@ class TpcdsBench extends Callable[Int] {
   }
 
   // Generate a SQL statement to create a warehouse table to store the data in the desired format
-  def genWarehouseTableStmt(tableName: String, whLocation: String, 
-    partitionKeys: Map[String, String], format: String) = {
+  def genWarehouseTableStmt(tableName: String, schema: String, whLocation: String, 
+    partitionKeys: Map[String, String], tableFormat: String) = {
     var sb = new StringBuilder(s"CREATE TABLE ${tableName}\n(\n")
-    sb ++= parseSchemaFromSQL(tableName).map(t=> s"    ${t._1} ${t._2}").mkString(",\n")
+    sb ++= parseSchemaFromSQL(schema).map(t=> s"    ${t._1} ${t._2}").mkString(",\n")
     sb ++= s"""
     )
-    USING ${format}
+    USING ${tableFormat}
     OPTIONS('compression'='lzo')
     """
     if (partitionKeys.contains(tableName)) sb ++= s"PARTITIONED BY (${partitionKeys(tableName)})\n"
