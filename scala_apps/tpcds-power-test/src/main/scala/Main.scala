@@ -57,7 +57,10 @@ class TpcdsBench extends Callable[Int] {
 
   val dbName = s"tpcds_sf${scaleFactor}_${genDataTag}"
   val whLocation = TpcdsBenchUtil.addPathToURI(warehouseBaseURL, dbName)
-  val resultsLocation = TpcdsBenchUtil.addPathToURI(resultsBaseURL, s"${dbName}_${runExpTag}")
+  val expName = s"${dbName}_${runExpTag}"
+  val resultsLocation = TpcdsBenchUtil.addPathToURI(resultsBaseURL, expName)
+  val resultsDir = expName
+  val system = "spark"
 
   //Fact Tables partition keys
   val partitionKeys = Map (
@@ -71,17 +74,19 @@ class TpcdsBench extends Callable[Int] {
   )
 
   def call(): Int = {
-    runTests(dbName, flags, scaleFactor, whLocation, resultsLocation, partitionKeys, tableFormat)
+    runTests(dbName, flags, scaleFactor, whLocation, resultsLocation, partitionKeys, tableFormat,
+      resultsDir, system)
     0
   }
 
   def runTests(dbName: String, flags: String, scaleFactor: Integer, whLocation: String, resultsLocation: String,
-    partitionKeys: Map[String, String], tableFormat: String) = {
+    partitionKeys: Map[String, String], tableFormat: String, resultsDir: String, system: String) = {
     println(s"Running the TPC-DS benchmark at the ${scaleFactor} scale factor.")
     if ( flags.charAt(0) == '1' )
       createDatabase(dbName)
     if ( flags.charAt(1) == '1')
-      runLoadTest("load", dbName, scaleFactor, whLocation, resultsLocation, partitionKeys, tableFormat)
+      runLoadTest("load", 1, dbName, scaleFactor, whLocation, resultsLocation, partitionKeys, tableFormat,
+        resultsDir, system)
     if ( flags.charAt(2) == '1')
       runPowerTest()
   }
@@ -96,19 +101,30 @@ class TpcdsBench extends Callable[Int] {
       sqlStmt(s"USE ${dbName}")
   }
 
-  def runLoadTest(testName: String, dbName: String, scaleFactor: Integer, whLocation: String, resultsLocation: String,
-    partitionKeys: Map[String, String], tableFormat: String) = {
+  def runLoadTest(testName: String, instance: Integer, dbName: String, scaleFactor: Integer, whLocation: String,
+    resultsLocation: String, partitionKeys: Map[String, String], tableFormat: String, resultsDir: String,
+    system: String) = {
     println(s"Running the TPC-DS benchmark load test at the ${scaleFactor} scale factor.")
     useDatabase(dbName)
     val schemasMap = new TPCDS_Schemas().tpcdsSchemasMap
     val tableNames = schemasMap.keys.toList.sorted
+    val recorder = new AnalyticsRecorder(resultsDir, testName, instance, system)
+    recorder.createWriter()
+    recorder.header()
+    var query = 1
     for (tableName <- tableNames) {
-      loadTable(testName, tableName, schemasMap(tableName), whLocation, resultsLocation, partitionKeys, tableFormat)
+      loadTable(testName, tableName, schemasMap(tableName), whLocation, resultsLocation, partitionKeys, tableFormat,
+        resultsDir, system, query, 1, recorder)
+      query += 1
     }
+    recorder.close()
   }
 
   def loadTable(testName: String, tableName: String, schema: String, whLocation: String, resultsLocation: String,
-    partitionKeys: Map[String, String], tableFormat: String) = {  
+    partitionKeys: Map[String, String], tableFormat: String, resultsDir: String, system: String, query: Integer,
+    run: Integer, recorder: AnalyticsRecorder) = {
+    var successful = false
+    val startTime = System.currentTimeMillis()
     try {
       println(s"START: load table $tableName")
       val createExtStmt = genExtTableStmt(tableName, schema, whLocation)
@@ -120,12 +136,18 @@ class TpcdsBench extends Callable[Int] {
       val insertStmt = genInsertStmt(tableName, partitionKeys)
       TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/insert/${tableName}.sql", insertStmt)
       sqlStmt(insertStmt)
+      successful = true
       println(s"END: load table $tableName" )
     }
     catch {
       case e: Exception => {  
         println(e.getMessage)
       }
+    }
+    finally {
+      val endTime = System.currentTimeMillis()
+      val record = new QueryRecord(query, run, startTime, endTime, successful, 0, 0)
+      recorder.record(record)
     }
   }
 

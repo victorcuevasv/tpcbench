@@ -31,7 +31,7 @@ libraryDependencies ++= Seq(
     "org.scala-lang.modules" %% "scala-parser-combinators" % "2.1.1",
     "info.picocli" % "picocli" % "4.7.6",
     "org.apache.spark" %% "spark-sql" % "3.2.3" % "provided",
-    "com.amazonaws" % "aws-java-sdk-s3" % "1.12.730"
+    "com.amazonaws" % "aws-java-sdk-s3" % "1.12.730" % "provided"
 )
 
 assemblyMergeStrategy in assembly := {

@@ -11,8 +11,8 @@ def listFiles(workDir) :
 
 def generateScalaMap(fileList, outFileName) :
     out = open(outFileName, "w")
-    out.write("class TPCDS_Schemas { \n")
-    out.write("\n   val tpcdsSchemasMap = Map( ")
+    out.write("class TPCDS_Queries1GB { \n")
+    out.write("\n   val tpcdsQueriesMap = Map( ")
     queriesList = []
     for file in fileList :
         # Get filename without path

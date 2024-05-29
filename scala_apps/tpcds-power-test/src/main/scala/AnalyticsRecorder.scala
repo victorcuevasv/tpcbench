@@ -5,12 +5,10 @@ import java.io.FileWriter
 import java.io.File
 import java.nio.file.Paths
 
-class AnalyticsRecorder(val workDir: String,
-                        val resultsDir: String,
-                        val experimentName: String,
-                        val system: String,
+class AnalyticsRecorder(val resultsDir: String,
                         val test: String,
-                        val instance: Int) {
+                        val instance: Int,
+                        val system: String) {
 
   var writer: BufferedWriter = null
   var logFile: File = null
@@ -18,8 +16,8 @@ class AnalyticsRecorder(val workDir: String,
   def createWriter(): Unit = {
     try {
       this.logFile = new File(
-        Paths.get(this.workDir, this.resultsDir, this.experimentName, this.test, "analytics",
-          this.instance.toString, "analytics.log").toString
+        Paths.get(this.resultsDir, this.test, "analytics",
+          this.instance.toString, "analytics.csv").toString
       )
       logFile.getParentFile.mkdirs()
       this.writer = new BufferedWriter(new FileWriter(logFile))
