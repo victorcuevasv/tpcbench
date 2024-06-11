@@ -1,0 +1,3 @@
+java -cp target/scala-2.12/tpcds-power-test-assembly-1.0.jar TpcdsBench --scale-factor 1 --warehouse-base-url s3://tpcds-warehouses-1713123644 --results-base-url s3://tpcds-results-1713123644/  --table-format parquet --cold-run
+
+spark-submit --deploy-mode client --class TpcdsBench tpcds-power-test-assembly-1.0.jar --scale-factor 1 --raw-base-url s3://tpcds-data-1713123644/ --warehouse-base-url s3://tpcds-warehouses-1713123644 --results-base-url s3://tpcds-results-1713123644/  --table-format parquet
