@@ -1,59 +1,59 @@
 import org.apache.spark.sql.SparkSession
-import picocli.CommandLine
-import picocli.CommandLine.{Command, Option}
-import java.util.concurrent.Callable
 import java.time.Instant
 import java.net.URL
+import org.apache.commons.cli.Option
+import org.apache.commons.cli.Options
+import org.apache.commons.cli.CommandLine
+import org.apache.commons.cli.CommandLineParser
+import org.apache.commons.cli.DefaultParser
 
-@Command(name = "tpcdsbench", mixinStandardHelpOptions = true, version = Array("tpcdsbench 1.0"),
-  description = Array("Executes the TPC-DS benchmark power test"))
-class TpcdsBench extends Callable[Int] {
-
-  val timestamp = Instant.now.getEpochSecond
-  @Option(names = Array("--exec-flags"), description = Array("Flags for the execution of different tests create_db|load|power"))
-  private var flags = "111"
-  @Option(names = Array("--cold-run"), description = Array("Run without executing any SQL statements"))
-  private var isColdRun = false
-  @Option(names = Array("--scale-factor"), description = Array("Scale factor in GB for the benchmark"))
-  private var scaleFactor = 1
-  @Option(names = Array("--raw-base-url"), description = Array("URL of the input raw TPC-DS CSV data"))
-  private var rawBaseURL = s"s3://tpcds-data-1713123644/"
-  @Option(names = Array("--warehouse-base-url"), description = Array("Base URL for the generated TPC-DS tables data"))
-  private var warehouseBaseURL = s"s3://tpcds-warehouses-1713123644/"
-  @Option(names = Array("--results-base-url"), description = Array("Base URL for the results and saved queries"))
-  private var resultsBaseURL = s"s3://tpcds-results-1713123644/"
-  @Option(names = Array("--gen-data-tag"), description = Array("Unix timestamp identifying the generated data"))
-  var genDataTag = timestamp
-  @Option(names = Array("--run-exp-tag"), description = Array("Unix timestamp identifying the experiment"))
-  var runExpTag = timestamp
-  @Option(names = Array("--table-format"), description = Array("File format to use for the tables"))
-  var tableFormat = "parquet"
-  @Option(names = Array("--output-sql"), description = Array("Output the benchmark SQL statements"))
-  private var isOutputSql = true
-
-  def sqlStmtOut(stmt: String) = { 
-    if( isOutputSql )
-      println(stmt)
-  }
-
-  def sqlStmtSpark(stmt: String) = { 
-    if( isOutputSql )
-      println(stmt)
-    try {
-      spark.sql(stmt)
-    }
-    catch {
-      case e: Exception => {  
-        println(e.getMessage)
-      }
-    }
-  }
+object TpcdsBench extends App {
 
   var spark: SparkSession = SparkSession.builder().appName("TPC-DS Benchmark").enableHiveSupport().getOrCreate()
 
-  var sqlStmt = sqlStmtOut(_)
-  if( ! isColdRun )
-    sqlStmt = sqlStmtSpark(_)
+  val cmdLine : CommandLine = parseArgs(args)
+  if (cmdLine == null) {
+    System.out.println("Error parsing the command line options")
+    System.exit(1)
+  } 
+
+  val timestamp = Instant.now.getEpochSecond
+  // Flags for the execution of different tests create_db|load|power
+  var flags = cmdLine.getOptionValue("exec-flags")
+  flags = if (flags == null) "111" else flags
+  // Run without executing any SQL statements
+  var isColdRunStr = cmdLine.getOptionValue("is-cold-run")
+  isColdRunStr = if (isColdRunStr == null) "false" else isColdRunStr
+  val isColdRun = isColdRunStr.toBoolean
+  // Scale factor in GB for the benchmark
+  var scaleFactorStr = cmdLine.getOptionValue("scale-factor")
+  scaleFactorStr = if (scaleFactorStr == null) "1" else scaleFactorStr
+  val scaleFactor = scaleFactorStr.toInt
+  // URL of the input raw TPC-DS CSV data
+  var rawBaseURL = cmdLine.getOptionValue("raw-base-url")
+  rawBaseURL = if (rawBaseURL == null) "s3://tpcds-data-1713123644/" else rawBaseURL
+  // Base URL for the generated TPC-DS tables data
+  var warehouseBaseURL = cmdLine.getOptionValue("warehouse-base-url")
+  warehouseBaseURL = if (warehouseBaseURL == null) "s3://tpcds-warehouses-1713123644/" else warehouseBaseURL
+  
+  // Base URL for the results and saved queries
+  var resultsBaseURL = cmdLine.getOptionValue("results-base-url")
+  resultsBaseURL = if (resultsBaseURL == null) "s3://tpcds-results-1713123644/" else resultsBaseURL
+  // Unix timestamp identifying the generated data
+  var genDataTagStr = cmdLine.getOptionValue("gen-data-tag")
+  genDataTagStr = if (genDataTagStr == null) timestamp.toString else genDataTagStr
+  val genDataTag = genDataTagStr.toInt
+  // Unix timestamp identifying the experiment
+  var runExpTagStr = cmdLine.getOptionValue("run-exp-tag")
+  runExpTagStr = if (runExpTagStr == null) timestamp.toString else runExpTagStr
+  val runExpTag = runExpTagStr.toInt
+  // File format to use for the tables
+  var tableFormat = cmdLine.getOptionValue("table-format")
+  tableFormat = if (tableFormat == null) "parquet" else tableFormat
+  // Output the benchmark SQL statements
+  var isOutputSqlStr = cmdLine.getOptionValue("is-output-sql")
+  isOutputSqlStr = if (isOutputSqlStr == null) "true" else isOutputSqlStr
+  val isOutputSql = isOutputSqlStr.toBoolean
 
   val dbName = s"tpcds_sf${scaleFactor}_${genDataTag}"
   val rawLocation = TpcdsBenchUtil.addPathToURI(rawBaseURL, s"${scaleFactor}GB")
@@ -74,10 +74,45 @@ class TpcdsBench extends Callable[Int] {
     "web_sales" -> "ws_sold_date_sk"
   )
 
-  def call(): Int = {
-    runTests(dbName, flags, scaleFactor, rawLocation, whLocation, resultsLocation, partitionKeys, tableFormat,
+  var sqlStmt = sqlStmtOut(_)
+  if( ! isColdRun )
+    sqlStmt = sqlStmtSpark(_)
+
+  runTests(dbName, flags, scaleFactor, rawLocation, whLocation, resultsLocation, partitionKeys, tableFormat,
       resultsDir, system)
-    0
+
+  def parseArgs(args: Array[String]) : CommandLine = {
+		var cmdLine : CommandLine = null
+    try {
+			val opts = new RunBenchmarkOptions()
+      opts.initOptions()
+			val parser: CommandLineParser = new DefaultParser()
+			cmdLine = parser.parse(opts.getOptions(), args)
+		}
+    catch {
+      case e: Exception => {  
+        println(e.getMessage)
+      }
+    }
+    return cmdLine
+  }
+
+  def sqlStmtOut(stmt: String) = { 
+    if( isOutputSql )
+      println(stmt)
+  }
+
+  def sqlStmtSpark(stmt: String) = { 
+    if( isOutputSql )
+      println(stmt)
+    try {
+      spark.sql(stmt)
+    }
+    catch {
+      case e: Exception => {  
+        println(e.getMessage)
+      }
+    }
   }
 
   def runTests(dbName: String, flags: String, scaleFactor: Integer, rawLocation: String, whLocation: String,
@@ -109,7 +144,14 @@ class TpcdsBench extends Callable[Int] {
     println(s"Running the TPC-DS benchmark load test at the ${scaleFactor} scale factor.")
     useDatabase(dbName)
     val schemasMap = new TPCDS_Schemas().tpcdsSchemasMap
-    val tableNames = schemasMap.keys.toList.sorted
+    var tableNames = schemasMap.keys.toList.sorted
+
+    /////////////////////////////
+    tableNames = List("call_center", "catalog_page", "customer_address", "customer_demographics", "customer", "date_dim", 
+    "household_demographics", "income_band", "inventory", "item", "promotion", "reason", "ship_mode", "store", "time_dim", 
+    "warehouse", "web_page", "web_site")
+    /////////////////////////////
+
     val recorder = new AnalyticsRecorder(resultsDir, testName, instance, system)
     recorder.createWriter()
     recorder.header()
@@ -196,7 +238,7 @@ class TpcdsBench extends Callable[Int] {
     sb ++= s"""
     )
     USING ${tableFormat}
-    OPTIONS('compression'='lzo')
+    OPTIONS('compression'='gzip')
     """
     if (partitionKeys.contains(tableName)) sb ++= s"PARTITIONED BY (${partitionKeys(tableName)})\n"
     sb ++= s"LOCATION '${whLocation}/${tableName}'"
@@ -224,8 +266,3 @@ class TpcdsBench extends Callable[Int] {
 
 }
 
-object TpcdsBench {
-  def main(args: Array[String]): Unit = {
-    System.exit(new CommandLine(new TpcdsBench()).execute(args: _*))
-  }
-}
