@@ -91,7 +91,13 @@ object TpcdsBench extends App {
     return cmdLine
   }
 
-  def sqlStmt(stmt: String) = { 
+  def sqlStmt(stmt: String, descShort: String, descLong: String) : Unit = {
+    spark.sparkContext.setLocalProperty("callSite.short", descShort)
+    spark.sparkContext.setLocalProperty("callSite.long", descLong)
+    sqlStmt(stmt)
+  }
+
+  def sqlStmt(stmt: String) : Unit = { 
     if( isOutputSql )
       println(stmt)
     try {
@@ -164,13 +170,13 @@ object TpcdsBench extends App {
       println(s"START: load table $tableName")
       val createExtStmt = genExtTableStmt(tableName, schema, rawLocation)
       TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/external/${tableName}.sql", createExtStmt)
-      sqlStmt(createExtStmt)
+      sqlStmt(createExtStmt, s"create ext $tableName", s"create external table $tableName")
       val createWhStmt = genWarehouseTableStmt(tableName, schema, whLocation, partitionKeys, tableFormat)
       TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/warehouse/${tableName}.sql", createWhStmt)
-      sqlStmt(createWhStmt)
+      sqlStmt(createWhStmt, s"create $tableName", s"create table $tableName")
       val insertStmt = genInsertStmt(tableName, schema, partitionKeys)
       TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/insert/${tableName}.sql", insertStmt)
-      sqlStmt(insertStmt)
+      sqlStmt(insertStmt, s"insert $tableName", s"insert into $tableName")
       successful = true
       println(s"END: load table $tableName" )
     }
@@ -211,11 +217,13 @@ object TpcdsBench extends App {
     try {
       println(s"START: run query $nQuery")
       TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/query/query${nQuery}.sql", queryStr)
+      spark.sparkContext.setLocalProperty("callSite.short", s"query $nQuery")
+      spark.sparkContext.setLocalProperty("callSite.long", s"query $nQuery")
       val res = spark.sql(queryStr)
       val resList = res.map(_.mkString(" | "), Encoders.STRING).collectAsList
       nTuples = resList.size()
       val resListStr = asScalaBuffer(resList).mkString("\n")
-      TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/result/query${nQuery}.sql", resListStr)
+      TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/result/query${nQuery}.csv", resListStr)
       successful = true
       println(s"END: run query $nQuery" )
     }
