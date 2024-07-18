@@ -10,9 +10,6 @@ class RunBenchmarkOptions {
         options.addOption( Option.builder().longOpt("exec-flags")
                 .desc("Flags for the execution of different tests create_db|load|power")
                 .hasArg(true).required(false).build() )
-        options.addOption( Option.builder().longOpt("is-cold-run")
-				.desc("Run without executing any SQL statements")
-				.hasArg(true).required(false).build() )
         options.addOption( Option.builder().longOpt("scale-factor")
 				.desc("Scale factor in GB for the benchmark")
 				.hasArg(true).required(false).build() )
@@ -22,10 +19,10 @@ class RunBenchmarkOptions {
         options.addOption( Option.builder().longOpt("warehouse-base-url")
 				.desc("Base URL for the generated TPC-DS tables data")
 				.hasArg(true).required(false).build() )
-        
         options.addOption( Option.builder().longOpt("results-base-url")
                 .desc("Base URL for the results and saved queries")
                 .hasArg(true).required(false).build() )
+
         options.addOption( Option.builder().longOpt("gen-data-tag")
 				.desc("Unix timestamp identifying the generated data")
 				.hasArg(true).required(false).build() )

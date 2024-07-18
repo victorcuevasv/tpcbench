@@ -1,6 +1,6 @@
-class TPCDS_Queries1GB { 
+class TPCDS_Queries1GB extends TPCDS_Queries { 
 
-   val tpcdsQueriesMap = Map( "query1" -> """
+   override val tpcdsQueriesMap = Map( "query1" -> """
 with customer_total_return as
 (select sr_customer_sk as ctr_customer_sk
 ,sr_store_sk as ctr_store_sk

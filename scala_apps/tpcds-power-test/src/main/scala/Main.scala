@@ -6,6 +6,8 @@ import org.apache.commons.cli.Options
 import org.apache.commons.cli.CommandLine
 import org.apache.commons.cli.CommandLineParser
 import org.apache.commons.cli.DefaultParser
+import org.apache.spark.sql.Encoders
+import scala.collection.JavaConverters._
 
 object TpcdsBench extends App {
 
@@ -21,10 +23,6 @@ object TpcdsBench extends App {
   // Flags for the execution of different tests create_db|load|power
   var flags = cmdLine.getOptionValue("exec-flags")
   flags = if (flags == null) "111" else flags
-  // Run without executing any SQL statements
-  var isColdRunStr = cmdLine.getOptionValue("is-cold-run")
-  isColdRunStr = if (isColdRunStr == null) "false" else isColdRunStr
-  val isColdRun = isColdRunStr.toBoolean
   // Scale factor in GB for the benchmark
   var scaleFactorStr = cmdLine.getOptionValue("scale-factor")
   scaleFactorStr = if (scaleFactorStr == null) "1" else scaleFactorStr
@@ -35,10 +33,10 @@ object TpcdsBench extends App {
   // Base URL for the generated TPC-DS tables data
   var warehouseBaseURL = cmdLine.getOptionValue("warehouse-base-url")
   warehouseBaseURL = if (warehouseBaseURL == null) "s3://tpcds-warehouses-1713123644/" else warehouseBaseURL
-  
   // Base URL for the results and saved queries
   var resultsBaseURL = cmdLine.getOptionValue("results-base-url")
   resultsBaseURL = if (resultsBaseURL == null) "s3://tpcds-results-1713123644/" else resultsBaseURL
+ 
   // Unix timestamp identifying the generated data
   var genDataTagStr = cmdLine.getOptionValue("gen-data-tag")
   genDataTagStr = if (genDataTagStr == null) timestamp.toString else genDataTagStr
@@ -74,10 +72,6 @@ object TpcdsBench extends App {
     "web_sales" -> "ws_sold_date_sk"
   )
 
-  var sqlStmt = sqlStmtOut(_)
-  if( ! isColdRun )
-    sqlStmt = sqlStmtSpark(_)
-
   runTests(dbName, flags, scaleFactor, rawLocation, whLocation, resultsLocation, partitionKeys, tableFormat,
       resultsDir, system)
 
@@ -97,12 +91,7 @@ object TpcdsBench extends App {
     return cmdLine
   }
 
-  def sqlStmtOut(stmt: String) = { 
-    if( isOutputSql )
-      println(stmt)
-  }
-
-  def sqlStmtSpark(stmt: String) = { 
+  def sqlStmt(stmt: String) = { 
     if( isOutputSql )
       println(stmt)
     try {
@@ -125,7 +114,7 @@ object TpcdsBench extends App {
       runLoadTest("load", 1, dbName, scaleFactor, rawLocation, whLocation, resultsLocation, partitionKeys,
         tableFormat, resultsDir, system)
     if ( flags.charAt(2) == '1')
-      runPowerTest()
+      runPowerTest("power", dbName, resultsDir, resultsLocation, scaleFactor, 1, system) 
   }
 
   def createDatabase(dbName: String) = {
@@ -147,9 +136,9 @@ object TpcdsBench extends App {
     var tableNames = schemasMap.keys.toList.sorted
 
     /////////////////////////////
-    tableNames = List("call_center", "catalog_page", "customer_address", "customer_demographics", "customer", "date_dim", 
-    "household_demographics", "income_band", "inventory", "item", "promotion", "reason", "ship_mode", "store", "time_dim", 
-    "warehouse", "web_page", "web_site")
+    //tableNames = List("call_center", "catalog_page", "customer_address", "customer_demographics", "customer", "date_dim", 
+    //"household_demographics", "income_band", "inventory", "item", "promotion", "reason", "ship_mode", "store", "time_dim", 
+    //"warehouse", "web_page", "web_site")
     /////////////////////////////
 
     val recorder = new AnalyticsRecorder(resultsDir, testName, instance, system)
@@ -197,8 +186,49 @@ object TpcdsBench extends App {
     }
   }
 
-  def runPowerTest() = {
+  def runPowerTest(testName: String, dbName: String, resultsDir: String, resultsLocation: String, scaleFactor: Integer, 
+    instance: Integer, system: String) = {
+    println(s"Running the TPC-DS benchmark power test at the ${scaleFactor} scale factor.")
+    useDatabase(dbName)
+    val recorder = new AnalyticsRecorder(resultsDir, testName, instance, system)
+    recorder.createWriter()
+    recorder.header()
+    val queriesMap = Class.forName(s"TPCDS_Queries${scaleFactor}GB").getDeclaredConstructor().newInstance().asInstanceOf[TPCDS_Queries].getTpcdsQueriesMap()
+    val queryNums = queriesMap.keys.toList.map(_.replace("query", "")).map(_.toInt).sorted
+    for (nQuery <- queryNums) {
+      runQuery(testName, queriesMap(s"query${nQuery}"), resultsLocation, resultsDir, system, nQuery, 1, recorder)
+    }
+    recorder.close()
+    TpcdsBenchUtil.uploadFileToS3(resultsLocation, 
+      s"analytics/${testName}/${instance}/analytics.csv", recorder.getLogFileCanonicalPath())
+  }
 
+  def runQuery(testName: String, queryStr: String, resultsLocation: String, resultsDir: String,
+    system: String, nQuery: Integer, run: Integer, recorder: AnalyticsRecorder) = {
+    var successful = false
+    var nTuples = 0
+    val startTime = System.currentTimeMillis()
+    try {
+      println(s"START: run query $nQuery")
+      TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/query/query${nQuery}.sql", queryStr)
+      val res = spark.sql(queryStr)
+      val resList = res.map(_.mkString(" | "), Encoders.STRING).collectAsList
+      nTuples = resList.size()
+      val resListStr = asScalaBuffer(resList).mkString("\n")
+      TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/result/query${nQuery}.sql", resListStr)
+      successful = true
+      println(s"END: run query $nQuery" )
+    }
+    catch {
+      case e: Exception => {  
+        println(e.getMessage)
+      }
+    }
+    finally {
+      val endTime = System.currentTimeMillis()
+      val record = new QueryRecord(nQuery, run, startTime, endTime, successful, 0, nTuples)
+      recorder.record(record)
+    }
   }
 
   // Parse the schema of a given table out of a "create table" query generated by the tpcds toolkit.

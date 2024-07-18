@@ -1,8 +1,6 @@
-# Cold run (no longer supported)
-java -cp target/scala-2.12/tpcds-power-test-assembly-1.0.jar TpcdsBench --scale-factor 1 --warehouse-base-url s3://tpcds-warehouses-1713123644 --results-base-url s3://tpcds-results-1713123644/  --table-format parquet --cold-run
 
 # Run with us-east-1 (Northern Virginia) buckets
-spark-submit --deploy-mode client --class TpcdsBench tpcds-power-test-assembly-1.0.jar --scale-factor 1 --raw-base-url s3://tpcds-data-1713123644/ --warehouse-base-url s3://tpcds-warehouses-1713123644 --results-base-url s3://tpcds-results-1713123644/  --table-format parquet
+spark-submit --deploy-mode client --class TpcdsBench tpcds-power-test-assembly-1.0.jar --scale-factor 1 --raw-base-url s3://tpcds-data-1713123644/ --warehouse-base-url s3://tpcds-warehouses-1713123644 --results-base-url s3://tpcds-results-1713123644/ --table-format parquet
 
 # Run with eu-west-3 (Paris) buckets
 spark-submit --deploy-mode client --class TpcdsBench tpcds-power-test-assembly-1.0.jar \
@@ -10,5 +8,5 @@ spark-submit --deploy-mode client --class TpcdsBench tpcds-power-test-assembly-1
 --results-base-url s3://tpcds-results-eu-west-3-1718114472 --table-format parquet
 
 # Run with eu-west-3 (Paris) buckets using the docker-compose cluster
-/opt/spark/bin/spark-submit --master spark://spark-master:7077 --deploy-mode client --class TpcdsBench --jars aws-java-sdk-s3-1.12.256.jar,aws-java-sdk-core-1.12.256.jar,hadoop-aws-3.3.4.jar,hadoop-common-3.3.4.jar,aws-java-sdk-dynamodb-1.12.256.jar  tpcds-power-test-assembly-1.0.jar --scale-factor 1  --raw-base-url s3a://tpcds-data-eu-west-3-1718114472/ --warehouse-base-url s3a://tpcds-warehouses-eu-west-3-1718114472 --results-base-url s3a://tpcds-results-eu-west-3-1718114472 --table-format parquet
+/opt/spark/bin/spark-submit --master spark://spark-master:7077 --deploy-mode client --class TpcdsBench --jars aws-java-sdk-s3-1.12.256.jar,aws-java-sdk-core-1.12.256.jar,hadoop-aws-3.3.4.jar,hadoop-common-3.3.4.jar,aws-java-sdk-dynamodb-1.12.256.jar --conf "spark.metrics.conf.*.sink.graphite.class"="org.apache.spark.metrics.sink.GraphiteSink" --conf "spark.metrics.conf.*.sink.graphite.host"=spark-dashboard tpcds-power-test-assembly-1.0.jar --scale-factor 1  --raw-base-url s3a://tpcds-data-eu-west-3-1718114472/ --warehouse-base-url s3a://tpcds-warehouses-eu-west-3-1718114472 --results-base-url s3a://tpcds-results-eu-west-3-1718114472 --table-format parquet
 
