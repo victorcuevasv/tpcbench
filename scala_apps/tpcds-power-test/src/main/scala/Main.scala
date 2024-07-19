@@ -203,8 +203,7 @@ object TpcdsBench extends App {
     val queryNums = queriesMap.keys.toList.map(_.replace("query", "")).map(_.toInt).sorted
     for (nQuery <- queryNums) {
       val queryStr = queriesMap(s"query${nQuery}")
-        runQuery(testName, queryStr, resultsLocation, resultsDir, system, nQuery, 1, recorder)
-      }
+      runQuery(testName, queryStr, resultsLocation, resultsDir, system, nQuery, 1, recorder)
     }
     recorder.close()
     TpcdsBenchUtil.uploadFileToS3(resultsLocation, 
