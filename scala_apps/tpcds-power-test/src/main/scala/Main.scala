@@ -201,13 +201,9 @@ object TpcdsBench extends App {
     recorder.header()
     val queriesMap = Class.forName(s"TPCDS_Queries${scaleFactor}GB").getDeclaredConstructor().newInstance().asInstanceOf[TPCDS_Queries].getTpcdsQueriesMap()
     val queryNums = queriesMap.keys.toList.map(_.replace("query", "")).map(_.toInt).sorted
-    var nSubQuery = 1
     for (nQuery <- queryNums) {
       val queryStr = queriesMap(s"query${nQuery}")
-      val subQueries = queryStr.split(";").map(_.trim).filter(_.length > 0)
-      for( subQueryStr <- subQueries ) {
-        runQuery(testName, subQueryStr, resultsLocation, resultsDir, system, nSubQuery, 1, recorder)
-        nSubQuery += 1
+        runQuery(testName, queryStr, resultsLocation, resultsDir, system, nQuery, 1, recorder)
       }
     }
     recorder.close()
@@ -219,16 +215,20 @@ object TpcdsBench extends App {
     system: String, nQuery: Integer, run: Integer, recorder: AnalyticsRecorder) = {
     var successful = false
     var nTuples = 0
+    var resListStr = ""
     val startTime = System.currentTimeMillis()
     try {
       println(s"START: run query $nQuery")
       TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/query/query${nQuery}.sql", queryStr)
       spark.sparkContext.setLocalProperty("callSite.short", s"query $nQuery")
       spark.sparkContext.setLocalProperty("callSite.long", s"query $nQuery")
-      val res = spark.sql(queryStr)
-      val resList = res.map(_.mkString(" | "), Encoders.STRING).collectAsList
-      nTuples = resList.size()
-      val resListStr = asScalaBuffer(resList).mkString("\n")
+      val subQueries = queryStr.split(";").map(_.trim).filter(_.length > 0)
+      for( subQueryStr <- subQueries ) {
+        val res = spark.sql(subQueryStr)
+        val resList = res.map(_.mkString(" | "), Encoders.STRING).collectAsList
+        nTuples += resList.size()
+        resListStr += asScalaBuffer(resList).mkString("\n")
+      }
       TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/result/query${nQuery}.csv", resListStr)
       successful = true
       println(s"END: run query $nQuery" )
