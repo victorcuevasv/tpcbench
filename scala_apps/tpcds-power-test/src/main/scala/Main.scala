@@ -204,7 +204,7 @@ object TpcdsBench extends App {
     var nSubQuery = 1
     for (nQuery <- queryNums) {
       val queryStr = queriesMap(s"query${nQuery}")
-      val subQueries = queryStr.split(";")
+      val subQueries = queryStr.split(";").map(_.trim).filter(_.length > 0)
       for( subQueryStr <- subQueries ) {
         runQuery(testName, subQueryStr, resultsLocation, resultsDir, system, nSubQuery, 1, recorder)
         nSubQuery += 1
