@@ -201,8 +201,14 @@ object TpcdsBench extends App {
     recorder.header()
     val queriesMap = Class.forName(s"TPCDS_Queries${scaleFactor}GB").getDeclaredConstructor().newInstance().asInstanceOf[TPCDS_Queries].getTpcdsQueriesMap()
     val queryNums = queriesMap.keys.toList.map(_.replace("query", "")).map(_.toInt).sorted
+    var nSubQuery = 1
     for (nQuery <- queryNums) {
-      runQuery(testName, queriesMap(s"query${nQuery}"), resultsLocation, resultsDir, system, nQuery, 1, recorder)
+      val queryStr = queriesMap(s"query${nQuery}")
+      val subQueries = queryStr.split(";")
+      for( subQueryStr <- subQueries ) {
+        runQuery(testName, subQueryStr, resultsLocation, resultsDir, system, nSubQuery, 1, recorder)
+        nSubQuery += 1
+      }
     }
     recorder.close()
     TpcdsBenchUtil.uploadFileToS3(resultsLocation, 
