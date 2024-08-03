@@ -48,10 +48,14 @@ object TpcdsBench extends App {
   // File format to use for the tables
   var tableFormat = cmdLine.getOptionValue("table-format")
   tableFormat = if (tableFormat == null) "parquet" else tableFormat
+  // Use partitioning for fact table creation
+  var usePartitioningStr = cmdLine.getOptionValue("use-partitioning")
+  usePartitioningStr = if (usePartitioningStr == null) "true" else usePartitioningStr
+  val usePartitioning = usePartitioningStr.toBoolean
   // Output the benchmark SQL statements
-  var isOutputSqlStr = cmdLine.getOptionValue("is-output-sql")
-  isOutputSqlStr = if (isOutputSqlStr == null) "true" else isOutputSqlStr
-  val isOutputSql = isOutputSqlStr.toBoolean
+  var outputSqlStr = cmdLine.getOptionValue("output-sql")
+  outputSqlStr = if (outputSqlStr == null) "true" else outputSqlStr
+  val outputSql = outputSqlStr.toBoolean
 
   val dbName = s"tpcds_sf${scaleFactor}_${genDataTag}"
   val rawLocation = TpcdsBenchUtil.addPathToURI(rawBaseURL, s"${scaleFactor}GB")
@@ -72,8 +76,8 @@ object TpcdsBench extends App {
     "web_sales" -> "ws_sold_date_sk"
   )
 
-  runTests(dbName, flags, scaleFactor, rawLocation, whLocation, resultsLocation, partitionKeys, tableFormat,
-      resultsDir, system)
+  runTests(dbName, flags, scaleFactor, rawLocation, whLocation, resultsLocation, partitionKeys, usePartitioning,
+      tableFormat, resultsDir, system)
 
   def parseArgs(args: Array[String]) : CommandLine = {
 		var cmdLine : CommandLine = null
@@ -98,7 +102,7 @@ object TpcdsBench extends App {
   }
 
   def sqlStmt(stmt: String) : Unit = { 
-    if( isOutputSql )
+    if( outputSql )
       println(stmt)
     try {
       spark.sql(stmt)
@@ -111,22 +115,22 @@ object TpcdsBench extends App {
   }
 
   def runTests(dbName: String, flags: String, scaleFactor: Integer, rawLocation: String, whLocation: String,
-    resultsLocation: String, partitionKeys: Map[String, String], tableFormat: String, resultsDir: String,
-    system: String) = {
+    resultsLocation: String, partitionKeys: Map[String, String], usePartitioning: Boolean, tableFormat: String,
+    resultsDir: String, system: String) = {
     println(s"Running the TPC-DS benchmark at the ${scaleFactor} scale factor.")
     if ( flags.charAt(0) == '1' )
-      createDatabase(dbName)
+      createDatabase(dbName, whLocation)
     if ( flags.charAt(1) == '1')
       runLoadTest("load", 1, dbName, scaleFactor, rawLocation, whLocation, resultsLocation, partitionKeys,
-        tableFormat, resultsDir, system)
+        usePartitioning, tableFormat, resultsDir, system)
     if ( flags.charAt(2) == '1')
       runPowerTest("power", dbName, resultsDir, resultsLocation, scaleFactor, 1, system) 
   }
 
-  def createDatabase(dbName: String) = {
+  def createDatabase(dbName: String, whLocation: String) = {
     println(s"Creating database ${dbName}.")
     sqlStmt(s"DROP DATABASE IF EXISTS ${dbName}")
-    sqlStmt(s"CREATE DATABASE IF NOT EXISTS ${dbName}")
+    sqlStmt(s"CREATE DATABASE IF NOT EXISTS ${dbName} LOCATION ${whLocation}")
   }
 
   def useDatabase(dbName: String) = {
@@ -134,8 +138,8 @@ object TpcdsBench extends App {
   }
 
   def runLoadTest(testName: String, instance: Integer, dbName: String, scaleFactor: Integer, rawLocation: String,
-    whLocation: String, resultsLocation: String, partitionKeys: Map[String, String], tableFormat: String,
-    resultsDir: String, system: String) = {
+    whLocation: String, resultsLocation: String, partitionKeys: Map[String, String], usePartitioning: Boolean,
+    tableFormat: String, resultsDir: String, system: String) = {
     println(s"Running the TPC-DS benchmark load test at the ${scaleFactor} scale factor.")
     useDatabase(dbName)
     val schemasMap = new TPCDS_Schemas().tpcdsSchemasMap
@@ -152,8 +156,8 @@ object TpcdsBench extends App {
     recorder.header()
     var query = 1
     for (tableName <- tableNames) {
-      loadTable(testName, tableName, schemasMap(tableName), rawLocation, whLocation, resultsLocation, partitionKeys, tableFormat,
-        resultsDir, system, query, 1, recorder)
+      loadTable(testName, tableName, schemasMap(tableName), rawLocation, whLocation, resultsLocation, partitionKeys,
+        usePartitioning, tableFormat, resultsDir, system, query, 1, recorder)
       query += 1
     }
     recorder.close()
@@ -162,8 +166,8 @@ object TpcdsBench extends App {
   }
 
   def loadTable(testName: String, tableName: String, schema: String, rawLocation: String, whLocation: String,
-    resultsLocation: String, partitionKeys: Map[String, String], tableFormat: String, resultsDir: String,
-    system: String, query: Integer, run: Integer, recorder: AnalyticsRecorder) = {
+    resultsLocation: String, partitionKeys: Map[String, String], usePartitioning: Boolean, tableFormat: String,
+    resultsDir: String, system: String, query: Integer, run: Integer, recorder: AnalyticsRecorder) = {
     var successful = false
     val startTime = System.currentTimeMillis()
     try {
@@ -174,7 +178,7 @@ object TpcdsBench extends App {
       val createWhStmt = genWarehouseTableStmt(tableName, schema, whLocation, partitionKeys, tableFormat)
       TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/warehouse/${tableName}.sql", createWhStmt)
       sqlStmt(createWhStmt, s"create $tableName", s"create table $tableName")
-      val insertStmt = genInsertStmt(tableName, schema, partitionKeys)
+      val insertStmt = genInsertStmt(tableName, schema, partitionKeys, usePartitioning)
       TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/insert/${tableName}.sql", insertStmt)
       sqlStmt(insertStmt, s"insert $tableName", s"insert into $tableName")
       successful = true
@@ -289,7 +293,7 @@ object TpcdsBench extends App {
   }
 
   // Generate a SQL statement to insert the data from the external table into the warehouse table
-  def genInsertStmt(tableName: String, schema: String, partitionKeys: Map[String, String]) = {
+  def genInsertStmt(tableName: String, schema: String, partitionKeys: Map[String, String], usePartitioning: Boolean) = {
     var sb = new StringBuilder(s"INSERT OVERWRITE TABLE ${tableName} SELECT")
     // If the table is partitioned, the attributes need to be listed with the partition attributes at the end
     if (partitionKeys.contains(tableName)) {
