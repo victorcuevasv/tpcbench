@@ -285,7 +285,7 @@ object TpcdsBench extends App {
     sb ++= s"""
     )
     USING ${tableFormat}
-    OPTIONS('compression'='gzip')
+    OPTIONS('compression'='snappy')
     """
     if (partitionKeys.contains(tableName)) sb ++= s"PARTITIONED BY (${partitionKeys(tableName)})\n"
     sb ++= s"LOCATION '${whLocation}/${tableName}'"
