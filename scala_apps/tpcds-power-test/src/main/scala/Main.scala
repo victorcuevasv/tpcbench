@@ -130,7 +130,7 @@ object TpcdsBench extends App {
   def createDatabase(dbName: String, whLocation: String) = {
     println(s"Creating database ${dbName}.")
     sqlStmt(s"DROP DATABASE IF EXISTS ${dbName}")
-    sqlStmt(s"CREATE DATABASE IF NOT EXISTS ${dbName} LOCATION ${whLocation}")
+    sqlStmt(s"CREATE DATABASE IF NOT EXISTS ${dbName} LOCATION '${whLocation}'")
   }
 
   def useDatabase(dbName: String) = {
