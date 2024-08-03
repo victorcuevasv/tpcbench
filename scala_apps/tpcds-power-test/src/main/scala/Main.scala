@@ -175,10 +175,10 @@ object TpcdsBench extends App {
       val createExtStmt = genExtTableStmt(tableName, schema, rawLocation)
       TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/external/${tableName}.sql", createExtStmt)
       sqlStmt(createExtStmt, s"create ext $tableName", s"create external table $tableName")
-      val createWhStmt = genWarehouseTableStmt(tableName, schema, whLocation, partitionKeys, tableFormat)
+      val createWhStmt = genWarehouseTableStmt(tableName, schema, whLocation, partitionKeys, usePartitioning, tableFormat)
       TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/warehouse/${tableName}.sql", createWhStmt)
       sqlStmt(createWhStmt, s"create $tableName", s"create table $tableName")
-      val insertStmt = genInsertStmt(tableName, schema, partitionKeys, usePartitioning)
+      val insertStmt = genInsertStmt(tableName, schema, partitionKeys, usePartitioning, tableFormat)
       TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/insert/${tableName}.sql", insertStmt)
       sqlStmt(insertStmt, s"insert $tableName", s"insert into $tableName")
       successful = true
@@ -279,7 +279,7 @@ object TpcdsBench extends App {
 
   // Generate a SQL statement to create a warehouse table to store the data in the desired format
   def genWarehouseTableStmt(tableName: String, schema: String, whLocation: String, 
-    partitionKeys: Map[String, String], tableFormat: String) = {
+    partitionKeys: Map[String, String], usePartitioning: Boolean, tableFormat: String) = {
     var sb = new StringBuilder(s"CREATE TABLE ${tableName}\n(\n")
     sb ++= parseSchemaFromSQL(schema).map(t=> s"    ${t._1} ${t._2}").mkString(",\n")
     sb ++= s"""
@@ -287,16 +287,17 @@ object TpcdsBench extends App {
     USING ${tableFormat}
     OPTIONS('compression'='snappy')
     """
-    if (partitionKeys.contains(tableName)) sb ++= s"PARTITIONED BY (${partitionKeys(tableName)})\n"
+    if (usePartitioning && partitionKeys.contains(tableName)) sb ++= s"PARTITIONED BY (${partitionKeys(tableName)})\n"
     sb ++= s"LOCATION '${whLocation}/${tableName}'"
     sb.toString()
   }
 
   // Generate a SQL statement to insert the data from the external table into the warehouse table
-  def genInsertStmt(tableName: String, schema: String, partitionKeys: Map[String, String], usePartitioning: Boolean) = {
+  def genInsertStmt(tableName: String, schema: String, partitionKeys: Map[String, String], usePartitioning: Boolean,
+    tableFormat: String) = {
     var sb = new StringBuilder(s"INSERT OVERWRITE TABLE ${tableName} SELECT")
     // If the table is partitioned, the attributes need to be listed with the partition attributes at the end
-    if (partitionKeys.contains(tableName)) {
+    if (usePartitioning && tableFormat.equals("parquet") && partitionKeys.contains(tableName)) {
       sb ++= "\n"                                            // Add a new line if we have to list the attributes
       sb ++= parseSchemaFromSQL(schema)                   // Get the list of attributes
       .map(_._1)                                             // Select only the attribute names
