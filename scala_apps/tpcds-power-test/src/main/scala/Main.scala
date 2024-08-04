@@ -323,7 +323,7 @@ object TpcdsBench extends App {
     val queryStr = s"SELECT * FROM ${tableName}_ext"
     val df = spark.sql(queryStr)
     // If the table is partitioned add a partitioning command
-    if (partitionKeys.contains(tableName)) {
+    if (usePartitioning && partitionKeys.contains(tableName)) {
       df.write.mode("append").format("delta").partitionBy(partitionKeys(tableName)).option("optimizeWrite", "True").saveAsTable(tableName)
     }
     else {
