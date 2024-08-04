@@ -320,7 +320,7 @@ object TpcdsBench extends App {
   // Use dataframe write to enable the use of optimzeWrite for Delta
   def insertDataDelta(tableName: String, partitionKeys: Map[String, String], usePartitioning: Boolean,
     tableFormat: String) = {
-    val queryStr = s"SELECT * FROM ${tableName}"
+    val queryStr = s"SELECT * FROM ${tableName}_ext"
     val df = spark.sql(queryStr)
     // If the table is partitioned add a partitioning command
     if (partitionKeys.contains(tableName)) {
