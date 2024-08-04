@@ -1,5 +1,8 @@
-# Run all tests with us-east-1 (Northern Virginia) buckets
+# Run all tests with us-east-1 (Northern Virginia) buckets using parquet tables
 spark-submit --deploy-mode client --class TpcdsBench tpcds-power-test-assembly-1.0.jar --scale-factor 1 --raw-base-url s3://tpcds-data-1713123644/ --warehouse-base-url s3://tpcds-warehouses-1713123644 --results-base-url s3://tpcds-results-1713123644/ --table-format parquet --use-partitioning false
+
+# Run all tests with us-east-1 (Northern Virginia) buckets using delta tables
+spark-submit --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog" --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --deploy-mode client --class TpcdsBench tpcds-power-test-assembly-1.0.jar --scale-factor 1 --raw-base-url s3://tpcds-data-1713123644/ --warehouse-base-url s3://tpcds-warehouses-1713123644 --results-base-url s3://tpcds-results-1713123644/ --table-format parquet --use-partitioning false
 
 # Run power test over existing database with us-east-1 (Northern Virginia) buckets
 spark-submit --deploy-mode client --class TpcdsBench tpcds-power-test-assembly-1.0.jar --scale-factor 1 --raw-base-url s3://tpcds-data-1713123644/ --warehouse-base-url s3://tpcds-warehouses-1713123644 --results-base-url s3://tpcds-results-1713123644/ --table-format parquet --gen-data-tag 1721391475 --exec-flags 001 

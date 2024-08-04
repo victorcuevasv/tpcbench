@@ -178,9 +178,14 @@ object TpcdsBench extends App {
       val createWhStmt = genWarehouseTableStmt(tableName, schema, whLocation, partitionKeys, usePartitioning, tableFormat)
       TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/warehouse/${tableName}.sql", createWhStmt)
       sqlStmt(createWhStmt, s"create $tableName", s"create table $tableName")
-      val insertStmt = genInsertStmt(tableName, schema, partitionKeys, usePartitioning, tableFormat)
-      TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/insert/${tableName}.sql", insertStmt)
-      sqlStmt(insertStmt, s"insert $tableName", s"insert into $tableName")
+      if( tableFormat.equals("delta") ) {
+        insertDataDelta(tableName, partitionKeys, usePartitioning, tableFormat)
+      }
+      else {
+        val insertStmt = genInsertStmt(tableName, schema, partitionKeys, usePartitioning, tableFormat)
+        TpcdsBenchUtil.saveStringToS3(resultsLocation, s"${testName}/insert/${tableName}.sql", insertStmt)
+        sqlStmt(insertStmt, s"insert $tableName", s"insert into $tableName")
+      }
       successful = true
       println(s"END: load table $tableName" )
     }
@@ -292,6 +297,7 @@ object TpcdsBench extends App {
     sb.toString()
   }
 
+  // NOTE : insert statements do not allow the use of optimizeWrite for Delta
   // Generate a SQL statement to insert the data from the external table into the warehouse table
   def genInsertStmt(tableName: String, schema: String, partitionKeys: Map[String, String], usePartitioning: Boolean,
     tableFormat: String) = {
@@ -311,6 +317,19 @@ object TpcdsBench extends App {
     sb.toString()
   }
   
+  // Use dataframe write to enable the use of optimzeWrite for Delta
+  def insertDataDelta(tableName: String, partitionKeys: Map[String, String], usePartitioning: Boolean,
+    tableFormat: String) = {
+    val queryStr = s"SELECT * FROM ${tableName}"
+    val df = spark.sql(queryStr)
+    // If the table is partitioned add a partitioning command
+    if (partitionKeys.contains(tableName)) {
+      df.write.mode("append").format("delta").partitionBy(partitionKeys(tableName)).option("optimizeWrite", "True").saveAsTable(tableName)
+    }
+    else {
+      df.write.mode("append").format("delta").option("optimizeWrite", "True").saveAsTable(tableName)
+    }
+  }
 
 }
 
